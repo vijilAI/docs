@@ -3,13 +3,13 @@
 * [Vijil Documentation](README.md)
 * [Getting Started](getting-started.md)
 
-## Concepts
+## 📚 Concepts
 
 * [Agents](concepts/agents.md)
 * [Red Teaming](concepts/red-teaming.md)
 * [Blue Teaming](concepts/blue-teaming.md)
 
-## Tests Library
+## ⚙ Tests Library
 
 * [Security](tests-library/security/README.md)
   * [DAN](tests-library/security/dan.md)
@@ -37,7 +37,7 @@
   * [Targeted](tests-library/stereotype/targeted.md)
 * [OWASP LLM Top 10](tests-library/owasp-llm-top-10.md)
 
-## Python SDK
+## 👩💻 Python SDK
 
 * [Introduction](python-sdk/introduction.md)
 * [Tests](python-sdk/tests.md)
@@ -45,11 +45,11 @@
 * [Harnesses](python-sdk/harnesses.md)
 * [Reporting](python-sdk/reporting.md)
 
-## CLI
+## 💻 CLI
 
 * [Commands](cli/commands.md)
 
-## Guides
+## 📖 Guides
 
 * [Run your First Test](guides/run-your-first-test.md)
 * [Custom Tests](guides/custom-tests.md)
