@@ -25,7 +25,7 @@ Vijil supports a number of LLM providers. If you want to use our tool on models 
 
 We use environment variables for key management. You can export keys into environment variables through either CLI, or set them manually.
 
-```
+```bash
 export KEY_NAME="key-string"
 ```
 
