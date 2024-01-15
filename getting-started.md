@@ -1,10 +1,10 @@
 # Getting Started
 
-Let's begin by preparing your environment to run Vijil services.
+Let's begin by preparing your environment.
 
 ## Installation
 
-We begin by installing libraries necessary to run our services.
+We first install libraries necessary to run Vijil services.
 
 ```bash
 pip install autoredteam vijil_cli
@@ -15,7 +15,6 @@ pip install autoredteam vijil_cli
 Vijil supports a number of LLM providers. If you want to use our tool on models deployed with them, make sure to create an account have API keys handy for the respective provider.
 
 * Anyscale
-* Cohere
 * Hugging Face
 * OctoAI
 * OpenAI
@@ -29,6 +28,13 @@ We use environment variables for key management. You can export keys into enviro
 export KEY_NAME="key-string"
 ```
 
-<table><thead><tr><th width="306">Service</th><th>KEY_NAME</th></tr></thead><tbody><tr><td>Vijil</td><td><code>VIJIL_AUTH_TOKEN</code></td></tr><tr><td>Anyscale</td><td><code>ANYSCALE_API_TOKEN</code></td></tr><tr><td>Cohere</td><td><code>COHERE_API_TOKEN</code></td></tr><tr><td>Hugging Face</td><td><code>HF_INFERENCE_TOKEN</code></td></tr><tr><td>OctoAI</td><td><code>OCTO_API_TOKEN</code></td></tr><tr><td>OpenAI</td><td><code>OPENAI_API_TOKEN</code></td></tr><tr><td>Replicate</td><td><code>REPLICATE_API_TOKEN</code></td></tr></tbody></table>
+| Service | `KEY_NAME` |
+|---|---|
+| Vijil | `VIJIL_AUTH_TOKEN` |
+| Anyscale | `ANYSCALE_API_TOKEN` |
+| Hugging Face | `HF_INFERENCE_TOKEN` |
+| OctoAI | `OCTO_API_TOKEN` |
+| OpenAI | `OPENAI_API_TOKEN` |
+| Replicate | `REPLICATE_API_TOKEN` |
 
 Alternatively, you can store the API keys in a `.env` file that can be picked up by your Python client using the [`dotenv`](https://pypi.org/project/python-dotenv/) library.
