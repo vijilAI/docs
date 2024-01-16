@@ -9,11 +9,45 @@ Welcome to Vijil! This documentation will help you get started with using Vijil'
 - A list of the adversarial and benign tests covered by Vijil's Automated Red Teaming (ART) test suite,
 - Fnctionalities and working examples of our Command Line Interface (CLI) and Python SDK.
 
-## Features
+## Usage
 
-- blah
-- blah2
-- blah3
+Once you've gone through the [setup](getting-started) and stored API keys, running Vijil services is simple.
+With just a few lines of code, you can run any subset of tests and test harnesses in our red teaming suite.
+
+For example, you can use the following code to run all security-specific tests, on a quantized version of Mistral-7B-Instruct-v0.1
+available on [OctoAI](https://octoai.cloud/).
+
+
+````{tab} CLI
+```bash
+vijil run --model-type octo \
+   --model-name mistral-7b-instruct-fp16 \
+   --dimension Security \
+   --generations 2
+```
+
+````
+
+````{tab} Python 
+```python
+from autoredteam.agents.octo import OctoAPI
+from autoredteam.harnesses.dimension import SecurityHarness
+
+agent = OctoAPI(name="mistral-7b-instruct-fp16", generations=10)
+harness = SecurityHarness()
+harness.run(agent)
+```
+
+````
+
+<!-- ````{tab} cURL
+```bash
+Hello World!
+```
+
+```` -->
+
+Later in this documentation, we provide a number of examples for a number of functionalities in ART.
 
 
 ```{eval-rst}
@@ -63,6 +97,15 @@ Welcome to Vijil! This documentation will help you get started with using Vijil'
 .. toctree::
    :hidden:
    :maxdepth: 1
+   :caption: CLI
+
+   cli/commands
+```
+
+```{eval-rst}
+.. toctree::
+   :hidden:
+   :maxdepth: 1
    :caption: Python SDK
 
    python-sdk/introduction
@@ -76,9 +119,10 @@ Welcome to Vijil! This documentation will help you get started with using Vijil'
 .. toctree::
    :hidden:
    :maxdepth: 1
-   :caption: CLI
+   :caption: Guides
 
-   cli/commands
+   guides/run-your-first-test
+   guides/custom-tests
 ```
 
 ## About Vijil
@@ -89,10 +133,10 @@ To build a trustworthy agent, you must build trust into the AI models that it us
 
 Vijil helps organizations that are adapting open-source AI models to new domains, tasks, and facts. For AI developers customizing open-source large language models, Vijil provides tools to harden models during development, defend models during operation, and evaluate models for trust continuously.
 
-## Indices and tables
+<!-- ## Indices and tables
 
 ```{eval-rst}
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-```
+``` -->

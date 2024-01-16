@@ -14,10 +14,3 @@ digest = report.compile_digest(report_filename)
 with open(digest_filename, "w", encoding="utf-8") as f:
     f.write(digest)
 ```
-
-```{eval-rst}
-.. automodule:: autoredteam.analyze.report
-   :members:
-   :show-inheritance:
-   :member-order: bysource
-```

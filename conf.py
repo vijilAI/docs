@@ -19,6 +19,7 @@ extensions = [
     # Our custom extension, only meant for Furo's own documentation.
     # External stuff
     "myst_parser",
+    "sphinx_inline_tabs",
 ]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
