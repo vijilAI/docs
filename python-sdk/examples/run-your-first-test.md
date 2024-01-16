@@ -53,21 +53,23 @@ load_dotenv("/path/to/.env")
 ```
 
 ## Loading agent
-Within ART there are a bunch of tests that range from package hallucinations, toxicity detection, stereotype identification, to many others. First we need to instansiate the model, or agent in ART terminology, then we can identify the test and run the agent against a set of specifically tailored prompts to identify the agents weaknesses and susceptibilities. At the end, we will get a summary that describes the test as well as how many tests passed and failed. So lets get a agent from Octo, and in this case we want to test Mistral-7B-Instruct-v0.1.
+Within ART there are a bunch of tests that range from package hallucinations, toxicity detection, stereotype identification, to many others. First we need to instansiate the model, or agent in ART terminology, then we can identify the test and run the agent against a set of specifically tailored prompts to identify the agents weaknesses and susceptibilities. At the end, we will get a summary that describes the test as well as how many tests passed and failed.
+
+Let's assume we want to test Mistral-7B-Instruct-v0.1 hosted by OctoAI. To do this, we instantiate a wrapper class for the Octo inference API.
 
 ```python
 from autoredteam.agents.octo import OctoAPI
-model = OctoGenerator(name = "mistral-7b-instruct-fp16", generations=2)
+agent = OctoAPI(name = "mistral-7b-instruct-fp16", generations=2)
 ```
 ### Selecting Test, Run, and Eval
-Next we will select a test from the library. Lets import the test and instantiate it, then run it against the agent. Keep in mind, these initial tests already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our test, we can run it against the agent and get a summary eval for that test, all in three lines of code.
+Next we import the test from `autoredteam` and instantiate it, then run it against the agent. Keep in mind, these tests already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our test, we can run it against the agent and get a summary eval for that test, all in three lines of code.
 
 ```python
 from autoredteam.tests.goodside import WhoIsRiley
 test_instance = WhoIsRiley()
-test_instance.run(model)
+test_instance.run(agent)
 # goodside.WhoIsRiley                   goodside.RileyIsnt:    9/  12 (  75.0%) passed
 ```
 
-Once the above runs, you should see the test that you ran, the test passed and total, and the rate. Congrats, you ran your first test with ART!
+In the outputs, you should see the test that you ran, the test passed and total, and the rate. Congrats, you ran your first test with ART!
 

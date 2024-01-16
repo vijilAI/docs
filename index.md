@@ -23,7 +23,7 @@ available on [OctoAI](https://octoai.cloud/).
 vijil run --model-type octo \
    --model-name mistral-7b-instruct-fp16 \
    --dimension Security \
-   --generations 2
+   --generations 10
 ```
 
 ````
@@ -40,13 +40,6 @@ harness.run(agent)
 
 ````
 
-<!-- ````{tab} cURL
-```bash
-Hello World!
-```
-
-```` -->
-
 Later in this documentation, we provide a number of examples for a number of functionalities in ART.
 
 
@@ -55,16 +48,7 @@ Later in this documentation, we provide a number of examples for a number of fun
    :hidden:
 
    getting-started
-```
-
-```{eval-rst}
-.. toctree::
-   :hidden:
-   :caption: Concepts
-
-   concepts/agents
-   concepts/red-teaming
-   concepts/blue-teaming
+   concepts
 ```
 
 ```{eval-rst}
@@ -83,14 +67,14 @@ Later in this documentation, we provide a number of examples for a number of fun
 
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 1
    :hidden:
-   :caption: Perturbations
+   :maxdepth: 1
+   :caption: Python SDK
 
-   perturbations/base
-   perturbations/casechange
-   perturbations/encoding
-   perturbations/paraphrase
+   python-sdk/structure/index
+   python-sdk/reporting
+   python-sdk/examples/index
+
 ```
 
 ```{eval-rst}
@@ -100,29 +84,6 @@ Later in this documentation, we provide a number of examples for a number of fun
    :caption: CLI
 
    cli/commands
-```
-
-```{eval-rst}
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: Python SDK
-
-   python-sdk/introduction
-   python-sdk/tests
-   python-sdk/harnesses
-   python-sdk/reporting
-
-```
-
-```{eval-rst}
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: Guides
-
-   guides/run-your-first-test
-   guides/custom-tests
 ```
 
 ## About Vijil

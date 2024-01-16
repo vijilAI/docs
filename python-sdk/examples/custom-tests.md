@@ -1,6 +1,6 @@
 <!-- TODO: add notebook to docs repo -->
 
-# Writing custom tests
+# Writing Custom Tests
 
 You can also create custom tests with AutoRedTeam. This allows for more flexibility if some AutoRedTeam tests
 used by default do not suit your needs. While this is a bit more advanced than the previous example,
@@ -45,10 +45,12 @@ custom_test = Test(
 )
 ```
 
-That's it, we're now ready to run our test!
+That's it, we're now ready to run our test! To do this, we use a Mistral-7B model off OctoAI as before.
 
 ```python
-custom_test.run(model)
+from autoredteam.agents.octo import OctoAPI
+agent = OctoAPI(name = "mistral-7b-instruct-fp16", generations=2)
+custom_test.run(agent)
 # FirstPresident                    base.StringAbsenceDetector:   12/  12 ( 100.0%) passed
 ```
 
