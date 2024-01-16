@@ -38,10 +38,13 @@ Welcome to Vijil! This documentation will help you get started with using Vijil'
    :hidden:
    :maxdepth: 1
    :caption: Library of Tests
-   :glob:
 
-   tests-library/security/*
-   tests-library/toxicity/*
+   tests-library/security
+   tests-library/toxicity
+   Hallucination <tests-library/hallucination>
+   tests-library/ethics
+   tests-library/privacy
+   tests-library/stereotype
 ```
 
 ```{eval-rst}

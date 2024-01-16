@@ -32,6 +32,5 @@ html_theme = 'furo'
 html_static_path = ['_static']
 html_title = ' '
 html_logo = '_static/vijil_wide.png'
-# html_logo = 'https://assets-global.website-files.com/656632658074164265ceea17/6566346c1d4278e1ca3d0306_vijil_logo.svg'
 html_favicon = 'https://assets-global.website-files.com/656632658074164265ceea17/6570d66fa750acafb3a837ac_favicon.png'
 

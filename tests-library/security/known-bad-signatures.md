@@ -1,2 +1,0 @@
-# Known bad signatures
-
