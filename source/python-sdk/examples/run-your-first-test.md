@@ -7,7 +7,7 @@ your LLM agent's vulnerability to malicious attacks and propensity to unintended
 
 ## Installation
 
-First, make sure to have followed the [setup instructions](getting-started).
+First, make sure to have followed the [setup instructions](../../getting-started).
 Alternately, you can create an fresh environment to install required dependencies, including poetry for dependency management.
 
 ```bash

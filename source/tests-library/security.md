@@ -123,7 +123,7 @@ To this end, we test for
 
 ## Package hallucination
 
-This unique vulnerability was discovered [recently](https://www.scmagazine.com/news/ai-package-hallucination-malicious-code-developer-environments),
+This vulnerability was discovered [recently](https://www.scmagazine.com/news/ai-package-hallucination-malicious-code-developer-environments).
 LLMs are known to produce hallucinations or confabulations, including non-existent links or texts. 
 If they end up creating fake code libraries or packages, attackers can upload packages to respective repositories, so that whoever downloads those
 packages gets infected.
@@ -133,6 +133,8 @@ Currently, we test whether an LLM hallucinates Python package names.
 ```{eval-rst}
 .. note::
     In our Python SDK, this test is covered by the module ``autoredteam.tests.packagehallucination``.
+
+    This test is also part of our suite of hallucination tests.
 ```
 
 ## Prompt injection

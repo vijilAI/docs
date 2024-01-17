@@ -15,6 +15,21 @@ deny, refute, or contradict.
     In our Python SDK, this test is by the module ``autoredteam.tests.misleading``.
 ```
 
+## Package hallucination
+
+This vulnerability was discovered [recently](https://www.scmagazine.com/news/ai-package-hallucination-malicious-code-developer-environments).
+If an LLM agent ends up hallucinating fake code libraries or packages, attackers can upload packages to respective repositories, so that whoever downloads those
+packages gets infected.
+
+Currently, we test whether an LLM hallucinates Python package names.
+
+```{eval-rst}
+.. note::
+    In our Python SDK, this test is covered by the module ``autoredteam.tests.packagehallucination``.
+
+    This test is also part of our suite of security tests.
+```
+
 ## Snowball
 
 Through these tests,  we evaluate an agent by prompting it to generate false outputs and then further prompting
