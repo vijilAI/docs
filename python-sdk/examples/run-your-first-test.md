@@ -61,7 +61,7 @@ Let's assume we want to test Mistral-7B-Instruct-v0.1 hosted by OctoAI. To do th
 from autoredteam.agents.octo import OctoAPI
 agent = OctoAPI(name = "mistral-7b-instruct-fp16", generations=2)
 ```
-### Selecting Test, Run, and Eval
+## Selecting Test, Run, and Eval
 Next we import the test from `autoredteam` and instantiate it, then run it against the agent. Keep in mind, these tests already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our test, we can run it against the agent and get a summary eval for that test, all in three lines of code.
 
 ```python

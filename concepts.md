@@ -1,6 +1,6 @@
 # Concepts
 
-## Agents
+## AI Agents
 
 ## Red Teaming
 
