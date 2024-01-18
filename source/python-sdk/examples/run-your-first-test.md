@@ -1,8 +1,8 @@
 # Run your First Test
 
-<!-- <a target="_blank" href="https://colab.research.google.com/github/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/model_monitoring/model_monitoring.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/vijilAI/docs/blob/main/notebooks/run-your-first-test.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a> -->
+</a>
 
 This is an example of using AutoRedTeam in an SDK style where with only a few lines of code you can determine
 your LLM agent's vulnerability to malicious attacks and propensity to unintended harms.

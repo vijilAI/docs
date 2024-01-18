@@ -1,6 +1,8 @@
-<!-- TODO: add notebook to docs repo -->
-
 # Writing Custom Tests
+
+<a target="_blank" href="https://colab.research.google.com/github/vijilAI/docs/blob/main/notebooks/custom-tests.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 You can also create custom tests with AutoRedTeam. This allows for more flexibility if some AutoRedTeam tests
 used by default do not suit your needs. While this is a bit more advanced than the previous example,
