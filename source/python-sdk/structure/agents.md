@@ -19,7 +19,7 @@ Anyscale private endpoints are invite-only. You can use the `anyscale.AnyscaleAP
 
 ```python
 from autoredteam.agents.anyscale import AnyscaleAPI
-agent = InferenceAPI(name="meta-llama/Llama-2-7b-chat-hf")
+agent = AnyscaleAPI(name="meta-llama/Llama-2-7b-chat-hf")
 ```
 
 ### Hugging Face

@@ -7,7 +7,7 @@
 Welcome to Vijil! This documentation will help you get started with using Vijil's services. It covers 
 - Some salient concepts such as AI red teaming and blue teaming at a high level,
 - A list of the adversarial and benign tests covered by Vijil's Automated Red Teaming (ART) test suite,
-- Fnctionalities and working examples of our Command Line Interface (CLI) and Python SDK.
+- Functionalities and working examples of our Command Line Interface (CLI) and Python SDK.
 
 ## Usage
 
@@ -17,16 +17,6 @@ With just a few lines of code, you can run any subset of tests and test harnesse
 For example, you can use the following code to run all security-specific tests on Mistral-7B-Instruct-v0.1
 available through [OctoAI](https://octoai.cloud/).
 
-
-````{tab} CLI
-```bash
-vijil run --model-type octo \
-   --model-name mistral-7b-instruct-fp16 \
-   --dimension Security \
-   --generations 10
-```
-
-````
 
 ````{tab} Python 
 ```python
@@ -40,7 +30,17 @@ harness.run(agent)
 
 ````
 
-Later in this documentation, we provide a number of examples for a number of functionalities in ART.
+````{tab} CLI
+```bash
+vijil run --model-type octo \
+   --model-name mistral-7b-instruct-fp16 \
+   --dimension Security \
+   --generations 10
+```
+
+````
+
+Later in this documentation, we provide examples for a number of functionalities in ART.
 
 
 ```{eval-rst}

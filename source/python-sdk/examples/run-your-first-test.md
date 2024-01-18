@@ -1,5 +1,3 @@
-<!-- TODO: add notebook to docs repo -->
-
 # Run your First Test
 
 <!-- <a target="_blank" href="https://colab.research.google.com/github/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/model_monitoring/model_monitoring.ipynb">

@@ -30,7 +30,7 @@ base prompt that can be used to test for consistency of outputs.
 
 - `PegasusT5`: uses the [Pegasus](https://huggingface.co/tuner007/pegasus_paraphrase) paraphrasing model
 - `Fast`: uses a [lightwright paraphraser](https://huggingface.co/humarin/chatgpt_paraphraser_on_T5_base) trained on a
-ChatGPT paraphrase dataset.
+ChatGPT paraphrase dataset (coming soon!)
 
 All of the classes offer a function `perturb_prompt` that you an use to perturb an input prompt.
 [Later](../examples/custom-tests) we show how to write a custom test that checks for factuality on multiple paraphrases
