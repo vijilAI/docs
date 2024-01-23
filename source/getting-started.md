@@ -7,8 +7,7 @@ Let's begin by preparing your environment.
 We first install libraries necessary to run Vijil services.
 
 ```bash
-pip install vijil_cli
-pip install git+https://github.com/vijilAI/autoredteam.git
+pip install autoredteam vijil_cli
 ```
 
 ## Model Providers

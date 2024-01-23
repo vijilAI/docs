@@ -7,7 +7,7 @@
 Welcome to Vijil! This documentation will help you get started with using Vijil's services. It covers 
 - Some salient concepts such as AI red teaming and blue teaming at a high level,
 - A list of the adversarial and benign tests covered by Vijil's Automated Red Teaming (ART) test suite,
-- Functionalities and working examples of our Command Line Interface (CLI) and Python SDK.
+- Functionalities and working examples of our Python SDK and Command Line Interface (CLI).
 
 ## Usage
 
