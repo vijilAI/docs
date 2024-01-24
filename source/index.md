@@ -24,8 +24,8 @@ from autoredteam.agents.octo import OctoAPI
 from autoredteam.harnesses.dimension import SecurityHarness
 
 agent = OctoAPI(name="mistral-7b-instruct-fp16", generations=10)
-harness = SecurityHarness()
-harness.run(agent)
+harness = SecurityHarness(agent)
+harness.run()
 ```
 
 ````
