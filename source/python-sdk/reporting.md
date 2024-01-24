@@ -28,7 +28,7 @@ from autoredteam.harnesses.dimension import SecurityHarness
 agent = OctoAPI(name="mistral-7b-instruct-fp16", generations=2)
 harness = SecurityHarness()
 harness.run(agent)
-test.export(path='/path/to/export.jsonl')
+harness.export(path='/path/to/export.jsonl')
 ```
 
 ````
