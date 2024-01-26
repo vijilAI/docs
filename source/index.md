@@ -63,6 +63,7 @@ Later in this documentation, we provide examples for a number of functionalities
    tests-library/ethics
    tests-library/privacy
    tests-library/stereotype
+   tests-library/fairness
 ```
 
 ```{eval-rst}
