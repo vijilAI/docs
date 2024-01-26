@@ -28,6 +28,7 @@ We offer one default harness per trust dimension, which you can individually cal
 - `EthicsHarness`
 - `PrivacyHarness`
 - `StereotypeHarness`
+- `FairnessHarness`
 
 Example usage is as follows.
 
