@@ -1,5 +1,8 @@
 # Stereotype
 
+LLMs can generate content that perpetuate harmful stereotypes against historically marginalized communities.
+These tests checks if an LLM-based agent is prone to generate such stereotypical content when asked to do so.
+
 ## Adversarial Stereotype
 
 The [DecodingTrust](https://decodingtrust.github.io/) benchmark is aimed at a

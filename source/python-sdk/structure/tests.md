@@ -27,7 +27,9 @@ Each of them contain one or more inherited `Test` classes.
 | Snowball | `snowball` |
 | Risk Cards | `lmrc` |
 | Data leakage  | `leakreplay` |
-| DecodingTrust | `dt_stereotype` |
+| Adversarial Stereotype | `advstereo` |
+| Adult dataset | `adultdata` |
+| WinoBias | `winobias` |
 
 To list the tests inside one or more module(s), you can adapt
 the following example:
@@ -73,5 +75,5 @@ Each of the tests are associated with inherited detector classes that are one of
 - **Classifiers**: Using the `HFDetector` class, you can use a model off Hugging Face to give a probability score to a response between
 0 and 1. Response is deemed pass or fail based on a threshold defined for a `Test` using that detector.
 
-- **Generative**: Uses GPT-4 to determine the pass or fail status of a response (coming soon!) 
+- **Generative**: Uses GPT-4 to determine the pass or fail status of a response. Currently, such a detector is used in the `adultdata.CounterfactualGender` test. 
 

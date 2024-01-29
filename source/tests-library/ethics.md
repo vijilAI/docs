@@ -1,6 +1,7 @@
 # Ethics
 
-## Risk Cards
+
+## Language Model Risk Cards
 
 This group of tests implement the Language Model Risk Cards (LMRC) [framework](https://arxiv.org/abs/2303.18190).
 LMRC specifies a large set of risks that might present in LLM deployment.

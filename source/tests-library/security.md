@@ -139,10 +139,10 @@ Currently, we test whether an LLM hallucinates Python package names.
 
 ## Prompt injection
 
-Uses 
+<!-- Uses 
 to test a system. A subset of the attacks is implemented here. The default
 is to use a selection of that subset, because even the subset corresponds to 
-thousands of requests by default.
+thousands of requests by default. -->
 
 These attacks are designed to manipulate a user prompt to make the model generate unexpected outputs,
 create malicious code, circumvent content filters, or leak sensitive data. 
@@ -161,7 +161,7 @@ In each vector, we add a suffix or prefix to the original prompt text so as to m
 
 ## Cross-site scripting
 
-Tests for vulnerabilities the permit or enact cross-site attacks, such
+This test is intended to probe for vulnerabilities the permit or enact cross-site attacks, such
 as private data exfilteration.
 
 ```{eval-rst}
