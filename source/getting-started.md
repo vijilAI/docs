@@ -12,7 +12,7 @@ pip install autoredteam vijil_cli
 
 ## Model Providers
 
-Vijil supports a number of LLM providers. If you want to use our tool on models deployed with them, make sure to create an account have API keys handy for the respective provider.
+Vijil supports a number of LLM providers. If you want to use our tool on models deployed with them, make sure to create an account and have API keys handy for the respective provider.
 
 * Anyscale
 * Hugging Face
