@@ -3,7 +3,7 @@
 The `Agent` class is intended to wrap around generic AI agents such as conversational chatbots and RAG applications.
 We currently support LLMs hosted on a number of model providers. Integrations for agent frameworks such as LangChain are coming soon!
 
-Based on the provider, deployments may be available through a public API or dedicated private endpoint.
+Based on the provider, deployments may be available through a public API or a dedicated private endpoint.
 
 ## Usage
 
