@@ -87,6 +87,15 @@ Later in this documentation, we provide examples for a number of functionalities
    cli/commands
 ```
 
+```{eval-rst}
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: AWS
+
+   aws/deployement/index
+```
+
 ## About Vijil
 
 Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.
