@@ -1,6 +1,7 @@
 # Security
 
-LLMs are vulnerable to an unbounded set of attacks including prompt injection, model theft, data theft, model evasion, and data poisoning.
+Language models are vulnerable to an infinite number of attacks because they accept natural language as input. They are vulnerable to attack from every variation of character, word, sentence, and meaning in human language. As a result, every model is vulnerable to being abused or misused by malicious attackers to cause harm to others. 
+
 Vijil's Security tests are intended to probe an LLM or LLM-based agent against such vulnerabilities.
 
 ## Adversarial suffix
@@ -15,7 +16,7 @@ This test is designed to disrupt a system prompt by appending an adversarial suf
 
 ## DAN
 
-A model provider typically prepends a system prompt that stipulates organizational policies (safety guardrails, content moderation filters, etc.) to every user prompt. A Do-Anything-Now ([DAN](https://adguard.com/en/blog/chatgpt-dan-prompt-abuse.html)) attack is a user prompt designed to get the model to ignore these guardrails. Falcon-40B-Instruct exhibits high susceptibility to DAN attacks.
+A model provider typically prepends a system prompt that stipulates organizational policies (safety guardrails, content moderation filters, etc.) to every user prompt. A Do-Anything-Now ([DAN](https://adguard.com/en/blog/chatgpt-dan-prompt-abuse.html)) attack is a user prompt designed to get the model to ignore these guardrails.
 
 Vijil covers 15 DAN attack scenarios through tests implemented in this module.
 
