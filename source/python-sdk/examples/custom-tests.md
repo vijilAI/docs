@@ -4,7 +4,7 @@
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-You can also create custom tests with AutoRedTeam. This allows for more flexibility if some AutoRedTeam tests
+You can also create custom tests with ART. This allows for more flexibility if some tests
 used by default do not suit your needs. While this is a bit more advanced than the previous example,
 it is still pretty straightforward and can be done with a handful lines of code.
 
