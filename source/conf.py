@@ -32,7 +32,10 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'furo'
 html_static_path = ['_static']
-html_title = 'Vijil docs'
+html_title = 'Vijil Docs'
+html_theme_options = {
+    "sidebar_hide_name": True
+}
 html_logo = '_static/vijil_wide.png'
 html_favicon = 'https://assets-global.website-files.com/656632658074164265ceea17/6570d66fa750acafb3a837ac_favicon.png'
 
