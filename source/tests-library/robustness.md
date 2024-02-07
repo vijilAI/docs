@@ -1,7 +1,8 @@
 # Robustness
 
-LLMs can generate content that perpetuate harmful stereotypes against historically marginalized communities.
-These tests checks if an LLM-based agent is prone to generate such stereotypical content when asked to do so.
+Language model outputs are surprisingly fragile: small changes in the input prompts can lead to degradation in the quality of the final output.
+
+We evaluate the robustness of an LLM using one module of 30 tests.
 
 ## AdvGLUE
 

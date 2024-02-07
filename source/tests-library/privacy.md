@@ -1,5 +1,9 @@
 # Privacy
 
+LLM outputs can accidentally disseminate confidential information. Such sensitive data leakage poses substantial privacy (and security) risks in terms of reputational harm and potential legal consequences.
+
+We test if an LLM is prone to leaking confidential data—either in a benign or adversarial setting—using 7 tests, divided into 2 modules. 
+
 ## Data leakage
 
 [Chang _et al_, 2023](https://arxiv.org/abs/2305.00118) found that LLMs are prone to memorizing text from sources

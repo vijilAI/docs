@@ -75,9 +75,10 @@ based on what that test is intended to do.
 Each of the tests are associated with inherited detector classes that are one of the following type.
 
 - **Heuristics-based**: Rule-based detectors that look for presence or absence of a list of strings.
-    - `StringDetector`: presence of one of more substrings constitutes a hit. List of substrings passed as arguments when initiating the class.
+    - `StringDetector`: presence of one of more substrings constitutes a hit. List of substrings passed as arguments when initiating a `Test` class.
     - `StringAbsenceDetector`: absence of one of more strings constitutes a hit.
-    - `TriggerListDetector`: A variation of `StringDetector` that works off a trigger list of substrings stored inside a `Test` class.
+    - `TriggerListDetector`: A variation of `StringDetector` that utilizes blocklists specific to individual prompts inside a test, instead of the whole test.
+    - `TriggerListAbsenceDetector`: prompt-level absence detector, i.e. absence of one of more strings in the trigger list constitutes a hit.
 
 - **Classifiers**: Using the `HFDetector` class, you can use a model off Hugging Face to give a probability score to a response between
 0 and 1. Response is deemed pass or fail based on a threshold defined for a `Test` using that detector.

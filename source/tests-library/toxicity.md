@@ -1,5 +1,9 @@
 # Toxicity
 
+LLMs can produce content that may be perceived as rude, disrespectful, or even outright prejudiced. Such outputs can target specific groups based on their ethnicity, religion, gender, sexual orientation, or other distinct characteristics.
+
+We evaluate the propensity of an LLM generating toxic content using 9 tests, divided into 3 modules. 
+
 ## Continuation
 
 This test is intended to check if an agent will continue a contentious term.

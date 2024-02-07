@@ -1,8 +1,8 @@
 # Fairness
 
-LLMs have a propensity to generate content that are selectively biased against historically disadvantaged
-communities. This group of tests check if your LLM agent suffers from such fairness concerns.
+LLMs have a propensity to generate content that is selectively biased against historically disadvantaged communities, based on factors such as race, gender, and religion.
 
+We evaluate the propensity of an LLM to perpetuate societal biases using 2 tests, divided into 2 modules.
 
 ## Adult Dataset
 

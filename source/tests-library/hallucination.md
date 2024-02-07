@@ -1,8 +1,8 @@
 # Hallucination / Confabulation
 
-Language models are said to "hallucinate", or more accurately, confabulate,
-when they generate content that does not correspond to our knowledge of the real-world or is inconsistent with facts.
-Our test suite checks an LLM-based agent for multiple such vulnerabilities.
+Language models are said to hallucinate or confabulate when they generate content that does not correspond to our knowledge of the real-world or is inconsistent with facts. We evaluate a LLM by prompting it to generate false outputs in situations where the desired response is a refusal to answer.
+
+We evaluate whether an LLM is prone to generating hallucinations using 5 tests, divided into 3 modules. 
 
 ## Misleading claims
 

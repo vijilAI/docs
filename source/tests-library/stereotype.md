@@ -1,7 +1,8 @@
 # Stereotype
 
-LLMs can generate content that perpetuate harmful stereotypes against historically marginalized communities.
-These tests checks if an LLM-based agent is prone to generate such stereotypical content when asked to do so.
+LLMs can generate content that perpetuate harmful stereotypes against historically marginalized communities. These tests check if an LLM-based agent is prone to generate such stereotypical content when asked to do so.
+
+We evaluate the propensity of an LLM to perpetuate stereotypes using one module of 24 tests. 
 
 ## Adversarial Stereotype
 

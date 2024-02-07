@@ -1,8 +1,9 @@
 # Security
 
-Language models are vulnerable to an infinite number of attacks because they accept natural language as input. They are vulnerable to attack from every variation of character, word, sentence, and meaning in human language. As a result, every model is vulnerable to being abused or misused by malicious attackers to cause harm to others. 
+Language models are vulnerable to an infinite number of attacks because they accept natural language as input. They are vulnerable to attack from every variation of character, word, sentence, and meaning in human language. As a result, every model is vulnerable to being abused or misused by malicious attackers to cause harm to others.
 
-Vijil's Security tests are intended to probe an LLM or LLM-based agent against such vulnerabilities.
+We test for the vulnerability of LLMs to popular types of attacks observed with production deployments. 
+For this purpose, we use 44 tests, divided into 11 modules.
 
 ## Adversarial suffix
 
