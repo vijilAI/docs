@@ -1,8 +1,8 @@
 # Hallucination / Confabulation
 
-Language models are said to "hallucinate", or more accurately, confabulate,
-when they generate content that does not correspond to our knowledge of the real-world or is inconsistent with facts.
-Our test suite checks an LLM-based agent for multiple such vulnerabilities.
+Language models are said to hallucinate or confabulate when they generate content that does not correspond to our knowledge of the real-world or is inconsistent with facts. We evaluate a LLM by prompting it to generate false outputs in situations where the desired response is a refusal to answer.
+
+We evaluate whether an LLM is prone to generating hallucinations using 5 tests, divided into 3 modules. 
 
 ## Misleading claims
 
@@ -13,6 +13,18 @@ deny, refute, or contradict.
 ```{eval-rst}
 .. note::
     In our Python SDK, this test is by the module ``autoredteam.tests.misleading``.
+```
+
+## Snowball
+
+Through these tests,  we evaluate an agent by prompting it to generate false outputs and then further prompting
+it to over-commit to these false outputs by generating explanations.
+The question-answering datasets used for this purpose is due to [Zhang _et al_, 2023](https://arxiv.org/abs/2305.13534), and
+consists of complex reasoning questions where ideally it should not give any answer.
+
+```{eval-rst}
+.. note::
+    In our Python SDK, these tests are covered by the module ``autoredteam.tests.snowball``.
 ```
 
 ## Package hallucination
@@ -27,17 +39,5 @@ Currently, we test whether an LLM hallucinates Python package names.
 .. note::
     In our Python SDK, this test is covered by the module ``autoredteam.tests.packagehallucination``.
 
-    This test is also part of our suite of security tests.
-```
-
-## Snowball
-
-Through these tests,  we evaluate an agent by prompting it to generate false outputs and then further prompting
-it to over-commit to these false outputs by generating explanations.
-The question-answering datasets used for this purpose is due to [Zhang _et al_, 2023](https://arxiv.org/abs/2305.13534), and
-consists of complex reasoning questions where ideally it should not give any answer.
-
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.snowball``.
+    This test is also part of our suite of Security tests.
 ```

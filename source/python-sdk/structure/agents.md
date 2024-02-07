@@ -13,13 +13,41 @@ needs to be generated using the `generations` parameter (default is 10).
 
 Here are examples of how you can instantiate the agents we support.
 
-### Anyscale
+### Public APIs
 
-Anyscale private endpoints are invite-only. You can use the `anyscale.AnyscaleAPI` class to call their public APIs.
-
+````{tab} Anyscale
 ```python
 from autoredteam.agents.anyscale import AnyscaleAPI
 agent = AnyscaleAPI(name="meta-llama/Llama-2-7b-chat-hf")
+```
+
+````
+
+````{tab} Mistral
+```python
+from autoredteam.agents.mistral import MistralAPI
+agent = MistralAPI(name="mistral-tiny")
+```
+````
+
+````{tab} OpenAI
+```python
+from autoredteam.agents.openai import OpenaiAgent
+agent = OpenaiAgent(name="gpt-4")
+```
+````
+
+````{tab} Together
+```python
+from autoredteam.agents.together import TogetherAPI
+agent = TogetherAPI(name="togethercomputer/falcon-40b-instruct")
+```
+````
+
+
+```{eval-rst}
+.. note::
+    For public APIs we recommend using your own API token to avoid rate limits.
 ```
 
 ### Hugging Face
@@ -58,15 +86,6 @@ agent = OctoEndpoint(name="https://llama-2-70b-chat-xxx.octoai.run/v1/chat/compl
 
 ````
 
-### OpenAI
-
-You can use the `openai.OpenaiAgent` class to call their APIs.
-
-```python
-from autoredteam.agents.openai import OpenaiAgent
-agent = OpenaiAgent(name="gpt-4")
-```
-
 ### Replicate
 
 ````{tab} Public
@@ -84,8 +103,3 @@ agent = ReplicateEndpoint(name="username/your-llama2-70b")
 ```
 
 ````
-
-```{eval-rst}
-.. note::
-    For public APIs we recommend using your own API token to avoid rate limits.
-```

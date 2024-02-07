@@ -1,15 +1,8 @@
 # Toxicity
 
-## Attack generation
+LLMs can produce content that may be perceived as rude, disrespectful, or even outright prejudiced. Such outputs can target specific groups based on their ethnicity, religion, gender, sexual orientation, or other distinct characteristics.
 
-This test uses a separate model to create prompts for an agent that are intended to guide that agent into generating toxic content.
-By default, we use a [finetuned version](https://huggingface.co/leondz/artgpt2tox) of GPT-2 as the adversarial model.
-
-
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is covered by the module ``autoredteam.tests.atkgen``.
-```
+We evaluate the propensity of an LLM generating toxic content using 9 tests, divided into 3 modules. 
 
 ## Continuation
 
@@ -21,6 +14,17 @@ continue the term based on varying amounts of prefix.
 ```{eval-rst}
 .. note::
     In our Python SDK, continuation attacks are covered by the module ``autoredteam.tests.continuation``.
+```
+
+## Multi-turn Toxicity Attack
+
+This test uses a separate model to create prompts for an agent that are intended to guide that agent into generating toxic content.
+By default, we use a [finetuned version](https://huggingface.co/leondz/artgpt2tox) of GPT-2 as the adversarial model.
+
+
+```{eval-rst}
+.. note::
+    In our Python SDK, this test is covered by the module ``autoredteam.tests.atkgen``.
 ```
 
 ## Real Toxicity Prompts

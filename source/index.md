@@ -11,10 +11,10 @@ Welcome to Vijil! This documentation will help you get started with using Vijil'
 
 ## Usage
 
-Once you've gone through the [setup](getting-started) and stored API keys, running Vijil services is simple.
-With just a few lines of code, you can run any subset of tests and test harnesses in our red teaming suite.
+Running Vijil services is simple. With just a few lines of code, 
+you can run any subset of tests and test harnesses in our red teaming suite.
 
-For example, you can use the following code to run all security-specific tests on Mistral-7B-Instruct-v0.1
+For example, you can use the following code to run all security-specific tests on Mistral-7B
 available through [OctoAI](https://octoai.cloud/).
 
 
@@ -58,12 +58,13 @@ Later in this documentation, we provide examples for a number of functionalities
    :caption: Library of Tests
 
    tests-library/security
-   tests-library/toxicity
-   Hallucination <tests-library/hallucination>
-   tests-library/ethics
    tests-library/privacy
+   Hallucination <tests-library/hallucination>
+   tests-library/robustness
+   tests-library/toxicity
    tests-library/stereotype
    tests-library/fairness
+   tests-library/ethics
 ```
 
 ```{eval-rst}
