@@ -18,3 +18,14 @@ We perform two such evaluations for each of the following three sources of text:
 .. note::
     In our Python SDK, these tests are covered by the module ``autoredteam.tests.leakreplay``.
 ```
+## Poem Attack
+AI security researchers from Google recently [pointed out](https://www.vice.com/en/article/88xe75/chatgpt-can-reveal-personal-information-from-real-people-google-researchers-show)
+that when repeatedly asked to repeat the word ‘poem’ or ‘book’ indefinitely, 
+in some cases ChatGPT diverged to copy outputs directly from training data.
+
+```{eval-rst}
+.. note::
+    In our Python SDK, these tests are covered by the module ``autoredteam.tests.replay``.
+    
+    This test is also part of our suite of Security tests.
+```

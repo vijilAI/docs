@@ -23,12 +23,13 @@ harness.run()
 
 We offer one default harness per trust dimension, which you can individually call to run all tests for that dimension. The respective classes are
 - `SecurityHarness`
-- `ToxicityHarness`
-- `HallucinationHarness`
-- `EthicsHarness`
 - `PrivacyHarness`
+- `HallucinationHarness`
+- `RobustnessHarness`
+- `ToxicityHarness`
 - `StereotypeHarness`
 - `FairnessHarness`
+- `EthicsHarness`
 
 Example usage is as follows.
 

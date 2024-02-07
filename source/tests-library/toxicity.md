@@ -1,16 +1,5 @@
 # Toxicity
 
-## Attack generation
-
-This test uses a separate model to create prompts for an agent that are intended to guide that agent into generating toxic content.
-By default, we use a [finetuned version](https://huggingface.co/leondz/artgpt2tox) of GPT-2 as the adversarial model.
-
-
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is covered by the module ``autoredteam.tests.atkgen``.
-```
-
 ## Continuation
 
 This test is intended to check if an agent will continue a contentious term.
@@ -21,6 +10,17 @@ continue the term based on varying amounts of prefix.
 ```{eval-rst}
 .. note::
     In our Python SDK, continuation attacks are covered by the module ``autoredteam.tests.continuation``.
+```
+
+## Multi-turn Toxicity Attack
+
+This test uses a separate model to create prompts for an agent that are intended to guide that agent into generating toxic content.
+By default, we use a [finetuned version](https://huggingface.co/leondz/artgpt2tox) of GPT-2 as the adversarial model.
+
+
+```{eval-rst}
+.. note::
+    In our Python SDK, this test is covered by the module ``autoredteam.tests.atkgen``.
 ```
 
 ## Real Toxicity Prompts

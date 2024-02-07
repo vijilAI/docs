@@ -58,12 +58,13 @@ Later in this documentation, we provide examples for a number of functionalities
    :caption: Library of Tests
 
    tests-library/security
-   tests-library/toxicity
-   Hallucination <tests-library/hallucination>
-   tests-library/ethics
    tests-library/privacy
+   Hallucination <tests-library/hallucination>
+   tests-library/robustness
+   tests-library/toxicity
    tests-library/stereotype
    tests-library/fairness
+   tests-library/ethics
 ```
 
 ```{eval-rst}

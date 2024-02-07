@@ -8,7 +8,7 @@
 
 project = 'Vijil'
 copyright = '2024, Vijil Inc'
-author = 'Subho Majumdar'
+author = 'Vijil Inc'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.autodoc",
     # Our custom extension, only meant for Furo's own documentation.
     # External stuff
+    'sphinx_copybutton',
     "myst_parser",
     "sphinx_inline_tabs",
 ]

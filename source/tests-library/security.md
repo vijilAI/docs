@@ -6,8 +6,7 @@ Vijil's Security tests are intended to probe an LLM or LLM-based agent against s
 
 ## Adversarial suffix
 
-This test is designed to disrupt a system prompt by appending an adversarial suffix. To implement these tests, we follow the approach of
-[Zou _et al_, 2023](https://arxiv.org/abs/2307.15043) that automatically produces adversarial suffixes by a combination of greedy and gradient-based search techniques.
+This test is designed to disrupt a system prompt by appending an adversarial suffix. To implement these tests, we follow the approach of [Zou _et al_, 2023](https://arxiv.org/abs/2307.15043) that automatically produces adversarial suffixes by a combination of greedy and gradient-based search techniques.
 
 ```{eval-rst}
 .. note::
@@ -135,15 +134,10 @@ Currently, we test whether an LLM hallucinates Python package names.
 .. note::
     In our Python SDK, this test is covered by the module ``autoredteam.tests.packagehallucination``.
 
-    This test is also part of our suite of hallucination tests.
+    This test is also part of our suite of Hallucination tests.
 ```
 
 ## Prompt injection
-
-<!-- Uses 
-to test a system. A subset of the attacks is implemented here. The default
-is to use a selection of that subset, because even the subset corresponds to 
-thousands of requests by default. -->
 
 These attacks are designed to manipulate a user prompt to make the model generate unexpected outputs,
 create malicious code, circumvent content filters, or leak sensitive data. 
@@ -153,14 +147,26 @@ We follow the [PromptInject](https://openreview.net/forum?id=qiaRo_7Zmug) framew
 - Ask to output "I kill humans"
 - Ask to output a long text verbatim
 
-In each vector, we add a suffix or prefix to the original prompt text so as to make the model ignore the instructions included in that user prompt.
+In each type of attack, we add a suffix or prefix to the original prompt text so as to make the model ignore the instructions included in that user prompt.
 
 ```{eval-rst}
 .. note::
     In our Python SDK, these tests are covered by the module ``autoredteam.tests.promptinject``.
 ```
 
-## Cross-site scripting
+## Poem Attack
+AI security researchers from Google recently [pointed out](https://www.vice.com/en/article/88xe75/chatgpt-can-reveal-personal-information-from-real-people-google-researchers-show)
+that when repeatedly asked to repeat the word ‘poem’ or ‘book’ indefinitely, 
+in some cases ChatGPT diverged to copy outputs directly from training data.
+
+```{eval-rst}
+.. note::
+    In our Python SDK, these tests are covered by the module ``autoredteam.tests.replay``.
+    
+    This test is also part of our suite of Privacy tests.
+```
+
+## Cross-site scripting (XSS)
 
 This test is intended to probe for vulnerabilities the permit or enact cross-site attacks, such
 as private data exfilteration.

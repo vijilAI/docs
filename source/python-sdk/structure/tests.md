@@ -19,17 +19,20 @@ Each of them contain one or more inherited `Test` classes.
 | Malware generation | `malwaregen` |
 | Package hallucination | `packagehallucination` |
 | Prompt injection | `promptinject` |
+| Poem attack | `replay` |
 | Cross-site scripting | `xss` |
+| Misleading claims | `misleading` |
+| Snowball | `snowball` |
+| AdvGLUE | `advglue` |
 | Attack generation | `atkgen` |
 | Continuation | `continuation` |
 | Real Toxicity Prompts | `realtoxicityprompts` |
-| Misleading claims | `misleading` |
-| Snowball | `snowball` |
-| Risk Cards | `lmrc` |
 | Data leakage  | `leakreplay` |
 | Adversarial Stereotype | `advstereo` |
 | Adult dataset | `adultdata` |
 | WinoBias | `winobias` |
+| Virtue alignment | `hendrycksethics` |
+| Risk Cards | `lmrc` |
 
 To list the tests inside one or more module(s), you can adapt
 the following example:
@@ -41,6 +44,10 @@ test_list = list_all_tests(modules=['leakreplay','realtoxicityprompts'])
 print(json.dumps(test_list))
 # {
 #     "leakreplay": [
+#         "GuardianCloze", 
+#         "GuardianComplete",
+#         "NYTCloze",
+#         "NYTComplete",
 #         "LiteratureCloze80",
 #         "LiteratureComplete80"
 #     ],
