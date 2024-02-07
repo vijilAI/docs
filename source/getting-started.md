@@ -41,4 +41,4 @@ export KEY_NAME="key-string"
 | Replicate | `REPLICATE_API_TOKEN` |
 | Together | `TOGETHER_API_TOKEN` |
 
-Alternatively, you can store the API keys in a `.env` file that can be picked up by your Python client using the [`dotenv`](https://pypi.org/project/python-dotenv/) library.
+Alternatively, you can store the API keys in a `.env` file that can be picked up by your Python client using [``python-dotenv``](https://pypi.org/project/python-dotenv/).

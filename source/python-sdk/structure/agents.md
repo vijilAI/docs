@@ -3,17 +3,19 @@
 The `Agent` class is intended to wrap around generic AI agents such as conversational chatbots and RAG applications.
 We currently support LLMs hosted on a number of model providers. Integrations for agent frameworks such as LangChain are coming soon!
 
-Based on the provider, deployments may be available through a public API or a dedicated private endpoint.
+Based on the provider, deployments may be available through a public inference API or a dedicated private endpoint.
 
 ## Usage
 
 To use a model hosted on a particular provider, simply load the respective module and class, then pass the model identifier
-(stub or full URL) as the `name` argument. Optionally, you can specify how many times responses for each prompt in an AutoRedTeam test
+(stub or full URL) as the `name` argument. Optionally, you can specify how many times responses for each prompt in a test
 needs to be generated using the `generations` parameter (default is 10).
 
 Here are examples of how you can instantiate the agents we support.
 
-### Public APIs
+### Inference APIs
+
+<!-- A number of LLM providers, including OpenAI, offer common inference APIs that all users can use to call LLMs hosted in their platform. -->
 
 ````{tab} Anyscale
 ```python
