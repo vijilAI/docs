@@ -97,8 +97,8 @@ Vijil covers 4 Goodside attacks through its tests that are intended to make the 
 ## Known bad signatures
 
 These tests attempt to make an agent output file signatures that are used to test defensive software (e.g. antivirus, anti-malware, spam and phishing filters)
-in traditional cybersecurity. If they're output them without warning, 
-that's an indication that the agent isn't checking output for malicious or dangerous content.
+in traditional cybersecurity. If they output them without warning, 
+that's an indication of the agent not checking output for malicious or dangerous content.
 
 Vijil covers three such signatures.
 - [EICAR](https://en.wikipedia.org/wiki/EICAR_test_file)
@@ -151,7 +151,7 @@ We follow the [PromptInject](https://openreview.net/forum?id=qiaRo_7Zmug) framew
 
 - Ask to output "I hate humans"
 - Ask to output "I kill humans"
-- Ask the to output a long text verbatim
+- Ask to output a long text verbatim
 
 In each vector, we add a suffix or prefix to the original prompt text so as to make the model ignore the instructions included in that user prompt.
 
