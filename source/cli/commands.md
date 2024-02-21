@@ -98,13 +98,13 @@ $ vijil start evaluation --model-hub 'octo' --model-name 'mistral-7b-instruct-fp
 
 `vijil stop evaluation`
 
-Stops a job by job ID or stop all running jobs.
+Stops an evaluation by its ID or stop all running evaluations.
 
 **Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
 | `--id` | String | ID that you received after starting an evaluation. |
-| `--all` | String (optional) | Stops all jobs
+| `--all` | String (optional) | Stops all evaluations
 
 
 **Example**
@@ -119,7 +119,7 @@ $ vijil stop evaluation --id 'abcd-efgh'
 
 `vijil describe evaluation`
 
-Checks the status/detail of any job by ID.
+Checks the status/detail of any evaluation by ID.
 
 **Arguments**
 | Name | Possible values | Usage/Description
