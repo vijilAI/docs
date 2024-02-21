@@ -157,7 +157,7 @@ $ vijil describe log --id 'id' --trail
 
 `vijil list evaluations`
 
-List all the evaluations you have started.
+List all the evaluations created in the past.
 
 **Example**
 ```console
@@ -166,9 +166,9 @@ $ vijil list evaluations
 
 ### Tokens
 
-`vijil tokens`
+`vijil list tokens`
 
-List all model provider tokens saved.
+List all the model provider tokens saved.
 
 **Example**
 ```console
