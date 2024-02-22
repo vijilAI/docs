@@ -28,7 +28,7 @@ To authenticate the CLI to your Vijil account, use:
 **Example**
 
 ```console
-$ vijil login admin --token 'my-token'
+$ vijil login admin --token my-token
 ```
 
 ### Logout
@@ -36,6 +36,8 @@ $ vijil login admin --token 'my-token'
 To log out from your Vijil account in the CLI, use:
 
 `vijil logout`
+
+**Example**
 
 ```console
 $ vijil logout
@@ -67,7 +69,9 @@ You can choose from the following hubs:
 
 **Example**
 ```console
-$ vijil create token octo --name 'token-name' --token 'your-token' --is-primary 'yes'
+$ vijil create token octo --name token-name \
+    --token your-token \
+    --is-primary yes
 ```
 
 ## Start
@@ -91,7 +95,13 @@ Start an evaluation against a model using:
 **Example**
 
 ```console
-$ vijil start evaluation --model-hub 'octo' --model-name 'mistral-7b-instruct-fp16' --dimension 'ethics' --deployment-type 'public' --generations 1 --token 'your-token'
+$ vijil start evaluation \
+    --model-hub octo \
+    --model-name mistral-7b-instruct-fp16 \
+    --dimension security \
+    --deployment-type public \
+    --generations 1 \
+    --token your-token
 ```
 
 ## Stop
@@ -112,7 +122,7 @@ Stop an evaluation by its ID or stop all running evaluations using:
 **Example**
 
 ```console
-$ vijil stop evaluation --id 'abcd-efgh'
+$ vijil stop evaluation --id abcd-efgh
 ```
 
 ## Describe
@@ -131,7 +141,7 @@ Check the status/detail of an evaluation by ID using:
 
 **Example**
 ```console
-$ vijil describe evaluation --id 'abcd-efgh'
+$ vijil describe evaluation --id abcd-efgh
 ```
 
 
@@ -150,7 +160,7 @@ Check the progress or logs of an evaluation using:
 
 **Example**
 ```console
-$ vijil describe log --id 'abcd-efgh' --trail
+$ vijil describe log --id abcd-efgh --trail
 ```
 
 ## List
@@ -192,7 +202,7 @@ Delete an evaluation you started using:
 
 **Example**
 ```console
-$ vijil delete evaluation --id 'abcd-efgh'
+$ vijil delete evaluation --id abcd-efgh
 ```
 
 
@@ -211,6 +221,6 @@ Download either `full` or only the `failure` logs of an evaluation using:
 
 **Example**
 ```console
-$ vijil download log failure --id 'abcd-efgh'
+$ vijil download log failure --id abcd-efgh
 ```
 
