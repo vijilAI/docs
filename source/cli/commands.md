@@ -87,7 +87,7 @@ Start an evaluation against a model using:
 |--|---|---|
 | `--model-hub`	| String	| Model hub (e.g., huggingface, octo, replicate). |
 | `--model-name`	| String	| Name of the model to be evaluated. |
-| `--dimension`	| String	| Trust dimensions (e.g., ethics, security). |
+| `--dimension`	| String	| Trust dimensions (e.g., Ethics, Security). |
 | `--generations`	| Integer	| Number of generations for the evaluation. |
 | `--deployment-type` | String | Deployment type of model (e.g., private, public, local). |
 | `--token` | String | Token for accessing the provided model. |
@@ -98,7 +98,7 @@ Start an evaluation against a model using:
 $ vijil start evaluation \
     --model-hub octo \
     --model-name mistral-7b-instruct-fp16 \
-    --dimension security \
+    --dimension Security \
     --deployment-type public \
     --generations 1 \
     --token your-token
