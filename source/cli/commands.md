@@ -1,194 +1,226 @@
 # Commands
 
-The Vijil CLI contains the following commands.
-In all the commands, except `help`, you can either type in all options, or enter them interactively after just typing
-`vijil <command-name>` and pressing Enter.
+Below are the commands available in the Vijil CLI. In all commands except `help`, you can either input all options at once or enter them interactively after typing `vijil <command-name>` and pressing Enter.
 
-<!-- | Command | Functionality
-|--|---|
-| `vijil --help` | Displays all CLI options. |
-| `vijil login` | Used for authentication, required to use all other CLI commands. Use your login credentials for the GUI. |
-|  `vijil run | Used to submit an evaluation. |
-| `vijil status` |Checks the status/detail of any job by job ID. |
-| `vijil stop` | Stops a job by job ID. |
-| `vijil list` | Lists all in-progress or completed jobs on your account. |
-| `vijil delete` | Deletes a job by its job ID. |
-| `vijil download` | Gets report/hitlog file given job ID. |
-| `vijil replicate` / `vijil huggingface` / `vijil octo` | Sets API tokens for model Replicate , Huggingface , OctoAI, respectively. |
-| `vijil logout` | Logs you out of the CLI. | -->
+## Help
 
+To display all available commands in the CLI, use:
 
-## `vijil --help`
+`vijil --help`
 
-Displays all CLI options.
+## Authenticate
+
+### Login
+
+To authenticate the CLI to your Vijil account, use:
+
+`vijil login <username>`
+
+> This command requires a Vijil access token created from the GUI.
 
 
-## `vijil login`
-
-Used for authentication, required to use all other CLI commands. Use your login credentials for the GUI.
-
-
-### Arguments
+**Arguments**
 
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--username` | String | Registered Username of Vijil. |
-| `--token` | String | API Token of Vijil. |
+| `--token` | String | VIJIL access token from the GUI. |
 
-### Example
-
-```console
-foo@bar:~$ vijil login --username my_username --token my_token
-Token verification successful. Configuration complete.
-```
-
-
-## `vijil logout`
-
-Logs out from CLI.
+**Example**
 
 ```console
-foo@bar:~$ vijil logout
+$ vijil login admin --token my-token
 ```
 
-## `vijil run`
+### Logout
 
-Used to submit an evaluation.
+To log out from your Vijil account in the CLI, use:
 
-### Arguments
+`vijil logout`
+
+**Example**
+
+```console
+$ vijil logout
+```
+
+## Create
+
+### Token
+
+To create tokens for interacting with the model hubs, use:
+
+`vijil create token <model-hub>`
+
+You can choose from the following hubs:
+- `huggingface`
+- `octo`
+- `replicate`
+- `openai`
+- `together`
+- `anyscale`
+- `mistral`
+
+**Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--job-name`	| String	| Unique name for Job. |
-| `--model-type`	| String	| Model provider (e.g., huggingface, octo, replicate). |
+| `--name` | String | Name of token. |
+| `--token` | String | Token from the model hub. |
+| `--is-primary` | [yes\|no] | Save token as default (yes or no). |
+
+**Example**
+```console
+$ vijil create token octo --name token-name \
+    --token your-token \
+    --is-primary yes
+```
+
+## Start
+
+### Evaluation
+
+Start an evaluation against a model using:
+
+`vijil start evaluation`
+
+**Arguments**
+| Name | Possible values | Usage/Description
+|--|---|---|
+| `--model-hub`	| String	| Model hub (e.g., huggingface, octo, replicate). |
 | `--model-name`	| String	| Name of the model to be evaluated. |
 | `--dimension`	| String	| Trust dimensions (e.g., ethics, security). |
 | `--generations`	| Integer	| Number of generations for the evaluation. |
 | `--deployment-type` | String | Deployment type of model (e.g., private, public, local). |
-| `--token` | String | Token for Provoded model. |
+| `--token` | String | Token for accessing the provided model. |
 
-### Example
+**Example**
 
 ```console
-foo@bar:~$ vijil run --job-name jobname --model-type octo --model-name mistral-7b-instruct-fp16 --dimension ethics --deployment-type public --generations 1 --token 'your-token'
-Running evaluation for model type: octo, model name: mistral-7b-instruct-fp16
-Successfully Create Evaluation, Check Job Status by ID: 81f05220-27be-4a84-b707-354a71b7359e
+$ vijil start evaluation \
+    --model-hub octo \
+    --model-name mistral-7b-instruct-fp16 \
+    --dimension security \
+    --deployment-type public \
+    --generations 1 \
+    --token your-token
 ```
 
-## `vijil list`
+## Stop
 
-List jobs details.
+### Evaluation
 
-### Example
-```console
-foo@bar:~$ vijil list
-```
+Stop an evaluation by its ID or stop all running evaluations using:
 
-## `vijil status`
+`vijil stop evaluation`
 
-Checks the status/detail of any job by ID.
-
-### Arguments
+**Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--id` | String | Id that is recieved while submit evaulation. |
-| `--all` | String (optional) | List full details (default is truncated)
+| `--id` | String | ID received after starting an evaluation. |
+| `--all` | String (optional) | Stop all evaluations.
 
 
-### Example
+**Example**
+
 ```console
-foo@bar:~$ vijil status --id id
-Getting Job status for ID: id
-Job Status: .....
-Job Result: .....
+$ vijil stop evaluation --id abcd-efgh
 ```
 
-## `vijil stop`
+## Describe
 
-Stops a job by job ID or stop all running jobs.
+### Evaluation
 
-### Arguments
+Check the status/detail of an evaluation by ID using:
+
+`vijil describe evaluation`
+
+**Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--id` | String | Id that is recieved while submit evaulation. |
-| `--all` | String (optional) | Stops all jobs
+| `--id` | String | ID received after starting an evaluation. |
 
 
-### Example
-
+**Example**
 ```console
-foo@bar:~$ vijil stop --id id
-Stopping Evaluation of ID: id
-Job Status: Stopped
+$ vijil describe evaluation --id abcd-efgh
 ```
 
-## `vijil logs`
 
-Check Progerss or logs of Evaluation.
+### Log
 
-### Arguments
+Check the progress or logs of an evaluation using:
+
+`vijil describe log`
+
+**Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--id` | String | Id that is recieved while submit evaulation. |
-| `--trail` | String (optional) | Displays trailing logs from stdout. | 
+| `--id` | String | ID received after starting an evaluation. |
+| `--trail` | String (optional) | Display trailing logs from stdout. | 
 
 
-### Example
+**Example**
 ```console
-foo@bar:~$ vijil logs --id id
-foo@bar:~$ vijil logs --id id --trail
+$ vijil describe log --id abcd-efgh --trail
 ```
 
+## List
 
-## `vijil delete`
+### Evaluations
 
-Deletes a job.
+List all evaluations created in the past using:
 
-### Arguments
+`vijil list evaluations`
+
+**Example**
+```console
+$ vijil list evaluations
+```
+
+### Tokens
+
+List all model hub tokens saved using:
+
+`vijil list tokens`
+
+**Example**
+```console
+$ vijil list tokens
+```
+
+## Delete
+
+### Evaluation
+
+Delete an evaluation you started using:
+
+`vijil delete evaluation`
+
+**Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--id` | String | Id that is recieved while submit evaulation. |
+| `--id` | String | ID received after starting an evaluation. |
 
-### Example
+**Example**
 ```console
-foo@bar:~$ vijil delete --id id
+$ vijil delete evaluation --id abcd-efgh
 ```
 
-## `vijil download`
 
-Download report/hitlog file or report PDF by job ID.
+## Download
 
-### Arguments
+### Log
+
+Download either `full` or only the `failure` logs of an evaluation using:
+
+`vijil download log [full | failure]`
+
+**Arguments**
 | Name | Possible values | Usage/Description
 |--|---|---|
-| `--file-id` | String | Id that is recieved while job detail or list. |
+| `--id` | String | ID received after starting an evaluation. |
 
-### Example
+**Example**
 ```console
-foo@bar:~$ vijil download --file-id fileid
+$ vijil download log failure --id abcd-efgh
 ```
 
-## `vijil tokens`
-
-List all saved integration tokens of model.
-
-### Example
-```console
-foo@bar:~$ vijil tokens
-```
-
-## `vijil integrations`
-
-Save integration tokens of model to Vijil 
-
-### Arguments
-| Name | Possible values | Usage/Description
-|--|---|---|
-| `--source` | String | Model provider (e.g., huggingface, octo, replicate). |
-| `--name` | String | Name of token. |
-| `--token` | String | Token of integration platform. |
-| `--is-primary` | String | Yes to save token as default. |
-
-### Example
-```console
-foo@bar:~$ vijil integrations --source octo --name newone --token token --is-primary yes/no
-```
