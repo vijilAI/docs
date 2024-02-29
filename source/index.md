@@ -31,11 +31,14 @@ harness.run()
 ````
 
 ````{tab} CLI
-```bash
-vijil run --model-type octo \
-   --model-name mistral-7b-instruct-fp16 \
-   --dimension Security \
-   --generations 10
+```console
+$ vijil start evaluation \
+    --model-hub octo \
+    --model-name mistral-7b-instruct-fp16 \
+    --dimension Security \
+    --deployment-type public \
+    --generations 1 \
+    --token your-token
 ```
 
 ````

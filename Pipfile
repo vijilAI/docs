@@ -8,6 +8,7 @@ sphinx-autobuild = "*"
 myst-parser = "*"
 furo = "*"
 sphinx-inline-tabs = "*"
+sphinx_copybutton = "*"
 
 [dev-packages]
 
