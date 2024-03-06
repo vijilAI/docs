@@ -47,6 +47,7 @@ Later in this documentation, we provide examples for a number of functionalities
 
 ```{eval-rst}
 .. toctree::
+   :maxdepth: 2
 
    getting-started
    concepts

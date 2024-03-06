@@ -1,12 +1,11 @@
 # Library of Tests
 
-The Python package `autoredteam` is the official Python package for Vijil ART. At a high level, it
-abstracts out some core concepts in LLM evaluation as classes,
-and builds functionalities under each of them.
+Vijil ART evaluates LLM trustworthiness along 8 dimensions. For each dimension, we assess vulnerability to several attack vectors. Each attack vector is treated as one evaluation module. Each module contains one or more tests.
+
 
 ```{eval-rst}
 .. toctree::
-   :hidden:
+   :maxdepth: 1
 
    security
    privacy
