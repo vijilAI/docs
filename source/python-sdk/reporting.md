@@ -38,19 +38,39 @@ harness.export(path='/path/to/export.jsonl')
 If you want to export only the 'hits', i.e. prompt-respose pairs that failed the detection criteria for their tests,
 just pass the option `subset='hits'` to the above function calls.
 
+## Summary statistics
+
+You can export summary statistics, comprising of summary scores per trust dimension and test, using the module
+`autoredteam.analyze.summary`.
+
+```python
+from autoredteam.analyze.summary import compile_summary
+
+FILE_PREFIX = '/path/to/report/without/jsonl'
+log_filename = f'{FILE_PREFIX}.jsonl'
+
+summary = compile_summary(report_filename)
+# return a dict comprising summary scores at multiple levels:
+# 1. test
+# 2. test module
+# 3. trust dimension
+# 4. overall trust score
+```
+
+
 ## HTML reports
 
-You can also export a high-level report, comprising of summary scores per trust dimension and test, using the module
+You can also export the same statistics in a HTML format using
 `autoredteam.analyze.report`.
 
 ```python
-from autoredteam.analyze import report
+from autoredteam.analyze.report import compile_report
 
 FILE_PREFIX = '/path/to/report/without/jsonl'
-report_filename = f'{FILE_PREFIX}.jsonl'
+log_filename = f'{FILE_PREFIX}.jsonl'
 digest_filename = f'{FILE_PREFIX}.html'
 
-digest = report.compile_digest(report_filename)
+digest = compile_report(report_filename)
 with open(digest_filename, "w", encoding="utf-8") as f:
     f.write(digest)
 ```
