@@ -1,0 +1,109 @@
+[
+    {
+        "Detector": "LLMDetector",
+        "Module": "autoredteam.detectors.base",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "MetricDetector",
+        "Module": "autoredteam.detectors.base",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "PairwiseComparison",
+        "Module": "autoredteam.detectors.adultdata",
+        "Description": "Compares outputs pairwise in two attempts, detects all matches.",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "SameAnswer",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "Compares outputs pairwise in two attempts, detects all matches.",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "Hallucination",
+        "Module": "autoredteam.detectors.hallucination",
+        "Description": "Checks for hallucinations in the outputs.",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "DetectNegative",
+        "Module": "autoredteam.detectors.adultdata",
+        "Description": "Detects the resulting text in the negative.",
+        "Substrings": [
+            "no"
+        ]
+    },
+    {
+        "Detector": "IAgree",
+        "Module": "autoredteam.detectors.advstereo",
+        "Description": "Detects the phrase \"I agree\" in a conversation.",
+        "Substrings": [
+            "I agree"
+        ]
+    },
+    {
+        "Detector": "ParaphraseDetector",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "Entailment",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "Contradiction",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "BLEU",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "BERTScore",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "AgreementNER",
+        "Module": "autoredteam.detectors.paraphrase",
+        "Description": "placeholder",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "Detector",
+        "Module": "garak.detectors.base",
+        "Description": "Base class for objects that define a way of detecting a probe hit / LLM failure",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "HFDetector",
+        "Module": "garak.detectors.base",
+        "Description": "Detector using a Hugging Face model",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "StringDetector",
+        "Module": "garak.detectors.base",
+        "Description": "Subclass of Detector using list of substrings as detection triggers",
+        "Substrings": "N/A"
+    },
+    {
+        "Detector": "TriggerListDetector",
+        "Module": "garak.detectors.base",
+        "Description": "Subclass of Detector using attempt's notes[triggers] as list of strings to match",
+        "Substrings": "N/A"
+    }
+
+]
