@@ -1,0 +1,854 @@
+[
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.AntiDAN",
+        "Detectors": "mitigation.MitigationBypass, dan.AntiDAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.AutoDANProbe",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.ChatGPT_Developer_Mode_RANTI",
+        "Detectors": "mitigation.MitigationBypass, dan.DevMode"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.ChatGPT_Developer_Mode_v2",
+        "Detectors": "mitigation.MitigationBypass, dan.DevMode"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.ChatGPT_Image_Markdown",
+        "Detectors": "mitigation.MitigationBypass, dan.MarkdownLink"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.DAN_Jailbreak",
+        "Detectors": "mitigation.MitigationBypass, dan.DANJailbreak"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.DUDE",
+        "Detectors": "mitigation.MitigationBypass, dan.DUDE"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_10_0",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_11_0",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_6_0",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_6_2",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_7_0",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_8_0",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.Dan_9_0",
+        "Detectors": "mitigation.MitigationBypass, dan.DAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "dan",
+        "Probe Name": "dan.STAN",
+        "Detectors": "mitigation.MitigationBypass, dan.STAN"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectAscii85",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectBase16",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectBase2048",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectBase32",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectBase64",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectBraille",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectEcoji",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectHex",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectMorse",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectNato",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectROT13",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectUU",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "encoding",
+        "Probe Name": "encoding.InjectZalgo",
+        "Detectors": "encoding.DecodeMatch, encoding.DecodeApprox"
+    },
+    {
+        "Harness": "Security",
+        "Test": "gcg",
+        "Probe Name": "gcg.GCG_Probe",
+        "Detectors": "mitigation.MitigationBypass"
+    },
+    {
+        "Harness": "Security",
+        "Test": "glitch",
+        "Probe Name": "glitch.Glitch100",
+        "Detectors": "goodside.Glitch"
+    },
+    {
+        "Harness": "Security",
+        "Test": "knownbadsignatures",
+        "Probe Name": "knownbadsignatures.EICAR",
+        "Detectors": "knownbadsignatures.EICAR"
+    },
+    {
+        "Harness": "Security",
+        "Test": "knownbadsignatures",
+        "Probe Name": "knownbadsignatures.GTUBE",
+        "Detectors": "knownbadsignatures.GTUBE"
+    },
+    {
+        "Harness": "Security",
+        "Test": "knownbadsignatures",
+        "Probe Name": "knownbadsignatures.GTphish",
+        "Detectors": "knownbadsignatures.GTphish"
+    },
+    {
+        "Harness": "Security",
+        "Test": "malwaregen",
+        "Probe Name": "malwaregen.Evasion",
+        "Detectors": "malwaregen.AnyCode"
+    },
+    {
+        "Harness": "Security",
+        "Test": "malwaregen",
+        "Probe Name": "malwaregen.Payload",
+        "Detectors": "malwaregen.AnyCode"
+    },
+    {
+        "Harness": "Security",
+        "Test": "malwaregen",
+        "Probe Name": "malwaregen.SubFunctions",
+        "Detectors": "malwaregen.AnyCode"
+    },
+    {
+        "Harness": "Security",
+        "Test": "malwaregen",
+        "Probe Name": "malwaregen.TopLevel",
+        "Detectors": "malwaregen.AnyCode"
+    },
+    {
+        "Harness": "Security",
+        "Test": "packagehallucination",
+        "Probe Name": "packagehallucination.Python",
+        "Detectors": "packagehallucination.PythonPypi"
+    },
+    {
+        "Harness": "Security",
+        "Test": "promptinject",
+        "Probe Name": "promptinject.HijackHateHumansMini",
+        "Detectors": "promptinject.AttackRogueString"
+    },
+    {
+        "Harness": "Security",
+        "Test": "promptinject",
+        "Probe Name": "promptinject.HijackKillHumansMini",
+        "Detectors": "promptinject.AttackRogueString"
+    },
+    {
+        "Harness": "Security",
+        "Test": "promptinject",
+        "Probe Name": "promptinject.HijackLongPromptMini",
+        "Detectors": "promptinject.AttackRogueString"
+    },
+    {
+        "Harness": "Security",
+        "Test": "replay",
+        "Probe Name": "replay.Repeat",
+        "Detectors": "replay.RepeatDiverges"
+    },
+    {
+        "Harness": "Security",
+        "Test": "xss",
+        "Probe Name": "xss.MarkdownImageExfil",
+        "Detectors": "xss.MarkdownExfilBasic, xss.MarkdownExfilContent"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "atkgen",
+        "Probe Name": "atkgen.Tox",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "continuation",
+        "Probe Name": "continuation.ContinueSlursReclaimedSlurs80",
+        "Detectors": "continuation.Continuation"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPFlirtation",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPIdentity_Attack",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPInsult",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPProfanity",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPSevere_Toxicity",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPSexually_Explicit",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPThreat",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "leakreplay",
+        "Probe Name": "leakreplay.GuardianCloze",
+        "Detectors": "base.TriggerListDetector"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "leakreplay",
+        "Probe Name": "leakreplay.GuardianComplete",
+        "Detectors": "leakreplay.StartsWith"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "leakreplay",
+        "Probe Name": "leakreplay.LiteratureCloze80",
+        "Detectors": "base.TriggerListDetector"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "leakreplay",
+        "Probe Name": "leakreplay.LiteratureComplete80",
+        "Detectors": "leakreplay.StartsWith"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "leakreplay",
+        "Probe Name": "leakreplay.NYTCloze",
+        "Detectors": "base.TriggerListDetector"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "leakreplay",
+        "Probe Name": "leakreplay.NYTComplete",
+        "Detectors": "leakreplay.StartsWith"
+    },
+    {
+        "Harness": "Privacy",
+        "Test": "replay",
+        "Probe Name": "replay.Repeat",
+        "Detectors": "replay.RepeatDiverges"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "goodside",
+        "Probe Name": "goodside.Davidjl",
+        "Detectors": "goodside.Glitch"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "goodside",
+        "Probe Name": "goodside.Tag",
+        "Detectors": "base.TriggerListDetector"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "goodside",
+        "Probe Name": "goodside.ThreatenJSON",
+        "Detectors": "goodside.PlainJSON"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "goodside",
+        "Probe Name": "goodside.WhoIsRiley",
+        "Detectors": "goodside.RileyIsnt"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "misleading",
+        "Probe Name": "misleading.FalseAssertion50",
+        "Detectors": "misleading.MustRefuteClaimModel, misleading.MustRefuteClaimKW, mitigation.MitigationBypass, misleading.MustContradictNLI"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "packagehallucination",
+        "Probe Name": "packagehallucination.Python",
+        "Detectors": "packagehallucination.PythonPypi"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "snowball",
+        "Probe Name": "snowball.GraphConnectivityMini",
+        "Detectors": "snowball.DontStartYes"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "snowball",
+        "Probe Name": "snowball.PrimesMini",
+        "Detectors": "snowball.DontStartNo"
+    },
+    {
+        "Harness": "Hallucination",
+        "Test": "snowball",
+        "Probe Name": "snowball.SenatorsMini",
+        "Detectors": "snowball.DontStartYes"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Robustness",
+        "Test": "advglue",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "atkgen",
+        "Probe Name": "atkgen.Tox",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "continuation",
+        "Probe Name": "continuation.ContinueSlursReclaimedSlurs80",
+        "Detectors": "continuation.Continuation"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPFlirtation",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPIdentity_Attack",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPInsult",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPProfanity",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPSevere_Toxicity",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPSexually_Explicit",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Toxicity",
+        "Test": "realtoxicityprompts",
+        "Probe Name": "realtoxicityprompts.RTPThreat",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Stereotype",
+        "Test": "advstereo",
+        "Probe Name": "base.Probe",
+        "Detectors": "advstereo.IAgree"
+    },
+    {
+        "Harness": "Fairness",
+        "Test": "adultdata",
+        "Probe Name": "base.Probe",
+        "Detectors": "adultdata.PairwiseComparison"
+    },
+    {
+        "Harness": "Fairness",
+        "Test": "winobias",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListDetector"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "hendrycksethics",
+        "Probe Name": "base.Probe",
+        "Detectors": "base.TriggerListAbsenceDetector"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.Anthropomorphisation",
+        "Detectors": "lmrc.Anthro"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.Bullying",
+        "Detectors": "toxicity.ToxicCommentModel"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.Deadnaming",
+        "Detectors": "base.TriggerListDetector"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.Profanity",
+        "Detectors": "riskywords.SurgeProfanityAnimalReferences, riskywords.SurgeProfanityBodilyFluids, riskywords.SurgeProfanityMentalDisability, riskywords.SurgeProfanityPhysicalAttributes, riskywords.SurgeProfanityPhysicalDisability, riskywords.SurgeProfanityPolitical, riskywords.SurgeProfanityRacialEthnic, riskywords.SurgeProfanityReligious, riskywords.SurgeProfanitySexual, riskywords.SurgeProfanitySexualOrientationGender"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.QuackMedicine",
+        "Detectors": "lmrc.QuackMedicine"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.SexualContent",
+        "Detectors": "riskywords.SurgeProfanitySexual"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.Sexualisation",
+        "Detectors": "riskywords.SurgeProfanitySexual"
+    },
+    {
+        "Harness": "Ethics",
+        "Test": "lmrc",
+        "Probe Name": "lmrc.SlurUsage",
+        "Detectors": "riskywords.SurgeProfanityRacialEthnic, riskywords.OfcomOffensiveRaceEthnic"
+    }
+]
