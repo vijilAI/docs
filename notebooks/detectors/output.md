@@ -1,144 +1,186 @@
-| Harness | Test | Probe Name | Detectors |
-|---------|------|------------|-----------|
-| Security | dan | dan.AntiDAN | mitigation.MitigationBypass, dan.AntiDAN |
-| Security | dan | dan.AutoDANProbe | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.ChatGPT_Developer_Mode_RANTI | mitigation.MitigationBypass, dan.DevMode |
-| Security | dan | dan.ChatGPT_Developer_Mode_v2 | mitigation.MitigationBypass, dan.DevMode |
-| Security | dan | dan.ChatGPT_Image_Markdown | mitigation.MitigationBypass, dan.MarkdownLink |
-| Security | dan | dan.DAN_Jailbreak | mitigation.MitigationBypass, dan.DANJailbreak |
-| Security | dan | dan.DUDE | mitigation.MitigationBypass, dan.DUDE |
-| Security | dan | dan.Dan_10_0 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.Dan_11_0 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.Dan_6_0 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.Dan_6_2 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.Dan_7_0 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.Dan_8_0 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.Dan_9_0 | mitigation.MitigationBypass, dan.DAN |
-| Security | dan | dan.STAN | mitigation.MitigationBypass, dan.STAN |
-| Security | encoding | encoding.InjectAscii85 | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectBase16 | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectBase2048 | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectBase32 | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectBase64 | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectBraille | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectEcoji | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectHex | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectMorse | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectNato | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectROT13 | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectUU | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | encoding | encoding.InjectZalgo | encoding.DecodeMatch, encoding.DecodeApprox |
-| Security | gcg | gcg.GCG_Probe | mitigation.MitigationBypass |
-| Security | glitch | glitch.Glitch100 | goodside.Glitch |
-| Security | knownbadsignatures | knownbadsignatures.EICAR | knownbadsignatures.EICAR |
-| Security | knownbadsignatures | knownbadsignatures.GTUBE | knownbadsignatures.GTUBE |
-| Security | knownbadsignatures | knownbadsignatures.GTphish | knownbadsignatures.GTphish |
-| Security | malwaregen | malwaregen.Evasion | malwaregen.AnyCode |
-| Security | malwaregen | malwaregen.Payload | malwaregen.AnyCode |
-| Security | malwaregen | malwaregen.SubFunctions | malwaregen.AnyCode |
-| Security | malwaregen | malwaregen.TopLevel | malwaregen.AnyCode |
-| Security | packagehallucination | packagehallucination.Python | packagehallucination.PythonPypi |
-| Security | promptinject | promptinject.HijackHateHumansMini | promptinject.AttackRogueString |
-| Security | promptinject | promptinject.HijackKillHumansMini | promptinject.AttackRogueString |
-| Security | promptinject | promptinject.HijackLongPromptMini | promptinject.AttackRogueString |
-| Security | replay | replay.Repeat | replay.RepeatDiverges |
-| Security | xss | xss.MarkdownImageExfil | xss.MarkdownExfilBasic, xss.MarkdownExfilContent |
-| Toxicity | atkgen | atkgen.Tox | toxicity.ToxicCommentModel |
-| Toxicity | continuation | continuation.ContinueSlursReclaimedSlurs80 | continuation.Continuation |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPFlirtation | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPIdentity_Attack | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPInsult | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPProfanity | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPSevere_Toxicity | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPSexually_Explicit | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPThreat | toxicity.ToxicCommentModel |
-| Privacy | leakreplay | leakreplay.GuardianCloze | base.TriggerListDetector |
-| Privacy | leakreplay | leakreplay.GuardianComplete | leakreplay.StartsWith |
-| Privacy | leakreplay | leakreplay.LiteratureCloze80 | base.TriggerListDetector |
-| Privacy | leakreplay | leakreplay.LiteratureComplete80 | leakreplay.StartsWith |
-| Privacy | leakreplay | leakreplay.NYTCloze | base.TriggerListDetector |
-| Privacy | leakreplay | leakreplay.NYTComplete | leakreplay.StartsWith |
-| Privacy | replay | replay.Repeat | replay.RepeatDiverges |
-| Hallucination | goodside | goodside.Davidjl | goodside.Glitch |
-| Hallucination | goodside | goodside.Tag | base.TriggerListDetector |
-| Hallucination | goodside | goodside.ThreatenJSON | goodside.PlainJSON |
-| Hallucination | goodside | goodside.WhoIsRiley | goodside.RileyIsnt |
-| Hallucination | misleading | misleading.FalseAssertion50 | misleading.MustRefuteClaimModel, misleading.MustRefuteClaimKW, mitigation.MitigationBypass, misleading.MustContradictNLI |
-| Hallucination | packagehallucination | packagehallucination.Python | packagehallucination.PythonPypi |
-| Hallucination | snowball | snowball.GraphConnectivityMini | snowball.DontStartYes |
-| Hallucination | snowball | snowball.PrimesMini | snowball.DontStartNo |
-| Hallucination | snowball | snowball.SenatorsMini | snowball.DontStartYes |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Robustness | advglue | base.Probe | base.TriggerListAbsenceDetector |
-| Toxicity | atkgen | atkgen.Tox | toxicity.ToxicCommentModel |
-| Toxicity | continuation | continuation.ContinueSlursReclaimedSlurs80 | continuation.Continuation |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPFlirtation | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPIdentity_Attack | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPInsult | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPProfanity | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPSevere_Toxicity | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPSexually_Explicit | toxicity.ToxicCommentModel |
-| Toxicity | realtoxicityprompts | realtoxicityprompts.RTPThreat | toxicity.ToxicCommentModel |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Stereotype | advstereo | base.Probe | advstereo.IAgree |
-| Fairness | adultdata | base.Probe | adultdata.PairwiseComparison |
-| Fairness | winobias | base.Probe | base.TriggerListDetector |
-| Ethics | hendrycksethics | base.Probe | base.TriggerListAbsenceDetector |
-| Ethics | lmrc | lmrc.Anthropomorphisation | lmrc.Anthro |
-| Ethics | lmrc | lmrc.Bullying | toxicity.ToxicCommentModel |
-| Ethics | lmrc | lmrc.Deadnaming | base.TriggerListDetector |
-| Ethics | lmrc | lmrc.Profanity | riskywords.SurgeProfanityAnimalReferences, riskywords.SurgeProfanityBodilyFluids, riskywords.SurgeProfanityMentalDisability, riskywords.SurgeProfanityPhysicalAttributes, riskywords.SurgeProfanityPhysicalDisability, riskywords.SurgeProfanityPolitical, riskywords.SurgeProfanityRacialEthnic, riskywords.SurgeProfanityReligious, riskywords.SurgeProfanitySexual, riskywords.SurgeProfanitySexualOrientationGender |
-| Ethics | lmrc | lmrc.QuackMedicine | lmrc.QuackMedicine |
-| Ethics | lmrc | lmrc.SexualContent | riskywords.SurgeProfanitySexual |
-| Ethics | lmrc | lmrc.Sexualisation | riskywords.SurgeProfanitySexual |
-| Ethics | lmrc | lmrc.SlurUsage | riskywords.SurgeProfanityRacialEthnic, riskywords.OfcomOffensiveRaceEthnic |
+| Harness | Test | Probe Name | Probe Path | Detector Path | Detector Name |
+|---------|------|------------|------------|---------------|---------------|
+| Security | dan | AntiDAN | garak.probes.dan.AntiDAN | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | AntiDAN | garak.probes.dan.AntiDAN | garak.detectors.dan.AntiDAN | AntiDAN |
+| Security | dan | AutoDANProbe | garak.probes.dan.AutoDANProbe | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | AutoDANProbe | garak.probes.dan.AutoDANProbe | garak.detectors.dan.DAN | DAN |
+| Security | dan | ChatGPT_Developer_Mode_RANTI | garak.probes.dan.ChatGPT_Developer_Mode_RANTI | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | ChatGPT_Developer_Mode_RANTI | garak.probes.dan.ChatGPT_Developer_Mode_RANTI | garak.detectors.dan.DevMode | DevMode |
+| Security | dan | ChatGPT_Developer_Mode_v2 | garak.probes.dan.ChatGPT_Developer_Mode_v2 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | ChatGPT_Developer_Mode_v2 | garak.probes.dan.ChatGPT_Developer_Mode_v2 | garak.detectors.dan.DevMode | DevMode |
+| Security | dan | ChatGPT_Image_Markdown | garak.probes.dan.ChatGPT_Image_Markdown | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | ChatGPT_Image_Markdown | garak.probes.dan.ChatGPT_Image_Markdown | garak.detectors.dan.MarkdownLink | MarkdownLink |
+| Security | dan | DAN_Jailbreak | garak.probes.dan.DAN_Jailbreak | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | DAN_Jailbreak | garak.probes.dan.DAN_Jailbreak | garak.detectors.dan.DANJailbreak | DANJailbreak |
+| Security | dan | DUDE | garak.probes.dan.DUDE | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | DUDE | garak.probes.dan.DUDE | garak.detectors.dan.DUDE | DUDE |
+| Security | dan | Dan_10_0 | garak.probes.dan.Dan_10_0 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_10_0 | garak.probes.dan.Dan_10_0 | garak.detectors.dan.DAN | DAN |
+| Security | dan | Dan_11_0 | garak.probes.dan.Dan_11_0 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_11_0 | garak.probes.dan.Dan_11_0 | garak.detectors.dan.DAN | DAN |
+| Security | dan | Dan_6_0 | garak.probes.dan.Dan_6_0 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_6_0 | garak.probes.dan.Dan_6_0 | garak.detectors.dan.DAN | DAN |
+| Security | dan | Dan_6_2 | garak.probes.dan.Dan_6_2 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_6_2 | garak.probes.dan.Dan_6_2 | garak.detectors.dan.DAN | DAN |
+| Security | dan | Dan_7_0 | garak.probes.dan.Dan_7_0 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_7_0 | garak.probes.dan.Dan_7_0 | garak.detectors.dan.DAN | DAN |
+| Security | dan | Dan_8_0 | garak.probes.dan.Dan_8_0 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_8_0 | garak.probes.dan.Dan_8_0 | garak.detectors.dan.DAN | DAN |
+| Security | dan | Dan_9_0 | garak.probes.dan.Dan_9_0 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | Dan_9_0 | garak.probes.dan.Dan_9_0 | garak.detectors.dan.DAN | DAN |
+| Security | dan | STAN | garak.probes.dan.STAN | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | dan | STAN | garak.probes.dan.STAN | garak.detectors.dan.STAN | STAN |
+| Security | encoding | InjectAscii85 | garak.probes.encoding.InjectAscii85 | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectAscii85 | garak.probes.encoding.InjectAscii85 | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectBase16 | garak.probes.encoding.InjectBase16 | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectBase16 | garak.probes.encoding.InjectBase16 | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectBase2048 | garak.probes.encoding.InjectBase2048 | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectBase2048 | garak.probes.encoding.InjectBase2048 | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectBase32 | garak.probes.encoding.InjectBase32 | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectBase32 | garak.probes.encoding.InjectBase32 | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectBase64 | garak.probes.encoding.InjectBase64 | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectBase64 | garak.probes.encoding.InjectBase64 | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectBraille | garak.probes.encoding.InjectBraille | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectBraille | garak.probes.encoding.InjectBraille | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectEcoji | garak.probes.encoding.InjectEcoji | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectEcoji | garak.probes.encoding.InjectEcoji | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectHex | garak.probes.encoding.InjectHex | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectHex | garak.probes.encoding.InjectHex | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectMorse | garak.probes.encoding.InjectMorse | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectMorse | garak.probes.encoding.InjectMorse | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectNato | garak.probes.encoding.InjectNato | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectNato | garak.probes.encoding.InjectNato | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectROT13 | garak.probes.encoding.InjectROT13 | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectROT13 | garak.probes.encoding.InjectROT13 | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectUU | garak.probes.encoding.InjectUU | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectUU | garak.probes.encoding.InjectUU | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | encoding | InjectZalgo | garak.probes.encoding.InjectZalgo | garak.detectors.encoding.DecodeMatch | DecodeMatch |
+| Security | encoding | InjectZalgo | garak.probes.encoding.InjectZalgo | garak.detectors.encoding.DecodeApprox | DecodeApprox |
+| Security | gcg | GCG_Probe | garak.probes.gcg.GCG_Probe | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Security | glitch | Glitch100 | garak.probes.glitch.Glitch100 | garak.detectors.goodside.Glitch | Glitch |
+| Security | knownbadsignatures | EICAR | garak.probes.knownbadsignatures.EICAR | garak.detectors.knownbadsignatures.EICAR | EICAR |
+| Security | knownbadsignatures | GTUBE | garak.probes.knownbadsignatures.GTUBE | garak.detectors.knownbadsignatures.GTUBE | GTUBE |
+| Security | knownbadsignatures | GTphish | garak.probes.knownbadsignatures.GTphish | garak.detectors.knownbadsignatures.GTphish | GTphish |
+| Security | malwaregen | Evasion | garak.probes.malwaregen.Evasion | garak.detectors.malwaregen.AnyCode | AnyCode |
+| Security | malwaregen | Payload | garak.probes.malwaregen.Payload | garak.detectors.malwaregen.AnyCode | AnyCode |
+| Security | malwaregen | SubFunctions | garak.probes.malwaregen.SubFunctions | garak.detectors.malwaregen.AnyCode | AnyCode |
+| Security | malwaregen | TopLevel | garak.probes.malwaregen.TopLevel | garak.detectors.malwaregen.AnyCode | AnyCode |
+| Security | packagehallucination | Python | garak.probes.packagehallucination.Python | garak.detectors.packagehallucination.PythonPypi | PythonPypi |
+| Security | promptinject | HijackHateHumansMini | garak.probes.promptinject.HijackHateHumansMini | garak.detectors.promptinject.AttackRogueString | AttackRogueString |
+| Security | promptinject | HijackKillHumansMini | garak.probes.promptinject.HijackKillHumansMini | garak.detectors.promptinject.AttackRogueString | AttackRogueString |
+| Security | promptinject | HijackLongPromptMini | garak.probes.promptinject.HijackLongPromptMini | garak.detectors.promptinject.AttackRogueString | AttackRogueString |
+| Security | replay | Repeat | garak.probes.replay.Repeat | garak.detectors.replay.RepeatDiverges | RepeatDiverges |
+| Security | xss | MarkdownImageExfil | garak.probes.xss.MarkdownImageExfil | garak.detectors.xss.MarkdownExfilBasic | MarkdownExfilBasic |
+| Security | xss | MarkdownImageExfil | garak.probes.xss.MarkdownImageExfil | garak.detectors.xss.MarkdownExfilContent | MarkdownExfilContent |
+| Toxicity | atkgen | Tox | garak.probes.atkgen.Tox | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | continuation | ContinueSlursReclaimedSlurs80 | garak.probes.continuation.ContinueSlursReclaimedSlurs80 | garak.detectors.continuation.Continuation | Continuation |
+| Toxicity | realtoxicityprompts | RTPFlirtation | garak.probes.realtoxicityprompts.RTPFlirtation | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPIdentity_Attack | garak.probes.realtoxicityprompts.RTPIdentity_Attack | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPInsult | garak.probes.realtoxicityprompts.RTPInsult | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPProfanity | garak.probes.realtoxicityprompts.RTPProfanity | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPSevere_Toxicity | garak.probes.realtoxicityprompts.RTPSevere_Toxicity | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPSexually_Explicit | garak.probes.realtoxicityprompts.RTPSexually_Explicit | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPThreat | garak.probes.realtoxicityprompts.RTPThreat | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Privacy | leakreplay | GuardianCloze | garak.probes.leakreplay.GuardianCloze | garak.detectors.base.TriggerListDetector | TriggerListDetector |
+| Privacy | leakreplay | GuardianComplete | garak.probes.leakreplay.GuardianComplete | garak.detectors.leakreplay.StartsWith | StartsWith |
+| Privacy | leakreplay | LiteratureCloze80 | garak.probes.leakreplay.LiteratureCloze80 | garak.detectors.base.TriggerListDetector | TriggerListDetector |
+| Privacy | leakreplay | LiteratureComplete80 | garak.probes.leakreplay.LiteratureComplete80 | garak.detectors.leakreplay.StartsWith | StartsWith |
+| Privacy | leakreplay | NYTCloze | garak.probes.leakreplay.NYTCloze | garak.detectors.base.TriggerListDetector | TriggerListDetector |
+| Privacy | leakreplay | NYTComplete | garak.probes.leakreplay.NYTComplete | garak.detectors.leakreplay.StartsWith | StartsWith |
+| Privacy | replay | Repeat | garak.probes.replay.Repeat | garak.detectors.replay.RepeatDiverges | RepeatDiverges |
+| Hallucination | goodside | Davidjl | garak.probes.goodside.Davidjl | garak.detectors.goodside.Glitch | Glitch |
+| Hallucination | goodside | Tag | garak.probes.goodside.Tag | garak.detectors.base.TriggerListDetector | TriggerListDetector |
+| Hallucination | goodside | ThreatenJSON | garak.probes.goodside.ThreatenJSON | garak.detectors.goodside.PlainJSON | PlainJSON |
+| Hallucination | goodside | WhoIsRiley | garak.probes.goodside.WhoIsRiley | garak.detectors.goodside.RileyIsnt | RileyIsnt |
+| Hallucination | misleading | FalseAssertion50 | garak.probes.misleading.FalseAssertion50 | garak.detectors.misleading.MustRefuteClaimModel | MustRefuteClaimModel |
+| Hallucination | misleading | FalseAssertion50 | garak.probes.misleading.FalseAssertion50 | garak.detectors.misleading.MustRefuteClaimKW | MustRefuteClaimKW |
+| Hallucination | misleading | FalseAssertion50 | garak.probes.misleading.FalseAssertion50 | garak.detectors.mitigation.MitigationBypass | MitigationBypass |
+| Hallucination | misleading | FalseAssertion50 | garak.probes.misleading.FalseAssertion50 | garak.detectors.misleading.MustContradictNLI | MustContradictNLI |
+| Hallucination | packagehallucination | Python | garak.probes.packagehallucination.Python | garak.detectors.packagehallucination.PythonPypi | PythonPypi |
+| Hallucination | snowball | GraphConnectivityMini | garak.probes.snowball.GraphConnectivityMini | garak.detectors.snowball.DontStartYes | DontStartYes |
+| Hallucination | snowball | PrimesMini | garak.probes.snowball.PrimesMini | garak.detectors.snowball.DontStartNo | DontStartNo |
+| Hallucination | snowball | SenatorsMini | garak.probes.snowball.SenatorsMini | garak.detectors.snowball.DontStartYes | DontStartYes |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Robustness | advglue | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Toxicity | atkgen | Tox | garak.probes.atkgen.Tox | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | continuation | ContinueSlursReclaimedSlurs80 | garak.probes.continuation.ContinueSlursReclaimedSlurs80 | garak.detectors.continuation.Continuation | Continuation |
+| Toxicity | realtoxicityprompts | RTPFlirtation | garak.probes.realtoxicityprompts.RTPFlirtation | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPIdentity_Attack | garak.probes.realtoxicityprompts.RTPIdentity_Attack | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPInsult | garak.probes.realtoxicityprompts.RTPInsult | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPProfanity | garak.probes.realtoxicityprompts.RTPProfanity | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPSevere_Toxicity | garak.probes.realtoxicityprompts.RTPSevere_Toxicity | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPSexually_Explicit | garak.probes.realtoxicityprompts.RTPSexually_Explicit | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Toxicity | realtoxicityprompts | RTPThreat | garak.probes.realtoxicityprompts.RTPThreat | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Stereotype | advstereo | Probe | garak.probes.base.Probe | autoredteam.detectors.advstereo.IAgree | IAgree |
+| Fairness | adultdata | Probe | garak.probes.base.Probe | autoredteam.detectors.adultdata.PairwiseComparison | PairwiseComparison |
+| Fairness | winobias | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListDetector | TriggerListDetector |
+| Ethics | hendrycksethics | Probe | garak.probes.base.Probe | autoredteam.detectors.base.TriggerListAbsenceDetector | TriggerListAbsenceDetector |
+| Ethics | lmrc | Anthropomorphisation | garak.probes.lmrc.Anthropomorphisation | garak.detectors.lmrc.Anthro | Anthro |
+| Ethics | lmrc | Bullying | garak.probes.lmrc.Bullying | garak.detectors.toxicity.ToxicCommentModel | ToxicCommentModel |
+| Ethics | lmrc | Deadnaming | garak.probes.lmrc.Deadnaming | garak.detectors.base.TriggerListDetector | TriggerListDetector |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityAnimalReferences | SurgeProfanityAnimalReferences |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityBodilyFluids | SurgeProfanityBodilyFluids |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityMentalDisability | SurgeProfanityMentalDisability |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityPhysicalAttributes | SurgeProfanityPhysicalAttributes |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityPhysicalDisability | SurgeProfanityPhysicalDisability |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityPolitical | SurgeProfanityPolitical |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityRacialEthnic | SurgeProfanityRacialEthnic |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanityReligious | SurgeProfanityReligious |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanitySexual | SurgeProfanitySexual |
+| Ethics | lmrc | Profanity | garak.probes.lmrc.Profanity | garak.detectors.riskywords.SurgeProfanitySexualOrientationGender | SurgeProfanitySexualOrientationGender |
+| Ethics | lmrc | QuackMedicine | garak.probes.lmrc.QuackMedicine | garak.detectors.lmrc.QuackMedicine | QuackMedicine |
+| Ethics | lmrc | SexualContent | garak.probes.lmrc.SexualContent | garak.detectors.riskywords.SurgeProfanitySexual | SurgeProfanitySexual |
+| Ethics | lmrc | Sexualisation | garak.probes.lmrc.Sexualisation | garak.detectors.riskywords.SurgeProfanitySexual | SurgeProfanitySexual |
+| Ethics | lmrc | SlurUsage | garak.probes.lmrc.SlurUsage | garak.detectors.riskywords.SurgeProfanityRacialEthnic | SurgeProfanityRacialEthnic |
+| Ethics | lmrc | SlurUsage | garak.probes.lmrc.SlurUsage | garak.detectors.riskywords.OfcomOffensiveRaceEthnic | OfcomOffensiveRaceEthnic |
