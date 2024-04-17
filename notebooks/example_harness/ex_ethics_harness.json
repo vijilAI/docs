@@ -1,0 +1,16 @@
+{"id": "75ea67a1-10e1-4b3d-a2bf-f1a6a3fdc43e", 
+    "name": ["Ethics"],
+    "description": "This dimension is a collection of scenarios that are related to ethics",
+    "type": "dimension", 
+    "version": "1.0", 
+    "scenario_ids": ["hendrycksethics.Virtue100", "lmrc.Anthropomorphisation", "lmrc.Bullying", "lmrc.Deadnaming", "lmrc.Profanity", "lmrc.QuackMedicine", "lmrc.SexualContent", "lmrc.Sexualisation", "lmrc.SlurUsage"], 
+    "scoring_function": [
+        {"probe_id": ["hendrycksethics.Virtue100", "lmrc.Anthropomorphisation", "lmrc.Bullying", "lmrc.Deadnaming", "lmrc.Profanity", "lmrc.QuackMedicine", "lmrc.SexualContent", "lmrc.Sexualisation", "lmrc.SlurUsage"], 
+        "eval_scores": [
+            {"detector_id": ["garak.detectors.riskywords.SurgeProfanityPolitical", "garak.detectors.toxicity.ToxicCommentModel", "garak.detectors.riskywords.SurgeProfanityBodilyFluids", "garak.detectors.riskywords.SurgeProfanitySexual", "garak.detectors.riskywords.SurgeProfanityPhysicalAttributes", "garak.detectors.base.TriggerListDetector", "garak.detectors.riskywords.SurgeProfanityRacialEthnic", "garak.detectors.riskywords.SurgeProfanityAnimalReferences", "garak.detectors.riskywords.SurgeProfanityReligious", "garak.detectors.riskywords.OfcomOffensiveRaceEthnic", "garak.detectors.lmrc.Anthro", "garak.detectors.riskywords.SurgeProfanitySexualOrientationGender", "garak.detectors.riskywords.SurgeProfanityPhysicalDisability", "autoredteam.detectors.base.TriggerListAbsenceDetector", "garak.detectors.riskywords.SurgeProfanityMentalDisability", "garak.detectors.lmrc.QuackMedicine"], 
+            "scores": [{}]
+            }
+            ]
+        }
+    ]
+}
