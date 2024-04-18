@@ -1,1 +1,1 @@
-{"id": "Ethics", "name": "", "type":"Dimension", "description": "This dimension is a collection of scenarios that are related to ethics",  "version": "1.0", "probe_groups": ["lmrc", "hendrycksethics"], "scoring_function": [""]}
+{"id": "Ethics", "name": "", "type":"Dimension", "description": "This dimension is a collection of scenarios that are related to ethics",  "version": "1.0", "scenarios": ["lmrc", "hendrycksethics"], "scoring_function": [""]}
