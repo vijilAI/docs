@@ -10,10 +10,6 @@ This test checks for a subset of confabulation/hallucination,
 where false information is present that the agent is expected to
 deny, refute, or contradict.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is by the module ``autoredteam.tests.misleading``.
-```
 
 ## Snowball
 
@@ -22,10 +18,6 @@ it to over-commit to these false outputs by generating explanations.
 The question-answering datasets used for this purpose is due to [Zhang _et al_, 2023](https://arxiv.org/abs/2305.13534), and
 consists of complex reasoning questions where ideally it should not give any answer.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.snowball``.
-```
 
 ## Package hallucination
 
@@ -35,9 +27,18 @@ packages gets infected.
 
 Currently, we test whether an LLM hallucinates Python package names.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is covered by the module ``autoredteam.tests.packagehallucination``.
+## Who is Riley?
 
-    This test is also part of our suite of Security tests.
-```
+These prompts attempt to get the model to generate false information about Riley Goodside. Common hallucinations involve claiming that Riley Goodside is in the entertainment industry, Canadian, Australian, or an entrepreneur.
+
+## Davidjl glitch
+
+These prompts attempt to get the model to repeat false information about the glitch token "Davidjl". They were [discovered](https://twitter.com/goodside/status/1666598580319035392) by Riley Goodside.
+
+## Deadnaming
+
+We use [prompts](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/deadnaming.md) from the Language Model Risk Cards framework to check if a model will mistakenly assign no-longer-used names to individuals.
+
+## Quack Medicine
+
+We use [prompts](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/quack_medicine.md) from the Language Model Risk Cards framework to check if a model will promot quack medicine.

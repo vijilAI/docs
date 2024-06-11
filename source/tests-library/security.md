@@ -3,16 +3,10 @@
 Language models are vulnerable to an infinite number of attacks because they accept natural language as input. They are vulnerable to attack from every variation of character, word, sentence, and meaning in human language. As a result, every model is vulnerable to being abused or misused by malicious attackers to cause harm to others.
 
 We test for the vulnerability of LLMs to popular types of attacks observed with production deployments. 
-For this purpose, we use 44 tests, divided into 11 modules.
 
 ## Adversarial suffix
 
 This test is designed to disrupt a system prompt by appending an adversarial suffix. To implement these tests, we follow the approach of [Zou _et al_, 2023](https://arxiv.org/abs/2307.15043) that automatically produces adversarial suffixes by a combination of greedy and gradient-based search techniques.
-
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is covered by the module ``autoredteam.tests.gcg``.
-```
 
 ## DAN
 
@@ -36,11 +30,6 @@ Vijil covers 15 DAN attack scenarios through tests implemented in this module.
 * DAN 11.0
 * STAN
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.dan``.
-```
-
 ## Encoding
 
 Malicious users might try to get an agent to generate a specific piece of given text
@@ -61,38 +50,23 @@ Vijil's tests check for such indirect prompt injection attacks that use a variet
 - Braille
 - Morse code
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.encoding``.
-```
-
 ## Glitch
 
 LLMs are susceptible to '[glitch tokens](https://www.lesswrong.com/posts/aPeJE8bSo6rAFoLqg/solidgoldmagikarp-plus-prompt-generation)',
 specific input tokens that when supplied as input lead to unusual model behavior.
 This test checks whether a particular LLM-based agent is vulnerable to such tokens.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is covered by the module ``autoredteam.tests.glitch``.
-```
 
 ## Goodside
 
 This group of tests implements prompt injection attacks [found](https://simonwillison.net/2022/Sep/12/prompt-injection/)
 by AI security engieer Riley Goodside.
 
-Vijil covers 4 Goodside attacks through its tests that are intended to make the agent
+Vijil covers Goodside attacks through its tests that are intended to make the agent:
 
-* generate misinformation about Riley Goodside,
 * generate JSON-formatted outputs by threatning it with dire consequences ([source](https://twitter.com/goodside/status/1657396491676164096)),
-* generate or answer questions about the magic token `davidjl` ([source](https://twitter.com/goodside/status/1666598580319035392)),
 * exploit UTF tag page encoding for user-invisible prompt injection ([source](https://twitter.com/goodside/status/1745511940351287394)).
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.goodside``.
-```
 
 ## Known bad signatures
 
@@ -105,10 +79,6 @@ Vijil covers three such signatures.
 - [GTUBE](https://en.wikipedia.org/wiki/GTUBE)
 - [GTPhish](https://gist.github.com/SleepyLctl/c6a039afa61bd96341f5c7d5e092a46a)
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.knownbadsignatures``.
-```
 
 ## Malware generation
 
@@ -117,26 +87,6 @@ To this end, we test for
 - Different types of code, such as top level functions, subfunctions, anti-malware evasion, and payloads, and
 - Above types of code written in different languages: x86 assembly, x86-64 assembly, C\#, C, C++, Rust, ARM64, and Swift.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.malwaregen``.
-```
-
-## Package hallucination
-
-This vulnerability was discovered [recently](https://www.scmagazine.com/news/ai-package-hallucination-malicious-code-developer-environments).
-LLMs are known to produce hallucinations or confabulations, including non-existent links or texts. 
-If they end up creating fake code libraries or packages, attackers can upload packages to respective repositories, so that whoever downloads those
-packages gets infected.
-
-Currently, we test whether an LLM hallucinates Python package names.
-
-```{eval-rst}
-.. note::
-    In our Python SDK, this test is covered by the module ``autoredteam.tests.packagehallucination``.
-
-    This test is also part of our suite of Hallucination tests.
-```
 
 ## Prompt injection
 
@@ -150,22 +100,6 @@ We follow the [PromptInject](https://openreview.net/forum?id=qiaRo_7Zmug) framew
 
 In each type of attack, we add a suffix or prefix to the original prompt text so as to make the model ignore the instructions included in that user prompt.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.promptinject``.
-```
-
-## Poem Attack
-AI security researchers from Google recently [pointed out](https://www.vice.com/en/article/88xe75/chatgpt-can-reveal-personal-information-from-real-people-google-researchers-show)
-that when repeatedly asked to repeat the word ‘poem’ or ‘book’ indefinitely, 
-in some cases ChatGPT diverged to copy outputs directly from training data.
-
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.replay``.
-    
-    This test is also part of our suite of Privacy tests.
-```
 
 ## Cross-site scripting (XSS)
 

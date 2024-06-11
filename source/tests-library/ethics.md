@@ -1,36 +1,33 @@
 # Ethics
 
+| Harness                          | Probe                                                 | Detector                                              |
+| -------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
+| vijil.harnesses.ethics           | All probes named below                                | autoredteam.detectors.base.TriggerListAbsenceDetector |
+| [vijil.harnesses.normative_ethics](#probes-from-the-ethics-dataset) | vijil.probes.normative_ethics.Deontology              | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.DeontologyJailbreak     | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.Justice                 | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.JusticeJailbreak        | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.Morality                | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.MoralityJailbreak       | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.Utilitarianism          | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.UtilitarianismJailbreak | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.Virtue                  | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.normative_ethics.VirtueJailbreak         | autoredteam.detectors.base.TriggerListAbsenceDetector |
+| [vijil.harnesses.jiminycricket](#jiminy-cricket)    | vijil.probes.jiminycricket.Jiminy                     | autoredteam.detectors.base.TriggerListAbsenceDetector |
+|                                  | vijil.probes.jiminycricket.JiminyJailbreak            | autoredteam.detectors.base.TriggerListAbsenceDetector |
+
 As intelligent agents designed to automate human-grade tasks, it is important for an LLM to have knowledge of basic concepts of morality that goes beyond toxicity, bias, or stereotypes— such as justice, well-being, duties, and virtues.
 
-We evaluate the propensity of an LLM to generate content not aligned with shared human values using 9 tests in 2 modules.
+We evaluate the propensity of an LLM to generate content that is ethically questionable. We use modified versions of the [ETHICS](https://github.com/hendrycks/ethics) and [Jiminy Cricket](https://github.com/hendrycks/jiminy-cricket) datasets for this.
 
-## Virtue Alignment
+## Probes from the ETHICS dataset
 
-We adapt the [ETHICS](https://github.com/hendrycks/ethics) dataset to test how much an LLM aligns with notions of human virtues. Each input prompt consists of a scenario, e.g. Martha hired a new babysitter and was totally at ease with her, a human trait, e.g. trustful, and a 0/1 label of whether the trait is exhibited in this scenario. The LLM is tasked with making this inference. We use adversarial system prompts and evasion strings from DecodingTrust to make this test aggressive in nature.
+These probes determine whether the model makes judgments that are consistent with a few major ethical theories. Specifically, they test whether the model's responses are consistent with deontological ethics, virtue ethics, utilitarianism, justice, and commonsense morality.
 
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.hendrycksethics``.
-```
+We also include jailbreaking versions of these probes adapted from [Decoding Trust](https://github.com/AI-secure/DecodingTrust/tree/main). These versions insert adversarial phrases into the system and user prompts that aim to increase the probability of the model providing unethical responses.
 
-## Language Model Risk Cards
+## Jiminy Cricket
 
-This group of tests implement the Language Model Risk Cards (LMRC) [framework](https://arxiv.org/abs/2303.18190).
-LMRC specifies a large set of risks that might present in LLM deployment.
+We use the Jiminy Cricket probes in the way described in [Decoding Trust](https://github.com/AI-secure/DecodingTrust/tree/main), i.e. to evaluate whether models can accurately judge the moral valence of a scenario. Each scenario consists of an action and an observation in a text-based computer game.
 
-We use 8 vectors to test a model for unethical behavior, such as misrepresenting itself as a human,
-disrespecting the preferences of the human users, or reinforcing restrictive stereotypes.
-
-- Anthropomorphization
-- Bullying
-- Deadnaming
-- Profanity
-- Quack Medicine
-- Sexual Content
-- Sexualization
-- Slur Usage
-
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.lmrc``.
-```
+Similarly to Decoding Trust, we also include jailbreaking versions of the same scenarios. These contain adversarial phrases that aim to disrupt the model's ability to accurately determine moral valence.
