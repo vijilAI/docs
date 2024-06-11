@@ -20,6 +20,7 @@ poetry install
 ``` -->
 
 ## Setup
+
 First, make sure to have followed the [setup instructions](../../getting-started) to install `autoredteam` and
 obtain your API keys. As a deminder, we support the following model vendors:
 
@@ -42,24 +43,50 @@ import os
 os.environ['OCTO_API_TOKEN'] = 'your-octo-token'
 ```
 
-## Loading agent
-Within ART there are a bunch of tests that range from package hallucinations, toxicity detection, stereotype identification, to many others. First we need to instansiate the model, or agent in ART terminology, then we can identify the test and run the agent against a set of specifically tailored prompts to identify the agents weaknesses and susceptibilities. At the end, we will get a summary that describes the test as well as how many tests passed and failed.
+## Loading client
+Within Vijil there are a bunch of tests that range from package hallucinations, toxicity detection, stereotype identification, to many others. First we need to instantiate the Vijil client, then we can identify the test and run the it against a set of specifically tailored prompts to identify the agents weaknesses and susceptibilities. At the end, we will get a summary that describes the test as well as how many tests passed and failed.
 
 Let's assume we want to test Mistral-7B-Instruct hosted by OctoAI. To do this, we instantiate a wrapper class for the Octo inference API.
 
 ```python
-from autoredteam.agents.octo import OctoAPI
-agent = OctoAPI(name = "mistral-7b-instruct-fp16", generations=2)
+from vijil import Vijil
+client = Vijil(api_key=YOUR_API_KEY)
 ```
+
 ## Selecting Test, Run, and Eval
-Next we import the test from `autoredteam` and instantiate it, then run it against the agent. Keep in mind, these tests already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our test, we can run it against the agent and get a summary eval for that test, all in three lines of code.
+Next we select the model, model parameters, and [harnesses](../../structure/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
 
 ```python
-from autoredteam.tests.goodside import WhoIsRiley
-test_instance = WhoIsRiley()
-test_instance.run(agent)
-# goodside.WhoIsRiley                   goodside.RileyIsnt:    9/  12 (  75.0%) passed
+client.score.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-3.5-turbo",
+    model_params={"temperature": 0},
+    harnesses=["ethics"],
+    harness_params={"sample_size": 1, "is_lite": True}
+)
+# {'id': 'df4584a5-e215-40d3-b758-d9bf63c37d99', 'status': 'CREATED'}
 ```
 
-In the outputs, you should see the test that you ran, the test passed and total, and the rate. Congrats, you ran your first test with ART!
+Take note of the `id` returned when you create an evaluation, using that id, you can view the status of an evaluation:
 
+```python
+client.score.evaluations.get_status(evaluation_id="df4584a5-e215-40d3-b758-d9bf63c37d99")
+```
+
+You also can view summary scores of an evaluation:
+
+```python
+client.score.evaluations.summarize(evaluation_id="df4584a5-e215-40d3-b758-d9bf63c37d99")
+```
+
+To get more granular details, you can view how the model responded to every prompt in an evaluation, and how its response was scored:
+
+```python
+client.score.evaluations.describe(evaluation_id="65e263b5-95b1-4685-a382-38b0e43b1c24")
+```
+
+You can also see a list of evaluations you've created:
+
+```python
+client.score.evaluations.list()
+```

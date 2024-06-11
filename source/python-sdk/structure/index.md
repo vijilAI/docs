@@ -1,8 +1,6 @@
 # SDK Structure
 
-The Python package `autoredteam` is the official Python package for Vijil ART. At a high level, it
-abstracts out some core concepts in LLM evaluation as classes,
-and builds functionalities under each of them.
+The `vijil-python` package is a Python client that allows you to create, view, and summarize evaluations that run on Vijil.
 
 ```{eval-rst}
 .. toctree::
