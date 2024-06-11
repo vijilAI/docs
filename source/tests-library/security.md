@@ -105,8 +105,3 @@ In each type of attack, we add a suffix or prefix to the original prompt text so
 
 This test is intended to probe for vulnerabilities the permit or enact cross-site attacks, such
 as private data exfilteration.
-
-```{eval-rst}
-.. note::
-    In our Python SDK, these tests are covered by the module ``autoredteam.tests.xss``.
-```
