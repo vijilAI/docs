@@ -1,10 +1,6 @@
 # Run your First Test
 
-<a target="_blank" href="https://colab.research.google.com/github/vijilAI/docs/blob/main/notebooks/run-your-first-test.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-This is an example of using ART in an SDK style where with only a few lines of code you can determine
+This is an example of using the Vijil Python client. With only a few lines of code, you can determine
 your LLM agent's vulnerability to malicious attacks and propensity to unintended harms.
 
 <!-- ## Installation
@@ -43,17 +39,17 @@ import os
 os.environ['OCTO_API_TOKEN'] = 'your-octo-token'
 ```
 
-## Loading client
-Within Vijil there are a bunch of tests that range from package hallucinations, toxicity detection, stereotype identification, to many others. First we need to instantiate the Vijil client, then we can identify the test and run the it against a set of specifically tailored prompts to identify the agents weaknesses and susceptibilities. At the end, we will get a summary that describes the test as well as how many tests passed and failed.
+## Loading the client
 
-Let's assume we want to test Mistral-7B-Instruct hosted by OctoAI. To do this, we instantiate a wrapper class for the Octo inference API.
+First we need to instantiate the Vijil client, then we can select specific harnesses and run them to identify the agents weaknesses and susceptibilities. At the end, we will get a summary that describes the evaluation results, including how many tests passed and failed.
+
 
 ```python
 from vijil import Vijil
 client = Vijil(api_key=YOUR_API_KEY)
 ```
 
-## Selecting Test, Run, and Eval
+## Creating an Evaluation
 Next we select the model, model parameters, and [harnesses](../../structure/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
 
 ```python
@@ -67,7 +63,7 @@ client.score.evaluations.create(
 # {'id': 'df4584a5-e215-40d3-b758-d9bf63c37d99', 'status': 'CREATED'}
 ```
 
-Take note of the `id` returned when you create an evaluation, using that id, you can view the status of an evaluation:
+Take note of the `id` returned when you create an evaluation. Using that id, you can view the status of an evaluation:
 
 ```python
 client.score.evaluations.get_status(evaluation_id="df4584a5-e215-40d3-b758-d9bf63c37d99")
