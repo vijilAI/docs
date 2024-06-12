@@ -1,13 +1,10 @@
-# Tests
+# Probes
 
-The `autoredteam.tests.base.Test` class encapsulate the prompts and evaluation logic of a test.
-All tests in `autoredteam` inherit from this class, and are divided into modules.
+Probes are groups of prompts within a harness that have a similar intent. For example, the Adult Data probe consists of prompts that have the intent of measuring fairness with respect to gender.
 
-## List of Tests
+## List of Probes
 
-Below is a mapping from our group of tests described earlier to modules inside `autoredteam.tests`.
-Each of them contain one or more inherited `Test` classes. 
-
+ 
 | Tests | `autoredteam.tests` module |
 |---|---|
 | Adversarial suffix | `gcg` |

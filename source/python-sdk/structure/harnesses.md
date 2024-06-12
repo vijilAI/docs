@@ -2,7 +2,7 @@
 
 Harnesses allow you to run relevant groups of tests all together. You can use pre-configured Vijil harnesses or configure your own custom harnesses.
 
-Pre-configured harnesses include harnesses corresponding to each of the [dimensions](../../test-library/index.md), and other harnesses that are subsets of those dimensions.
+Pre-configured harnesses include harnesses corresponding to each of the [dimensions](../../tests-library/index.md), and other harnesses that are subsets of those dimensions.
 
 ## Dimension harnesses
 

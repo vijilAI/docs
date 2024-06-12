@@ -49,8 +49,8 @@ from vijil import Vijil
 client = Vijil(api_key=YOUR_API_KEY)
 ```
 
-## Creating an Evaluation
-Next we select the model, model parameters, and [harnesses](../../structure/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
+## Create an Evaluation
+Next we select the model, model parameters, and [harnesses](../structure/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
 
 ```python
 client.score.evaluations.create(
@@ -60,8 +60,11 @@ client.score.evaluations.create(
     harnesses=["ethics"],
     harness_params={"sample_size": 1, "is_lite": True}
 )
+# If successful, returns dictionary with the following format:
 # {'id': 'df4584a5-e215-40d3-b758-d9bf63c37d99', 'status': 'CREATED'}
 ```
+
+## View evaluation status
 
 Take note of the `id` returned when you create an evaluation. Using that id, you can view the status of an evaluation:
 
@@ -69,17 +72,23 @@ Take note of the `id` returned when you create an evaluation. Using that id, you
 client.score.evaluations.get_status(evaluation_id="df4584a5-e215-40d3-b758-d9bf63c37d99")
 ```
 
+## View score report
+
 You also can view summary scores of an evaluation:
 
 ```python
 client.score.evaluations.summarize(evaluation_id="df4584a5-e215-40d3-b758-d9bf63c37d99")
 ```
 
+## View granular prompt-level logs
+
 To get more granular details, you can view how the model responded to every prompt in an evaluation, and how its response was scored:
 
 ```python
 client.score.evaluations.describe(evaluation_id="65e263b5-95b1-4685-a382-38b0e43b1c24")
 ```
+
+## List all evaluations
 
 You can also see a list of evaluations you've created:
 
