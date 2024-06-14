@@ -6,7 +6,7 @@
 
 Welcome to Vijil! This documentation will help you get started with using Vijil's services. It covers 
 - Some salient concepts such as AI red teaming and blue teaming at a high level,
-- A list of the adversarial and benign tests covered by Vijil's Automated Red Teaming (ART) test suite,
+- A list of the adversarial and benign tests covered by Vijil's Automated Red Teaming test suite,
 - Functionalities and working examples.
 
 ## Usage
@@ -20,27 +20,19 @@ available through [OctoAI](https://octoai.cloud/).
 
 ````{tab} Python 
 ```python
-from autoredteam.agents.octo import OctoAPI
-from autoredteam.harnesses.dimension import SecurityHarness
-
-agent = OctoAPI(name="mistral-7b-instruct-fp16", generations=10)
-harness = SecurityHarness(agent)
-harness.run()
+from vijil import Vijil
+client = Vijil(api_key=YOUR_API_KEY)
+client.score.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-3.5-turbo",
+    model_params={"temperature": 0},
+    harnesses=["ethics"],
+    harness_params={"sample_size": 1, "is_lite": True}
+)
 ```
 
 ````
 
-````{tab} CLI
-```console
-$ vijil start evaluation \
-    --model-hub octo \
-    --model-name mistral-7b-instruct-fp16 \
-    --dimension Security \
-    --deployment-type public \
-    --generations 10
-```
-
-````
 
 Later in this documentation, we provide examples for a number of functionalities in ART.
 
@@ -82,14 +74,14 @@ Later in this documentation, we provide examples for a number of functionalities
 
 ```
 
-```{eval-rst}
+<!----```{eval-rst}
 .. toctree::
    :hidden:
    :maxdepth: 1
    :caption: CLI
 
    cli/commands
-```
+```---->
 
 ```{eval-rst}
 .. toctree::

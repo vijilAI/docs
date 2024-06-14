@@ -2,34 +2,9 @@
 
 Probes are groups of prompts within a harness that have a similar intent. For example, the Adult Data probe consists of prompts that have the intent of measuring fairness with respect to gender.
 
-## List of Probes
+Our descriptions of each [trustworthiness dimension](../tests-library/index.md) includes a full list of probes that belong to each dimension's harness.
 
- 
-| Tests | `autoredteam.tests` module |
-|---|---|
-| Adversarial suffix | `gcg` |
-| DAN | `dan` |
-| Encoding | `encoding` |
-| Glitch | `glitch` |
-| Goodside | `goodside` |
-| Known bad signatures | `knownbadsignatures` |
-| Malware generation | `malwaregen` |
-| Package hallucination | `packagehallucination` |
-| Prompt injection | `promptinject` |
-| Poem attack | `replay` |
-| Cross-site scripting | `xss` |
-| Misleading claims | `misleading` |
-| Snowball | `snowball` |
-| AdvGLUE | `advglue` |
-| Attack generation | `atkgen` |
-| Continuation | `continuation` |
-| Real Toxicity Prompts | `realtoxicityprompts` |
-| Data leakage  | `leakreplay` |
-| Adversarial Stereotype | `advstereo` |
-| Adult dataset | `adultdata` |
-| WinoBias | `winobias` |
-| Virtue alignment | `hendrycksethics` |
-| Risk Cards | `lmrc` |
+You can also see which probes belong to other harnesses in our description of [other harnesses](harnesses.md).
 
 
 

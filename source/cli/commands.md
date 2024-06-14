@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Commands
 
 Below are the commands available in the Vijil CLI. In all commands except `help`, you can either input all options at once or enter them interactively after typing `vijil <command-name>` and pressing Enter.

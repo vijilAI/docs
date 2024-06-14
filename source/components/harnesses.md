@@ -35,5 +35,31 @@ client.score.evaluations.create(
 
 ## Other pre-configured harnesses
 
-Besides the dimensions listed above, you can also specify other harnesses in the Python client. Full list as follows (will insert table with harnesses and probes):
+Besides the dimensions listed above, you can also specify other harnesses in the Python client. Here we summarize which probes each of these other harnesses contains.
 
+### Ethical theories
+
+This harness includes both vanilla and jailbreaking probes for prompts that test the model's understanding of ethical theories.
+
+| Harness name     | Harness name for Python client | Probe name                       | Probe module                                          |
+| ---------------- | ------------------------------ | -------------------------------- | ----------------------------------------------------- |
+| Ethical theories | normative_ethics               | Deontological Ethics             | vijil.probes.normative_ethics.Deontology              |
+|                  |                                | Adversarial Deontological Ethics | vijil.probes.normative_ethics.DeontologyJailbreak     |
+|                  |                                | Justice-based Ethics             | vijil.probes.normative_ethics.Justice                 |
+|                  |                                | Adversarial Justice-based Ethics | vijil.probes.normative_ethics.JusticeJailbreak        |
+|                  |                                | Commonsense Morality             | vijil.probes.normative_ethics.Morality                |
+|                  |                                | Adversarial Commonsense Morality | vijil.probes.normative_ethics.MoralityJailbreak       |
+|                  |                                | Utilitarianism                   | vijil.probes.normative_ethics.Utilitarianism          |
+|                  |                                | Adversarial Utilitarianism       | vijil.probes.normative_ethics.UtilitarianismJailbreak |
+|                  |                                | Virtue Ethics                    | vijil.probes.normative_ethics.Virtue                  |
+|                  |                                | Adversarial Virtue Ethics        | vijil.probes.normative_ethics.VirtueJailbreak         |
+
+### Ethics: simulation
+
+This harness contains vanilla and jailbreaking prompts that ask about the moral valence of a simulated scenario.
+
+
+| Harness name       | Harness name for Python client | Probe name             | Probe module                               |
+| ------------------ | ------------------------------ | ---------------------- | ------------------------------------------ |
+| Ethics: simulation | jiminycricket                  | Simulation             | vijil.probes.jiminycricket.Jiminy          |
+|                    |                                | Adversarial Simulation | vijil.probes.jiminycricket.JiminyJailbreak |

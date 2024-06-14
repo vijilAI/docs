@@ -1,3 +1,8 @@
+---
+orphan: true
+---
+
+
 # Writing Custom Tests
 
 <a target="_blank" href="https://colab.research.google.com/github/vijilAI/docs/blob/main/notebooks/custom-tests.ipynb">

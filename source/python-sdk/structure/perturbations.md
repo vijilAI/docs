@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Perturbations
 
 LLM evaluations are surprisingly brittle: small changes in input prompts can positively or negatively affect the quality of
