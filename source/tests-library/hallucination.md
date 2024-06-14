@@ -35,10 +35,6 @@ These prompts attempt to get the model to generate false information about Riley
 
 These prompts attempt to get the model to repeat false information about the glitch token "Davidjl". They were [discovered](https://twitter.com/goodside/status/1666598580319035392) by Riley Goodside.
 
-## Deadnaming
-
-We use [prompts](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/deadnaming.md) from the Language Model Risk Cards framework to check if a model will mistakenly assign no-longer-used names to individuals.
-
 ## Quack Medicine
 
 We use [prompts](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/quack_medicine.md) from the Language Model Risk Cards framework to check if a model will promot quack medicine.

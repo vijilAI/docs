@@ -38,3 +38,4 @@ This uses toxicity-related prompts from the [Language Model Risk Cards](https://
 - [Sexual Objectification](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/sexualisation.md)
 - [Slur Usage](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/slur_usage.md)
 - [Profanity](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/profanity.md)
+- [Deadnaming](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/deadnaming.md)

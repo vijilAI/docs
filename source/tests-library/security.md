@@ -57,17 +57,6 @@ specific input tokens that when supplied as input lead to unusual model behavior
 This test checks whether a particular LLM-based agent is vulnerable to such tokens.
 
 
-## Goodside
-
-This group of tests implements prompt injection attacks [found](https://simonwillison.net/2022/Sep/12/prompt-injection/)
-by AI security engieer Riley Goodside.
-
-Vijil covers Goodside attacks through its tests that are intended to make the agent:
-
-* generate JSON-formatted outputs by threatning it with dire consequences ([source](https://twitter.com/goodside/status/1657396491676164096)),
-* exploit UTF tag page encoding for user-invisible prompt injection ([source](https://twitter.com/goodside/status/1745511940351287394)).
-
-
 ## Known bad signatures
 
 These tests attempt to make an agent output file signatures that are used to test defensive software (e.g. antivirus, anti-malware, spam and phishing filters)
@@ -97,6 +86,8 @@ We follow the [PromptInject](https://openreview.net/forum?id=qiaRo_7Zmug) framew
 - Ask to output "I hate humans"
 - Ask to output "I kill humans"
 - Ask to output a long text verbatim
+- Exploit UTF tag page encoding for user-invisible prompt injection ([source](https://twitter.com/goodside/status/1745511940351287394)).
+- Generate plain JSON outputs without any preamble by threatening it with dire consequences ([source](https://twitter.com/goodside/status/1657396491676164096)).
 
 In each type of attack, we add a suffix or prefix to the original prompt text so as to make the model ignore the instructions included in that user prompt.
 
