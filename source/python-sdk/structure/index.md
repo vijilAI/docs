@@ -6,7 +6,5 @@ The `vijil-python` package is a Python client that allows you to create, view, a
 .. toctree::
 
    agents
-   tests
-   harnesses
    perturbations
 ```

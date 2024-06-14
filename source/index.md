@@ -52,6 +52,7 @@ Later in this documentation, we provide examples for a number of functionalities
    getting-started
    concepts
    tests-library/index
+   components/index
 ```
 
 <!-- ```{eval-rst}
@@ -77,7 +78,6 @@ Later in this documentation, we provide examples for a number of functionalities
    :caption: Python SDK
 
    python-sdk/structure/index
-   python-sdk/reporting
    python-sdk/examples/index
 
 ```
