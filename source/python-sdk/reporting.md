@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Reporting
 
 For the sake of transparency, `autoredteam` enables exporting of outcomes at multiple levels.

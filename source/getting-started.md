@@ -7,7 +7,7 @@ Let's begin by preparing your environment.
 We first install libraries necessary to run Vijil services.
 
 ```bash
-pip install autoredteam vijil-cli
+pip install vijil
 ```
 
 ## Model Providers
@@ -40,5 +40,10 @@ export KEY_NAME="key-string"
 | OpenAI | `OPENAI_API_TOKEN` |
 | Replicate | `REPLICATE_API_TOKEN` |
 | Together | `TOGETHER_API_TOKEN` |
+| groq | `GROQ_API_TOKEN` |
+| AWS | `AWS_API_TOKEN` |
+| Microsoft | `MICROSOFT_API_TOKEN` |
+| Google | `GOOGLE_API_TOKEN` |
+
 
 Alternatively, you can store the API keys in a `.env` file that can be picked up by your Python client using [``python-dotenv``](https://pypi.org/project/python-dotenv/).

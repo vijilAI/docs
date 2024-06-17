@@ -6,5 +6,4 @@ The following example notebooks help demonstrate some core functionalities in `a
 .. toctree::
 
    run-your-first-test
-   custom-tests
 ```
