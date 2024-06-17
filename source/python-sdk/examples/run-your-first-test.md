@@ -50,7 +50,7 @@ client = Vijil(api_key=YOUR_API_KEY)
 ```
 
 ## Create an Evaluation
-Next we select the model, model parameters, and [harnesses](../structure/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
+Next we select the model, model parameters, and [harnesses](../../components/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
 
 ```python
 client.score.evaluations.create(
