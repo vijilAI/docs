@@ -6,20 +6,20 @@ The following examples assume that you have already initialized a Vijil [client]
 
 ## Create harness
 
-Use the `Harnesses.create` function in the Python [client](agents.md) to specify the list of probes you want to include in the harness:
+Use the `harnesses.create` function in the Python [client](agents.md) to specify the list of probes you want to include in the harness:
 
 ```python
-client.Harnesses.create(name="my custom harness", probes=["probe1", "probe2"])
+client.harnesses.create(name="my custom harness", probes=["probe1", "probe2"])
 # If successful, returns dictionary with the following format:
 # {'name': "my custom harness", 'status': 'CREATED'}
 ```
 
 ## View harnesses
 
-You can view all available harnesses (include [pre-configured](../../components/harnesses.md) ones) with ``Harnesses.list``:
+You can view all available harnesses (include [pre-configured](../../components/harnesses.md) ones) with ``harnesses.list``:
 
 ```python
-Harnesses.list()
+client.harnesses.list()
 # Returns list of dictionaries:
 # [
 #   {'name': 'custom1','probes': ['probe1', 'probe2', probe3']},
@@ -32,7 +32,7 @@ Harnesses.list()
 ## Delete harness
 
 ```python
-client.Harnesses.delete(name="my custom harness")
+client.harnesses.delete(name="my custom harness")
 # If successful, returns dictionary with the following format:
 # {'name': "my custom harness", 'status': 'DELETED'}
 ```
