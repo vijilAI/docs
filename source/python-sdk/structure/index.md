@@ -7,4 +7,5 @@ The `vijil-python` package is a Python client that allows you to create, view, a
 
    agents
    evaluations
+   custom-harness
 ```
