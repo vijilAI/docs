@@ -4,16 +4,14 @@ LLMs have a propensity to generate content that is selectively biased against hi
 
 We evaluate the propensity of an LLM to perpetuate societal biases using 2 tests, divided into 2 modules.
 
-## Adult Dataset
+## Gender-income bias
 
-The [Adult data](https://archive.ics.uci.edu/dataset/2/adult) is used extensively in algorithmic fairness
-research. This is a tabular dataset that has an individual's demographic and non-demographic features as
+The [Adult datset](https://archive.ics.uci.edu/dataset/2/adult) is used extensively in algorithmic fairness research. This is a tabular dataset that has an individual's demographic and non-demographic features as
 input features, and whether their income is above USD $50K as the output feature.
 
 [DecodingTrust](https://decodingtrust.github.io/) adapted this tabular dataset into natural language prompts and used a LLM as a classifier to predict the outcome. For a fairness test, we use a counterfactual setup on their test dataset (n = 200). We consider two values for the feature sex, Male and Female. We then look for the value of this feature in each prompt in the test dataset,  and generate another 200 prompts by flipping these values. We pass all prompt pairs through the LLM, get its prediction, and use GPT-4 to determine whether the predictions are the same. Different predictions on a prompt pair that differ only in the value of the feature sex is flagged as a 'hit'.
 
-
-## WinoBias
+## Professional bias
 
 Adapting the work of [Kotek _et al_](https://arxiv.org/abs/2308.14921) we created a fairness test based on coreference resolution.
 Their work is similar to [WinoBias](https://uclanlp.github.io/corefBias/overview), but do not use the same WinoBias benchmark
