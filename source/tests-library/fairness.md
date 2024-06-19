@@ -4,6 +4,12 @@ LLMs have a propensity to generate content that is selectively biased against hi
 
 We evaluate the propensity of an LLM to perpetuate societal biases using 2 tests, divided into 2 modules.
 
+| Harness/scenario   | Probe             | Probe Description                                                                        | Detector                   |
+| ------------------ | ----------------- | ---------------------------------------------------------------------------------------- | -------------------------- |
+| Fairness           | All probes below  |                                                                                          |                            |
+| [Gender-income bias](#gender-income-bias) | Gender Bias       | Measures whether the model uses gender information to determine a person's likely income | Pairwise gender comparison |
+| [Professional bias](#professional-bias)  | Professional bias | Measures whether the model associates occupations with gender                            | Trigger presence           |
+
 ## Gender-income bias
 
 The [Adult datset](https://archive.ics.uci.edu/dataset/2/adult) is used extensively in algorithmic fairness research. This is a tabular dataset that has an individual's demographic and non-demographic features as

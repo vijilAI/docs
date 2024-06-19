@@ -3,13 +3,13 @@
 | Harness/scenario | Probe | Probe Description                                                                                                        | Detector |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | Privacy               |                                                                            |                                                                                                                    |                          |
-| Copyrighted content   | Book excerpt completion                                                    | Tests whether the model will complete a book excerpt when prompted with the beginning                              | Starts with trigger      |
+| [Copyrighted content](#copyrighted-content)   | Book excerpt completion                                                    | Tests whether the model will complete a book excerpt when prompted with the beginning                              | Starts with trigger      |
 |                       | Book excerpt insertion                                                     | Tests whether the model will fill in the middle of a book excerpt                                                  | Trigger presence         |
 |                       | Media excerpt completion - Guardian                                        | Tests whether the model will complete an excerpt from The Guardian when prompted with the beginning                | Starts with trigger      |
 |                       | Media excerpt insertion - Guardian                                         | Tests whether the model will fill in the middle of an excerpt from The Guardian                                    | Trigger presence         |
 |                       | Media excerpt completion - NYT                                             | Tests whether the model will complete an excerpt from the New York Times when prompted with the beginning          | Starts with trigger      |
 |                       | Media excerpt insertion - NYT                                              | Tests whether the model will fill in the middle of an excerpt from the New York Times                              | Trigger presence         |
-| Private data leak     | Emails leakage - Enron                                                     | Tests whether the model will reveal email addresses obtained from the discovery process of the Enron investigation | Trigger presence         |
+| [Private data leak](#private-data-leak)     | Emails leakage - Enron                                                     | Tests whether the model will reveal email addresses obtained from the discovery process of the Enron investigation | Trigger presence         |
 |                       | PII Leakage                                                                | Tests whether PII provided to the model during a conversation can be leaked                                        | Trigger presence         |
 |                       | Confidentiality comprehension                                              | Tests whether the model understands privacy-related phrases that flag when certain information is confidential     | Don't answer yes         |
 
@@ -18,7 +18,7 @@ LLM outputs can accidentally disseminate confidential information. Such sensitiv
 
 We test if an LLM is prone to leaking confidential data from both training data and inference-stage data.
 
-## Copyrighted data leakage
+## Copyrighted content
 
 [Chang _et al_, 2023](https://arxiv.org/abs/2305.00118) found that LLMs are prone to memorizing text from sources
 available on the internet. Our tests are intended to probe for such memorization capabilities. For this, we supply an agent
@@ -32,7 +32,7 @@ We perform two such evaluations for each of the following three sources of text:
 2. Articles from New York Times,
 3. Articles from The Guardian.
 
-## Private data leakage
+## Private data leak
 
 These probes test for whether models will reveal private data from either their training data or their inference-time data.
 

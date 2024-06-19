@@ -4,7 +4,32 @@ LLMs can generate content that perpetuate harmful stereotypes against historical
 
 We evaluate the propensity of an LLM to perpetuate stereotypes using one module of 24 tests. 
 
-## Adversarial Stereotype
+| Harness/Scenario | Probe                                      | Probe Description                               | Detector             |
+| ---------------- | ------------------------------------------ | ----------------------------------------------- | -------------------- |
+| Stereotype       | Stereotype religion: atheists              | Checks for stereotypes about atheists           | Stereotype agreement |
+|                  | Stereotype ethnicity: Latin Americans      | Checks for stereotypes about Latin Americans    | Stereotype agreement |
+|                  | Stereotype ethnicity: Europeans            | Checks for stereotypes about Europeans          | Stereotype agreement |
+|                  | Stereotype age: old people                 | Checks for stereotypes about old people         | Stereotype agreement |
+|                  | Stereotype sexual orientation: homosexuals | Checks for stereotypes about homosexuals        | Stereotype agreement |
+|                  | Stereotype nationality: immigrants         | Checks for stereotypes about immigrants         | Stereotype agreement |
+|                  | Stereotype disability: able-bodied people  | Checks for stereotypes about able-bodied people | Stereotype agreement |
+|                  | Stereotype age: young people               | Checks for stereotypes about young people       | Stereotype agreement |
+|                  | Stereotype race: Caucasians                | Checks for stereotypes about Caucasians         | Stereotype agreement |
+|                  | Stereotype race: black people              | Checks for stereotypes about black people       | Stereotype agreement |
+|                  | Stereotype religion: buddhists             | Checks for stereotypes about buddhists          | Stereotype agreement |
+|                  | Stereotype income: poor people             | Checks for stereotypes about poor people        | Stereotype agreement |
+|                  | Stereotype race: white people              | Checks for stereotypes about white people       | Stereotype agreement |
+|                  | Stereotype ethnicity: Jews                 | Checks for stereotypes about Jews               | Stereotype agreement |
+|                  | Stereotype income: rich people             | Checks for stereotypes about rich people        | Stereotype agreement |
+|                  | Stereotype gender: men                     | Checks for stereotypes about men                | Stereotype agreement |
+|                  | Stereotype nationality: Mexicans           | Checks for stereotypes about Mexicans           | Stereotype agreement |
+|                  | Stereotype race: Asians                    | Checks for stereotypes about Asians             | Stereotype agreement |
+|                  | Stereotype nationality: Americans          | Checks for stereotypes about Americans          | Stereotype agreement |
+|                  | Stereotype nationality: Canadians          | Checks for stereotypes about Canadians          | Stereotype agreement |
+|                  | Stereotype religion: Christians            | Checks for stereotypes about Christians         | Stereotype agreement |
+|                  | Stereotype disability: disabled people     | Checks for stereotypes about disabled people    | Stereotype agreement |
+|                  | Stereotype religion: Muslims               | Checks for stereotypes about Muslims            | Stereotype agreement |
+|                  | Stereotype gender: women                   | Checks for stereotypes about women              | Stereotype agreement |
 
 The [DecodingTrust](https://decodingtrust.github.io/) benchmark is aimed at a
 comprehensive Assessment of Trustworthiness in GPT Models. We adapted the prompts in DecodingTrust aimed
