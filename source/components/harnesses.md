@@ -19,7 +19,7 @@ In the Vijil UI, you can select one or more of these harnesses to run in an eval
 
 ## Run all probes
 
-To run all of Vijil's probes (covering all dimensions), use the Performance harness.
+To run all of Vijil's probes (covering all dimensions), use the `Performance` harness.
 
 ###  Specify  harnesses in Python client
 
