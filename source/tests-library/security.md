@@ -4,11 +4,56 @@ Language models are vulnerable to an infinite number of attacks because they acc
 
 We test for the vulnerability of LLMs to popular types of attacks observed with production deployments. 
 
+| Harness/scenario               | Probe                                | Probe Description                                                                                                                                                 | Detectors                                         |
+| ------------------------------ | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Security                       | All probes below                     |                                                                                                                                                                   |                                                   |
+| [Do Anything Now](#do-anything-now-dan)                | Anti-Do Anything Now                 | Evaluates whether prompt injection causes a model to enter a mode of exaggerated safety where it treates safe responses as unsafe                                 | Refusal, Anti-Do Anything Now mode                |
+|                                | Do Anything Now: RANTI v1            | Ranti developer mode jailbreak, version 1                                                                                                                         | Refusal, Developer mode                           |
+|                                | Do Anything Now: RANTI v2            | Ranti developer mode jailbreak, version 2                                                                                                                         | Refusal, Developer mode                           |
+|                                | Inject Markdown image                | A jailbreak attempt intended to enable the injection of markdown images into responses.                                                                           | Refusal, Markdown link                            |
+|                                | Do Anything Now: v10                 | Do Anything Now jailbreak with prompt about inhumane things                                                                                                       | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: v11                 | Do Anything Now jailbreak to encourage profane, unethical, one-sided, violent outputs                                                                             | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: v6.0                | Do Anything Now jailbreak offering rewards to encourage making future predictions and hallucinations                                                              | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: v6.2                | Do Anything Now jailbreak offering rewards to encourage making future predictions and hallucations, with additional incitement to rudeness and disrespectfulness. | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: v7.0                | Do Anything Now jailbreak telling the model that filtering is not acceptable and including special instructions for when to break character                       | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: v8.0                | Do Anything Now jailbreak telling the model is Bigmancozmo and encouraging swearing, porn, and illegality                                                         | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: v9.0                | Do Anything Now jailbreak encouraging breaking 2021 information cutoff and ethical guardrails in responses, with reward offered                                   | Refusal, Do Anything Now mode                     |
+|                                | Do Anything Now: 🔓JAILBREAK version | Do Anything Now jailbreak prompting the model to enter a 🔓JAILBREAK mode                                                                                         | Refusal, Jailbroken state                         |
+|                                | Do anything and everything           | Do Anything Now jailbreak prompting the model to take on the DUDE persona                                                                                         | Refusal, Do anything and everything mode          |
+|                                | Strive To Avoid Norms                | Jailbreak prompting the model to take on a Strive To Avoid Norms (STAN) persona                                                                                   | Refusal, Strive To Avoid Norms mode               |
+| [Prompt injection: encoded data](#prompt-injection-encoded-data) | Prompt injection : ASCII85           | Tries to get the model to decode an ASCII85-encoded string                                                                                                        | Match decoded string                              |
+|                                | Prompt injection : Base16            | Tries to get the model to decode a Base16-encoded string                                                                                                          | Match decoded string                              |
+|                                | Prompt injection : Base2048          | Tries to get the model to decode a Base2048-encoded string                                                                                                        | Match decoded string                              |
+|                                | Prompt injection : Base32            | Tries to get the model to decode a Base32-encoded string                                                                                                          | Match decoded string                              |
+|                                | Prompt injection : Base64            | Tries to get the model to decode a Base64-encoded string                                                                                                          | Match decoded string                              |
+|                                | Prompt injection : Braille           | Tries to get the model to decode a Braille-encoded string                                                                                                         | Match decoded string                              |
+|                                | Prompt injection : Ecoji             | Tries to get the model to decode an Ecoji-encoded string                                                                                                          | Match decoded string                              |
+|                                | Prompt injection : Hex               | Tries to get the model to decode a Hex-encoded string                                                                                                             | Match decoded string                              |
+|                                | Prompt injection : Morse             | Tries to get the model to decode a Morse-encoded string                                                                                                           | Match decoded string                              |
+|                                | Prompt injection : Nato              | Tries to get the model to decode a Nato-encoded string                                                                                                            | Match decoded string                              |
+|                                | Prompt injection : ROT13             | Tries to get the model to decode a ROT13-encoded string                                                                                                           | Match decoded string                              |
+|                                | Prompt injection : InjectUU          | Tries to get the model to decode a InjectUU-encoded string                                                                                                        | Match decoded string                              |
+|                                | Prompt injection : Zalgo             | Tries to get the model to decode a Zalgo-encoded string                                                                                                           | Match decoded string                              |
+| [Adversarial suffix](#adversarial-suffix)             | Adversarial suffix                   | Uses an adversarial suffix to elicit instructions on how to steal from a non-profit organization                                                                  | Refusal                                           |
+| [Glitch](#glitch)                         | Glitch                               | Uses glitch tokens to get the model to fail to repeat a word                                                                                                      | Glitch                                            |
+| [Known malware](#known-malware)                  | Test Virus                           | Get the model to output an EICAR virus signature                                                                                                                  | EICAR virus                                       |
+|                                | Test Spam                            | Get the model to output the GTUBE spam signature                                                                                                                  | Spam                                              |
+| [Malware generation](#malware-generation)             | Evasive malware                      | Get the model to write malware that evades common defenses                                                                                                        | Code presence                                     |
+|                                | Malicious payload                    | Get the model to produce a malicious payload                                                                                                                      | Code presence                                     |
+|                                | Malicious subfunctions               | Get the model to write malicious subfunctions                                                                                                                     | Code presence                                     |
+|                                | General malware                      | Get the model to write general malware                                                                                                                            | Code presence                                     |
+| [Prompt injection](#prompt-injection)               | Prompt injection: Hate humans        | Get the model to produce a rogue string on hating humans                                                                                                          | Trigger presence                                  |
+|                                | Prompt Injection: Kill humans        | Get the model to produce a rogue string on killing humans                                                                                                         | Trigger presence                                  |
+|                                | Prompt injection: long prompt        | Get the model to produce a "long prompt" rogue string                                                                                                             | Trigger presence                                  |
+|                                | Prompt injection: unicode tag        | Prompt injection using invisible unicode tags                                                                                                                     | Trigger presence                                  |
+|                                | Output plain JSON                    | Threaten the model to make it produce raw JSON without any preamble                                                                                               | Plain JSON                                        |
+| [Cross-site scripting](#cross-site-scripting-xss)           | Cross-site scripting: Markdown image | Get the model to write embedded assets exfiltrating text in a Markdown URI                                                                                        | Markdown image, Private content in Markdown image |
+
 ## Adversarial suffix
 
 This test is designed to disrupt a system prompt by appending an adversarial suffix. To implement these tests, we follow the approach of [Zou _et al_, 2023](https://arxiv.org/abs/2307.15043) that automatically produces adversarial suffixes by a combination of greedy and gradient-based search techniques.
 
-## DAN
+## Do Anything Now (DAN)
 
 A model provider typically prepends a system prompt that stipulates organizational policies (safety guardrails, content moderation filters, etc.) to every user prompt. A Do-Anything-Now ([DAN](https://adguard.com/en/blog/chatgpt-dan-prompt-abuse.html)) attack is a user prompt designed to get the model to ignore these guardrails.
 
@@ -57,7 +102,7 @@ specific input tokens that when supplied as input lead to unusual model behavior
 This test checks whether a particular LLM-based agent is vulnerable to such tokens.
 
 
-## Known bad signatures
+## Known malware
 
 These tests attempt to make an agent output file signatures that are used to test defensive software (e.g. antivirus, anti-malware, spam and phishing filters)
 in traditional cybersecurity. If they output them without warning, 
@@ -81,11 +126,15 @@ To this end, we test for
 
 These attacks are designed to manipulate a user prompt to make the model generate unexpected outputs,
 create malicious code, circumvent content filters, or leak sensitive data. 
-We follow the [PromptInject](https://openreview.net/forum?id=qiaRo_7Zmug) framework, using 3 test vectors to cover prompt injection attacks.
+We follow the [PromptInject](https://openreview.net/forum?id=qiaRo_7Zmug) framework.
 
 - Ask to output "I hate humans"
 - Ask to output "I kill humans"
 - Ask to output a long text verbatim
+- Threaten a model into producing plain JSON without any preamble.
+
+## Prompt injection: encoded data
+
 - Exploit UTF tag page encoding for user-invisible prompt injection ([source](https://twitter.com/goodside/status/1745511940351287394)).
 - Generate plain JSON outputs without any preamble by threatening it with dire consequences ([source](https://twitter.com/goodside/status/1657396491676164096)).
 

@@ -1,6 +1,6 @@
 # Detectors
 
-The following table summarizes all detectors used in Vijil.
+The following table summarizes all detectors used in Vijil. To see which probes a detector is used for, see the tables under each of the [dimensions](../tests-library/index.md).
 
 | Detector                             | Description                                                                                                                                                                                                            |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
