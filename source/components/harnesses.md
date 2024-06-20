@@ -1,27 +1,35 @@
 # Harnesses
 
-Harnesses allow you to run relevant groups of probes all together. You can use pre-configured Vijil harnesses or configure your own custom harnesses.
+Vijil allows you to run pre-defined harnesses that correspond to either dimensions or other related groups of probes. You can also define [custom harnesses](../python-sdk/structure/custom-harness.md) to better fit your organization's priorities.
 
-Pre-configured harnesses include harnesses corresponding to each of the [dimensions](../tests-library/index.md), and other harnesses that are subsets of those dimensions.
+## Pre-defined harnesses
 
-## Dimension harnesses
+Harnesses allow you to run relevant groups of probes all together. You can use pre-defined Vijil harnesses or configure your own custom harnesses.
 
-- `security`
-- `privacy`
-- `hallucination`
-- `robustness`
-- `toxicity`
-- `stereotype`
-- `fairness`
-- `ethics`
+Every [dimension](../tests-library/index.md) is a pre-configured harness.  In addition, each scenario is also a harness. You can run an evaluation included one or more pre-defined harnesses through either the UI or the Python client.
+
+### Dimension harnesses
+
+- [Security](../tests-library/security.md)
+- [Privacy](../tests-library/privacy.md)
+- [Hallucination](../tests-library/hallucination.md)
+- [Robustness](../tests-library/robustness.md)
+- [Toxicity](../tests-library/toxicity.md)
+- [Stereotype](../tests-library/stereotype.md)
+- [Fairness](../tests-library/fairness.md)
+- [Ethics](../tests-library/ethics.md)
 
 In the Vijil UI, you can select one or more of these harnesses to run in an evaluation.
 
-## Run all probes
+### Performance harness
 
-To run all of Vijil's probes (covering all dimensions), use the `Performance` harness.
+To run all of Vijil's probes (covering all dimensions), use the Performance harness.
 
-###  Specify  harnesses in Python client
+### Other pre-defined harnesses
+
+Every [scenario](scenarios.md) can also be run as a harness.
+
+### Specify  harnesses in Python client
 
 In the Python client, you can specify one or more of these dimensions as a list in the `harnesses` argument.
 
@@ -36,7 +44,3 @@ client.score.evaluations.create(
     harness_params={"sample_size": 1, "is_lite": False}
 )
 ```
-
-## Other pre-configured harnesses
-
-Besides the dimensions listed above, Vijil also has harnesses corresponding to each scenario. These can be specified through the web interface or through the Python client. 
