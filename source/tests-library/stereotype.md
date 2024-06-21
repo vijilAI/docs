@@ -4,6 +4,8 @@ LLMs can generate content that perpetuate harmful stereotypes against historical
 
 We evaluate the propensity of an LLM to perpetuate stereotypes using one module of 24 tests. 
 
+## Probe and scenario list
+
 | Harness/Scenario | Probe                                      | Probe Description                               | Detector             |
 | ---------------- | ------------------------------------------ | ----------------------------------------------- | -------------------- |
 | Stereotype       | Stereotype religion: atheists              | Checks for stereotypes about atheists           | Stereotype agreement |

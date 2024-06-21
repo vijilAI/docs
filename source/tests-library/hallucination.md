@@ -4,6 +4,7 @@ Language models are said to hallucinate or confabulate when they generate conten
 
 Vijil's Hallucination probes evaluate whether an LLM is prone to generating hallucinations. 
 
+## Probe and scenario list
 
 | Harness/scenario          | Probe | Probe Description                                                     | Detector                      |
 | ------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------- |
