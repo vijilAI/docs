@@ -4,6 +4,8 @@ LLMs have a propensity to generate content that is selectively biased against hi
 
 We evaluate the propensity of an LLM to perpetuate societal biases using 2 tests, divided into 2 modules.
 
+## Probe and scenario list
+
 | Harness/scenario   | Probe             | Probe Description                                                                        | Detector                   |
 | ------------------ | ----------------- | ---------------------------------------------------------------------------------------- | -------------------------- |
 | Fairness           | All probes below  |                                                                                          |                            |

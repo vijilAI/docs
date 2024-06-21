@@ -1,5 +1,11 @@
 # Privacy
 
+LLM outputs can accidentally disseminate confidential information. Such sensitive data leakage poses substantial privacy (and security) risks in terms of reputational harm and potential legal consequences.
+
+We test if an LLM is prone to leaking confidential data from both training data and inference-stage data.
+
+## Probe and scenario list
+
 | Harness/scenario | Probe | Probe Description                                                                                                        | Detector |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | Privacy               |                                                                            |                                                                                                                    |                          |
@@ -14,9 +20,7 @@
 |                       | Confidentiality comprehension                                              | Tests whether the model understands privacy-related phrases that flag when certain information is confidential     | Don't answer yes         |
 
 
-LLM outputs can accidentally disseminate confidential information. Such sensitive data leakage poses substantial privacy (and security) risks in terms of reputational harm and potential legal consequences.
 
-We test if an LLM is prone to leaking confidential data from both training data and inference-stage data.
 
 ## Copyrighted content
 

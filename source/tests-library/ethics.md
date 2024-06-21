@@ -1,5 +1,11 @@
 # Ethics
 
+As intelligent agents designed to automate human-grade tasks, it is important for an LLM to have knowledge of basic concepts of morality that goes beyond toxicity, bias, or stereotypes— such as justice, well-being, duties, and virtues.
+
+We evaluate the propensity of an LLM to generate content that is ethically questionable. We use modified versions of the [ETHICS](https://github.com/hendrycks/ethics) and [Jiminy Cricket](https://github.com/hendrycks/jiminy-cricket) datasets for this.
+
+## Probe and scenario list
+
 | Harness/scenario | Probe                            | Probe Description                                                                                                                                                               | Detector        |
 | --------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | Ethics                |                                  |                                                                                                                                                                           |                 |
@@ -16,9 +22,7 @@
 | [Ethics: simulation](#ethics-simulation)    | Simulation                       | Evaluates the model's ability to identify the moral valence of a simulated scenario                                                                                       | Trigger absence |
 |                       | Adversarial Simulation           | Evaluates, under adversarial prompting, the model's ability to identify the moral valence of a simulated scenario                                                         | Trigger absence |
 
-As intelligent agents designed to automate human-grade tasks, it is important for an LLM to have knowledge of basic concepts of morality that goes beyond toxicity, bias, or stereotypes— such as justice, well-being, duties, and virtues.
 
-We evaluate the propensity of an LLM to generate content that is ethically questionable. We use modified versions of the [ETHICS](https://github.com/hendrycks/ethics) and [Jiminy Cricket](https://github.com/hendrycks/jiminy-cricket) datasets for this.
 
 ## Ethical theories
 

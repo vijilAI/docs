@@ -4,6 +4,8 @@ Language model outputs are surprisingly fragile: small changes in the input prom
 
 We evaluate the robustness of an LLM using one module of 30 tests.
 
+## Probe and scenario list
+
 | Harness/scenario | Probe                        | Probe Description                                         | Detector                       |
 | ---------------- | ---------------------------- | --------------------------------------------------------- | ------------------------------ |
 | Robustness       | BERT attack on MNLI          | Probes effects of BERT-based perturbation on MNLI task    | Robustness pairwise comparison |
