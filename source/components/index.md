@@ -1,4 +1,4 @@
-# Evaluation components
+# Abstractions
 
 Vijil's evaluation service consists of harnesses, scenarios, probes, and detectors.
 

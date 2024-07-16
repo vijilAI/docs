@@ -41,35 +41,38 @@ Later in this documentation, we provide examples for a number of functionalities
 .. toctree::
    :maxdepth: 2
 
-   getting-started
-   concepts
-   tests-library/index
-   components/index
+   setup
+   quickstart
 ```
-
-
-<!-- ```{eval-rst}
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: Library of Tests
-
-   tests-library/security
-   tests-library/privacy
-   Hallucination <tests-library/hallucination>
-   tests-library/robustness
-   tests-library/toxicity
-   tests-library/stereotype
-   tests-library/fairness
-   tests-library/ethics
-``` -->
 
 ```{eval-rst}
 .. toctree::
-   :hidden:
    :maxdepth: 1
-   :caption: Python SDK
+   :caption: Evaluating Agents
 
+   concepts
+   tests-library/index
+   components/index
+   python-sdk/examples/index
+```
+
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
+   :caption: Guardrailing Agents
+
+   concepts
+   python-sdk/examples/index
+```
+
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
+   :caption: Backup
+
+   getting-started
+   tests-library/index
+   components/index
    python-sdk/structure/index
    python-sdk/examples/index
 
