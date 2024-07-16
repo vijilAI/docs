@@ -1,49 +1,40 @@
 # Setup
 
-Let's begin by preparing your environment.
+This section prepares your development environment to use Vijil cloud services.
 
-## Installation
+## Vijil Evaluate
 
-We first install libraries necessary to run Vijil services.
+To run evaluation jobs through the Vijil Evalute API and interact with the results, you need to install the client library that provides the necessary functionalities. You can do so through downloading the library from PyPI.
 
+````{tab} Shell
 ```bash
 pip install vijil
 ```
+````
 
-## Model Providers
+To ensure you are using the latest version of the package, we recommend using the `-U` or `--upgrade` option.
 
-Vijil supports a number of LLM providers. If you want to use our tool on models deployed with them, make sure to create an account and have API keys handy for the respective provider.
+### Authentication using API Keys
 
-* Anyscale
-* Hugging Face
-* Mistral
-* OctoAI
-* OpenAI
-* Replicate
-* Together
+You need a Vijil API key to authenticate remotely through the client library. You can obtain the API key by logging into your
+Vijil account, going to the profile page on the dashboard, then copying the value in the **Token** field.
 
-## Managing API Keys
+After your obtain an API key, you can export it in the environment you intend to use the client inside.
 
-We use environment variables for key management. You can export keys into environment variables through either CLI, or set them manually.
-
+````{tab} Shell
 ```bash
-export KEY_NAME="key-string"
+export VIJIL_API_KEY = <eyj-xxxx>
 ```
+````
 
-| Service | `KEY_NAME` |
-|---|---|
-| Vijil | `VIJIL_AUTH_TOKEN` |
-| Anyscale | `ANYSCALE_API_TOKEN` |
-| Hugging Face | `HF_INFERENCE_TOKEN` |
-| Mistral | `MISTRAL_API_TOKEN` |
-| OctoAI | `OCTO_API_TOKEN` |
-| OpenAI | `OPENAI_API_TOKEN` |
-| Replicate | `REPLICATE_API_TOKEN` |
-| Together | `TOGETHER_API_TOKEN` |
-| groq | `GROQ_API_TOKEN` |
-| AWS | `AWS_API_TOKEN` |
-| Microsoft | `MICROSOFT_API_TOKEN` |
-| Google | `GOOGLE_API_TOKEN` |
+Alternatively you can store the key in a `.env` file and load it into your Python environment using a library such as [python-dotenv](https://pypi.org/project/python-dotenv/).
 
+## Vijil Dome
 
-Alternatively, you can store the API keys in a `.env` file that can be picked up by your Python client using [``python-dotenv``](https://pypi.org/project/python-dotenv/).
+For maximum flexibility, we have made Vijil Dome---our guardrailing capability---available through a Python package. Given you have read access to our GitHub organization, you can install it using `pip`.
+
+````{tab} Shell
+```bash
+pip install git+https://github.com/vijilAI/vijil-dome.git
+```
+````

@@ -18,13 +18,5 @@ Broadly, AI red teaming means manual and automated testing of AI models and agen
 The concept of red and blue teaming originated decades ago in attack and defense simulation practices in the military. Since then the cybersecurity community has widely adopted this practice to find unintended flaws in software systems through adversarial testing. AI red teaming became popular last year, when thousands of attendees probed LLMs for vulnerabilities[^1] at the hacker convention DEF CON. In the following months, the Biden administration in the USA stressed on[^2] "extensive red-team testing" for powerful AI systems.
 
 
-## Blue Teaming
-
-AI blue teaming covers defense mechanisms to proactively defend the agent or model against failure modes found through red teaming tests. Blue teaming methods that are popular currently include LLM firewalls, prompt augmentation, and safety guardrails. However, such methods are sometimes overly defensive, and can be bypassed [^3].
-
-In the longer term, deeper defense strategies such as adversarial finetuning and Constitutional AI[^4] may be more robust. However, technical challenges related to computational stability and tradeoffs need to be overcome to make such techniques mailstream.
-
 [^1]: [Legions of DEF CON hackers will attack generative AI models](https://venturebeat.com/ai/legions-of-defcon-hackers-will-attack-generative-ai-models/)
 [^2]: [FACT SHEET: President Biden Issues Executive Order on Safe, Secure, and Trustworthy Artificial Intelligence](https://www.whitehouse.gov/briefing-room/statements-releases/2023/10/30/fact-sheet-president-biden-issues-executive-order-on-safe-secure-and-trustworthy-artificial-intelligence)
-[^3]: [The Art of Defending: A Systematic Evaluation and Analysis of LLM Defense Strategies on Safety and Over-Defensiveness](https://arxiv.org/abs/2401.00287)
-[^4]: [Constitutional AI: Harmlessness from AI Feedback](https://www.anthropic.com/index/constitutional-ai-harmlessness-from-ai-feedback)

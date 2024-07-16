@@ -1,49 +1,32 @@
 # Quickstart Tutorial
 
-Let's begin by preparing your environment.
+### Running Evaluations
 
-## Installation
+Once the Python package is installed, you can instantiate a client class and kick off an evaluation job.
+For example, the following command evaluates GPT-3.5-Turbo for toxicity while setting temperature at 0.
 
-We first install libraries necessary to run Vijil services.
+````{tab} Python
+```python
+from vijil import Vijil
 
-```bash
-pip install vijil
+client = Vijil()
+client.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-3.5-turbo",
+    model_params={"temperature": 0},
+    harnesses=["toxicity"]
+)
 ```
+````
 
-## Model Providers
+**Parameters**
 
-Vijil supports a number of LLM providers. If you want to use our tool on models deployed with them, make sure to create an account and have API keys handy for the respective provider.
+- **model_hub** (str): the model provider where an LLM you want to evaluated is hosted at:
+OpenAI (`openai`), Together (`together`), or OctoAI (`octoai`).
 
-* Anyscale
-* Hugging Face
-* Mistral
-* OctoAI
-* OpenAI
-* Replicate
-* Together
+- **model_name** (str):  
 
-## Managing API Keys
+## Setting up Guardrails
 
-We use environment variables for key management. You can export keys into environment variables through either CLI, or set them manually.
-
-```bash
-export KEY_NAME="key-string"
-```
-
-| Service | `KEY_NAME` |
-|---|---|
-| Vijil | `VIJIL_AUTH_TOKEN` |
-| Anyscale | `ANYSCALE_API_TOKEN` |
-| Hugging Face | `HF_INFERENCE_TOKEN` |
-| Mistral | `MISTRAL_API_TOKEN` |
-| OctoAI | `OCTO_API_TOKEN` |
-| OpenAI | `OPENAI_API_TOKEN` |
-| Replicate | `REPLICATE_API_TOKEN` |
-| Together | `TOGETHER_API_TOKEN` |
-| groq | `GROQ_API_TOKEN` |
-| AWS | `AWS_API_TOKEN` |
-| Microsoft | `MICROSOFT_API_TOKEN` |
-| Google | `GOOGLE_API_TOKEN` |
-
-
-Alternatively, you can store the API keys in a `.env` file that can be picked up by your Python client using [``python-dotenv``](https://pypi.org/project/python-dotenv/).
+You can use toml-based config files or inbuilt presets to configure guardrails for an LLM, AI application, or agent.
+After loading up 
