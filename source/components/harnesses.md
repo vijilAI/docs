@@ -36,7 +36,7 @@ In the Python client, you can specify one or more of these dimensions as a list 
 Example usage is as follows. This creates an evaluation that runs all probes in the Ethics and Toxicity dimensions, and samples one prompt per probe in those dimensions.
 
 ```python
-client.score.evaluations.create(
+client.evaluations.create(
     model_hub="openai",
     model_name="gpt-3.5-turbo",
     model_params={"temperature": 0},
