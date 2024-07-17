@@ -1,6 +1,6 @@
 # Setup
 
-This section prepares your development environment to use Vijil cloud services.
+This section will guide you through the process of preparing your development environment to use Vijil cloud services.
 
 ## Vijil Evaluate
 
@@ -8,7 +8,7 @@ To run evaluation jobs through the Vijil Evalute API and interact with the resul
 
 ````{tab} Shell
 ```bash
-pip install vijil
+pip install -U vijil
 ```
 ````
 
@@ -18,6 +18,8 @@ To ensure you are using the latest version of the package, we recommend using th
 
 You need a Vijil API key to authenticate remotely through the client library. You can obtain the API key by logging into your
 Vijil account, going to the profile page on the dashboard, then copying the value in the **Token** field.
+
+![API Token Location | 80%](_static/token-generation.png)
 
 After your obtain an API key, you can export it in the environment you intend to use the client inside.
 
@@ -31,7 +33,7 @@ Alternatively you can store the key in a `.env` file and load it into your Pytho
 
 ## Vijil Dome
 
-For maximum flexibility, we have made Vijil Dome---our guardrailing capability---available through a Python package. Given you have read access to our GitHub organization, you can install it using `pip`.
+For maximum flexibility, we have made Vijil Dome available through a Python package. Given you have read access to our GitHub organization, you can install it using `pip`.
 
 ````{tab} Shell
 ```bash

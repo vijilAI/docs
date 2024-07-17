@@ -10,7 +10,7 @@ Assuming you've instantiated a Vijil client called `client`, you can use the `sc
 
 
 ```python
-client.score.evaluations.create(
+client.evaluations.create(
     model_hub="openai",
     model_name="gpt-3.5-turbo",
     model_params={"temperature": 0},
