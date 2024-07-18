@@ -6,7 +6,7 @@ AI blue teaming covers defense mechanisms to proactively defend the agent or mod
 
 In the longer term, deeper defense strategies such as adversarial finetuning and Constitutional AI[^2] may be more robust. However, technical challenges related to computational stability and tradeoffs need to be overcome to make such techniques mailstream.
 
-Using Vijil Dome, an enterprise AI engineer or developer can protect a generative AI system by
+Using **Vijil Dome**, an enterprise AI engineer or developer can protect a generative AI system by
 - Applying guardrails on system prompts
 - Routing the input to and output from my app through scanners to block or redact harmful and malicious content
 - Applying scanners through policies that map to internal usage restrictions, local/national/international regulations, and standards such as OWASP Top 10 for LLMs.

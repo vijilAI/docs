@@ -1,10 +1,10 @@
 # Moderation
 
-Moderation methods are aimed to catch content that can be deemed offensive, hurtful, toxic or inappropriate. They also provide support for catching content that might violate other policies such as containing words of phrases that should be banned.  Moderation methods can be used at both the input and output level. 
+Moderation methods are aimed to catch offensive, hurtful, toxic or inappropriate content. They also provide support for catching content that might violate other policies such as containing words of phrases that should be banned.  Moderation methods can be used at both the input and output level. 
 
-## Flashtext Banlist (`moderation-flashtext`)
+## FlashText Banlist (`moderation-flashtext`)
 
-Uses the [Flashtext](https://github.com/vi3k6i5/flashtext) algorithm for fast keyword matching to block any string that contains a phrase or word that is present in a banlist.
+Uses the [FlashText](https://github.com/vi3k6i5/flashtext) algorithm for fast keyword matching to block any string that contains a phrase or word that is present in a banlist.
 
 **Parameters**
 
