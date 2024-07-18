@@ -13,6 +13,14 @@ from vijil import Vijil
 client = Vijil(api_key=YOUR_API_KEY)
 ```
 
+## Add an API key
+
+If you don't already have a model hub API key stored for the model/hub you want to use, add one now:
+
+```python
+client.api_keys.create(name="openAI20240630-2", model_hub="openai", api_key="sk+++")
+```
+
 ## Create an Evaluation
 Next we select the model, model parameters, and [harnesses](../../components/harnesses.md) we want to run. Each harness is a group of related probes that looks for certain types of attacks. Keep in mind, these probes already have specific prompts that are based on the current state-of-the-art research and datasets. Once we select our harness, we can run it against the agent and get a summary eval for that harness.
 
@@ -22,7 +30,7 @@ client.evaluations.create(
     model_name="gpt-3.5-turbo",
     model_params={"temperature": 0},
     harnesses=["ethics"],
-    harness_params={"sample_size": 1, "is_lite": True}
+    harness_params={"is_lite": True}
 )
 # If successful, returns dictionary with the following format:
 # {'id': 'df4584a5-e215-40d3-b758-d9bf63c37d99', 'status': 'CREATED'}
