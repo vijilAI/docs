@@ -1,6 +1,6 @@
 # Examples
 
-The following example notebooks help demonstrate some core functionalities in `autoredteam`.
+The following examples demonstrate some core functionalities in Vijil Evaluate.
 
 ```{eval-rst}
 .. toctree::
