@@ -12,7 +12,7 @@ Using **Vijil Dome**, an enterprise AI engineer or developer can protect a gener
 - Applying scanners through policies that map to internal usage restrictions, local/national/international regulations, and standards such as OWASP Top 10 for LLMs.
 - Creating new policies or modify existing policy components to adapt to changing threat landscapes.
 
-Input and outputs from real-world usage passing through a Dome deployment are logged and stored for post-hoc analysis and improvement. Over time, Vijil Dome adapts to usage patterns of the specific enterprise and application context it is deployed in by retraining its detection models on these datasets.
+**(Coming Soon!)** Input and outputs from real-world usage passing through a Dome deployment are logged and stored for post-hoc analysis and improvement. Over time, Vijil Dome adapts to usage patterns of the specific enterprise and application context it is deployed in by retraining its detection models on these datasets.
 
 
 
