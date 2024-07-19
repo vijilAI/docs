@@ -42,6 +42,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
    :caption: Guardrailing Agents
 
    dome/intro
+   dome/gettingstarted
    dome/config
    dome/guards/index
    dome/examples/index
