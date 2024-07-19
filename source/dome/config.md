@@ -14,7 +14,7 @@ defaut_dome = Dome(get_default_config())
 
 ## Configuring Dome via a Dictionary
 
-At a high level, Dome comprises of an input guardrail and an output guardrail. Each guardrail comprises of guards, which in turn are made up of multiple detection methods. Guards can be one of four types - `security`, `moderation`, `privacy`, and `integrity` (experimental and still under development). 
+At a high level, Dome comprises of an input guardrail and an output guardrail. Each guardrail comprises of guards, which in turn are made up of multiple detection methods. Guards can be one of four types - `security`, `moderation`, `privacy`, and `integrity` (`integrity` is experimental and still under development). 
 
 To configure Dome via a dictionary, all you need to do is specify the `input-guards` and `output-guards` fields with a list of guards, and then specify the configuration of each guard by providing a `type` and a list of methods you would like to use for that guard. For example, the configuration below has one guard at the input level called `prompt-injection` and another at the output level called `output-toxicity`. `prompt-injection` has two methods, a Deberta-based model as well as a prompt-engineering based one, while `output-toxicity` uses LLamaguard.
 
