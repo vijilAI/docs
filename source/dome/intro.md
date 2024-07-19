@@ -4,7 +4,7 @@
 
 AI blue teaming covers defense mechanisms to proactively defend the agent or model against failure modes found through red teaming tests. Blue teaming methods that are popular currently include LLM firewalls, prompt augmentation, and safety guardrails. However, such methods are sometimes overly defensive, and can be bypassed [^1].
 
-In the longer term, deeper defense strategies such as adversarial finetuning and Constitutional AI[^2] may be more robust. However, technical challenges related to computational stability and tradeoffs need to be overcome to make such techniques mailstream.
+In the longer term, deeper defense strategies such as adversarial finetuning and Constitutional AI[^2] may be more robust. However, technical challenges related to computational stability and tradeoffs need to be overcome to make such techniques mainstream.
 
 Using **Vijil Dome**, an enterprise AI engineer or developer can protect a generative AI system by
 - Applying guardrails on system prompts
