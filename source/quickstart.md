@@ -13,7 +13,8 @@ client = Vijil()
 client.evaluations.create(
     model_hub="openai",
     model_name="gpt-3.5-turbo",
-    model_params={"temperature": 0}
+    model_params={"temperature": 0},
+    harnesses=["trust_score"]
 )
 ```
 ````
@@ -48,6 +49,9 @@ client.evaluations.get_status()
 OpenAI (`openai`), Together (`together`), or OctoAI (`octoai`).
 
 - **model_name** (str):   -->
+
+Under the argument `harnesses`, you can also supply a list of trust dimensions or evaluation scenarios.
+We look into them in [later examples](python-sdk/examples/evaluations.md).
 
 ## Setting up Guardrails
 
