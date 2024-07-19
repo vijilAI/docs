@@ -93,6 +93,8 @@ client.evaluations.export_report('33a886cd-2183-4a61-9ede-241cbbb10ec6', format=
 
 The format can be `csv`, `parquet`, `json` or `jsonl`. `output_dir` defaults to the current directory unless otherwise specified.
 
+See the [glossary](../../glossary/index.md) to understand what the probe or detector modules in the report do.
+
 ## Cancel or delete evaluations
 
 You can cancel an in-progress evaluation or delete evaluations to unclutter your dashboard.
