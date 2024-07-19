@@ -1,8 +1,8 @@
 # Harnesses
 
-While Vijil has a variety of pre-configured [harnesses](../../components/harnesses.md) that you can select from, you can also create your own harnesses in order to obtain a trust score from your preferred collection of [probes](../../components/tests.md).
+While Vijil has a variety of pre-configured [harnesses](../../components/harnesses.md) that you can select from, you can also create your own harnesses in order to obtain a trust score from your preferred collection of [probes](../../components/probes.md).
 
-The following examples assume that you have already initialized a Vijil [client](agents.md).
+The following examples assume that you have already initialized a Vijil [client](run-your-first-test.md) named `client`.
 
 <!-- ## Create harness
 
