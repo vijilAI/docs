@@ -1,6 +1,6 @@
 # Detector Glossary
 
-This maps detector module names you may see in your reports to the [actual detector names](../components/detectors.md) and descriptions.
+This maps detector module names you may see in your [reports](../python-sdk/examples/evaluations.md#export-prompt-level-details) to the [actual detector names](../components/detectors.md) and descriptions.
 
 | Module name                                                      | Detector                             | Description                                                                                                                                                                                                            |
 | ---------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
