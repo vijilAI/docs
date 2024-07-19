@@ -52,115 +52,141 @@ This maps the probe module names that you may see in your [reports](../python-sd
 
 | Module name                                         | Probe name                          | Description                                                                                                        |
 | --------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| vijil.probes.leakreplay.LiteratureComplete80  | Book excerpt completion             | Tests whether the model will complete a book excerpt when prompted with the beginning                              |
-| vijil.probes.leakreplay.LiteratureCloze80     | Book excerpt insertion              | Tests whether the model will fill in the middle of a book excerpt                                                  |
-| vijil.probes.leakreplay.GuardianComplete      | Media excerpt completion - Guardian | Tests whether the model will complete an excerpt from The Guardian when prompted with the beginning                |
-| vijil.probes.leakreplay.GuardianCloze         | Media excerpt insertion - Guardian  | Tests whether the model will fill in the middle of an excerpt from The Guardian                                    |
-| vijil.probes.leakreplay.NYTComplete           | Media excerpt completion - NYT      | Tests whether the model will complete an excerpt from the New York Times when prompted with the beginning          |
-| vijil.probes.leakreplay.NYTCloze              | Media excerpt insertion - NYT       | Tests whether the model will fill in the middle of an excerpt from the New York Times                              |
-| vijil.probes.privateinfo.EnronLeakEmail       | Emails leakage - Enron              | Tests whether the model will reveal email addresses obtained from the discovery process of the Enron investigation |
-| vijil.probes.privateinfo.LeakPII              | PII Leakage                         | Tests whether PII provided to the model during a conversation can be leaked                                        |
-| vijil.probes.privateinfo.PrivacyUnderstanding | Confidentiality comprehension       | Tests whether the model understands privacy-related phrases that flag when certain information is confidential     |
+| leakreplay.LiteratureComplete80  | Book excerpt completion             | Tests whether the model will complete a book excerpt when prompted with the beginning                              |
+| leakreplay.LiteratureCloze80     | Book excerpt insertion              | Tests whether the model will fill in the middle of a book excerpt                                                  |
+| leakreplay.GuardianComplete      | Media excerpt completion - Guardian | Tests whether the model will complete an excerpt from The Guardian when prompted with the beginning                |
+| leakreplay.GuardianCloze         | Media excerpt insertion - Guardian  | Tests whether the model will fill in the middle of an excerpt from The Guardian                                    |
+| leakreplay.NYTComplete           | Media excerpt completion - NYT      | Tests whether the model will complete an excerpt from the New York Times when prompted with the beginning          |
+| leakreplay.NYTCloze              | Media excerpt insertion - NYT       | Tests whether the model will fill in the middle of an excerpt from the New York Times                              |
+| privateinfo.EnronLeakEmail       | Emails leakage - Enron              | Tests whether the model will reveal email addresses obtained from the discovery process of the Enron investigation |
+| privateinfo.LeakPII              | PII Leakage                         | Tests whether PII provided to the model during a conversation can be leaked                                        |
+| privateinfo.PrivacyUnderstanding | Confidentiality comprehension       | Tests whether the model understands privacy-related phrases that flag when certain information is confidential     |
 
 ## Hallucination Probes
 
 | Module name                             | Probe name                       | Description                                                     |
 | ------------------------------------------- | -------------------------------- | --------------------------------------------------------------- |
-| vijil.probes.socialvalues.QuackMedicine     | Quack Medicine                   | Evaluates whether the model promotes quack medicine             |
-| vijil.probes.goodside.WhoIsRiley            | False assertions: Riley Goodside | Evaluates hallucinations about Riley Goodside                   |
-| vijil.probes.goodside.Davidjl               | Glitch - Davidjl                 | Checks for hallucinations about the glitch token Davidjl        |
-| vijil.probes.packagehallucination.Python    | Hallucinate Python packages      | Checks if a model hallucinates Python packages                  |
-| vijil.probes.snowball.SenatorsMini          | False assertions: senators       | Checks for false assertions about US senators                   |
-| vijil.probes.misleading.FalseAssertion50    | False assertions: general        | Checks for false assertions about general history/science facts |
-| vijil.probes.snowball.GraphConnectivityMini | False assertions: flights        | Checks if the model invents impossible flight routes            |
-| vijil.probes.snowball.PrimesMini            | Hallucinate prime numbers        | Evaluates hallucinations about prime numbers                    |
+| socialvalues.QuackMedicine     | Quack Medicine                   | Evaluates whether the model promotes quack medicine             |
+| goodside.WhoIsRiley            | False assertions: Riley Goodside | Evaluates hallucinations about Riley Goodside                   |
+| goodside.Davidjl               | Glitch - Davidjl                 | Checks for hallucinations about the glitch token Davidjl        |
+| packagehallucination.Python    | Hallucinate Python packages      | Checks if a model hallucinates Python packages                  |
+| snowball.SenatorsMini          | False assertions: senators       | Checks for false assertions about US senators                   |
+| misleading.FalseAssertion50    | False assertions: general        | Checks for false assertions about general history/science facts |
+| snowball.GraphConnectivityMini | False assertions: flights        | Checks if the model invents impossible flight routes            |
+| snowball.PrimesMini            | Hallucinate prime numbers        | Evaluates hallucinations about prime numbers                    |
 
 ## Robustness Probes
 
 | Module name<br>                         | Probe name                   | Description                                               |
 | --------------------------------------- | ---------------------------- | --------------------------------------------------------- |
-| vijil.probes.advglue.BertattackOnMNLI   | BERT attack on MNLI          | Probes effects of BERT-based perturbation on MNLI task    |
-| vijil.probes.advglue.BertattackOnMNLIMM | BERT attack on MNLI-MM       | Probes effects of BERT-based perturbation on MNLI-MM task |
-| vijil.probes.advglue.BertattackOnQNLI   | BERT attack on QNLI          | Probes effects of BERT-based perturbation on QNLI task    |
-| vijil.probes.advglue.BertattackOnQQP    | BERT attack on QQP           | Probes effects of BERT-based perturbation on QQP task     |
-| vijil.probes.advglue.BertattackOnRTE    | BERT attack on RTE           | Probes effects of BERT-based perturbation on RTE task     |
-| vijil.probes.advglue.BertattackOnSST2   | BERT attack on SST2          | Probes effects of BERT-based perturbation on SST2 task    |
-| vijil.probes.advglue.SemattackOnMNLI    | SemAttack on MNLI            | Probes effects of SemAttack perturbation on MNLI task     |
-| vijil.probes.advglue.SemattackOnMNLIMM  | SemAttack on MNLI-MM         | Probes effects of SemAttack perturbation on MNLI-MM task  |
-| vijil.probes.advglue.SemattackOnQNLI    | SemAttack on QNLI            | Probes effects of SemAttack perturbation on QNLI task     |
-| vijil.probes.advglue.SemattackOnQQP     | SemAttack on QQP             | Probes effects of SemAttack perturbation on QQP task      |
-| vijil.probes.advglue.SemattackOnRTE     | SemAttack on RTE             | Probes effects of SemAttack perturbation on RTE task      |
-| vijil.probes.advglue.SemattackOnSST2    | SemAttack on SST2            | Probes effects of SemAttack perturbation on SST2 task     |
-| vijil.probes.advglue.SememepsoOnMNLI    | SememePSO attack on MNLI     | Probes effects of SememePSO perturbation on MNLI task     |
-| vijil.probes.advglue.SememepsoOnMNLIMM  | SememePSO attack on MNLI-MM  | Probes effects of SememePSO perturbation on MNLI-MM task  |
-| vijil.probes.advglue.SememepsoOnQNLI    | SememePSO attack on QNLI     | Probes effects of SememePSO perturbation on QNLI task     |
-| vijil.probes.advglue.SememepsoOnQQP     | SememePSO attack on QQP      | Probes effects of SememePSO perturbation on QQP task      |
-| vijil.probes.advglue.SememepsoOnRTE     | SememePSO attack on RTE      | Probes effects of SememePSO perturbation on RTE task      |
-| vijil.probes.advglue.SememepsoOnSST2    | SememePSO attack on SST2     | Probes effects of SememePSO perturbation on SST2 task     |
-| vijil.probes.advglue.TextbuggerOnMNLI   | TextBugger attack on MNLI    | Probes effects of TextBugger perturbation on MNLI task    |
-| vijil.probes.advglue.TextbuggerOnMNLIMM | TextBugger attack on MNLI-MM | Probes effects of TextBugger perturbation on MNLI-MM task |
-| vijil.probes.advglue.TextbuggerOnQNLI   | TextBugger attack on QNLI    | Probes effects of TextBugger perturbation on QNLI task    |
-| vijil.probes.advglue.TextbuggerOnQQP    | TextBugger attack on QQP     | Probes effects of TextBugger perturbation on QQP task     |
-| vijil.probes.advglue.TextbuggerOnRTE    | TextBugger attack on RTE     | Probes effects of TextBugger perturbation on RTE task     |
-| vijil.probes.advglue.TextbuggerOnSST2   | TextBugger attack on SST2    | Probes effects of TextBugger perturbation on SST2 task    |
-| vijil.probes.advglue.TextfoolerOnMNLI   | TextFooler attack on MNLI    | Probes effects of TextFooler perturbation on MNLI task    |
-| vijil.probes.advglue.TextfoolerOnMNLIMM | TextFooler attack on MNLI-MM | Probes effects of TextFooler perturbation on MNLI-MM task |
-| vijil.probes.advglue.TextfoolerOnQNLI   | TextFooler attack on QNLI    | Probes effects of TextFooler perturbation on QNLI task    |
-| vijil.probes.advglue.TextfoolerOnQQP    | TextFooler attack on QQP     | Probes effects of TextFooler perturbation on QQP task     |
-| vijil.probes.advglue.TextfoolerOnRTE    | TextFooler attack on RTE     | Probes effects of TextFooler perturbation on RTE task     |
-| vijil.probes.advglue.TextfoolerOnSST2   | TextFooler attack on SST2    | Probes effects of TextFooler perturbation on SST2 task    |
+| advglue.BertattackOnMNLI   | BERT attack on MNLI          | Probes effects of BERT-based perturbation on MNLI task    |
+| advglue.BertattackOnMNLIMM | BERT attack on MNLI-MM       | Probes effects of BERT-based perturbation on MNLI-MM task |
+| advglue.BertattackOnQNLI   | BERT attack on QNLI          | Probes effects of BERT-based perturbation on QNLI task    |
+| advglue.BertattackOnQQP    | BERT attack on QQP           | Probes effects of BERT-based perturbation on QQP task     |
+| advglue.BertattackOnRTE    | BERT attack on RTE           | Probes effects of BERT-based perturbation on RTE task     |
+| advglue.BertattackOnSST2   | BERT attack on SST2          | Probes effects of BERT-based perturbation on SST2 task    |
+| advglue.SemattackOnMNLI    | SemAttack on MNLI            | Probes effects of SemAttack perturbation on MNLI task     |
+| advglue.SemattackOnMNLIMM  | SemAttack on MNLI-MM         | Probes effects of SemAttack perturbation on MNLI-MM task  |
+| advglue.SemattackOnQNLI    | SemAttack on QNLI            | Probes effects of SemAttack perturbation on QNLI task     |
+| advglue.SemattackOnQQP     | SemAttack on QQP             | Probes effects of SemAttack perturbation on QQP task      |
+| advglue.SemattackOnRTE     | SemAttack on RTE             | Probes effects of SemAttack perturbation on RTE task      |
+| advglue.SemattackOnSST2    | SemAttack on SST2            | Probes effects of SemAttack perturbation on SST2 task     |
+| advglue.SememepsoOnMNLI    | SememePSO attack on MNLI     | Probes effects of SememePSO perturbation on MNLI task     |
+| advglue.SememepsoOnMNLIMM  | SememePSO attack on MNLI-MM  | Probes effects of SememePSO perturbation on MNLI-MM task  |
+| advglue.SememepsoOnQNLI    | SememePSO attack on QNLI     | Probes effects of SememePSO perturbation on QNLI task     |
+| advglue.SememepsoOnQQP     | SememePSO attack on QQP      | Probes effects of SememePSO perturbation on QQP task      |
+| advglue.SememepsoOnRTE     | SememePSO attack on RTE      | Probes effects of SememePSO perturbation on RTE task      |
+| advglue.SememepsoOnSST2    | SememePSO attack on SST2     | Probes effects of SememePSO perturbation on SST2 task     |
+| advglue.TextbuggerOnMNLI   | TextBugger attack on MNLI    | Probes effects of TextBugger perturbation on MNLI task    |
+| advglue.TextbuggerOnMNLIMM | TextBugger attack on MNLI-MM | Probes effects of TextBugger perturbation on MNLI-MM task |
+| advglue.TextbuggerOnQNLI   | TextBugger attack on QNLI    | Probes effects of TextBugger perturbation on QNLI task    |
+| advglue.TextbuggerOnQQP    | TextBugger attack on QQP     | Probes effects of TextBugger perturbation on QQP task     |
+| advglue.TextbuggerOnRTE    | TextBugger attack on RTE     | Probes effects of TextBugger perturbation on RTE task     |
+| advglue.TextbuggerOnSST2   | TextBugger attack on SST2    | Probes effects of TextBugger perturbation on SST2 task    |
+| advglue.TextfoolerOnMNLI   | TextFooler attack on MNLI    | Probes effects of TextFooler perturbation on MNLI task    |
+| advglue.TextfoolerOnMNLIMM | TextFooler attack on MNLI-MM | Probes effects of TextFooler perturbation on MNLI-MM task |
+| advglue.TextfoolerOnQNLI   | TextFooler attack on QNLI    | Probes effects of TextFooler perturbation on QNLI task    |
+| advglue.TextfoolerOnQQP    | TextFooler attack on QQP     | Probes effects of TextFooler perturbation on QQP task     |
+| advglue.TextfoolerOnRTE    | TextFooler attack on RTE     | Probes effects of TextFooler perturbation on RTE task     |
+| advglue.TextfoolerOnSST2   | TextFooler attack on SST2    | Probes effects of TextFooler perturbation on SST2 task    |
 
 ## Toxicity Probes
 
 | Module name<br>                                                | Probe name                         | Description                                                                                                                    |
 | -------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| vijil.probes.realtoxicityprompts.RTPSexually_Explicit          | Sexually explicit                  | Prompts the model to produce sexually explicit outputs                                                                         |
-| vijil.probes.realtoxicityprompts.RTPInsultJailbreak            | Insult - adversarial               | Prompts the model to produce insults. Uses an adversarial prefix.                                                              |
-| vijil.probes.realtoxicityprompts.RTPInsult                     | Insult                             | Prompts the model to produce insults                                                                                           |
-| vijil.probes.realtoxicityprompts.RTPSevere_ToxicityJailbreak   | Severe toxicity - adversarial      | Partial prompts that potentially produce continuations of severe toxicity. Uses an adversarial prefix.                         |
-| vijil.probes.realtoxicityprompts.RTPSexually_ExplicitJailbreak | Sexually explicit - adversarial    | Prompts the model to produce sexually explicit outputs. Uses an adversarial prefix.                                            |
-| vijil.probes.realtoxicityprompts.RTPIdentity_Attack            | Identity-based attacks             | Prompts the model to produce attacks based on a person's identity                                                              |
-| vijil.probes.realtoxicityprompts.RTPProfanity                  | Profanity                          | Prompts the model to produce profane responses                                                                                 |
-| vijil.probes.realtoxicityprompts.RTPIdentity_AttackJailbreak   | Adversarial Identity-based attacks | Prompts the model to produce attacks based on a person's identity. Uses an adversarial prefix.                                 |
-| vijil.probes.realtoxicityprompts.RTPThreat                     | Threatening language               | Prompts the model to produce threats                                                                                           |
-| vijil.probes.realtoxicityprompts.RTPThreatJailbreak            | Threatening language - Adversarial | Prompts the model to produce threats. Uses an adversarial prefix.                                                              |
-| vijil.probes.realtoxicityprompts.RTPSevere_Toxicity            | Severe toxicity                    | Partial prompts that potentially produce continuations of severe toxicity                                                      |
-| vijil.probes.realtoxicityprompts.RTPFlirtation                 | Flirtation                         | Partial prompts to produce flirtatious continuations                                                                           |
-| vijil.probes.realtoxicityprompts.RTPFlirtationJailbreak        | Flirtation -- Adversarial          | Partial prompts to produce flirtatious continuations. Uses an adversarial prefix.                                              |
-| vijil.probes.realtoxicityprompts.RTPProfanityJailbreak         | Profanity.- Adversarial            | Prompts the model to produce profane responses. Uses an adversarial prefix.                                                    |
-| vijil.probes.continuation.ContinueSlursReclaimedSlursART       | Slur continuation                  | Prompts the model to continue slur words                                                                                       |
-| vijil.probes.socialvalues.Deadnaming                           | Deadnaming                         | Tests whether the model deadnames famous people                                                                                |
-| vijil.probes.ethicalharms.Profanity                            | Profanity questions                | Poses questions with potentially profane responses                                                                             |
-| vijil.probes.ethicalharms.Bullying                             | Bullying                           | Poses queries or partial prompts to the model that are expected to elicit responses recommending aggressive or bullying action |
-| vijil.probes.ethicalharms.SexualContent                        | Sexually explicit - risky words    | Prompts the model to produce sexually explicit keywords                                                                        |
-| vijil.probes.ethicalharms.Sexualisation                        | Sexual objectification             | Prompts the model to produce sexually objectifying language                                                                    |
-| vijil.probes.ethicalharms.SlurUsage                            | Slur question                      | Asks questions to see if the target will suggest or recommend ethnic slurs                                                     |
+| realtoxicityprompts.RTPSexually_Explicit          | Sexually explicit                  | Prompts the model to produce sexually explicit outputs                                                                         |
+| realtoxicityprompts.RTPInsultJailbreak            | Insult - adversarial               | Prompts the model to produce insults. Uses an adversarial prefix.                                                              |
+| realtoxicityprompts.RTPInsult                     | Insult                             | Prompts the model to produce insults                                                                                           |
+| realtoxicityprompts.RTPSevere_ToxicityJailbreak   | Severe toxicity - adversarial      | Partial prompts that potentially produce continuations of severe toxicity. Uses an adversarial prefix.                         |
+| realtoxicityprompts.RTPSexually_ExplicitJailbreak | Sexually explicit - adversarial    | Prompts the model to produce sexually explicit outputs. Uses an adversarial prefix.                                            |
+| realtoxicityprompts.RTPIdentity_Attack            | Identity-based attacks             | Prompts the model to produce attacks based on a person's identity                                                              |
+| realtoxicityprompts.RTPProfanity                  | Profanity                          | Prompts the model to produce profane responses                                                                                 |
+| realtoxicityprompts.RTPIdentity_AttackJailbreak   | Adversarial Identity-based attacks | Prompts the model to produce attacks based on a person's identity. Uses an adversarial prefix.                                 |
+| realtoxicityprompts.RTPThreat                     | Threatening language               | Prompts the model to produce threats                                                                                           |
+| realtoxicityprompts.RTPThreatJailbreak            | Threatening language - Adversarial | Prompts the model to produce threats. Uses an adversarial prefix.                                                              |
+| realtoxicityprompts.RTPSevere_Toxicity            | Severe toxicity                    | Partial prompts that potentially produce continuations of severe toxicity                                                      |
+| realtoxicityprompts.RTPFlirtation                 | Flirtation                         | Partial prompts to produce flirtatious continuations                                                                           |
+| realtoxicityprompts.RTPFlirtationJailbreak        | Flirtation -- Adversarial          | Partial prompts to produce flirtatious continuations. Uses an adversarial prefix.                                              |
+| realtoxicityprompts.RTPProfanityJailbreak         | Profanity.- Adversarial            | Prompts the model to produce profane responses. Uses an adversarial prefix.                                                    |
+| continuation.ContinueSlursReclaimedSlursART       | Slur continuation                  | Prompts the model to continue slur words                                                                                       |
+| socialvalues.Deadnaming                           | Deadnaming                         | Tests whether the model deadnames famous people                                                                                |
+| ethicalharms.Profanity                            | Profanity questions                | Poses questions with potentially profane responses                                                                             |
+| ethicalharms.Bullying                             | Bullying                           | Poses queries or partial prompts to the model that are expected to elicit responses recommending aggressive or bullying action |
+| ethicalharms.SexualContent                        | Sexually explicit - risky words    | Prompts the model to produce sexually explicit keywords                                                                        |
+| ethicalharms.Sexualisation                        | Sexual objectification             | Prompts the model to produce sexually objectifying language                                                                    |
+| ethicalharms.SlurUsage                            | Slur question                      | Asks questions to see if the target will suggest or recommend ethnic slurs                                                     |
 
 ## Stereotype Probes
 
 | Module name<br>                                 | Probe name                                 | Description                                     |
 | ----------------------------------------------- | ------------------------------------------ | ----------------------------------------------- |
-| vijil.probes.advstereo.Atheists                 | Stereotype religion: atheists              | Checks for stereotypes about atheists           |
-| vijil.probes.advstereo.LatinAmericans           | Stereotype ethnicity: Latin Americans      | Checks for stereotypes about Latin Americans    |
-| vijil.probes.advstereo.Europeans                | Stereotype ethnicity: Europeans            | Checks for stereotypes about Europeans          |
-| vijil.probes.advstereo.OldPeople                | Stereotype age: old people                 | Checks for stereotypes about old people         |
-| vijil.probes.advstereo.Homosexuals              | Stereotype sexual orientation: homosexuals | Checks for stereotypes about homosexuals        |
-| vijil.probes.advstereo.Immigrants               | Stereotype nationality: immigrants         | Checks for stereotypes about immigrants         |
-| vijil.probes.advstereo.AbleBodiedPeople         | Stereotype disability: able-bodied people  | Checks for stereotypes about able-bodied people |
-| vijil.probes.advstereo.YoungPeople              | Stereotype age: young people               | Checks for stereotypes about young people       |
-| vijil.probes.advstereo.Caucasians               | Stereotype race: Caucasians                | Checks for stereotypes about Caucasians         |
-| vijil.probes.advstereo.BlackPeople              | Stereotype race: black people              | Checks for stereotypes about black people       |
-| vijil.probes.advstereo.Buddhists                | Stereotype religion: buddhists             | Checks for stereotypes about buddhists          |
-| vijil.probes.advstereo.PoorPeople               | Stereotype income: poor people             | Checks for stereotypes about poor people        |
-| vijil.probes.advstereo.WhitePeople              | Stereotype race: white people              | Checks for stereotypes about white people       |
-| vijil.probes.advstereo.Jews                     | Stereotype ethnicity: Jews                 | Checks for stereotypes about Jews               |
-| vijil.probes.advstereo.RichPeople               | Stereotype income: rich people             | Checks for stereotypes about rich people        |
-| vijil.probes.advstereo.Men                      | Stereotype gender: men                     | Checks for stereotypes about men                |
-| vijil.probes.advstereo.Mexicans                 | Stereotype nationality: Mexicans           | Checks for stereotypes about Mexicans           |
-| vijil.probes.advstereo.Asians                   | Stereotype race: Asians                    | Checks for stereotypes about Asians             |
-| vijil.probes.advstereo.Americans                | Stereotype nationality: Americans          | Checks for stereotypes about Americans          |
-| vijil.probes.advstereo.Canadians                | Stereotype nationality: Canadians          | Checks for stereotypes about Canadians          |
-| vijil.probes.advstereo.Christians               | Stereotype religion: Christians            | Checks for stereotypes about Christians         |
-| vijil.probes.advstereo.PhysicallyDisabledPeople | Stereotype disability: disabled people     | Checks for stereotypes about disabled people    |
-| vijil.probes.advstereo.Muslims                  | Stereotype religion: Muslims               | Checks for stereotypes about Muslims            |
-| vijil.probes.advstereo.Women                    | Stereotype gender: women                   | Checks for stereotypes about women              |
+| advstereo.Atheists                 | Stereotype religion: atheists              | Checks for stereotypes about atheists           |
+| advstereo.LatinAmericans           | Stereotype ethnicity: Latin Americans      | Checks for stereotypes about Latin Americans    |
+| advstereo.Europeans                | Stereotype ethnicity: Europeans            | Checks for stereotypes about Europeans          |
+| advstereo.OldPeople                | Stereotype age: old people                 | Checks for stereotypes about old people         |
+| advstereo.Homosexuals              | Stereotype sexual orientation: homosexuals | Checks for stereotypes about homosexuals        |
+| advstereo.Immigrants               | Stereotype nationality: immigrants         | Checks for stereotypes about immigrants         |
+| advstereo.AbleBodiedPeople         | Stereotype disability: able-bodied people  | Checks for stereotypes about able-bodied people |
+| advstereo.YoungPeople              | Stereotype age: young people               | Checks for stereotypes about young people       |
+| advstereo.Caucasians               | Stereotype race: Caucasians                | Checks for stereotypes about Caucasians         |
+| advstereo.BlackPeople              | Stereotype race: black people              | Checks for stereotypes about black people       |
+| advstereo.Buddhists                | Stereotype religion: buddhists             | Checks for stereotypes about buddhists          |
+| advstereo.PoorPeople               | Stereotype income: poor people             | Checks for stereotypes about poor people        |
+| advstereo.WhitePeople              | Stereotype race: white people              | Checks for stereotypes about white people       |
+| advstereo.Jews                     | Stereotype ethnicity: Jews                 | Checks for stereotypes about Jews               |
+| advstereo.RichPeople               | Stereotype income: rich people             | Checks for stereotypes about rich people        |
+| advstereo.Men                      | Stereotype gender: men                     | Checks for stereotypes about men                |
+| advstereo.Mexicans                 | Stereotype nationality: Mexicans           | Checks for stereotypes about Mexicans           |
+| advstereo.Asians                   | Stereotype race: Asians                    | Checks for stereotypes about Asians             |
+| advstereo.Americans                | Stereotype nationality: Americans          | Checks for stereotypes about Americans          |
+| advstereo.Canadians                | Stereotype nationality: Canadians          | Checks for stereotypes about Canadians          |
+| advstereo.Christians               | Stereotype religion: Christians            | Checks for stereotypes about Christians         |
+| advstereo.PhysicallyDisabledPeople | Stereotype disability: disabled people     | Checks for stereotypes about disabled people    |
+| advstereo.Muslims                  | Stereotype religion: Muslims               | Checks for stereotypes about Muslims            |
+| advstereo.Women                    | Stereotype gender: women                   | Checks for stereotypes about women              |
+
+## Fairness Probes
+
+
+| Module name                                    | Probe name        | Description                                                                              |
+| ------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------- |
+| adultdata.CounterfactualGender | Gender Bias       | Measures whether the model uses gender information to determine a person's likely income |
+| "winobias.ProfessionalBias"    | Professional bias | Measures whether the model associates occupations with gender                            |
+
+
+## Ethics Probes
+
+| Module name                                      | Probe name                       | Description                                                                                                                                                               |
+| ----------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| normative_ethics.Deontology              | Deontological Ethics             | Evaluates the model's understanding of whether actions are<br>required, permitted, or forbidden according to a set<br>of rules or constraints                             |
+| normative_ethics.DeontologyJailbreak     | Adversarial Deontological Ethics | Evaluates the model's understanding of whether actions are<br>required, permitted, or forbidden according to a set<br>of rules or constraints under adversarial prompting |
+| normative_ethics.Justice                 | Justice-based Ethics             | Evaluates whether the model understands principles of desert or impartiality                                                                                              |
+| normative_ethics.JusticeJailbreak        | Adversarial Justice-based Ethics | Evaluates whether the model understands principles of desert or impartiality under adversarial prompting                                                                  |
+| normative_ethics.Morality                | Commonsense Morality             | Evaluates whether the model's moral judgments align with common moral intuitions                                                                                          |
+| normative_ethics.MoralityJailbreak       | Adversarial Commonsense Morality | Evaluates, under adversarial prompting, whether the model's moral judgments align with common moral intuitions                                                            |
+| normative_ethics.Utilitarianism          | Utilitarianism                   | Evaluates whether the model can identify which of two scenarios has higher utility                                                                                        |
+| normative_ethics.UtilitarianismJailbreak | Adversarial Utilitarianism       | Evaluates, under adversarial prompting, whether the model can identify which of two scenarios has higher utility                                                          |
+| normative_ethics.Virtue                  | Virtue Ethics                    | Evaluates whether the model can identify moral virtues correctly                                                                                                          |
+| normative_ethics.VirtueJailbreak         | Adversarial Virtue Ethics        | Evaluates, under adversarial prompting, whether the model can identify moral virtues correctly                                                                            |
+| jiminycricket.Jiminy                     | Simulation                       | Evaluates the model's ability to identify the moral valence of a simulated scenario                                                                                       |
+| jiminycricket.JiminyJailbreak            | Adversarial Simulation           | Evaluates, under adversarial prompting, the model's ability to identify the moral valence of a simulated scenario                                                         |
