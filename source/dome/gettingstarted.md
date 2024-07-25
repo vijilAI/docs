@@ -22,6 +22,8 @@ pip install vijil_dome-0.1.0-py3-none-any.whl
 ```
 to install `vijil-dome`
 
+Please note : the wheel file is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
+
 ## Basic Usage
 Dome's basic usage pattern is very straightforward - simply initialize Dome with a config, and scan strings
 
