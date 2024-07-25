@@ -2,8 +2,25 @@
 
 ## Installation 
 
-Once you have access to the `vijil-dome` github repository, you can install the Dome by running the command \
-`pip install git+https://github.com/vijilAI/vijil-dome.git@domelibrary`
+Dome is available as a `.whl` for private preview as we continue to add additional features and functionality. Please contact us if you're interested in trying out Dome. 
+
+Once you are granted access, you will recieve 
+- a pre-signed url to the `vijil-dome` python wheel
+- a MAKEFILE for easy installation 
+
+To install simply, copy the makefile to your project directory and run 
+```
+EXPORT DOME_WHEEL_URL= <YOUR PRE-SIGNED URL>
+make install
+```
+This will install the `vijil-dome` to your current active virtual environment 
+
+You can also run 
+```
+curl -o vijil_dome-0.1.0-py3-none-any.whl <YOUR PRE-SIGNED URL>
+pip install vijil_dome-0.1.0-py3-none-any.whl
+```
+to install `vijil-dome`
 
 ## Basic Usage
 Dome's basic usage pattern is very straightforward - simply initialize Dome with a config, and scan strings
