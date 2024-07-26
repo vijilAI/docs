@@ -10,19 +10,21 @@ Once you are granted access, you will recieve
 
 To install simply, copy the makefile to your project directory and run 
 ```
-EXPORT DOME_WHEEL_URL= <YOUR PRE-SIGNED URL>
+EXPORT DOME_WHEEL_URL= "<YOUR PRE-SIGNED URL>"
 make install
 ```
 This will install the `vijil-dome` to your current active virtual environment 
 
 You can also run 
 ```
-curl -o vijil_dome-0.1.0-py3-none-any.whl <YOUR PRE-SIGNED URL>
+curl -o vijil_dome-0.1.0-py3-none-any.whl "<YOUR PRE-SIGNED URL>"
 pip install vijil_dome-0.1.0-py3-none-any.whl
 ```
 to install `vijil-dome`
 
-Please note : the wheel file is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
+Notes: 
+- The wheel file is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
+- Use quotes around the pre-signed URL since it contains special characters
 
 ## Basic Usage
 Dome's basic usage pattern is very straightforward - simply initialize Dome with a config, and scan strings
