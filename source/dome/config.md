@@ -141,7 +141,9 @@ methods = ["moderation-llamaguard"]
 
 To create a TOML configuration for Dome, ensure that you have a field named ```guardrail``` that lists out the input and output guards, and the parallel execution/early termination settings you need. To specify settings for a method in a guard, use  ```<GUARD_NAME>.<METHOD_NAME>```. 
 
-**Note:** When specifying booleans in the TOML, please ensure to use **lowercase** values (i.e, 'true' and 'false')
+````{note}
+When specifying booleans in the TOML, please ensure to use **lowercase** values (i.e, 'true' and 'false').
+````
 
 ### Overall TOML Structure
 

@@ -60,7 +60,9 @@ This method allows the most amount of customization and flexibility. In this exa
 
 This results in an output with a similar object signature as OpenAI's client, and is suitable for when you need a low-code solution that doesn't need to support any other types of models.
 
-Note: this method does not support multi-turn prompts yet.
+````{note}
+This method does not yet support multi-turn prompts.
+````
 
 ```python
 dome_with_client = Dome(get_default_config(), oai_client)

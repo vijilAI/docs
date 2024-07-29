@@ -1,11 +1,12 @@
 # Integrity
 
-> **_NOTE:_**
-integrity methods are currently experimental! We are in the process of experimentally validating them and integrating them into Dome's workflow in a RAG setting.
-
 Integrity methods evaluate query strings based on some available context to check for possible hallucinations and ungrounded or incorrect conclusions. Integrity methods will typically only apply to output guards in RAG-based applications.
 
 All integrity models support **context** as a parameter where the context for the detector can be initialized. 
+
+````{warning}
+Integrity methods are currently experimental! We are in the process of experimentally validating them and integrating them into Dome's workflow in a RAG setting.
+````
 
 ## HHEM (`hhem-hallucination`)
 Uses the [HHEM Model by Vectara](https://huggingface.co/vectara/hallucination_evaluation_model) to determine if there might be possible model hallucinations.

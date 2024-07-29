@@ -20,7 +20,7 @@ You can also run
 curl -o vijil_dome-0.1.0-py3-none-any.whl "<YOUR PRE-SIGNED URL>"
 pip install vijil_dome-0.1.0-py3-none-any.whl
 ```
-to install `vijil-dome`
+to install `vijil-dome`.
 
 Notes: 
 - The wheel file is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
