@@ -1,6 +1,6 @@
-# Examples
+# Python Client Examples
 
-The following examples demonstrate some core functionalities in Vijil Evaluate.
+The following examples demonstrate core functionalities in the `vijil` Python client.
 
 ```{eval-rst}
 .. toctree::
@@ -8,5 +8,6 @@ The following examples demonstrate some core functionalities in Vijil Evaluate.
 
    run-your-first-test
    evaluations
+   api-keys
    custom-harness
 ```
