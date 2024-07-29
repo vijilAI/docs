@@ -5,25 +5,29 @@
 Dome is available as a `.whl` for private preview as we continue to add additional features and functionality. Please contact us if you're interested in trying out Dome. 
 
 Once you are granted access, you will recieve 
-- a pre-signed url to the `vijil-dome` python wheel
+- a pre-signed url to the `vijil-core` and `vijil-dome` python wheels
 - a MAKEFILE for easy installation 
 
 To install simply, copy the makefile to your project directory and run 
 ```
-EXPORT DOME_WHEEL_URL= "<YOUR PRE-SIGNED URL>"
+EXPORT CORE_WHEEL_URL = '<YOUR PRE-SIGNED CORE WHEEL URL>'
+EXPORT DOME_WHEEL_URL = '<YOUR PRE-SIGNED DOME WHEEL URL>'
 make install
 ```
-This will install the `vijil-dome` to your current active virtual environment 
+This will install the `vijil-dome` library to your current active virtual environment 
 
 You can also run 
 ```
-curl -o vijil_dome-0.1.0-py3-none-any.whl "<YOUR PRE-SIGNED URL>"
+curl -o vijil_core-0.1.0-py3-none-any.whl '<YOUR PRE-SIGNED CORE URL>'
+pip install vijil_core-0.1.0-py3-none-any.whl
+
+curl -o vijil_dome-0.1.0-py3-none-any.whl '<YOUR PRE-SIGNED DOME URL>'
 pip install vijil_dome-0.1.0-py3-none-any.whl
 ```
 to install `vijil-dome`
 
 Notes: 
-- The wheel file is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
+- The wheel file for core is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
 - Use quotes around the pre-signed URL since it contains special characters
 
 ## Basic Usage
