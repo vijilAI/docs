@@ -7,7 +7,8 @@
    :maxdepth: 1
 
    intro
-   input-guards
-   output-guards
+   gettingstarted
+   config
+   guards/index
    examples
 ```

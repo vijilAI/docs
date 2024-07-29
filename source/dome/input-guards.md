@@ -1,3 +1,0 @@
-# Input Guards
-
-TBD
