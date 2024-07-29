@@ -24,7 +24,7 @@ pip install vijil_core-0.1.0-py3-none-any.whl
 curl -o vijil_dome-0.1.0-py3-none-any.whl '<YOUR PRE-SIGNED DOME URL>'
 pip install vijil_dome-0.1.0-py3-none-any.whl
 ```
-to install `vijil-dome`
+to install `vijil-dome`.
 
 Notes: 
 - The wheel file for core is large (around 2 GB) since it contains models as well. Installation may take a few minutes.
