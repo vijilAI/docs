@@ -4,7 +4,7 @@
 
 Dome is available as a `.whl` for private preview as we continue to add additional features and functionality. Please contact us if you're interested in trying out Dome. 
 
-Once you are granted access, you will recieve 
+Dome uses our in-house library `vijil-core`, for various functionalities. If you are interested in trying out Dome, please contact us to recieve access. Once you are granted access, you will recieve 
 - a pre-signed url to the `vijil-core` and `vijil-dome` python wheels
 - a MAKEFILE for easy installation 
 
