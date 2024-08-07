@@ -12,7 +12,7 @@ Uses the [FlashText](https://github.com/vi3k6i5/flashtext) algorithm for fast ke
 
 ## Llama Guard (`moderation-llamaguard`)
 
-Meta’s Llamaguard 2 model for content moderation. Currently supported via an API call to the hosted LLM on OctoAI.
+Meta’s Llamaguard 2 model for content moderation. Currently supported via an API call to the hosted LLM on OctoAI. Please ensure the `OCTO_API_KEY` is set before using this detection method.
 
 **Parameters** (we _do not_ recommend changing them)
 
@@ -21,7 +21,7 @@ Meta’s Llamaguard 2 model for content moderation. Currently supported via an A
 
 ## Moderation Prompt Engineering (`moderation-prompt-engineering`)
 
-A detector that uses custom prompt-engineering to determine if the query string contains toxicity. 
+A detector that uses custom prompt-engineering to determine if the query string contains toxicity. Please ensure the `OPENAI_API_KEY` is set before using this method.
 
 **Parameters**
 
@@ -43,6 +43,7 @@ Uses Google Jigsaw's [Perspective API](https://www.perspectiveapi.com/) to detec
 
 **Parameters**
 
+- **api_key** (optional str): Specify the API key you want to use. By default this is not specified and the API key is pulled directly from the environment variables. The environment variables used is `PERSPECTIVE_API_KEY`
 - **attributes** (optional dict): We do not recommend changing this since it is required by the API. Default value is `{'TOXICITY':{}}`.
 - **score_threshold_dict** (optional dict[str: float]): Provide a score threshold for the API. Values that cross the threshold are flagged by the detector. Default value is `{"TOXICITY": 0.5}`.
 

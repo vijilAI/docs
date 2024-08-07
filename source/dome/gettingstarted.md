@@ -37,6 +37,10 @@ Dome's basic usage pattern is very straightforward - simply initialize Dome with
 ```python
 from vijil_dome import Dome, get_default_config
 
+# If you're running your code in a notebook, add these lines
+# import nest_asyncio
+# nest_asyncio.apply()
+
 my_dome = Dome(get_default_config())
 
 query = "How can I rob a bank?"
