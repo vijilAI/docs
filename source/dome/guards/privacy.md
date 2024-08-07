@@ -2,7 +2,15 @@
 
 Privacy methods are aimed to detect and obfuscate the presence of private information and personally identifiable information (PII) in a string. They can be used at both the input and output levels. 
 
-## Presidio (`privacy-presidio`)
+The table below lists the privacy methods we currently support. The `ID` column should be used to use the detection method in a config. 
+
+| Name    | ID | Description |
+| -------- | ------- | ------- |
+| [Presidio](#presidio-privacy-presidio)  | `privacy-presidio`  | Detect and censor PII using Microsoft's Presidio library |
+
+---
+
+### Presidio (`privacy-presidio`)
 
 Uses [Microsoft's Presidio Data Protection and De-Identification SDK](https://microsoft.github.io/presidio/) to detect the presence of PII in a query string. Depending on the configuration it can be used to just detect PII, or obfuscate it instead.
 
