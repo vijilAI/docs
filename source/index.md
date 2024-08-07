@@ -40,7 +40,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
 ```{eval-rst}
 .. toctree::
    :maxdepth: 1
-   :caption: Guardrailing Agents
+   :caption: Vijil Dome
 
    dome/intro
    dome/gettingstarted
