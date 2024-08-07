@@ -7,8 +7,9 @@
    :maxdepth: 1
 
    intro
+   overview
    gettingstarted
    config
-   guards/index
    examples
+   guards/index
 ```
