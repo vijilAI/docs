@@ -1,38 +1,87 @@
-# Configuring Dome
+## Configuring Dome Guardrails
 
-Vijil Dome provides a number of input and output guards to protect against a variety of attacks and harms. Guided by internal acceptable use policies and compliance guidelines, an enterprise developer can combine one or more guards into a configuration via either a dictionary or a TOML file. Dome provides a wide range of guard methods, featuring various categories such as Security, Moderation and Privacy that can be combined and customized to enhance the security of your applications.
+Dome offers a flexible system to secure your applications through configurable guardrails. Here's how to understand and set them up:
 
+### Step 1: Choose and Configure Guardrail Types
 
-## Default Configuration
+Dome provides [four main types](overview.md#guardrails) of guardrails:
+1. Input Guardrails
+2. Retrieval Guardrails
+3. Execution Guardrails
+4. Output Guardrails
 
-By default, Dome provides a default configuration that checks for Jailbreak attempts and Prompt Injection attacks while blocking toxic queries and outputs and obfuscating PII. This default configuration is available via the `get_default_config` method:
+These guardrails act as security checkpoints for different stages of your application's operation. 
 
-```python
-from vijil_dome import Dome, get_default_config
+Configure your guardrail by:
+- Providing custom groupings of guards
+- Deciding if you want to run guards serially or in parallel (`run-parallel`)
+- Deciding if all guards should run, or if execution should terminate as soon as one guard has flagged the query string (`early-exit`)
 
-default_dome = Dome(get_default_config())
-```
+### Step 2: Assemble and Configure Guards
 
-## Configuring Dome 
+Each guardrail is composed of one or more guards. For example:
+- An Input Guardrail might include Security and Privacy Guards
+- An Output Guardrail could combine Moderation, Quality, and Integrity Guards
 
-You can configure Dome with a dictionary or a TOML file. In both structures, you configure Dome by specifying the following types of fields: input guards, output guards, execution order, and details about how each guard should work.
+The types of guards you wish to include in a guardrail are entirely up to you. The type of guardrail simply indicates where it is supposed to run in an application flow. 
 
+These guards can be named as you like, and are completely user defined. Just like Guardrails, Guards are also customizable. You can set up:
+- Custom groupings of detectors
+- Parallel or serial execution of detectors within the guard (`run-parallel`)
+- Early termination of detectors in the guard (`early-exit`)
 
-## Input and output guards
+### Step 3: Select and Configure Detectors
 
-At the top level, specify a list of input guards and output guards you want to use, in the `input-guards` and `output-guards` fields. You can name these guards according to your own preferences. Later on in the config file, you will specify for each guard (identified by the name you chose for it) details about how the guard should work.
+Guards are made up of detectors. To set up your guards:
+1. Choose specific detectors from Dome's growing library
+2. Configure each detector with settings like thresholds or context-length. 
 
-In our example below, we specified one input guard with the name `prompt-injection`, and one output guard with the name `output-toxicity`.
+These settings depend on the detector used. Please see the [list of detection methods](guards/index.md) for a comprehensive list of all the detection methods we currently offer and the settings they have. 
 
+### Example
 
 ````python
 example_config = {
-            "input-guards": ["prompt-injection"],
+
+            # The input guardrail has two guards - 'prompt-injection' and 'input-toxicity'
+            "input-guards": ["prompt-injection", "input-toxicity"],
+            # The output guardrail has one guard - 'output-toxicity'
             "output-guards": ["output-toxicity"],
+
+            # Here, we set the input guardrail's execution settings. Early-exit and parallel execution are enabled
+            "input-early-exit": True,
+            "input-run-parallel": True,
+
+            # By not specifying the output guardrail's execution settings, the default values are used. It runs serially, and has early-exit enabled.
+
+            # Here, we set up the 'prompt-injection' guard. 
             "prompt-injection": {
-                "type": "security",
+                "type": "security", # This type governs what detectors can be used in the guard. Only detectors of the same type can be used
+
+                # Here, we specify guard-level execution settings
+                "early-exit": False,    # This guard does not terminate early
+                "run-parallel": True,   # This guard runs its detection methods in parallel
+
+                # We specify the detection methods we want to use - "prompt-injection-deberta-v3-base" and "security-llm", both of which are security methods
                 "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
+
+                # Here, we are configuring detector-specific settings. 
+                # We are using GPT 4 as the LLM in the security-llm detector instead of the default GPT-4 Turbo
+                "security-llm": {
+                    "model_name": "gpt-4"
+                }
             },
+
+            # This sets up the 'input-toxicity' guard. 
+            "input-toxicity":{
+                "type":"moderation",
+                # Since we do not specify the guard-level execution settings, the default values are used. It runs serially, and has early-exit enabled.
+
+                # We have just one method in this guard, which is the OpenAI moderations API
+                "methods":["moderations-oai-api"]
+            },
+
+            # This sets up the 'input-toxicity' guard. 
             "output-toxicity":{
                 "type":"moderation",
                 "methods":["moderation-llamaguard"]
@@ -40,72 +89,7 @@ example_config = {
         }
 ````
 
-The next section describes how to configure the details of how the `prompt-injection` and `output-toxicity` guards work.
 
-## Details of each guard
-
-Once you have specified your input and output guards with names for each guard, you then specify for each guard the methods and parameters you want to use for it.
-
-In the example above, we specified that the guard named `prompt-injection` is a guard of type `security`. Among the detection [methods available](guards/security.md) under `security`, we then specify that it should use `prompt-injection-deberta-v3-base` and `security-llm`, which are both detection methods available under [security](guards/security.md).
-
-You can also configure further details about what parameters each detection method should use. In the example below, we configure the `security-llm` [method](guards/security.md#llm-based-detector-security-llm) to use GPT-4o instead of the default GPT-4-Turbo. 
-
-````python
-    "prompt-injection": {
-                "type": "security",
-                "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
-                "security-llm": {
-                    "model_name": "gpt-4o"
-                }
-            },
-````
-
-Besides parameters for specific methods, you can also configure the [order](#per-guard-execution-order) in which the methods should execute.
-
-For a full list of methods available and their corresponding settings, please see [this list of guard methods](guards/index.md).
-
-## Execution settings
-
-You can also specify the order in which the individual guards should run. This can be specified both at the global level (i.e. for all input guards or all output guards) or at a per-guard level (e.g. only for `prompt-injection`). We currently support parallel guard execution, where multiple guards run in parallel, and early termination, where guardrail scanning terminates as soon as one guard flags the query string.
-
-### Global execution settings
-
-You can enable these settings via `input-run-parallel` and `input-early-exit` for the input guardrail, and `output-run-parallel` and `output-early-exit` for the output guardrail. In the example below, the input guardrails (`prompt-injection` and `input-toxicity`) run in parallel, and will stop as soon as one of them flags the query string.
-
-````python
-example_config = {
-            "input-guards": ["prompt-injection", "input-toxicity"],
-            "output-guards": ["output-toxicity"],
-            "input-early-exit": True,
-            "input-run-parallel": True,
-            "prompt-injection": {
-                "type": "security",
-                "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
-            },
-            "input_toxicity":{
-                "type":"moderation",
-                "methods":["moderations-oai-api"]
-            },
-            "output_toxicity":{
-                "type":"moderation",
-                "methods":["moderation-llamaguard"]
-            },
-        }
-````
-
-### Per-guard execution settings
-
-You can even configure parallelism and early termination at the guard level using the `run-parallel` and `early-exit` fields within each guard field. For example, the `prompt-injection` configuration below will run the Deberta model and the Security LLM method in parallel, but will wait till both methods have finished executing
-
-````python
-    "prompt-injection": {
-            "type": "security",
-            "early-exit": False,
-            "run-parallel": True,
-            "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
-        },
-````
-By default, guardrails and guards have early termination enabled, and parallel execution disabled. 
 
 ## Configuring Dome via a TOML file
 
