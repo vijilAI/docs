@@ -29,7 +29,7 @@ Detectors are the components within Guards that perform the actual detection of 
 
 Users can configure Guards by selecting and combining different Detectors based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
 
-[[insert image - TBD ::  Rails --> Guards --> Detectors ]]
+![guardrail-composition | 80%](../_static/guardrail_composition.png)
 
 #### Example Configuration
 
@@ -42,7 +42,7 @@ Here is an example of how you can set up Guards and Detectors (see the [Configur
     # setup guardrails from guards
     ########################
     # input guardrail
-    "input-guards": ["prompt-injection", "input-toxicity"],
+    "input-guards": ["prompt-injection", "input-privacy"],
     
     # output guardrail
     "output-guards": ["output-toxicity"],
@@ -57,10 +57,10 @@ Here is an example of how you can set up Guards and Detectors (see the [Configur
         "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
     },
     
-    # a guard for toxic input content -- TBD change this to PII as a better example
-    "input-toxicity": {
-        "type": "moderation",
-        "methods": ["moderation-oai-api"]
+    # a guard to remove PII from requests to the LLM
+    "input-privacy": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"]
     },
     
     # a guard for toxic output content 
