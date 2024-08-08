@@ -1,4 +1,4 @@
-# Dome Installation Guide
+# Getting Started
 
 ## Installation
 
@@ -6,8 +6,8 @@ To install Dome, follow these steps:
 
 ### To install only the Dome package:
 ```sh
-    # downloads and installs dome package
-    make dome '<PRE-SIGNED URL>'
+# downloads and installs dome package
+make dome '<PRE-SIGNED URL>'
 ```
 
 ### OR
@@ -15,8 +15,8 @@ To install Dome, follow these steps:
 ### To install the Dome package along with the models:
 _Note: The download is around 2GB and it may take a few minutes or longer to complete_
 ```sh
-    # downloads and installs dome package along with the models
-    make dome_with_models '<PRE-SIGNED URL>'
+# downloads and installs dome package along with the models
+make dome_with_models '<PRE-SIGNED URL>'
 ```
 
 ## Basic Usage
