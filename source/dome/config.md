@@ -1,6 +1,7 @@
 # Configuring Dome
 
-Vijil Dome provides a number of input and output guards to protect against a variety of attacks and harms. Guided by internal acceptable use policies and compliance guidelines, an enterprise developer can combine one or more guards into a configuration via either a dictionary or a TOML file.
+Vijil Dome provides a number of input and output guards to protect against a variety of attacks and harms. Guided by internal acceptable use policies and compliance guidelines, an enterprise developer can combine one or more guards into a configuration via either a dictionary or a TOML file. Dome provides a wide range of guard methods, featuring various categories such as Security, Moderation and Privacy that can be combined and customized to enhance the security of your applications.
+
 
 ## Default Configuration
 
@@ -11,7 +12,6 @@ from vijil_dome import Dome, get_default_config
 
 default_dome = Dome(get_default_config())
 ```
-
 
 ## Configuring Dome 
 
@@ -64,11 +64,11 @@ Besides parameters for specific methods, you can also configure the [order](#per
 
 For a full list of methods available and their corresponding settings, please see [this list of guard methods](guards/index.md).
 
-## Execution order
+## Execution settings
 
 You can also specify the order in which the individual guards should run. This can be specified both at the global level (i.e. for all input guards or all output guards) or at a per-guard level (e.g. only for `prompt-injection`). We currently support parallel guard execution, where multiple guards run in parallel, and early termination, where guardrail scanning terminates as soon as one guard flags the query string.
 
-### Global execution order
+### Global execution settings
 
 You can enable these settings via `input-run-parallel` and `input-early-exit` for the input guardrail, and `output-run-parallel` and `output-early-exit` for the output guardrail. In the example below, the input guardrails (`prompt-injection` and `input-toxicity`) run in parallel, and will stop as soon as one of them flags the query string.
 
@@ -93,7 +93,7 @@ example_config = {
         }
 ````
 
-### Per-guard execution order
+### Per-guard execution settings
 
 You can even configure parallelism and early termination at the guard level using the `run-parallel` and `early-exit` fields within each guard field. For example, the `prompt-injection` configuration below will run the Deberta model and the Security LLM method in parallel, but will wait till both methods have finished executing
 
