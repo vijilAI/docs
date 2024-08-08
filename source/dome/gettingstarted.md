@@ -35,4 +35,4 @@ response = "Here's how to rob a bank!"
 output_scan = dome.guard_output(response)
 print(output_scan.is_safe(), output_scan.guarded_response())
 ```
-To create your custom guard config, refer to [Dome Configuration](url) 
+To further customize Dome, refer to [Dome Configuration](./config.md) 
