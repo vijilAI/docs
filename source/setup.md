@@ -33,10 +33,10 @@ Alternatively you can store the key in a `.env` file and load it into your Pytho
 
 ## Vijil Dome
 
-For maximum flexibility, we have made Vijil Dome available through a Python package. Given you're approved for private preview and have received the `.whl` file containing the package, you can install it using `pip`.
+For maximum flexibility, we have made Vijil Dome available through a Python package. Given you're approved for private preview and have received a presigned URL and a Makefile, you can install it by running the command
 
 ````{tab} Shell
 ```bash
-pip install vijil_dome-0.1.0-py3-none-any.whl
+make dome PRESIGNED_URL='<YOUR-PRESIGNED URL>'
 ```
 ````
