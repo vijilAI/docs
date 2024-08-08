@@ -4,7 +4,7 @@ Dome offers a flexible system to secure your applications through configurable g
 
 ### Step 1: Choose and Configure Guardrail Types
 
-Dome provides four main types of guardrails:
+Dome provides [four main types](overview.md#guardrails) of guardrails:
 1. Input Guardrails
 2. Retrieval Guardrails
 3. Execution Guardrails
@@ -12,12 +12,12 @@ Dome provides four main types of guardrails:
 
 These guardrails act as security checkpoints for different stages of your application's operation. 
 
-Configure your guardrail by providing:
-- Custom groupings of guards
-- Parallel or serial execution
-- Early-exit or run-all options
+Configure your guardrail by:
+- Providing custom groupings of guards
+- Deciding if you want to run guards serially or in parallel (`run-parallel`)
+- Deciding if all guards should run, or if execution should terminate as soon as one guard has flagged the query string (`early-exit`)
 
-### Step 2: Assemble Guards
+### Step 2: Assemble and Configure Guards
 
 Each guardrail is composed of one or more guards. For example:
 - An Input Guardrail might include Security and Privacy Guards
@@ -25,14 +25,12 @@ Each guardrail is composed of one or more guards. For example:
 
 The types of guards you wish to include in a guardrail are entirely up to you. The type of guardrail simply indicates where it is supposed to run in an application flow. 
 
-### Step 3: Configure Guards
-
-Guards are customizable. You can set up:
+These guards can be named as you like, and are completely user defined. Just like Guardrails, Guards are also customizable. You can set up:
 - Custom groupings of detectors
-- Parallel or serial execution
-- Early-exit or run-all options
+- Parallel or serial execution of detectors within the guard (`run-parallel`)
+- Early termination of detectors in the guard (`early-exit`)
 
-### Step 4: Select and Configure Detectors
+### Step 3: Select and Configure Detectors
 
 Guards are made up of detectors. To set up your guards:
 1. Choose specific detectors from Dome's growing library
