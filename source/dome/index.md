@@ -10,6 +10,6 @@
    overview
    gettingstarted
    config
-   examples
+   tutorials
    guards/index
 ```

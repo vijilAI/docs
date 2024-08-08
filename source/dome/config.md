@@ -1,34 +1,37 @@
-## Configuring Dome Guardrails
+# Configuring Dome Guardrails
 
 Dome offers a flexible system to secure your applications through configurable guardrails. Here's how to understand and set them up:
 
-### Step 1: Choose and Configure Guardrail Types
+### Step 1: Choose and Configure Guardrails
 
-Dome provides [four main types](overview.md#guardrails) of guardrails:
+Dome provides [the following types](overview.md#guardrails) of guardrails:
 1. Input Guardrails
 2. Retrieval Guardrails
 3. Execution Guardrails
 4. Output Guardrails
 
-These guardrails act as security checkpoints for different stages of your application's operation. 
+The type of guardrail simply indicates where it is supposed to run in an application flow. 
 
-Configure your guardrail by:
-- Providing custom groupings of guards
-- Deciding if you want to run guards serially or in parallel (`run-parallel`)
-- Deciding if all guards should run, or if execution should terminate as soon as one guard has flagged the query string (`early-exit`)
+To configure a guardrail :
+- provide a list of guards
+- specify whether guards should run serially or in parallel (`run-parallel`)
+- specify whether all guards should run, or execution should terminate as soon as one guard is a hit (`early-exit`)
 
 ### Step 2: Assemble and Configure Guards
 
-Each guardrail is composed of one or more guards. For example:
-- An Input Guardrail might include Security and Privacy Guards
-- An Output Guardrail could combine Moderation, Quality, and Integrity Guards
+Guards are groups of detectors of a particular type that make up a guardrail. Guards can be named as you like, and are completely user defined. 
 
-The types of guards you wish to include in a guardrail are entirely up to you. The type of guardrail simply indicates where it is supposed to run in an application flow. 
+Each guard must be one of the following types:
+1. Security
+2. Moderation
+3. Privacy
+4. Intergity
 
-These guards can be named as you like, and are completely user defined. Just like Guardrails, Guards are also customizable. You can set up:
-- Custom groupings of detectors
-- Parallel or serial execution of detectors within the guard (`run-parallel`)
-- Early termination of detectors in the guard (`early-exit`)
+To configure a guard:
+- specify the type of guard
+- provide a list of detectors of the same type as the guard
+- specify whether detectors should run serially or in parallel (`run-parallel`)
+- specify whether all detectors should run, or execution should terminate as soon as one detector is a hit (`early-exit`)
 
 ### Step 3: Select and Configure Detectors
 
@@ -93,7 +96,7 @@ example_config = {
 
 ## Configuring Dome via a TOML file
 
-Dome configurations can also be described via .toml files. This enables users to easily save and edit conifgurations. Instantiating Dome from a TOML file is identical to instantiating it from a dictionary.
+Dome configurations can also be described via .toml files. This enables users to easily save and edit configurations. Instantiating Dome from a TOML file is identical to instantiating it from a dictionary.
 ```python
 from vijil_dome import Dome
 

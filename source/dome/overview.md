@@ -1,14 +1,10 @@
 # Overview
 
-Rewriting:
-
-# Overview
-
 This section introduces Dome, explaining its core concepts and functionality, including Guardrails, Guards, and Detectors.
 
 # Guardrails
 
-Vijil Dome allows users to create and implement Guardrails, which are designed to scan strings exchanged with LLMs, knowledge bases, or other agents. Guardrails ensure the integrity and security of the data passing through them. Dome supports several types of Guardrails:
+Vijil Dome allows users to assemble and configure Guardrails, which are designed to scan data exchanged with LLMs, knowledge bases, or other agents. Dome supports several types of Guardrails:
 
 - **Input Guardrails**: For scanning inputs to a foundation model.
 - **Output Guardrails**: For scanning outputs from a foundation model.
@@ -17,9 +13,19 @@ Vijil Dome allows users to create and implement Guardrails, which are designed t
 
 ![guardrail-position | 80%](../_static/guardrails_workflow.png)
 
+Guardrails consist of a set of **Guards** and how they should be executed. These guards are fully configurable and customizable.
+
 ### Guards
 
-Guards are the building blocks of Guardrails. Each Guard performs specific checks and balances on the data. For instance, an Input Guard can include Security and Privacy Guards, while an Output Guard might comprise Moderation, Quality, and Integrity Guards.
+Guards are the building blocks of Guardrails. Each Guard performs specific checks and/or transformations on the data. For instance, a guard in an input guardrail can check for security, while a guard in an output guardrail might check for moderation or privacy. 
+
+A guard belongs to one of the following categories:
+- Security
+- Moderation
+- Privacy
+- Integrity
+
+Guards consist of a set of **Detectors** and how they should be executed.
 
 ### Detectors
 
