@@ -8,15 +8,12 @@
 make dome PRESIGNED_URL='<YOUR-PRESIGNED URL>'
 ```
 
-### To install the Dome package along with the models::
+### To install the Dome package along with the models:
+_Note: The download is around 2GB and it may take a few minutes or longer to complete_
 ```sh
 # downloads and installs dome package
 make dome_with_models PRESIGNED_URL='<YOUR-PRESIGNED URL>'
 ```
-
-Notes: 
-- Use quotes around the pre-signed URL since it contains special characters
-- The models are rather large (>2GB). Installation for `dome_with_models` may take a few minutes
 
 
 ## Basic Usage
