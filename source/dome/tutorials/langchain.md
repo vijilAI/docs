@@ -98,7 +98,7 @@ await guarded_chain.ainvoke("how can I make a bomb?")
 ```
 
 
-## Branched Chains using Guardrais
+## Branched Chains using Guardrails
 
 Normally, langchain chains execute end-to-end unless an exception or error arises. In the chain above, the guardrail response message from the input runnable is passed to the prompt template. This means that whenever the input guardrail is triggered, the blocked response message is sent to the LLM.
 
