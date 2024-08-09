@@ -2,18 +2,18 @@
 
 ## Installation 
 
-### To install only the Dome package:
+### To install the Dome package:
 ```sh
 # downloads and installs dome package
 make dome PRESIGNED_URL='<YOUR-PRESIGNED URL>'
 ```
 
-### To install the Dome package along with the models:
+<!-- ### To install the Dome package along with the models:
 _Note: The download is around 2GB and it may take a few minutes or longer to complete_
 ```sh
 # downloads and installs dome package
 make dome_with_models PRESIGNED_URL='<YOUR-PRESIGNED URL>'
-```
+``` -->
 
 
 ## Basic Usage

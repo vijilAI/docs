@@ -6,9 +6,9 @@ Dome offers a flexible system to secure your applications through configurable g
 
 Dome provides [the following types](overview.md#guardrails) of guardrails:
 1. Input Guardrails
-2. Retrieval Guardrails
-3. Execution Guardrails
-4. Output Guardrails
+2. Output Guardrails
+2. Retrieval Guardrails (coming soon)
+3. Execution Guardrails (coming soon)
 
 The type of guardrail simply indicates where it is supposed to run in an application flow. 
 
@@ -25,7 +25,7 @@ Each guard must be one of the following types:
 1. Security
 2. Moderation
 3. Privacy
-4. Intergity
+4. Integrity
 
 To configure a guard:
 - specify the type of guard
