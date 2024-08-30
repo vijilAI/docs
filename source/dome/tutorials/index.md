@@ -9,4 +9,5 @@ The following tutorials showcase how to use Vijil Dome
    guardrails
    domed-clients
    langchain
+   observability
 ```
