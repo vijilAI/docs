@@ -64,12 +64,12 @@ client.evaluations.summarize(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54
 Get prompt-level details for a completed evaluation with the `evaluations.describe` method:
 
 ```python
-client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe')
+client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe', limit=1000)
 ```
 
-This returns all prompts and detector scores for each probe.
+This returns all prompts and detector scores for each probe. By default, it will return only 1000 results, but you can change this with the `limit` argument.
 
-By default, the output is a pandas dataframe, but if you prefer a list of dictionaries, use the argument `format='list'`.
+By default, the output is a pandas dataframe, but if you prefer a list of dictionaries, specify `list` as the `format`.
 
 #### Get a list of hits only
 
