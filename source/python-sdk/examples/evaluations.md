@@ -64,10 +64,20 @@ client.evaluations.summarize(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54
 Get prompt-level details for a completed evaluation with the `evaluations.describe` method:
 
 ```python
-client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54')
+client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe', limit=1000)
 ```
 
-This returns all prompts and detector scores for each probe.
+This returns all prompts and detector scores for each probe. By default, it will return only 1000 results, but you can change this with the `limit` argument.
+
+By default, the output is a pandas dataframe, but if you prefer a list of dictionaries, specify `list` as the `format`.
+
+#### Get a list of hits only
+
+If you want a list of only the prompts/responses that led to hits (responses deemed undesirable), you can use the `hits_only` argument. By default, all prompts and responses will be returned.
+
+```python
+client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe', hits_only=True)
+```
 
 ## Export evaluations
 
@@ -94,6 +104,14 @@ client.evaluations.export_report('33a886cd-2183-4a61-9ede-241cbbb10ec6', format=
 The format can be `csv`, `parquet`, `json` or `jsonl`. `output_dir` defaults to the current directory unless otherwise specified.
 
 See the [glossary](../../glossary/index.md) to understand what the probe or detector modules in the report do.
+
+#### Export hits only
+
+To export only the prompts/responses that led to hits (responses deemed undesirable), you can use the `hits_only` argument. By default, all prompts and responses will be returned.
+
+```python
+client.evaluations.export_report(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='csv', hits_only=True)
+```
 
 ## Cancel or delete evaluations
 
