@@ -10,4 +10,6 @@ The following examples demonstrate core functionalities in the `vijil` Python cl
    evaluations
    api-keys
    custom-harness
+   owasp
+   rag
 ```
