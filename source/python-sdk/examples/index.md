@@ -10,6 +10,7 @@ The following examples demonstrate core functionalities in the `vijil` Python cl
    evaluations
    api-keys
    custom-harness
-   owasp
-   rag
+   <!-- owasp -->
+   OWASP LLP Top 10 <owasp>
+   RAG metrics <rag>
 ```
