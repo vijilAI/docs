@@ -1,6 +1,6 @@
 # Managing API keys
 
-In order to query a model for responses, you need to have one or more model hub API keys stored in Vijil. Currently, we support OpenAI, Octo, and Together as model hubs.
+To query a model for responses, you need to have one or more model hub API keys stored in Vijil. Currently, we support OpenAI, Octo, and Together as model hubs.
 
 Before doing any of this, you'll need to [instantiate](run-your-first-test.md) your Vijil client. In this topic we'll assume you've instantiated a Vijil client called `client`.
 

@@ -7,9 +7,10 @@
    :maxdepth: 1
 
    intro
-   overview
    gettingstarted
+   overview
    config
-   tutorials
    guards/index
+   tutorials/index
+   integrations
 ```

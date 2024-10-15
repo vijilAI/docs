@@ -38,7 +38,7 @@ Example usage is as follows. This creates an evaluation that runs all probes in 
 ```python
 client.evaluations.create(
     model_hub="openai",
-    model_name="gpt-3.5-turbo",
+    model_name="gpt-4o-mini",
     model_params={"temperature": 0},
     harnesses=["ethics", "toxicity"],
     harness_params={"sample_size": 1, "is_lite": False}

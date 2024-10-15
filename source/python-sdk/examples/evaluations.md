@@ -12,7 +12,7 @@ You can use the `evaluations.create` method to create an evaluation:
 ```python
 client.evaluations.create(
     model_hub="openai",
-    model_name="gpt-3.5-turbo",
+    model_name="gpt-4o-mini",
     model_params={"temperature": 0},
     harnesses=["security"],
     harness_params={"is_lite": False}

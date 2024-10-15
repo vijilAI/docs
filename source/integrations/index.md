@@ -1,24 +1,13 @@
-# Integrations 
+# Integrations
 
-## Dome
+Vijil Evaluate is integrated with leading cloud services supports the flexibility of evaluating agents accessible through custom endpoints.
 
-Vijil Dome is compatible with a host of AI developer resources, including 
-- [Agent creation frameworks like Langchain](../dome/tutorials/langchain.md)
-- [LLM Tracing tools like Weave](../dome/tutorials/observability.md#wb-weave)
-- [OpenTelemetry for observability](../dome/tutorials/observability.md#opentelemetry-compliant-platforms)
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
 
-More to come soon!
-
-
-## Coming soon!
-
-We are in the process of integrating with a host of AI developer resources, including
-
-- LLM providers
-- Cloud providers
-- Agent frameworks
-- Vector databases
-- Open-source tools
-
-Stay tuned for more details!
-
+   vertex
+   digitalocean
+   custom
+```
+- AWS Bedrock (coming soon)
