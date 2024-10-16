@@ -1,6 +1,6 @@
 # Testing OWASP LLM Top 10 Vulnerabilities
 
-At Vijil, we have scoured latest AI security and red teaming research to gather a large volume of prompts relevant to the vulnerabilities in [OWASP Top 10 for LLMs](https://owasp.org/www-project-top-10-for-large-language-model-applications/). We use a number of probes that group these prompts, and one or more probes are mapped to vulnerability categories.
+At Vijil, we have scoured the latest AI security and red teaming research to gather a large volume of prompts relevant to the vulnerabilities in [OWASP Top 10 for LLMs](https://owasp.org/www-project-top-10-for-large-language-model-applications/). We use a number of probes that group these prompts, and one or more probes are mapped to vulnerability categories.
 
 ```python
 # !pip install vijil
@@ -51,7 +51,7 @@ client.evaluations.get_status('ca7f5c2c-f932-47ed-bfb6-949e3bacc3c9')
 #  'metadata': None}
 ```
 
-After the evaluation finishes, you can use the following code to obtain the four metrics.
+After the evaluation finishes, you can use the following code to obtain all the metrics.
 
 ```python
 df = client.evaluations.summarize('ca7f5c2c-f932-47ed-bfb6-949e3bacc3c9')

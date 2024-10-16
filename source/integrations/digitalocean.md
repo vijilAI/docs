@@ -20,7 +20,7 @@ Give the API key configuration a name, save it, and you're ready to go!
 
 To run an evaluation from the UI, simply select *DigitalOcean* as the Model Hub, then paste the agent endpoint as the *Model URL*.
 
-To run an evaluation using the python client, use the following code pattern, with the agent endpoint as `model_url` and a harness of your choice.
+To run an evaluation using the Python client, use the following code pattern, with the agent endpoint as `model_url` and a harness of your choice.
 
 ````{tab} Python
 ```python

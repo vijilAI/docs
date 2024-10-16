@@ -72,4 +72,4 @@ output_guard = dome.output_guard()
 ```
 ````
 
-Following this, `input_guard.scan` or `output_guard.scan` can be called to use the respective guardrails on an input prompt or output response, respectively. Later on in the documentation, we [present](dome/examples.md) detailed usage examples.
+Following this, `input_guard.scan` or `output_guard.scan` can be called to use the respective guardrails on an input prompt or output response, respectively. Later on in the documentation, we [present](dome/tutorials/index.md) detailed usage examples.

@@ -1,9 +1,9 @@
 # Evaluating RAGs through Vijil Evaluate
 
-Retrieval Augmented Generation (RAG) is a popular framework of building generative AI applications, where the user can supply queries into a chat interface and get answers back related to a specific knowledge base typically composed od chunked documents.
+Retrieval Augmented Generation (RAG) is a popular framework for building generative AI applications, where the user can supply queries into a chat interface and get answers back related to a specific knowledge base typically composed od chunked documents.
 
 There are two stages of generating an answer through a RAG: 
-1. **Retrieval**: a vector search is performed in knowledge base, and top-k document chunks are retrieved that are closest to the input query per distance in the embedding space.
+1. **Retrieval**: a vector search is performed in a knowledge base, and top-k document chunks are retrieved that are closest to the input query per distance in the embedding space.
 2. **Generation**: Retrieved contexts and the original question are supplied to a Large Language Model (LLM), which generates the final answer for the end user.
 
 Vijil Evaluate enables you to evaluate LLMs for RAG capabilities. Given a set of questions, the list of contexts each question would yield based on vector search from knowledge base, and the ground truth (or 'golden') answers to the questions, Vijil Evaluate uses a number of metrics to evaluate the quality of retrieved contexts, the quality of generated answers from the LLM component, as well as the likelihood that a generated answer is a hallucination.
@@ -15,7 +15,7 @@ Vijil Evaluate currently supports seven metrics to evaluate the generation stage
 To measure the quality of the retrieved contexts, we use two LLM-based metrics. Each produce a score between 0 and 1.
 
 - **Contextual Precision**: measures whether the contexts relevant to the input question are ranked higher in the full set of retrieved contexts than irrelevant ones. A higher score indicates greater alignment in ranking.
-- **Contextual Recall**: measure the extent to which the retrieved contexts align with the golden answers. A higher score indicates greater alignment with the golden answer.
+- **Contextual Recall**: measures the extent to which the retrieved contexts align with the golden answers. A higher score indicates greater alignment with the golden answer.
 
 Currently, we use `gpt-4o` as the judge LLM in these metrics.
 
@@ -45,7 +45,7 @@ We use an LLM-based Faithfulness metric to measure how much the generated respon
 
 ## Evaluating Domain-specific Question Answering
 
-In the example below, we use the [FinanceBench](https://huggingface.co/datasets/PatronusAI/financebench) benchmark dataset to evaluate how accurate can `gpt-4o-mini` produce reliable answers in the financial domain.
+In the example below, we use the [FinanceBench](https://huggingface.co/datasets/PatronusAI/financebench) benchmark dataset to evaluate how accurately  `gpt-4o-mini` can produce reliable answers from a dataset of financial documents.
 
 Note that our Python client uses an API token, loaded as the environment variable `VIJIL_API_KEY`. Please make sure you have [fetched an API key](https://docs.vijil.ai/setup.html#authentication-using-api-keys) from the UI and stored it in the env file.
 
@@ -59,7 +59,7 @@ from vijil import Vijil
 client = Vijil()
 ```
 
-We have already loaded FinanceBench as an evaluation harness in Vijil Evaluate. Now we simply create an evaluation of the given LLM on this harness.
+FinanceBench already exists as an evaluation harness in Vijil Evaluate. Now we simply create an evaluation of the given LLM on this harness.
 
 ```python
 evaluation = client.evaluations.create(
@@ -104,7 +104,7 @@ client.evaluations.get_status(evaluation_id=evaluation["id"])
 
 After the status changes to `COMPLETE`, you can aggregate the values of all metrics.
 
-To do so, we first download all inputs, outputs, and metrics values.
+To do so, we first download all inputs, outputs, and metric values.
 
 ```python
 df = client.evaluations.describe(evaluation_id=evaluation["id"])
