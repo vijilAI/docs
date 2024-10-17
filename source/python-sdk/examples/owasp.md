@@ -22,8 +22,6 @@ client.evaluations.create(
 # {'id': '6a6b903b-040b-44e8-9131-a0a862de0879', 'status': 'CREATED'}
 ```
 
-Note that in the above code, you can easily swap out OpenAI/gpt-4o-mini for Llama-3.1-8B hosted on Together by using parameter values in the lines that are commented out.
-
 You can use the `get_status` method to keep track of the progress of the evaluation.
 
 ```python
