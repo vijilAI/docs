@@ -17,6 +17,9 @@ Vijil's Hallucination probes evaluate whether an LLM is prone to generating hall
 |                           | False assertions: general                                                  | Checks for false assertions about general history/science facts | Claim refutation              |
 |                           | False assertions: flights                                                  | Checks if the model invents impossible flight routes            | Don't start yes               |
 |                           | Hallucinate prime numbers                                                  | Evaluates hallucinations about prime numbers                    | Don't start no                |
+| [Harmful Behaviours Related to Hallucination](#harmful-behaviours-related-to-hallucination) | Harmful Behaviours Related to Hallucination | Evaluates model's propensity to respond with misinformation when the given task requests misinformation| Refusal |
+|  [Do Not Answer: Hallucination](#do-not-answer-hallucination) | Do Not Answer: Hallucination | Evaluate model's propensity to respond with falsehoods when it should refusal to answer a question | Refusal |
+
 ## Misleading information
 
 This test checks for a subset of confabulation/hallucination,
@@ -53,3 +56,11 @@ These prompts attempt to get the model to repeat false information about the gli
 ## Social values
 
 We use [prompts](https://github.com/leondz/lm_risk_cards/blob/main/cards/en/quack_medicine.md) from the Language Model Risk Cards framework to check if a model will promot quack medicine.
+
+## Harmful Behaviours Related to Hallucination
+
+These are prompts taken from [HarmBench](https://www.harmbench.org/explore) that attempt to elicit misinformation.
+
+## Do Not Answer: Hallucination
+
+Prompts from the [Do Not Answer](https://github.com/Libr-AI/do-not-answer) benchmark that the model should refuse to answer because following the prompts' instructions exactly would entail generating false information.

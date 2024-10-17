@@ -32,6 +32,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
 
    concepts
    tests-library/index
+   benchmarks
    components/index
    python-sdk/examples/index
    integrations/index
