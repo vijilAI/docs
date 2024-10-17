@@ -1,4 +1,4 @@
-# Python Client Examples
+# Tutorials
 
 The following examples demonstrate core functionalities in the `vijil` Python client.
 
@@ -10,4 +10,6 @@ The following examples demonstrate core functionalities in the `vijil` Python cl
    evaluations
    api-keys
    custom-harness
+   OWASP LLM Top 10 <owasp>
+   RAG metrics <rag>
 ```

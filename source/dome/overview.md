@@ -2,7 +2,7 @@
 
 This section introduces Dome, explaining its core concepts and functionality, including Guardrails, Guards, and Detectors.
 
-# Guardrails
+## Guardrails
 
 Vijil Dome allows users to assemble and configure Guardrails, which are designed to scan data exchanged with LLMs, knowledge bases, or other agents. Dome supports several types of Guardrails:
 

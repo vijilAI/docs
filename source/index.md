@@ -34,13 +34,14 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
    tests-library/index
    components/index
    python-sdk/examples/index
+   integrations/index
    glossary/index
 ```
 
 ```{eval-rst}
 .. toctree::
    :maxdepth: 1
-   :caption: Vijil Dome
+   :caption: Protecting Agents
 
    dome/intro
    dome/gettingstarted
@@ -48,36 +49,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
    dome/config
    dome/guards/index
    dome/tutorials/index
-```
-
-<!-- ```{eval-rst}
-.. toctree::
-   :maxdepth: 1
-   :caption: Backup
-
-   getting-started
-   tests-library/index
-   components/index
-   python-sdk/structure/index
-   python-sdk/examples/index
-
-``` -->
-
-<!----```{eval-rst}
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: CLI
-
-   cli/commands
-```---->
-
-```{eval-rst}
-.. toctree::
-   :maxdepth: 1
-   :caption: Integrations
-
-   integrations/index
+   dome/integrations
 ```
 
 <!-- ## About Vijil

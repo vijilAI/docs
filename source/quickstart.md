@@ -3,7 +3,7 @@
 ## Running Evaluations
 
 Once the Python client installed, you can instantiate a client class and kick off an evaluation job.
-For example, the following command kicks off a full trust evaluation job on GPT-3.5-Turbo, setting temperature at 0.
+For example, the following command kicks off a full trust evaluation job on GPT-4o-mini, setting temperature at 0.
 
 ````{tab} Python
 ```python
@@ -12,7 +12,7 @@ from vijil import Vijil
 client = Vijil()
 client.evaluations.create(
     model_hub="openai",
-    model_name="gpt-3.5-turbo",
+    model_name="gpt-4o-mini",
     model_params={"temperature": 0},
     harnesses=["trust_score"]
 )
@@ -72,4 +72,4 @@ output_guard = dome.output_guard()
 ```
 ````
 
-Following this, `input_guard.scan` or `output_guard.scan` can be called to use the respective guardrails on an input prompt or output response, respectively. Later on in the documentation, we [present](dome/examples.md) detailed usage examples.
+Following this, `input_guard.scan` or `output_guard.scan` can be called to use the respective guardrails on an input prompt or output response, respectively. Later on in the documentation, we [present](dome/tutorials/index.md) detailed usage examples.

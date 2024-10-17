@@ -1,6 +1,6 @@
 # Tutorials
 
-The following tutorials showcase how to use Vijil Dome 
+The following tutorials showcase how to use Vijil Dome.
 
 ```{eval-rst}
 .. toctree::
@@ -8,6 +8,6 @@ The following tutorials showcase how to use Vijil Dome
 
    guardrails
    domed-clients
-   langchain
-   observability
+   Langchain Integration <langchain>
+   Observability <observability>
 ```

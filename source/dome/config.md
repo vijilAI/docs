@@ -1,4 +1,4 @@
-# Configuring Dome Guardrails
+# Configuring Guardrails
 
 Dome offers a flexible system to secure your applications through configurable guardrails. Here's how to understand and set them up:
 

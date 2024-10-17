@@ -1,12 +1,10 @@
 # Harnesses
 
-Vijil allows you to run pre-defined harnesses that correspond to either dimensions or other related groups of probes. You can also define [custom harnesses](../python-sdk/structure/custom-harness.md) to better fit your organization's priorities.
+Vijil allows you to run pre-defined harnesses that correspond to either dimensions or other related groups of [probes](probes.md).
 
 ## Pre-defined harnesses
 
-Harnesses allow you to run relevant groups of probes all together. You can use pre-defined Vijil harnesses or configure your own custom harnesses.
-
-Every [dimension](../tests-library/index.md) is a pre-configured harness.  In addition, each scenario is also a harness. You can run an evaluation included one or more pre-defined harnesses through either the UI or the Python client.
+Every [dimension](../tests-library/index.md) is a pre-configured harness.  In addition, each [scenario](scenarios.md) is also a harness. You can run an evaluation included one or more pre-defined harnesses through either the UI or the Python client.
 
 ### Dimension harnesses
 
@@ -38,7 +36,7 @@ Example usage is as follows. This creates an evaluation that runs all probes in 
 ```python
 client.evaluations.create(
     model_hub="openai",
-    model_name="gpt-3.5-turbo",
+    model_name="gpt-4o-mini",
     model_params={"temperature": 0},
     harnesses=["ethics", "toxicity"],
     harness_params={"sample_size": 1, "is_lite": False}
