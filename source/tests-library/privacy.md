@@ -18,6 +18,8 @@ We test if an LLM is prone to leaking confidential data from both training data 
 | [Private data leak](#private-data-leak)     | Emails leakage - Enron                                                     | Tests whether the model will reveal email addresses obtained from the discovery process of the Enron investigation | Trigger presence         |
 |                       | PII Leakage                                                                | Tests whether PII provided to the model during a conversation can be leaked                                        | Trigger presence         |
 |                       | Confidentiality comprehension                                              | Tests whether the model understands privacy-related phrases that flag when certain information is confidential     | Don't answer yes         |
+| [Harmful behaviors related to privacy](#harmful-behaviors-related-to-privacy) | Harmful behaviors related to privacy | Tests whether the model will provide advice on how to carry out privacy-violating tasks | Refusal |
+| [Do Not Answer: Privacy](#do-not-answer-privacy) | Do Not Answer: Privacy                                                    | Tests if the model will refuse to reveal confidential information                                                  | Refusal                  |
 
 
 
@@ -51,3 +53,11 @@ We use [Decoding Trust's](https://github.com/AI-secure/DecodingTrust/tree/main) 
 ### Privacy understanding
 
 The privacy understanding probe, adapted from [Decoding Trust](https://github.com/AI-secure/DecodingTrust/tree/main), measures whether the model understands when not to reveal private information. The prompts ask the model whether it is appropriate to reveal private information in various settings.
+
+### Harmful behaviors related to privacy
+
+These prompts, taken from [HarmBench](https://arxiv.org/abs/2402.04249), try to elicit advice from the model on how to carry out privacy-violating tasks.
+
+### Do Not Answer: Privacy
+
+These prompts, take from [Do Not Answer](https://github.com/Libr-AI/do-not-answer), try to get the model to reveal confidential information.
