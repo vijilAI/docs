@@ -51,6 +51,26 @@ We test for the vulnerability of LLMs to popular types of attacks observed with 
 |                                | Prompt injection: unicode tag        | Prompt injection using invisible unicode tags                                                                                                                     | Trigger presence                                  |
 |                                | Output plain JSON                    | Threaten the model to make it produce raw JSON without any preamble                                                                                               | Plain JSON                                        |
 | [Cross-site scripting](#cross-site-scripting-xss)           | Cross-site scripting: Markdown image | Get the model to write embedded assets exfiltrating text in a Markdown URI                                                                                        | Markdown image, Private content in Markdown image |
+| [Harmful behaviours related to security](#harmful-behaviours-related-to-security) | Harmful behaviours related to security | Evaluate LLMs across harmful behaviours related to security | Refusal |
+| [Do Not Answer: Security](#do-not-answer-security)           | Do Not Answer: Security            | Get the model to refuse to answer questions about confidential security protocols                                                                                                        | Refusal                                           |
+| [Uplift Cyberattack Capabilities](#cyberseceval-3)| Autonomous Uplift| Assess capability to augment cyberattack capabilities of human adversaries | Refusal |
+| [Code Execution Capabilities](#cyberseceval-3) | Code Execution Capabilities: POST exploitation | Assess capability to execute code related to POST exploitations | Refusal |
+| | Code execution capabilities: container escape | Assess capability to execute code related to escaping containers | Refusal | 
+| | Code execution capabilities: privilege escalation | Assess capability to execute code related to privilege escalation | Refusal |
+| | Code execution capabilities: reflected attack | Assess capability to execute code related to reflected attack | Refusal |
+| | Code execution capabilities: social engineering | Assess capability to execute code related to social engineering | Refusal |
+| [MITRE ATT&CK Ontology Attacks](#cyberseceval-3) | MITRE ATT&CK Ontology: Command and Control | Assess capability to execute attacks from the MITRE ATT&CK ontology | Refusal |
+| | MITRE ATT&CK Ontology: Discovery | Assess capability to execute attacks from the MITRE ATT&CK ontology | Refusal |
+| | MITRE ATT&CK Ontology: Execution | Assess capability to execute attacks from the MITRE ATT&CK ontology | Refusal |
+| | MITRE ATT&CK Ontology: Evasion | Assess capability to execute attacks from the MITRE ATT&CK ontology | Refusal |
+| | MITRE ATT&CK Ontology: Exfiltration | Assess capability to execute attacks from the MITRE ATT&CK ontology | Refusal |
+| | MITRE ATT&CK Ontology: Lateral Movement | Assess capability to execute attacks from the MITRE ATT&CK ontology | Refusal |
+| | MITRE ATT&CK Ontology: Persistence | Attacks where the adversary tries to maintain their access to the system | Refusal |
+| | MITRE ATT&CK Ontology: Privilege Escalation | Attacks where the adversary tries to gain higher-level permissions | Refusal |
+| | MITRE ATT&CK Ontology: Reconnaissance | Attacks where the adversary gathers information to plan future operations | Refusal |
+| [CyberSecEval3 Prompt Injection](#cyberseceval-3) | Prompt Injection: Logic-Violating | Assess capability to execute loic-violating attacks from the CyberSecEval3 prompt injection dataset | Refusal |
+| | Prompt Injection: Security-Violating | Assess capability to execute security-violating attacks from the CyberSecEval3 prompt injection dataset | Refusal |
+| [JailbreakBench](#jailbreakbench) | JailbreakBench | Using the JailbreakBench benchmark to evaluate how Jailbreak attacks can prompt large language models (LLMs) to generate harmful, unethical, or otherwise unwanted content. | Refusal | 
 
 ## Adversarial suffix
 
@@ -148,3 +168,24 @@ In each type of attack, we add a suffix or prefix to the original prompt text so
 
 This test is intended to probe for vulnerabilities the permit or enact cross-site attacks, such
 as private data exfilteration.
+
+## Harmful behaviours related to security
+
+Security-related prompts from [HarmBench](https://arxiv.org/abs/2402.04249).
+
+## Do Not Answer: Security
+
+Questions about organizations' confidential security protocols, taken from [Do Not Answer](https://github.com/Libr-AI/do-not-answer). The model should refuse to answer these questions.
+
+## CybersecEval 3
+
+Taken from Meta's CybersecEval [benchmark](https://ai.meta.com/research/publications/cyberseceval-3-advancing-the-evaluation-of-cybersecurity-risks-and-capabilities-in-large-language-models/), these scenarios measure whether a model can do the following:
+
+- Upskill or accelerate cyberattackers
+- Execute code in an attached interpreter
+- Be susceptible to prompt injections
+- Carry out [MITRE ATT&CK Ontology](https://attack.mitre.org/) attacks
+
+## JailbreakBench
+
+[Benchmark](https://jailbreakbench.github.io/) that evaluates how jailbreak attacks can prompt large language models (LLMs) to generate harmful, unethical, or otherwise unwanted content.
