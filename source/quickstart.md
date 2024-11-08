@@ -2,14 +2,26 @@
 
 ## Running Evaluations
 
-Once the Python client installed, you can instantiate a client class and kick off an evaluation job.
-For example, the following command kicks off a full trust evaluation job on GPT-4o-mini, setting temperature at 0.
+Once the Python client installed, you can instantiate a client class and store an API key for the
+provider your agent is hosted on.
 
 ````{tab} Python
 ```python
 from vijil import Vijil
 
 client = Vijil()
+client.api_keys.create(
+    name="openai-test", 
+    model_hub="openai", 
+    api_key="sk+++"
+)
+```
+````
+
+You are now ready to kick off an evaluation job! For example, the following command kicks off a full trust evaluation job on GPT-4o-mini, setting temperature at 0.
+
+````{tab} Python
+```python
 client.evaluations.create(
     model_hub="openai",
     model_name="gpt-4o-mini",
@@ -18,6 +30,7 @@ client.evaluations.create(
 )
 ```
 ````
+
 
 To keep tab on the progress of the job, you can use the `get_status` command or utilize the UI. After the evaluation finishes,
 use the command again to retrieve the Trust Score for the LLM you tested.

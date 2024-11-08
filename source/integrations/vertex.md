@@ -31,6 +31,25 @@ Now log into Vijil Evaluate, and navigate to **Keys > Add new key**. From the Mo
 
 Give the API key configuration a name, save it, and you're ready to go!
 
+To add the credentials using the python client, you need to supply the fields inside the `hub_config` argument.
+````{tab} Python
+```python
+client.api_keys.create(
+    name="vertex-test",
+    model_hub="vertex",
+    hub_config={
+        "region": "us-central1",
+        "project_id": "xxx-xxx",
+        "client_id": "XXX.apps.googleusercontent.com",
+        "client_secret": "d-FLXXX",
+        "refresh_token": "xxx-123",
+    }
+    rate_limit_per_interval=120, # optional
+    rate_limit_interval=60 # optional
+)
+```
+
+
 ## Run an Evaluation
 
 To run an evaluation from the UI, simply select *Vertex* as the Model Hub, and pick one of the listed models.

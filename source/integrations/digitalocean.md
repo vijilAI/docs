@@ -16,6 +16,21 @@ Now log into Vijil Evaluate, and navigate to **Keys > Add new key**. From the Mo
 
 Give the API key configuration a name, save it, and you're ready to go!
 
+To add the credentials using the python client, you need to supply the fields inside the `hub_config` argument.
+````{tab} Python
+```python
+client.api_keys.create(
+    name="digitalocean-test",
+    model_hub="digitalocean",
+    hub_config={
+        "agent_id": "abc-xyz",
+        "agent_key": "xyz-123"
+    }
+    rate_limit_per_interval=60, # optional
+    rate_limit_interval=60 # optional
+)
+```
+
 ## Run an Evaluation
 
 To run an evaluation from the UI, simply select *DigitalOcean* as the Model Hub, then paste the agent endpoint as the *Model URL*.

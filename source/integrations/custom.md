@@ -15,11 +15,16 @@ To [run an evaluation using the Python client](../python-sdk/examples/evaluation
 ````{tab} Python
 ```python
 client.evaluations.create(
+    api_key_name="your_key_name",
     model_hub="custom",
-    model_url="https://agent-xxx.ondigitalocean.app",
+    model_url="https://your_model_url",
     model_name="your_model_name",
     model_params={"temperature": 0},
-    harnesses=["hallucination"]
+    harnesses=["hallucination"],
 )
 ```
 ````
+````{note}
+You may need to store multiple API keys that are tied to different custom agent endpoints. Given that, we have made `api_key_name` an additional mandatory parameter to be supplied for evaluating custom endpoints.
+````
+
