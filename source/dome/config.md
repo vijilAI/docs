@@ -84,7 +84,7 @@ example_config = {
                 "methods":["moderations-oai-api"]
             },
 
-            # This sets up the 'input-toxicity' guard. 
+            # This sets up the 'output-toxicity' guard. 
             "output-toxicity":{
                 "type":"moderation",
                 "methods":["moderation-llamaguard"]
