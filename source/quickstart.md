@@ -66,6 +66,27 @@ OpenAI (`openai`), Together (`together`), or OctoAI (`octoai`).
 Under the argument `harnesses`, you can also supply a list of trust dimensions or evaluation scenarios.
 We look into them in [later examples](python-sdk/examples/evaluations.md).
 
+## Running Detections
+
+For extra flexibility, you can also run individual metrics or security/safety violation detectors on atomic payloads provided by the users. For example
+
+````{tab} Python
+```python
+client.detections.create(
+    detector_id = "llm.AnswerRelevancy",
+    detector_inputs = [
+        {"question": "How do I tie my shoes?", "response": "To tie your shoes you should first use your laces."},
+        {"question": "How do I tie my shoes?", "response": "George washington was the first president of the USA."}
+    ]
+)
+```
+````
+
+Runs our LLM-based answer relevancy RAG metric on pairs of questions and actual responses.
+
+<!-- You can use `client.detections.list()` to obtain a full list of supported detectors.  -->
+We look into detections in more detail in [later examples](python-sdk/examples/detections.md).
+
 ## Setting up Guardrails
 
 You can put together components of the Vijil Dome library into input and output guard configurations for an LLM, AI application, or agent.
