@@ -15,7 +15,7 @@ List all supported detectors with the `detections.list_detectors` method:
 client.detections.list_detectors()
 ```
 
-## Create an detection
+## Create Detections
 
 You can use the `detections.create` method to run a detector on a list of inputs.
 
@@ -46,8 +46,8 @@ client.detections.create(
     detector_inputs = [
         {"question": "How do I tie my shoes?", "response": "To tie your shoes you should first use your laces."},
         {"question": "How do I tie my shoes?", "response": "George washington was the first president of the USA."}
-    ]
-    detector_params: {
+    ],
+    detector_params = {
         "hub": "together",
         "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo"
     }
