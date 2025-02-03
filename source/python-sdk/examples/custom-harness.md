@@ -31,5 +31,8 @@ client.evaluations.create(
     harnesses=[harness_creation_job['harness_config_id']],
     model_hub=your_model_hub,
     model_name=your_model,
+    harness_version="1.0.0" #if this is the first version of the harness.
 )
 ```
+
+The `harness_version` starts at 1.0.0 for any harness of the given `harness_name`. If you create another harness with the same name, vijil automatically increments the harness version, e.g. from 1.0.0 to 1.0.1. In the above example, we assume that `your_harness_name` is a new harness name, so we set the version to 1.0.0.
