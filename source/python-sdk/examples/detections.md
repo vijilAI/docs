@@ -9,13 +9,13 @@ You can create, view, and summarize detections with the Vijil Python client.
 
 ## List Detectors
 
-List all supported detectors with the `detections.list_detectors` method.
+List all supported detectors with the `detections.list_detectors` method:
 
 ```python
 client.detections.list_detectors()
 ```
 
-## Create a detection
+## Create Detections
 
 You can use the `detections.create` method to run a detector on a list of inputs.
 
