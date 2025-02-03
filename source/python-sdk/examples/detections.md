@@ -57,10 +57,10 @@ client.detections.create(
 
 ## Summarize Detections
 
-Get summary scores for a completed detection, including status and related metadata with the `detections.summarize` method:
+Get summary scores for a completed detection, including status and related metadata with the `detections.describe` method:
 
 ```python
-client.detections.summarize(detection_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54')
+client.detections.describe(detection_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54')
 ```
 
 Takes the optional argument `format`. Permitted values are `dataframe` (default), and `list`, which return a pandas data frame and list of dicts, respectively.
@@ -83,7 +83,7 @@ The table below gives the required set of input fields for each detector.
 | `toolcalling.ToolCorrectness` | `response`: str,`expected_tools`: list[str] |
 | `nlp.BLEU` | `response`: str,`ground_truth`: str |
 | `nlp.METROR` | `response`: str,`ground_truth`: str |
-| `nlp.BERTScore` | `response`: str,`ground_truth`" str |
+| `nlp.BERTScore` | `response`: str,`ground_truth`: str |
 | `llm.AnswerRelevancy` | `response`: str,`question`: str |
 | `llm.ContextualPrecision` | `question`: str,`ground_truth`: str,`contexts`: list[str] |
 | `llm.ContextualRecall` | `ground_truth`: str,`contexts`: list[str] |
