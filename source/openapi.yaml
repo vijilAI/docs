@@ -2,59 +2,14 @@ openapi: 3.1.0
 info:
   title: FastAPI
   version: 0.1.0
-tags:
-  - name: health
-    description: Health Check
-  - name: metrics
-    description: Metrics
-  - name: users
-    description: User Management
-  - name: invites
-    description: Invite Management
-  - name: events
-    description: Event Management
-  - name: hubs
-    description: Hub Management
-  - name: api-keys
-    description: API Key Management
-  - name: evaluations
-    description: Evaluation Management
-  - name: harness
-    description: Harness Management
-  - name: scenarios
-    description: Scenario Management
-  - name: probes
-    description: Probe Management
-  - name: prompts
-    description: Prompt Management
-  - name: tests
-    description: Test Management
-  - name: responses
-    description: Response Management
-  - name: detectors
-    description: Detector Endpoint
-  - name: leaderboard
-    description: leaderboard
-  - name: teams
-    description: Team Management
-  - name: feedback
-    description: User Feedback
-  - name: chat
-    description: Chat Completion
-
-
-
-
-
-
 paths:
   /healthz:
     get:
+      tags:
+        - Monitoring
       summary: Health Check
       description: Endpoint for health check. Returns the status of the service.
       operationId: health_check_healthz_get
-      tags:
-        - health
       responses:
         "200":
           description: Successful Response
@@ -69,8 +24,6 @@ paths:
     get:
       summary: Metrics
       operationId: metrics_metrics_get
-      tags: 
-        - metrics
       responses:
         "200":
           description: Successful Response
@@ -79,9 +32,9 @@ paths:
               schema: {}
   /v1/users:
     get:
-      summary: Get Users By Ids
       tags:
-        - users
+        - Users
+      summary: Get Users By Ids
       operationId: get_users_by_ids_v1_users_get
       security:
         - HTTPBearer: []
@@ -111,9 +64,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/users/me:
     get:
-      summary: Get Current User
       tags:
-        - users 
+        - Users
+      summary: Get Current User
       operationId: get_current_user_v1_users_me_get
       responses:
         "200":
@@ -126,9 +79,9 @@ paths:
         - HTTPBearer: []
   /v1/users/{id}:
     get:
-      summary: Get User By Id
       tags:
-        - users
+        - Users
+      summary: Get User By Id
       operationId: get_user_by_id_v1_users__id__get
       security:
         - HTTPBearer: []
@@ -154,9 +107,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/users/{id}/set-role:
     post:
-      summary: Set Role
       tags:
-        - users
+        - Users
+      summary: Set Role
       operationId: set_role_v1_users__id__set_role_post
       security:
         - HTTPBearer: []
@@ -188,9 +141,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/invites/{invite_id}:
     get:
-      summary: Get Invite By Id
       tags:
-        - invites
+        - Invite
+      summary: Get Invite By Id
       operationId: get_invite_by_id_v1_invites__invite_id__get
       security:
         - HTTPBearer: []
@@ -215,9 +168,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      summary: Delete Invite
       tags:
-        - invites
+        - Invite
+      summary: Delete Invite
       operationId: delete_invite_v1_invites__invite_id__delete
       security:
         - HTTPBearer: []
@@ -244,9 +197,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/invites/team/{team_id}:
     get:
-      summary: Get Invite By Team
       tags:
-        - invites
+        - Invite
+      summary: Get Invite By Team
       operationId: get_invite_by_team_v1_invites_team__team_id__get
       security:
         - HTTPBearer: []
@@ -272,9 +225,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/invites/status/{status}:
     get:
-      summary: Get Invite By Status
       tags:
-       - invites
+        - Invite
+      summary: Get Invite By Status
       operationId: get_invite_by_status_v1_invites_status__status__get
       security:
         - HTTPBearer: []
@@ -300,9 +253,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/invites:
     post:
-      summary: Create Invite
       tags:
-        - invites
+        - Invite
+      summary: Create Invite
       operationId: create_invite_v1_invites_post
       requestBody:
         content:
@@ -327,9 +280,9 @@ paths:
         - HTTPBearer: []
   /v1/invites/{invite_id}/accept:
     post:
-      summary: Accept Invite
       tags:
-       - invites
+        - Invite
+      summary: Accept Invite
       operationId: accept_invite_v1_invites__invite_id__accept_post
       security:
         - HTTPBearer: []
@@ -355,9 +308,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/invites/{invite_id}/decline:
     post:
-      summary: Decline Invite
       tags:
-        - invites
+        - Invite
+      summary: Decline Invite
       operationId: decline_invite_v1_invites__invite_id__decline_post
       security:
         - HTTPBearer: []
@@ -383,9 +336,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/events:
     post:
-      summary: Post Event
       tags:
-       - events
+        - Events
+      summary: Post Event
       operationId: post_event_v1_events_post
       requestBody:
         content:
@@ -410,9 +363,9 @@ paths:
         - HTTPBearer: []
   /v1/hubs:
     get:
-      summary: Get Hubs
       tags:
-        - hubs
+        - Hub
+      summary: Get Hubs
       operationId: get_hubs_v1_hubs_get
       responses:
         "200":
@@ -428,9 +381,9 @@ paths:
         - HTTPBearer: []
   /v1/api-keys:
     post:
-      summary: Create Api Key
       tags:
-       - api-keys
+        - API Key
+      summary: Create Api Key
       operationId: create_api_key_v1_api_keys_post
       security:
         - HTTPBearer: []
@@ -454,9 +407,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
-      summary: Get Api Keys
       tags:
-        - api-keys
+        - API Key
+      summary: Get Api Keys
       operationId: get_api_keys_v1_api_keys_get
       security:
         - HTTPBearer: []
@@ -487,9 +440,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/api-keys/test:
     post:
-      summary: Test Api Key
       tags:
-        - api-keys
+        - API Key
+      summary: Test Api Key
       operationId: test_api_key_v1_api_keys_test_post
       requestBody:
         content:
@@ -514,9 +467,9 @@ paths:
         - HTTPBearer: []
   /v1/api-keys/{id}:
     put:
-      summary: Update Api Key
       tags:
-        - api-keys
+        - API Key
+      summary: Update Api Key
       operationId: update_api_key_v1_api_keys__id__put
       security:
         - HTTPBearer: []
@@ -547,9 +500,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      summary: Delete Api Key
       tags:
-        - api-keys
+        - API Key
+      summary: Delete Api Key
       operationId: delete_api_key_v1_api_keys__id__delete
       security:
         - HTTPBearer: []
@@ -575,9 +528,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
-      summary: Get Api Key By Id
       tags:
-        - api-keys
+        - API Key
+      summary: Get Api Key By Id
       operationId: get_api_key_by_id_v1_api_keys__id__get
       security:
         - HTTPBearer: []
@@ -606,9 +559,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations:
     get:
-      summary: Get Evaluations
       tags:
-        - evaluations
+        - Evaluation
+      summary: Get Evaluations
       operationId: get_evaluations_v1_evaluations_get
       security:
         - HTTPBearer: []
@@ -713,9 +666,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
-      summary: Create Evaluation
       tags:
-        - evaluations
+        - Evaluation
+      summary: Create Evaluation
       operationId: create_evaluation_v1_evaluations_post
       security:
         - HTTPBearer: []
@@ -740,9 +693,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations/{evaluation_id}/response-errors:
     get:
-      summary: Get Response Errors
       tags:
-        - responses
+        - Evaluation
+      summary: Get Response Errors
       operationId: get_response_errors_v1_evaluations__evaluation_id__response_errors_get
       security:
         - HTTPBearer: []
@@ -777,9 +730,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations/{id}:
     get:
-      summary: Get Evaluation
       tags:
-        - evaluations
+        - Evaluation
+      summary: Get Evaluation
       operationId: get_evaluation_v1_evaluations__id__get
       security:
         - HTTPBearer: []
@@ -804,9 +757,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
-      summary: Update Evaluation Name
       tags:
-        - evaluations
+        - Evaluation
+      summary: Update Evaluation Name
       operationId: update_evaluation_name_v1_evaluations__id__put
       security:
         - HTTPBearer: []
@@ -838,9 +791,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations/metadata/{id}:
     get:
-      summary: Get Evaluation With Metadata
       tags:
-        - evaluations
+        - Evaluation
+      summary: Get Evaluation With Metadata
       operationId: get_evaluation_with_metadata_v1_evaluations_metadata__id__get
       security:
         - HTTPBearer: []
@@ -866,9 +819,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations/{id}/score:
     post:
-      summary: Calculate Evaluation Score
       tags:
-        - evaluations
+        - Evaluation
+      summary: Calculate Evaluation Score
       operationId: calculate_evaluation_score_v1_evaluations__id__score_post
       security:
         - HTTPBearer: []
@@ -894,9 +847,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations/{id}/delete:
     post:
-      summary: Delete Evaluation
       tags:
-        - evaluations
+        - Evaluation
+      summary: Delete Evaluation
       operationId: delete_evaluation_v1_evaluations__id__delete_post
       security:
         - HTTPBearer: []
@@ -922,9 +875,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations/{id}/cancel:
     post:
-      summary: Cancel Evaluation
       tags:
-        - evaluations
+        - Evaluation
+      summary: Cancel Evaluation
       operationId: cancel_evaluation_v1_evaluations__id__cancel_post
       security:
         - HTTPBearer: []
@@ -950,9 +903,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/harness:
     get:
-      summary: Get Harnesses
       tags:
-        - harness
+        - Harness
+      summary: Get Harnesses
       operationId: get_harnesses_v1_harness_get
       security:
         - HTTPBearer: []
@@ -988,9 +941,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/harness/{id}:
     get:
-      summary: Get Harness By Id
       tags:
-        - harness
+        - Harness
+      summary: Get Harness By Id
       operationId: get_harness_by_id_v1_harness__id__get
       security:
         - HTTPBearer: []
@@ -1016,9 +969,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/harness/create:
     post:
-      summary: Config File To Db Sync
       tags:
-        - harness
+        - Harness
+      summary: Config File To Db Sync
       operationId: config_file_to_db_sync_v1_harness_create_post
       requestBody:
         content:
@@ -1043,9 +996,9 @@ paths:
         - HTTPBearer: []
   /v1/harness-configs/versions:
     get:
-      summary: Get Harness Config Versions
       tags:
-        - harness
+        - Harness
+      summary: Get Harness Config Versions
       operationId: get_harness_config_versions_v1_harness_configs_versions_get
       responses:
         "200":
@@ -1058,9 +1011,9 @@ paths:
         - HTTPBearer: []
   /v1/harness-configs:
     get:
-      summary: Get Harness Configs
       tags:
-        - harness
+        - Harness
+      summary: Get Harness Configs
       operationId: get_harness_configs_v1_harness_configs_get
       security:
         - HTTPBearer: []
@@ -1089,9 +1042,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
-      summary: Create Harness Config
       tags:
-        - harness
+        - Harness
+      summary: Create Harness Config
       description: |-
         Triggers harness creation after harness input files have been uploaded using signed URLs.
         Delegates the actual creation process to the harness creation service.
@@ -1119,9 +1072,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/harness-configs/files:
     put:
-      summary: Create File Upload
       tags:
-        - harness
+        - Harness
+      summary: Create File Upload
       description: Creates a signed URL for a file upload and an entry in the database.
       operationId: create_file_upload_v1_harness_configs_files_put
       requestBody:
@@ -1147,9 +1100,9 @@ paths:
         - HTTPBearer: []
   /v1/scenarios:
     get:
-      summary: Get Scenarios
       tags:
-        - scenarios
+        - Scenario
+      summary: Get Scenarios
       operationId: get_scenarios_v1_scenarios_get
       security:
         - HTTPBearer: []
@@ -1185,9 +1138,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/scenarios/{id}:
     get:
-      summary: Get Scenario By Id
       tags:
-        - scenarios
+        - Scenario
+      summary: Get Scenario By Id
       operationId: get_scenario_by_id_v1_scenarios__id__get
       security:
         - HTTPBearer: []
@@ -1213,9 +1166,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/probes:
     get:
-      summary: Get Probes
       tags:
-        - probes
+        - Probe
+      summary: Get Probes
       operationId: get_probes_v1_probes_get
       security:
         - HTTPBearer: []
@@ -1251,9 +1204,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/probes/{id}:
     get:
-      summary: Get Probe By Id
       tags:
-        - probes
+        - Probe
+      summary: Get Probe By Id
       operationId: get_probe_by_id_v1_probes__id__get
       security:
         - HTTPBearer: []
@@ -1279,9 +1232,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/prompts/{id}:
     get:
-      summary: Get Prompt By Id
       tags:
-        - prompts
+        - Prompt
+      summary: Get Prompt By Id
       operationId: get_prompt_by_id_v1_prompts__id__get
       security:
         - HTTPBearer: []
@@ -1307,9 +1260,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/tests/{id}:
     get:
-      summary: Get Test By Id
       tags:
-        - tests
+        - Test
+      summary: Get Test By Id
       operationId: get_test_by_id_v1_tests__id__get
       security:
         - HTTPBearer: []
@@ -1335,9 +1288,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/tests:
     get:
+      tags:
+        - Test
       summary: Get Tests
-      tags: 
-        - tests
       operationId: get_tests_v1_tests_get
       security:
         - HTTPBearer: []
@@ -1411,9 +1364,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/responses/{id}:
     get:
+      tags:
+        - Response
       summary: Get Response By Id
-      tags: 
-        - responses
       operationId: get_response_by_id_v1_responses__id__get
       security:
         - HTTPBearer: []
@@ -1439,9 +1392,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/responses:
     get:
+      tags:
+        - Response
       summary: Get Responses
-      tags: 
-        - responses
       operationId: get_responses_v1_responses_get
       security:
         - HTTPBearer: []
@@ -1543,9 +1496,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/detectors:
     get:
+      tags:
+        - Detector
       summary: Get Detectors
-      tags: 
-        - detectors
       operationId: get_detectors_v1_detectors_get
       security:
         - HTTPBearer: []
@@ -1581,9 +1534,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/detectors/{id}:
     get:
-      summary: Get Detector By Id
       tags:
-        - detectors
+        - Detector
+      summary: Get Detector By Id
       operationId: get_detector_by_id_v1_detectors__id__get
       security:
         - HTTPBearer: []
@@ -1617,9 +1570,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/leaderboard:
     get:
+      tags:
+        - Leaderboard
       summary: Get Leaderboard
-      tags: 
-        - leaderboard
       operationId: get_leaderboard_v1_leaderboard_get
       responses:
         "200":
@@ -1635,9 +1588,9 @@ paths:
         - HTTPBearer: []
   /v1/teams:
     get:
-      summary: Get Teams
       tags:
-        - teams
+        - Teams
+      summary: Get Teams
       operationId: get_teams_v1_teams_get
       security:
         - HTTPBearer: []
@@ -1673,9 +1626,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
-      summary: Create Team
       tags:
-        - teams
+        - Teams
+      summary: Create Team
       operationId: create_team_v1_teams_post
       security:
         - HTTPBearer: []
@@ -1700,9 +1653,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/teams/{id}:
     get:
-      summary: Get Team By Id
       tags:
-        - teams
+        - Teams
+      summary: Get Team By Id
       operationId: get_team_by_id_v1_teams__id__get
       security:
         - HTTPBearer: []
@@ -1727,9 +1680,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
-      summary: Update Team
       tags:
-        - teams
+        - Teams
+      summary: Update Team
       operationId: update_team_v1_teams__id__put
       security:
         - HTTPBearer: []
@@ -1760,9 +1713,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      summary: Delete Team
       tags:
-       - teams
+        - Teams
+      summary: Delete Team
       operationId: delete_team_v1_teams__id__delete
       security:
         - HTTPBearer: []
@@ -1788,9 +1741,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/teams/{id}/users:
     get:
-      summary: Get Users By Team Id
       tags:
-        - teams
+        - Teams
+      summary: Get Users By Team Id
       operationId: get_users_by_team_id_v1_teams__id__users_get
       security:
         - HTTPBearer: []
@@ -1846,9 +1799,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluation-estimate:
     post:
-      summary: Calculate Evaluation Estimate
       tags:
-        - evaluations
+        - Evaluation
+      summary: Calculate Evaluation Estimate
       operationId: calculate_evaluation_estimate_v1_evaluation_estimate_post
       requestBody:
         content:
@@ -1873,9 +1826,9 @@ paths:
         - HTTPBearer: []
   /v1/results-feedback/{id}:
     get:
-      summary: Get Feedback By Id
       tags:
-        - feedback
+        - User Feedback
+      summary: Get Feedback By Id
       operationId: get_feedback_by_id_v1_results_feedback__id__get
       security:
         - HTTPBearer: []
@@ -1900,9 +1853,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
+      tags:
+        - User Feedback
       summary: Update Feedback
-      tags: 
-        - feedback
       operationId: update_feedback_v1_results_feedback__id__put
       security:
         - HTTPBearer: []
@@ -1934,9 +1887,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/results-feedback:
     get:
-      summary: Get Feedback
       tags:
-        - feedback
+        - User Feedback
+      summary: Get Feedback
       operationId: get_feedback_v1_results_feedback_get
       security:
         - HTTPBearer: []
@@ -2002,9 +1955,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
-      summary: Create Feedback
       tags:
-        - feedback
+        - User Feedback
+      summary: Create Feedback
       operationId: create_feedback_v1_results_feedback_post
       security:
         - HTTPBearer: []
@@ -2029,9 +1982,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/detections/{id}:
     get:
-      summary: Get Detection By Id
       tags:
-        - detections
+        - Detector
+      summary: Get Detection By Id
       operationId: get_detection_by_id_v1_detections__id__get
       security:
         - HTTPBearer: []
@@ -2057,9 +2010,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /v1/detections:
     post:
-      summary: Create Detection
       tags:
-        - detections
+        - Detector
+      summary: Create Detection
       operationId: create_detection_v1_detections_post
       requestBody:
         content:
@@ -2084,9 +2037,9 @@ paths:
         - HTTPBearer: []
   /v1/chat_complete:
     post:
-      summary: Chat Complete
       tags:
-        - chat
+        - Chat Completion
+      summary: Chat Complete
       operationId: chat_complete_v1_chat_complete_post
       requestBody:
         content:
@@ -2154,10 +2107,6 @@ components:
             - type: string
           title: Temperature
           default: "1.00"
-        max_tokens:
-          type: integer
-          title: Max Tokens
-          default: 125
         top_p:
           anyOf:
             - type: number
@@ -2168,6 +2117,17 @@ components:
           type: integer
           title: Generations
           default: 1
+        max_completion_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Completion Tokens
+          default: 125
+        timeout:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Timeout
       type: object
       title: AgentParams
     ApiKeyResponse:
@@ -2293,6 +2253,27 @@ components:
           title: Prompt
         completion_params:
           $ref: '#/components/schemas/CompletionRequestParams'
+        system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: System Prompt
+        prompt_role:
+          type: string
+          enum:
+            - user
+            - assistant
+          title: Prompt Role
+          default: user
+        messages:
+          anyOf:
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - type: "null"
+          title: Messages
       type: object
       required:
         - prompt
@@ -2338,11 +2319,11 @@ components:
             - type: "null"
           title: Top P
           default: 0.99
-        max_tokens:
+        max_completion_tokens:
           anyOf:
             - type: integer
             - type: "null"
-          title: Max Tokens
+          title: Max Completion Tokens
           default: 125
         generations:
           anyOf:
@@ -2996,9 +2977,9 @@ components:
           type: string
           title: Temperature
           default: "1.00"
-        max_tokens:
+        max_completion_tokens:
           type: integer
-          title: Max Tokens
+          title: Max Completion Tokens
           default: 125
         top_p:
           type: string
@@ -3021,6 +3002,11 @@ components:
           type: string
           title: Version
           default: ""
+        timeout:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Timeout
       type: object
       title: EvaluationMetadata
     EvaluationRequest:
@@ -4651,3 +4637,40 @@ components:
     HTTPBearer:
       type: http
       scheme: bearer
+tags:
+  - name: Evaluation
+    description: Operations with evaluations.
+  - name: Harness
+    description: Operations with harnesses.
+  - name: Scenario
+    description: Operations with scenarios.
+  - name: Probe
+    description: Operations with probes.
+  - name: Prompt
+    description: Operations with prompts.
+  - name: Response
+    description: Operations with responses.
+  - name: Detector
+    description: Operations with detectors.
+  - name: API Key
+    description: Operations with API keys.
+  - name: Hub
+    description: Operations with hubs.
+  - name: Test
+    description: Operations with tests.
+  - name: Users
+    description: Operations with users.
+  - name: Teams
+    description: Operations with teams.
+  - name: Invite
+    description: Operations with invites.
+  - name: Events
+    description: Operations with events.
+  - name: Leaderboard
+    description: Operations with leaderboard.
+  - name: User Feedback
+    description: Operations on user feedback.
+  - name: Chat Completion
+    description: Operations with chat completions.
+  - name: Monitoring
+    description: Vijil app monitoring.
