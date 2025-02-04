@@ -22,6 +22,8 @@ paths:
                 title: Response Health Check Healthz Get
   /metrics:
     get:
+      tags:
+        - Monitoring
       summary: Metrics
       operationId: metrics_metrics_get
       responses:
