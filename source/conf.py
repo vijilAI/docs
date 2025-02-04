@@ -21,6 +21,7 @@ extensions = [
     'sphinx_copybutton',
     "myst_parser",
     "sphinx_inline_tabs",
+    'sphinxcontrib.openapi',
 ]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
