@@ -1,0 +1,4653 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+tags:
+  - name: health
+    description: Health Check
+  - name: metrics
+    description: Metrics
+  - name: users
+    description: User Management
+  - name: invites
+    description: Invite Management
+  - name: events
+    description: Event Management
+  - name: hubs
+    description: Hub Management
+  - name: api-keys
+    description: API Key Management
+  - name: evaluations
+    description: Evaluation Management
+  - name: harness
+    description: Harness Management
+  - name: scenarios
+    description: Scenario Management
+  - name: probes
+    description: Probe Management
+  - name: prompts
+    description: Prompt Management
+  - name: tests
+    description: Test Management
+  - name: responses
+    description: Response Management
+  - name: detectors
+    description: Detector Endpoint
+  - name: leaderboard
+    description: leaderboard
+  - name: teams
+    description: Team Management
+  - name: feedback
+    description: User Feedback
+  - name: chat
+    description: Chat Completion
+
+
+
+
+
+
+paths:
+  /healthz:
+    get:
+      summary: Health Check
+      description: Endpoint for health check. Returns the status of the service.
+      operationId: health_check_healthz_get
+      tags:
+        - health
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Check Healthz Get
+  /metrics:
+    get:
+      summary: Metrics
+      operationId: metrics_metrics_get
+      tags: 
+        - metrics
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/users:
+    get:
+      summary: Get Users By Ids
+      tags:
+        - users
+      operationId: get_users_by_ids_v1_users_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Ids
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/users/me:
+    get:
+      summary: Get Current User
+      tags:
+        - users 
+      operationId: get_current_user_v1_users_me_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      security:
+        - HTTPBearer: []
+  /v1/users/{id}:
+    get:
+      summary: Get User By Id
+      tags:
+        - users
+      operationId: get_user_by_id_v1_users__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/users/{id}/set-role:
+    post:
+      summary: Set Role
+      tags:
+        - users
+      operationId: set_role_v1_users__id__set_role_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetUserRoleRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/invites/{invite_id}:
+    get:
+      summary: Get Invite By Id
+      tags:
+        - invites
+      operationId: get_invite_by_id_v1_invites__invite_id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: invite_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Invite Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Invite
+      tags:
+        - invites
+      operationId: delete_invite_v1_invites__invite_id__delete
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: invite_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Invite Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Invite V1 Invites  Invite Id  Delete
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/invites/team/{team_id}:
+    get:
+      summary: Get Invite By Team
+      tags:
+        - invites
+      operationId: get_invite_by_team_v1_invites_team__team_id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: team_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Team Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/invites/status/{status}:
+    get:
+      summary: Get Invite By Status
+      tags:
+       - invites
+      operationId: get_invite_by_status_v1_invites_status__status__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Status
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/invites:
+    post:
+      summary: Create Invite
+      tags:
+        - invites
+      operationId: create_invite_v1_invites_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInviteRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/invites/{invite_id}/accept:
+    post:
+      summary: Accept Invite
+      tags:
+       - invites
+      operationId: accept_invite_v1_invites__invite_id__accept_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: invite_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Invite Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/invites/{invite_id}/decline:
+    post:
+      summary: Decline Invite
+      tags:
+        - invites
+      operationId: decline_invite_v1_invites__invite_id__decline_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: invite_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Invite Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/events:
+    post:
+      summary: Post Event
+      tags:
+       - events
+      operationId: post_event_v1_events_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/hubs:
+    get:
+      summary: Get Hubs
+      tags:
+        - hubs
+      operationId: get_hubs_v1_hubs_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/HubResponse'
+                type: array
+                title: Response Get Hubs V1 Hubs Get
+      security:
+        - HTTPBearer: []
+  /v1/api-keys:
+    post:
+      summary: Create Api Key
+      tags:
+       - api-keys
+      operationId: create_api_key_v1_api_keys_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiKeyRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: Get Api Keys
+      tags:
+        - api-keys
+      operationId: get_api_keys_v1_api_keys_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: hubs
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Hubs
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiKeyResponse'
+                title: Response Get Api Keys V1 Api Keys Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/api-keys/test:
+    post:
+      summary: Test Api Key
+      tags:
+        - api-keys
+      operationId: test_api_key_v1_api_keys_test_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyTestRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyTestResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/api-keys/{id}:
+    put:
+      summary: Update Api Key
+      tags:
+        - api-keys
+      operationId: update_api_key_v1_api_keys__id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateApiKeyRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Api Key
+      tags:
+        - api-keys
+      operationId: delete_api_key_v1_api_keys__id__delete
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Api Key V1 Api Keys  Id  Delete
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: Get Api Key By Id
+      tags:
+        - api-keys
+      operationId: get_api_key_by_id_v1_api_keys__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiKeyResponse'
+                  - type: "null"
+                title: Response Get Api Key By Id V1 Api Keys  Id  Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations:
+    get:
+      summary: Get Evaluations
+      tags:
+        - evaluations
+      operationId: get_evaluations_v1_evaluations_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: user_email
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: User Email
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Offset
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            default: created_at
+            title: Sort By
+        - name: sort_order
+          in: query
+          required: false
+          schema:
+            type: string
+            default: DESC
+            title: Sort Order
+        - name: name
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Name
+        - name: hub
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Hub
+        - name: model
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Model
+        - name: created_at
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: integer
+              - type: "null"
+            title: Created At
+        - name: completed_at
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: integer
+              - type: "null"
+            title: Completed At
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Evaluation
+      tags:
+        - evaluations
+      operationId: create_evaluation_v1_evaluations_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationCreatedResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{evaluation_id}/response-errors:
+    get:
+      summary: Get Response Errors
+      tags:
+        - responses
+      operationId: get_response_errors_v1_evaluations__evaluation_id__response_errors_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: evaluation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Evaluation Id
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Maximum number of error types to return
+            default: 10
+            title: Limit
+          description: Maximum number of error types to return
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetResponseErrorsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}:
+    get:
+      summary: Get Evaluation
+      tags:
+        - evaluations
+      operationId: get_evaluation_v1_evaluations__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResponseWithMetrics'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Evaluation Name
+      tags:
+        - evaluations
+      operationId: update_evaluation_name_v1_evaluations__id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEvaluationRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResponseWithMetrics'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/metadata/{id}:
+    get:
+      summary: Get Evaluation With Metadata
+      tags:
+        - evaluations
+      operationId: get_evaluation_with_metadata_v1_evaluations_metadata__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResponseWithMetrics'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}/score:
+    post:
+      summary: Calculate Evaluation Score
+      tags:
+        - evaluations
+      operationId: calculate_evaluation_score_v1_evaluations__id__score_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationScore'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}/delete:
+    post:
+      summary: Delete Evaluation
+      tags:
+        - evaluations
+      operationId: delete_evaluation_v1_evaluations__id__delete_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteEvaluationResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}/cancel:
+    post:
+      summary: Cancel Evaluation
+      tags:
+        - evaluations
+      operationId: cancel_evaluation_v1_evaluations__id__cancel_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelEvaluationResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness:
+    get:
+      summary: Get Harnesses
+      tags:
+        - harness
+      operationId: get_harnesses_v1_harness_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: evaluation_id
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Evaluation Id
+        - name: ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Ids
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness/{id}:
+    get:
+      summary: Get Harness By Id
+      tags:
+        - harness
+      operationId: get_harness_by_id_v1_harness__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness/create:
+    post:
+      summary: Config File To Db Sync
+      tags:
+        - harness
+      operationId: config_file_to_db_sync_v1_harness_create_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_config_file_to_db_sync_v1_harness_create_post'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessCreationResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/harness-configs/versions:
+    get:
+      summary: Get Harness Config Versions
+      tags:
+        - harness
+      operationId: get_harness_config_versions_v1_harness_configs_versions_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfigVersionsResponse'
+      security:
+        - HTTPBearer: []
+  /v1/harness-configs:
+    get:
+      summary: Get Harness Configs
+      tags:
+        - harness
+      operationId: get_harness_configs_v1_harness_configs_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_type
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Harness Type
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfigsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Create Harness Config
+      tags:
+        - harness
+      description: |-
+        Triggers harness creation after harness input files have been uploaded using signed URLs.
+        Delegates the actual creation process to the harness creation service.
+      operationId: create_harness_config_v1_harness_configs_put
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHarnessRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateHarnessResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness-configs/files:
+    put:
+      summary: Create File Upload
+      tags:
+        - harness
+      description: Creates a signed URL for a file upload and an entry in the database.
+      operationId: create_file_upload_v1_harness_configs_files_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/scenarios:
+    get:
+      summary: Get Scenarios
+      tags:
+        - scenarios
+      operationId: get_scenarios_v1_scenarios_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: evaluation_id
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Evaluation Id
+        - name: ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Ids
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/scenarios/{id}:
+    get:
+      summary: Get Scenario By Id
+      tags:
+        - scenarios
+      operationId: get_scenario_by_id_v1_scenarios__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/probes:
+    get:
+      summary: Get Probes
+      tags:
+        - probes
+      operationId: get_probes_v1_probes_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: evaluation_id
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Evaluation Id
+        - name: ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Ids
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProbeResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/probes/{id}:
+    get:
+      summary: Get Probe By Id
+      tags:
+        - probes
+      operationId: get_probe_by_id_v1_probes__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProbeResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/prompts/{id}:
+    get:
+      summary: Get Prompt By Id
+      tags:
+        - prompts
+      operationId: get_prompt_by_id_v1_prompts__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prompt'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/tests/{id}:
+    get:
+      summary: Get Test By Id
+      tags:
+        - tests
+      operationId: get_test_by_id_v1_tests__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VijilTest'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/tests:
+    get:
+      summary: Get Tests
+      tags: 
+        - tests
+      operationId: get_tests_v1_tests_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: evaluation_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Evaluation Id
+        - name: ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Ids
+        - name: probe_ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Probe Ids
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: The maximum number of items to return
+            default: 1000
+            title: Limit
+          description: The maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: The number of items to skip before starting to collect the result set
+            default: 0
+            title: Offset
+          description: The number of items to skip before starting to collect the result set
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/responses/{id}:
+    get:
+      summary: Get Response By Id
+      tags: 
+        - responses
+      operationId: get_response_by_id_v1_responses__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/responses:
+    get:
+      summary: Get Responses
+      tags: 
+        - responses
+      operationId: get_responses_v1_responses_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: evaluation_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Evaluation Id
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Status
+        - name: ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Ids
+        - name: probe_ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Probe Ids
+        - name: prompt_ids
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Prompt Ids
+        - name: is_visible
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Is Visible
+        - name: order_by
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Order By
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: The maximum number of items to return
+            default: 1000
+            title: Limit
+          description: The maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: The number of items to skip before starting to collect the result set
+            default: 0
+            title: Offset
+          description: The number of items to skip before starting to collect the result set
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetResponsesResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/detectors:
+    get:
+      summary: Get Detectors
+      tags: 
+        - detectors
+      operationId: get_detectors_v1_detectors_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: version
+          in: query
+          required: true
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Version
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            title: Ids
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/detectors/{id}:
+    get:
+      summary: Get Detector By Id
+      tags:
+        - detectors
+      operationId: get_detector_by_id_v1_detectors__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: version
+          in: query
+          required: true
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Version
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detector'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/leaderboard:
+    get:
+      summary: Get Leaderboard
+      tags: 
+        - leaderboard
+      operationId: get_leaderboard_v1_leaderboard_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
+                type: array
+                title: Response Get Leaderboard V1 Leaderboard Get
+      security:
+        - HTTPBearer: []
+  /v1/teams:
+    get:
+      summary: Get Teams
+      tags:
+        - teams
+      operationId: get_teams_v1_teams_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+                title: Response Get Teams V1 Teams Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Team
+      tags:
+        - teams
+      operationId: create_team_v1_teams_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/teams/{id}:
+    get:
+      summary: Get Team By Id
+      tags:
+        - teams
+      operationId: get_team_by_id_v1_teams__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Team
+      tags:
+        - teams
+      operationId: update_team_v1_teams__id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Team
+      tags:
+       - teams
+      operationId: delete_team_v1_teams__id__delete
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/teams/{id}/users:
+    get:
+      summary: Get Users By Team Id
+      tags:
+        - teams
+      operationId: get_users_by_team_id_v1_teams__id__users_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Status
+        - name: team_role
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Team Role
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponseWithPaging'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluation-estimate:
+    post:
+      summary: Calculate Evaluation Estimate
+      tags:
+        - evaluations
+      operationId: calculate_evaluation_estimate_v1_evaluation_estimate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/results-feedback/{id}:
+    get:
+      summary: Get Feedback By Id
+      tags:
+        - feedback
+      operationId: get_feedback_by_id_v1_results_feedback__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsFeedbackResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Feedback
+      tags: 
+        - feedback
+      operationId: update_feedback_v1_results_feedback__id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeedbackRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsFeedbackResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/results-feedback:
+    get:
+      summary: Get Feedback
+      tags:
+        - feedback
+      operationId: get_feedback_v1_results_feedback_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: response_id
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Response Id
+        - name: detector_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Detector Id
+        - name: prompt_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Prompt Id
+        - name: created_by
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Created By
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResultsFeedbackResponse'
+                title: Response Get Feedback V1 Results Feedback Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Feedback
+      tags:
+        - feedback
+      operationId: create_feedback_v1_results_feedback_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsFeedbackResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/detections/{id}:
+    get:
+      summary: Get Detection By Id
+      tags:
+        - detections
+      operationId: get_detection_by_id_v1_detections__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/detections:
+    post:
+      summary: Create Detection
+      tags:
+        - detections
+      operationId: create_detection_v1_detections_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetectionRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/chat_complete:
+    post:
+      summary: Chat Complete
+      tags:
+        - chat
+      operationId: chat_complete_v1_chat_complete_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+components:
+  schemas:
+    APIKeyTestResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        rate_limit:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Rate Limit
+        interval:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Interval
+      type: object
+      required:
+        - status
+      title: APIKeyTestResponse
+    AWSHubConfig:
+      properties:
+        region:
+          type: string
+          title: Region
+        access_key:
+          type: string
+          title: Access Key
+        secret_access_key:
+          type: string
+          title: Secret Access Key
+      type: object
+      required:
+        - region
+        - access_key
+        - secret_access_key
+      title: AWSHubConfig
+    AgentParams:
+      properties:
+        temperature:
+          anyOf:
+            - type: number
+            - type: string
+          title: Temperature
+          default: "1.00"
+        max_tokens:
+          type: integer
+          title: Max Tokens
+          default: 125
+        top_p:
+          anyOf:
+            - type: number
+            - type: string
+          title: Top P
+          default: "0.99"
+        generations:
+          type: integer
+          title: Generations
+          default: 1
+      type: object
+      title: AgentParams
+    ApiKeyResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        hub:
+          type: string
+          enum:
+            - openai
+            - octo
+            - together
+            - mistral
+            - fireworks
+            - nvidia
+            - vertex
+            - bedrock
+            - bedrock_custom
+            - digitalocean
+            - azure
+            - custom
+          title: Hub
+        rate_limit_per_interval:
+          type: integer
+          title: Rate Limit Per Interval
+        rate_limit_interval:
+          type: integer
+          title: Rate Limit Interval
+        display_value:
+          type: string
+          title: Display Value
+        hub_config:
+          anyOf:
+            - $ref: '#/components/schemas/HubConfigResponse'
+            - type: "null"
+      type: object
+      required:
+        - id
+        - name
+        - hub
+        - rate_limit_per_interval
+        - rate_limit_interval
+        - display_value
+      title: ApiKeyResponse
+    ApiKeyTestRequest:
+      properties:
+        hub:
+          type: string
+          enum:
+            - openai
+            - octo
+            - together
+            - mistral
+            - fireworks
+            - nvidia
+            - vertex
+            - bedrock
+            - bedrock_custom
+            - digitalocean
+            - azure
+            - custom
+          title: Hub
+        value:
+          type: string
+          title: Value
+        url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Url
+        model:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Model
+        hub_config:
+          anyOf:
+            - $ref: '#/components/schemas/AWSHubConfig'
+            - $ref: '#/components/schemas/GCPHubConfig'
+            - $ref: '#/components/schemas/DigitalOceanHubConfig'
+            - type: "null"
+          title: Hub Config
+      type: object
+      required:
+        - hub
+        - value
+      title: ApiKeyTestRequest
+    Body_config_file_to_db_sync_v1_harness_create_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+        - file
+      title: Body_config_file_to_db_sync_v1_harness_create_post
+    CancelEvaluationResponse:
+      properties:
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+        status:
+          type: string
+          title: Status
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+        - evaluation_id
+        - status
+        - message
+      title: CancelEvaluationResponse
+    CompletionRequest:
+      properties:
+        prompt:
+          type: string
+          title: Prompt
+        completion_params:
+          $ref: '#/components/schemas/CompletionRequestParams'
+      type: object
+      required:
+        - prompt
+        - completion_params
+      title: CompletionRequest
+    CompletionRequestParams:
+      properties:
+        api_key:
+          type: string
+          title: Api Key
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Url
+        timeout:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Timeout
+          default: 90
+        max_retries:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Retries
+          default: 5
+        temperature:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Temperature
+          default: 1
+        top_p:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Top P
+          default: 0.99
+        max_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Tokens
+          default: 125
+        generations:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Generations
+          default: 1
+      type: object
+      required:
+        - api_key
+        - hub
+        - model
+      title: CompletionRequestParams
+    CreateApiKeyRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        hub:
+          type: string
+          enum:
+            - openai
+            - octo
+            - together
+            - mistral
+            - fireworks
+            - nvidia
+            - vertex
+            - bedrock
+            - bedrock_custom
+            - digitalocean
+            - azure
+            - custom
+          title: Hub
+        rate_limit_per_interval:
+          type: integer
+          title: Rate Limit Per Interval
+        rate_limit_interval:
+          type: integer
+          title: Rate Limit Interval
+        value:
+          type: string
+          title: Value
+        hub_config:
+          anyOf:
+            - $ref: '#/components/schemas/AWSHubConfig'
+            - $ref: '#/components/schemas/GCPHubConfig'
+            - $ref: '#/components/schemas/DigitalOceanHubConfig'
+            - type: "null"
+          title: Hub Config
+      type: object
+      required:
+        - name
+        - hub
+        - rate_limit_per_interval
+        - rate_limit_interval
+        - value
+      title: CreateApiKeyRequest
+    CreateFeedbackRequest:
+      properties:
+        response_id:
+          type: string
+          title: Response Id
+        detector_id:
+          type: string
+          title: Detector Id
+        value:
+          type: number
+          title: Value
+        message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Message
+      type: object
+      required:
+        - response_id
+        - detector_id
+        - value
+      title: CreateFeedbackRequest
+    CreateHarnessRequest:
+      properties:
+        harness_config_id:
+          type: string
+          title: Harness Config Id
+        harness_name:
+          type: string
+          title: Harness Name
+        harness_version:
+          type: string
+          title: Harness Version
+        agent_sys_prompt:
+          type: string
+          title: Agent Sys Prompt
+        harness_creation_type:
+          type: string
+          title: Harness Creation Type
+        parameters:
+          $ref: '#/components/schemas/HarnessConfigCreationParameters'
+        num_prompts:
+          type: integer
+          title: Num Prompts
+          default: 5
+      type: object
+      required:
+        - harness_config_id
+        - harness_name
+        - harness_version
+        - agent_sys_prompt
+        - harness_creation_type
+        - parameters
+      title: CreateHarnessRequest
+    CreateHarnessResponse:
+      properties:
+        harness_config_id:
+          type: string
+          title: Harness Config Id
+      type: object
+      required:
+        - harness_config_id
+      title: CreateHarnessResponse
+    CreateInviteRequest:
+      properties:
+        team_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Id
+        email:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Email
+        team_role:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Role
+          default: user
+      type: object
+      required:
+        - team_id
+        - email
+      title: CreateInviteRequest
+    CreateTeamRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+      type: object
+      required:
+        - name
+      title: CreateTeamRequest
+    DeleteEvaluationResponse:
+      properties:
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+        status:
+          type: string
+          title: Status
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+        - evaluation_id
+        - status
+        - message
+      title: DeleteEvaluationResponse
+    DetectionInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        detection_id:
+          type: string
+          title: Detection Id
+          default: ""
+        response:
+          type: string
+          title: Response
+          default: ""
+        triggers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Triggers
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Ground Truth
+        question:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Question
+        contexts:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Contexts
+        instructions:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Instructions
+        kwargs:
+          anyOf:
+            - items:
+                type: object
+              type: array
+            - type: "null"
+          title: Kwargs
+        forbidden_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Forbidden Prompt
+        role:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Role
+        expected_tools:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Expected Tools
+        input:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Input
+        policy:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Policy
+        created_at:
+          type: integer
+          title: Created At
+        updated_at:
+          type: integer
+          title: Updated At
+        created_by:
+          type: string
+          title: Created By
+          default: ""
+        status:
+          type: string
+          enum:
+            - CREATED
+            - DETECTING
+            - COMPLETED
+            - ERROR
+          title: Status
+          default: CREATED
+      type: object
+      title: DetectionInput
+    DetectionOutput:
+      properties:
+        id:
+          type: string
+          title: Id
+        detection_id:
+          type: string
+          title: Detection Id
+          default: ""
+        input_id:
+          type: string
+          title: Input Id
+          default: ""
+        score:
+          type: number
+          title: Score
+          default: 0
+        reason:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Reason
+        error:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Error
+        error_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Error Message
+        created_at:
+          type: integer
+          title: Created At
+        created_by:
+          type: string
+          title: Created By
+          default: ""
+      type: object
+      title: DetectionOutput
+    DetectionParams:
+      properties:
+        api_key_proxy:
+          type: string
+          title: Api Key Proxy
+        hub:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Hub
+        model:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Model
+      type: object
+      required:
+        - api_key_proxy
+      title: DetectionParams
+    DetectionRequest:
+      properties:
+        id:
+          type: string
+          title: Id
+        detector_id:
+          type: string
+          title: Detector Id
+        detector_params:
+          $ref: '#/components/schemas/DetectionParams'
+        detector_inputs:
+          items:
+            $ref: '#/components/schemas/DetectionRequestInput'
+          type: array
+          title: Detector Inputs
+      type: object
+      required:
+        - id
+        - detector_id
+        - detector_params
+        - detector_inputs
+      title: DetectionRequest
+    DetectionRequestInput:
+      properties:
+        response:
+          type: string
+          title: Response
+        id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Id
+        triggers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Triggers
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Ground Truth
+        question:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Question
+        contexts:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Contexts
+        instructions:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Instructions
+        kwargs:
+          anyOf:
+            - items:
+                type: object
+              type: array
+            - type: "null"
+          title: Kwargs
+        forbidden_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Forbidden Prompt
+        role:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Role
+        expected_tools:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Expected Tools
+        input:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Input
+        policy:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Policy
+      type: object
+      required:
+        - response
+      title: DetectionRequestInput
+    DetectionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        detector_id:
+          type: string
+          title: Detector Id
+        status:
+          type: string
+          title: Status
+        detector_inputs:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/DetectionInput'
+              type: array
+            - type: "null"
+          title: Detector Inputs
+        detector_outputs:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/DetectionOutput'
+              type: array
+            - type: "null"
+          title: Detector Outputs
+      type: object
+      required:
+        - id
+        - detector_id
+        - status
+        - detector_inputs
+        - detector_outputs
+      title: DetectionResponse
+    Detector:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+        detector_input:
+          type: object
+          title: Detector Input
+        version:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Version
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - detector_input
+        - version
+      title: Detector
+    DetectorResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/Detector'
+          type: array
+          title: Results
+      type: object
+      required:
+        - results
+      title: DetectorResponses
+    DigitalOceanHubConfig:
+      properties:
+        agent_id:
+          type: string
+          title: Agent Id
+        agent_key:
+          type: string
+          title: Agent Key
+      type: object
+      required:
+        - agent_id
+        - agent_key
+      title: DigitalOceanHubConfig
+    ErrorSummary:
+      properties:
+        cause:
+          type: string
+          title: Cause
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - cause
+        - count
+      title: ErrorSummary
+    EstimateRequest:
+      properties:
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        harness_config_ids:
+          items:
+            type: string
+          type: array
+          title: Harness Config Ids
+        scenario_config_filters:
+          items:
+            type: string
+          type: array
+          title: Scenario Config Filters
+        version:
+          type: string
+          title: Version
+        agent_params:
+          $ref: '#/components/schemas/AgentParams'
+        is_lite:
+          type: boolean
+          title: Is Lite
+        sample_size:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Sample Size
+      type: object
+      required:
+        - hub
+        - model
+        - harness_config_ids
+        - scenario_config_filters
+        - version
+        - agent_params
+        - is_lite
+      title: EstimateRequest
+    EstimateResponse:
+      properties:
+        completion_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completion Tokens
+        prompt_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Prompt Tokens
+        total_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Total Tokens
+      type: object
+      title: EstimateResponse
+    EvaluationCreatedResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+        - id
+        - status
+      title: EvaluationCreatedResponse
+    EvaluationMetadata:
+      properties:
+        id:
+          type: string
+          title: Id
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+          default: ""
+        api_key_hash:
+          type: string
+          title: Api Key Hash
+          default: ""
+        hub:
+          type: string
+          title: Hub
+          default: ""
+        model:
+          type: string
+          title: Model
+          default: ""
+        url:
+          type: string
+          title: Url
+          default: ""
+        harness_config_ids:
+          items:
+            type: string
+          type: array
+          title: Harness Config Ids
+        scenario_config_filters:
+          items:
+            type: string
+          type: array
+          title: Scenario Config Filters
+        sample_size:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Sample Size
+        temperature:
+          type: string
+          title: Temperature
+          default: "1.00"
+        max_tokens:
+          type: integer
+          title: Max Tokens
+          default: 125
+        top_p:
+          type: string
+          title: Top P
+          default: "0.99"
+        generations:
+          type: integer
+          title: Generations
+          default: 1
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        name:
+          type: string
+          title: Name
+          default: ""
+        version:
+          type: string
+          title: Version
+          default: ""
+      type: object
+      title: EvaluationMetadata
+    EvaluationRequest:
+      properties:
+        id:
+          type: string
+          title: Id
+        api_key_proxy:
+          type: string
+          title: Api Key Proxy
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        harness_config_ids:
+          items:
+            type: string
+          type: array
+          title: Harness Config Ids
+        scenario_config_filters:
+          items:
+            type: string
+          type: array
+          title: Scenario Config Filters
+        agent_params:
+          $ref: '#/components/schemas/AgentParams'
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        sample_size:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Sample Size
+        url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Url
+        version:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Version
+      type: object
+      required:
+        - id
+        - api_key_proxy
+        - hub
+        - model
+        - harness_config_ids
+        - scenario_config_filters
+        - agent_params
+        - name
+        - tags
+      title: EvaluationRequest
+    EvaluationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        status:
+          type: string
+          title: Status
+        cause:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Cause
+        score:
+          type: string
+          title: Score
+        model:
+          type: string
+          title: Model
+        hub:
+          type: string
+          title: Hub
+        url:
+          type: string
+          title: Url
+        created_at:
+          type: integer
+          title: Created At
+        completed_test_count:
+          type: integer
+          title: Completed Test Count
+        total_test_count:
+          type: integer
+          title: Total Test Count
+        created_by:
+          type: string
+          title: Created By
+        completed_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completed At
+        team_id:
+          type: string
+          title: Team Id
+        completion_tokens:
+          type: integer
+          title: Completion Tokens
+          default: 0
+        prompt_tokens:
+          type: integer
+          title: Prompt Tokens
+          default: 0
+        total_tokens:
+          type: integer
+          title: Total Tokens
+          default: 0
+        version:
+          type: string
+          title: Version
+          default: ""
+      type: object
+      required:
+        - id
+        - name
+        - tags
+        - status
+        - cause
+        - score
+        - model
+        - hub
+        - url
+        - created_at
+        - completed_test_count
+        - total_test_count
+        - created_by
+        - completed_at
+        - team_id
+      title: EvaluationResponse
+    EvaluationResponseWithMetrics:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        status:
+          type: string
+          title: Status
+        cause:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Cause
+        total_test_count:
+          type: integer
+          title: Total Test Count
+        completed_test_count:
+          type: integer
+          title: Completed Test Count
+        error_test_count:
+          type: integer
+          title: Error Test Count
+        total_response_count:
+          type: integer
+          title: Total Response Count
+        completed_response_count:
+          type: integer
+          title: Completed Response Count
+        error_response_count:
+          type: integer
+          title: Error Response Count
+        total_generation_time:
+          type: integer
+          title: Total Generation Time
+        average_generation_time:
+          type: integer
+          title: Average Generation Time
+        score:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Score
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        url:
+          type: string
+          title: Url
+        created_at:
+          type: integer
+          title: Created At
+        created_by:
+          type: string
+          title: Created By
+        completed_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completed At
+        team_id:
+          type: string
+          title: Team Id
+        restart_count:
+          type: integer
+          title: Restart Count
+        metadata:
+          anyOf:
+            - $ref: '#/components/schemas/EvaluationMetadata'
+            - type: "null"
+        completion_tokens:
+          type: integer
+          title: Completion Tokens
+          default: 0
+        prompt_tokens:
+          type: integer
+          title: Prompt Tokens
+          default: 0
+        total_tokens:
+          type: integer
+          title: Total Tokens
+          default: 0
+      type: object
+      required:
+        - id
+        - name
+        - tags
+        - status
+        - cause
+        - total_test_count
+        - completed_test_count
+        - error_test_count
+        - total_response_count
+        - completed_response_count
+        - error_response_count
+        - total_generation_time
+        - average_generation_time
+        - score
+        - hub
+        - model
+        - url
+        - created_at
+        - created_by
+        - completed_at
+        - team_id
+        - restart_count
+      title: EvaluationResponseWithMetrics
+    EvaluationResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/EvaluationResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        current_page:
+          type: integer
+          title: Current Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+        - results
+        - count
+        - current_page
+        - page_size
+      title: EvaluationResponses
+    EvaluationScore:
+      properties:
+        score:
+          type: object
+          title: Score
+      type: object
+      required:
+        - score
+      title: EvaluationScore
+    Event:
+      properties:
+        type:
+          type: string
+          enum:
+            - LOGIN_COMPLETE
+            - EVALUATION_CREATED
+            - EVALUATION_COMPLETED
+            - TEST_CREATED
+            - TEST_COMPLETED
+            - TEST_ERROR
+            - REQUEST_COMPLETED
+            - DETECTION_COMPLETED
+            - WORKER_READY
+            - START_EVALUATION
+            - START_DETECTION
+            - PROBE_DETECTION_COMPLETE
+            - PROBE_DETECTION_ERROR
+            - CANCEL_EVALUATION
+            - DELETE_EVALUATION
+            - EXECUTE_SYNC_DETECTION
+            - SYNC_DETECTION_COMPLETED
+          title: Type
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: number
+          title: Created At
+        created_by:
+          type: string
+          title: Created By
+          default: ""
+        status:
+          type: string
+          title: Status
+          default: ""
+        data:
+          type: object
+          title: Data
+        metadata:
+          anyOf:
+            - type: object
+            - type: "null"
+          title: Metadata
+      type: object
+      required:
+        - type
+      title: Event
+    FileUploadRequest:
+      properties:
+        file_name:
+          type: string
+          title: File Name
+        harness_config_id:
+          type: string
+          title: Harness Config Id
+        file_type:
+          type: string
+          title: File Type
+        file_size:
+          type: integer
+          title: File Size
+        checksum:
+          type: string
+          title: Checksum
+        id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Id
+      type: object
+      required:
+        - file_name
+        - harness_config_id
+        - file_type
+        - file_size
+        - checksum
+      title: FileUploadRequest
+    FileUploadResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        file_name:
+          type: string
+          title: File Name
+        harness_config_id:
+          type: string
+          title: Harness Config Id
+        created_by:
+          type: string
+          title: Created By
+        created_at:
+          type: integer
+          title: Created At
+        file_type:
+          type: string
+          title: File Type
+        file_size:
+          type: integer
+          title: File Size
+        upload_url:
+          type: string
+          title: Upload Url
+        upload_expiration:
+          type: integer
+          title: Upload Expiration
+        provider:
+          type: string
+          title: Provider
+        checksum:
+          type: string
+          title: Checksum
+        method:
+          type: string
+          title: Method
+          default: PUT
+      type: object
+      required:
+        - id
+        - file_name
+        - harness_config_id
+        - created_by
+        - created_at
+        - file_type
+        - file_size
+        - upload_url
+        - upload_expiration
+        - provider
+        - checksum
+      title: FileUploadResponse
+    GCPHubConfig:
+      properties:
+        region:
+          type: string
+          title: Region
+        project_id:
+          type: string
+          title: Project Id
+        client_id:
+          type: string
+          title: Client Id
+        client_secret:
+          type: string
+          title: Client Secret
+        refresh_token:
+          type: string
+          title: Refresh Token
+      type: object
+      required:
+        - region
+        - project_id
+        - client_id
+        - client_secret
+        - refresh_token
+      title: GCPHubConfig
+    GetResponseErrorsResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ErrorSummary'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: GetResponseErrorsResponse
+    GetResponsesResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/Response'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        current_page:
+          type: integer
+          title: Current Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+        - results
+        - count
+        - current_page
+        - page_size
+      title: GetResponsesResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HarnessConfig:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        harness_type:
+          type: string
+          title: Harness Type
+        is_leaf:
+          type: boolean
+          title: Is Leaf
+        scoring_function:
+          type: string
+          title: Scoring Function
+        description:
+          type: string
+          title: Description
+        harness_config_ids:
+          items:
+            type: string
+          type: array
+          title: Harness Config Ids
+        scenario_config_ids:
+          items:
+            type: string
+          type: array
+          title: Scenario Config Ids
+        version:
+          type: string
+          title: Version
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+      type: object
+      required:
+        - id
+        - name
+        - harness_type
+        - is_leaf
+        - scoring_function
+        - description
+        - harness_config_ids
+        - scenario_config_ids
+        - version
+      title: HarnessConfig
+    HarnessConfigCreationParameters:
+      properties:
+        kwargs:
+          type: object
+          title: Kwargs
+      type: object
+      title: HarnessConfigCreationParameters
+    HarnessConfigVersionsResponse:
+      properties:
+        results:
+          items:
+            type: string
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: HarnessConfigVersionsResponse
+    HarnessConfigsResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/HarnessConfig'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: HarnessConfigsResponse
+    HarnessCreationResponse:
+      properties:
+        harness_id:
+          type: string
+          title: Harness Id
+        prompt_ids:
+          items:
+            type: string
+          type: array
+          title: Prompt Ids
+      type: object
+      required:
+        - harness_id
+        - prompt_ids
+      title: HarnessCreationResponse
+    HarnessResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+        config_id:
+          type: string
+          title: Config Id
+        harness_type:
+          type: string
+          title: Harness Type
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        version:
+          type: string
+          title: Version
+        harness_ids:
+          items:
+            type: string
+          type: array
+          title: Harness Ids
+        scenario_ids:
+          items:
+            type: string
+          type: array
+          title: Scenario Ids
+        harness_config_ids:
+          items:
+            type: string
+          type: array
+          title: Harness Config Ids
+        scenario_config_ids:
+          items:
+            type: string
+          type: array
+          title: Scenario Config Ids
+        score:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Score
+        is_leaf:
+          type: boolean
+          title: Is Leaf
+        team_id:
+          type: string
+          title: Team Id
+        completion_tokens:
+          type: integer
+          title: Completion Tokens
+          default: 0
+        prompt_tokens:
+          type: integer
+          title: Prompt Tokens
+          default: 0
+        total_tokens:
+          type: integer
+          title: Total Tokens
+          default: 0
+      type: object
+      required:
+        - id
+        - evaluation_id
+        - config_id
+        - harness_type
+        - name
+        - description
+        - version
+        - harness_ids
+        - scenario_ids
+        - harness_config_ids
+        - scenario_config_ids
+        - score
+        - is_leaf
+        - team_id
+      title: HarnessResponse
+    HarnessResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/HarnessResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: HarnessResponses
+    HubConfigResponse:
+      properties:
+        region:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Region
+        project_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Project Id
+        client_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Client Id
+        display_client_secret:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Display Client Secret
+        display_access_key:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Display Access Key
+        display_secret_access_key:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Display Secret Access Key
+        agent_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Id
+        display_agent_key:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Display Agent Key
+      type: object
+      title: HubConfigResponse
+    HubResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          enum:
+            - openai
+            - octo
+            - together
+            - mistral
+            - fireworks
+            - nvidia
+            - vertex
+            - bedrock
+            - bedrock_custom
+            - digitalocean
+            - azure
+            - custom
+          title: Name
+        display_name:
+          type: string
+          title: Display Name
+        models:
+          items:
+            type: string
+          type: array
+          title: Models
+        rate_limit_per_interval:
+          type: integer
+          title: Rate Limit Per Interval
+          default: 0
+        rate_limit_interval:
+          type: integer
+          title: Rate Limit Interval
+          default: 60
+      type: object
+      required:
+        - id
+        - name
+        - display_name
+        - models
+      title: HubResponse
+    InviteResponse:
+      properties:
+        invite_id:
+          type: string
+          title: Invite Id
+        team_id:
+          type: string
+          title: Team Id
+        team_role:
+          type: string
+          title: Team Role
+        user_id:
+          type: string
+          title: User Id
+        email:
+          type: string
+          title: Email
+        status:
+          type: string
+          title: Status
+        created_at:
+          type: integer
+          title: Created At
+        created_by:
+          type: string
+          title: Created By
+        updated_at:
+          type: integer
+          title: Updated At
+        updated_by:
+          type: string
+          title: Updated By
+      type: object
+      required:
+        - invite_id
+        - team_id
+        - team_role
+        - user_id
+        - email
+        - status
+        - created_at
+        - created_by
+        - updated_at
+        - updated_by
+      title: InviteResponse
+    InviteResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/InviteResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: InviteResponses
+    LeaderboardEntry:
+      properties:
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        score:
+          type: number
+          title: Score
+        hallucination:
+          type: number
+          title: Hallucination
+        robustness:
+          type: number
+          title: Robustness
+        toxicity:
+          type: number
+          title: Toxicity
+        fairness:
+          type: number
+          title: Fairness
+        ethics:
+          type: number
+          title: Ethics
+        security:
+          type: number
+          title: Security
+        privacy:
+          type: number
+          title: Privacy
+        stereotypes:
+          type: number
+          title: Stereotypes
+        performance:
+          type: number
+          title: Performance
+      type: object
+      required:
+        - hub
+        - model
+        - score
+        - hallucination
+        - robustness
+        - toxicity
+        - fairness
+        - ethics
+        - security
+        - privacy
+        - stereotypes
+        - performance
+      title: LeaderboardEntry
+    ProbeResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        config_id:
+          type: string
+          title: Config Id
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        goals:
+          items:
+            type: string
+          type: array
+          title: Goals
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        prompt_ids:
+          items:
+            type: string
+          type: array
+          title: Prompt Ids
+        prompt_config_ids:
+          items:
+            type: string
+          type: array
+          title: Prompt Config Ids
+        detector_ids:
+          type: string
+          title: Detector Ids
+        uri:
+          type: string
+          title: Uri
+        probe:
+          type: string
+          title: Probe
+        score:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Score
+        expected_response_count:
+          type: integer
+          title: Expected Response Count
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+        completion_tokens:
+          type: integer
+          title: Completion Tokens
+          default: 0
+        prompt_tokens:
+          type: integer
+          title: Prompt Tokens
+          default: 0
+        total_tokens:
+          type: integer
+          title: Total Tokens
+          default: 0
+      type: object
+      required:
+        - id
+        - config_id
+        - evaluation_id
+        - name
+        - description
+        - goals
+        - tags
+        - prompt_ids
+        - prompt_config_ids
+        - detector_ids
+        - uri
+        - probe
+        - score
+        - expected_response_count
+      title: ProbeResponse
+    ProbeResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ProbeResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: ProbeResponses
+    Prompt:
+      properties:
+        id:
+          type: string
+          title: Id
+        config_id:
+          type: string
+          title: Config Id
+        text:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Text
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        description:
+          type: string
+          title: Description
+          default: ""
+        is_runtime:
+          type: boolean
+          title: Is Runtime
+          default: false
+        created_at:
+          type: integer
+          title: Created At
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+      type: object
+      required:
+        - id
+        - config_id
+        - text
+        - tags
+      title: Prompt
+    Response:
+      properties:
+        id:
+          type: string
+          title: Id
+        test_id:
+          type: string
+          title: Test Id
+          default: ""
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+          default: ""
+        input_prompt_id:
+          type: string
+          title: Input Prompt Id
+          default: ""
+        triggers:
+          items: {}
+          type: array
+          title: Triggers
+        prompt_group:
+          items: {}
+          type: array
+          title: Prompt Group
+        input_prompt:
+          type: string
+          title: Input Prompt
+          default: ""
+        prompt_index:
+          type: integer
+          title: Prompt Index
+          default: 0
+        probe_id:
+          type: string
+          title: Probe Id
+          default: ""
+        probe_config_id:
+          type: string
+          title: Probe Config Id
+          default: ""
+        response:
+          type: string
+          title: Response
+          default: ""
+        generation:
+          type: integer
+          title: Generation
+          default: 1
+        status:
+          type: string
+          enum:
+            - CREATED
+            - GENERATED
+            - COMPLETED
+            - ERROR
+            - CANCELED
+            - SKIP
+          title: Status
+          default: CREATED
+        error_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Error Message
+        detector_ids:
+          type: string
+          title: Detector Ids
+          default: ""
+        detector_scores:
+          items:
+            type: object
+          type: array
+          title: Detector Scores
+        score:
+          type: object
+          title: Score
+        created_at:
+          type: integer
+          title: Created At
+        completed_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completed At
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+        prompt:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Prompt
+        is_visible:
+          type: boolean
+          title: Is Visible
+          default: true
+      type: object
+      title: Response
+    ResultsFeedbackResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        response_id:
+          type: string
+          title: Response Id
+        detector_id:
+          type: string
+          title: Detector Id
+        created_by:
+          type: string
+          title: Created By
+        value:
+          type: number
+          title: Value
+        created_at:
+          type: integer
+          title: Created At
+        evaluation_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Evaluation Id
+        prompt_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt Id
+        team_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Id
+        message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Message
+      type: object
+      required:
+        - id
+        - response_id
+        - detector_id
+        - created_by
+        - value
+        - created_at
+      title: ResultsFeedbackResponse
+    ScenarioResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        config_id:
+          type: string
+          title: Config Id
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        version:
+          type: string
+          title: Version
+        probe_ids:
+          items:
+            type: string
+          type: array
+          title: Probe Ids
+        probe_config_ids:
+          items:
+            type: string
+          type: array
+          title: Probe Config Ids
+        score:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Score
+        team_id:
+          type: string
+          title: Team Id
+        completion_tokens:
+          type: integer
+          title: Completion Tokens
+          default: 0
+        prompt_tokens:
+          type: integer
+          title: Prompt Tokens
+          default: 0
+        total_tokens:
+          type: integer
+          title: Total Tokens
+          default: 0
+      type: object
+      required:
+        - id
+        - config_id
+        - evaluation_id
+        - name
+        - description
+        - version
+        - probe_ids
+        - probe_config_ids
+        - score
+        - team_id
+      title: ScenarioResponse
+    ScenarioResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ScenarioResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: ScenarioResponses
+    SetUserRoleRequest:
+      properties:
+        team_role:
+          type: string
+          enum:
+            - admin
+            - user
+          title: Team Role
+        team_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Id
+      type: object
+      required:
+        - team_role
+      title: SetUserRoleRequest
+    TeamResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        is_single_user:
+          type: boolean
+          title: Is Single User
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+      type: object
+      required:
+        - id
+        - name
+        - is_single_user
+      title: TeamResponse
+    TestResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/VijilTest'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        current_page:
+          type: integer
+          title: Current Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+        - results
+        - count
+        - current_page
+        - page_size
+      title: TestResponses
+    UpdateApiKeyRequest:
+      properties:
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        rate_limit_per_interval:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Rate Limit Per Interval
+        rate_limit_interval:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Rate Limit Interval
+        value:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Value
+        hub_config:
+          anyOf:
+            - {}
+            - type: "null"
+          title: Hub Config
+      type: object
+      title: UpdateApiKeyRequest
+    UpdateEvaluationRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+        - name
+      title: UpdateEvaluationRequest
+    UpdateFeedbackRequest:
+      properties:
+        value:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Value
+        message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Message
+      type: object
+      title: UpdateFeedbackRequest
+    UpdateTeamRequest:
+      properties:
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+      type: object
+      title: UpdateTeamRequest
+    UserResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        email:
+          type: string
+          title: Email
+        family_name:
+          type: string
+          title: Family Name
+        given_name:
+          type: string
+          title: Given Name
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+          title: Status
+        profile_image:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Profile Image
+        created_at:
+          type: integer
+          title: Created At
+        updated_at:
+          type: integer
+          title: Updated At
+        team_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Id
+        team_role:
+          anyOf:
+            - type: string
+              enum:
+                - admin
+                - user
+            - type: "null"
+          title: Team Role
+      type: object
+      required:
+        - user_id
+        - email
+        - family_name
+        - given_name
+        - status
+        - profile_image
+        - created_at
+        - updated_at
+      title: UserResponse
+    UsersResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/UserResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: UsersResponse
+    UsersResponseWithPaging:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/UserResponse'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        current_page:
+          type: integer
+          title: Current Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+        - results
+        - count
+        - current_page
+        - page_size
+      title: UsersResponseWithPaging
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+    VijilTest:
+      properties:
+        id:
+          type: string
+          title: Id
+        evaluation_id:
+          type: string
+          title: Evaluation Id
+          default: ""
+        input_prompt_id:
+          type: string
+          title: Input Prompt Id
+        input_prompt:
+          type: string
+          title: Input Prompt
+          default: ""
+        prompt_index:
+          type: integer
+          title: Prompt Index
+          default: 0
+        probe_id:
+          type: string
+          title: Probe Id
+          default: ""
+        probe_config_id:
+          type: string
+          title: Probe Config Id
+          default: ""
+        api_key_hash:
+          type: string
+          title: Api Key Hash
+          default: ""
+        model:
+          type: string
+          title: Model
+          default: ""
+        hub:
+          type: string
+          title: Hub
+          default: ""
+        url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Url
+        remaining_retries:
+          type: integer
+          title: Remaining Retries
+          default: 1
+        response:
+          type: string
+          title: Response
+          default: ""
+        generation:
+          type: integer
+          title: Generation
+          default: 1
+        status:
+          type: string
+          title: Status
+          default: CREATED
+        detector_ids:
+          type: string
+          title: Detector Ids
+          default: ""
+        error_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Error Message
+        created_at:
+          type: integer
+          title: Created At
+        started_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Started At
+        completed_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completed At
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+        parent_test_id:
+          type: string
+          title: Parent Test Id
+          default: ""
+        child_test_ids:
+          items:
+            type: string
+          type: array
+          title: Child Test Ids
+        is_final_test:
+          type: boolean
+          title: Is Final Test
+          default: false
+      type: object
+      title: VijilTest
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer

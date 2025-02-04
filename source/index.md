@@ -36,6 +36,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
    python-sdk/examples/index
    integrations/index
    glossary/index
+   api
 ```
 
 ```{eval-rst}
