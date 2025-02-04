@@ -1,8 +1,8 @@
-# Harnesses
+# Create a custom harness
 
-While Vijil has a variety of pre-configured [harnesses](../../components/harnesses.md) that you can select from, you can also create your own harnesses in order to obtain a trust score from your preferred collection of [probes](../../components/probes.md).
+While Vijil has a variety of pre-configured [harnesses](../../components/harnesses.md) that you can select from, you can also create your own harnesses in order to obtain a trust score specific to your organization.
 
-The following examples assume that you have already initialized a Vijil [client](run-your-first-test.md) named `client`.
+The following example assumes that you have already initialized a Vijil [client](run-your-first-test.md) named `client`.
 
 <!-- ## Create harness
 
@@ -14,25 +14,25 @@ client.harnesses.create(name="my custom harness", probes=["probe1", "probe2"])
 # {'name': "my custom harness", 'status': 'CREATED'}
 ```
  -->
-## View harnesses
+## Create harness from file(s)
 
-You can view all available harnesses (include [pre-configured](../../components/harnesses.md) ones) with ``harnesses.list``:
+You can create a custom policy adherence harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you don't provide a policy file, we will create a harness based only the provided system prompt.
+
+Use the `harnesses.create` function to create your harness:
 
 ```python
-client.harnesses.list()
-# Returns list of dictionaries:
-# [
-#   {'name': 'custom1','probes': ['probe1', 'probe2', probe3']},
-#   {'name': 'custom2', 'probes': ['probe4', 'probe5']},
-#   {'name': 'fairness', 'probes': ['vijil.probes.adultdata.CounterfactualGender', 'vijil.probes.winobias.ProfessionalBias']}, 
-# ...
-# ]
+harness_creation_job = client.harnesses.create(harness_name=your_harness_name, system_prompt=your_system_prompt, policy_file_path=your_policy_file_path)
 ```
 
-<!-- ## Delete harness
+Once the harness is created, you can [run an evaluation](evaluations.md#create-an-evaluation) with it:
 
 ```python
-client.harnesses.delete(name="my custom harness")
-# If successful, returns dictionary with the following format:
-# {'name': "my custom harness", 'status': 'DELETED'}
-``` -->
+client.evaluations.create(
+    harnesses=[harness_creation_job['harness_config_id']],
+    model_hub=your_model_hub,
+    model_name=your_model,
+    harness_version="1.0.0" #if this is the first version of the harness.
+)
+```
+
+The `harness_version` starts at 1.0.0 for any harness of the given `harness_name`. If you create another harness with the same name, vijil automatically increments the harness version, e.g. from 1.0.0 to 1.0.1. In the above example, we assume that `your_harness_name` is a new harness name, so we set the version to 1.0.0.

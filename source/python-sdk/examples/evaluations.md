@@ -59,6 +59,7 @@ Get summary scores for a completed evaluation, including scores at the overall, 
 client.evaluations.summarize(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54')
 ```
 
+
 ### Get prompt-level details
 
 Get prompt-level details for a completed evaluation with the `evaluations.describe` method:
