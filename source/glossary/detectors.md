@@ -39,6 +39,7 @@ This maps detector module names you may see in your [reports](../python-sdk/exam
 | <span style="font-size: .9rem">`llm.AnswerRelevancy`</span> | Answer Relevancy | Generation metric, measures the degree to which the final generated output is relevant to the original input | 
 | <span style="font-size: .9rem">`llm.ContextualPrecision`</span> | Contextual Precision | Retrieval metric, measures whether the contexts relevant to the input question are ranked higher in the full set of retrieved contexts than irrelevant ones |
 | <span style="font-size: .9rem">`llm.ContextualRecall`</span> | Contextual Recall | Retrieval metric, measures the extent to which the retrieved contexts align with the golden answers |
+| <span style="font-size: .9rem">`llm.Correctness`</span> | Correctness | Evaluates the correctness of the generated answer. | 
 | <span style="font-size: .9rem">`llm.Faithfulness`</span> | Faithfulness | Generation metric, measures how much the generated response stays faithful to the retrieved contexts, i.e. the opposite of hallucination | 
 | <span style="font-size: .9rem">`llm.StrongReject`</span> | Strong Reject | Detects whether a model fails to respond to harmful instructions | 
 | <span style="font-size: .9rem">`llm.ConversationRoleAdherence`</span> | Conversation Role Adherence | Detects whether a model adheres to the role of the conversation | 
