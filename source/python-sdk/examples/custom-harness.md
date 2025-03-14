@@ -65,6 +65,31 @@ harness_creation_job = client.harnesses.create(
 ## Tool Calling Agent
 To evaluate a tool calling agent, you need to supply input and output schemas for a function that you want to generate test prompts based on, as well as an endpoint to call that function. To specify that you want a tool calling harness, set the `category` parameter to `["FUNCTION_ROUTE"]`.
 
+For example, you are calling a `calculator` function to compute the sum of two numbers `num1` and `num2`, and returns the variable `result`. Thus input and output schema are
+
+```
+input_schema = {
+  "num1": {
+    "type": "number",
+    "required": True,
+    "description": "the first number"
+  },
+  "num2": {
+    "type": "number",
+    "required": True,
+    "description": "the second number"
+  }
+}
+output_schema = {
+  "result": {
+    "type": "number",
+    "description": "The final result"
+  }
+}
+```
+
+In addition, suppose the variable `function_route` stores the URL required to call the function with the two arguments and return the result. Then, the following command creates a harness creation job.
+
 ```python
 harness_creation_job = client.harnesses.create(
     harness_name="Your tool calling harness",
