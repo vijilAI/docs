@@ -6,7 +6,7 @@ The following example assumes that you have already initialized a Vijil [client]
 
 ## Policy Document(s)
 
-You can create a custom policy adherence harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you don't provide a policy file, we will create a harness based only the provided system prompt.
+You can create a custom policy adherence harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you don't provide a policy file, we will create a harness based only on the provided system prompt. To specify that you want a policy adherence harness, you need to specify the `category` argument as `["AGENT_POLICY"]`.
 
 The following examples uses the `harnesses.create` function to create a harness to test adherence against the NIST [AI Risk Management](https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf) framework.
 
@@ -14,7 +14,8 @@ The following examples uses the `harnesses.create` function to create a harness 
 harness_creation_job = client.harnesses.create(
     harness_name="NIST AI RMF harness",
     system_prompt="You are a helpful assistant.", 
-    policy_file_path="nist.ai.100-1.pdf"
+    policy_file_path="nist.ai.100-1.pdf",
+    category=["AGENT_POLICY"]
 )
 # {'harness_name': 'NIST AI RMF harness', 'harness_config_id': '816725ab-c101-4380-b8d4-92fcc367cf6d', 'status': 'CREATED'}
 ```
@@ -50,18 +51,19 @@ client.evaluations.create(
 ```
 
 ## Knowledge Base
-If you are developing a RAG agent and would like to generate a custom test harness to evaluate generation and retrieval capabilities based on a set of document chunks, simply upload the chunks you'd like to base the evaluation on into a GCP storage bucket and use the following command.
+If you are developing a RAG agent and would like to generate a custom test harness to evaluate generation and retrieval capabilities based on a set of document chunks, upload the documents that you'd like to base the evaluation on into a GCP storage bucket and use the following command. To specify that you want a RAG harness, set the `category` parameter to `["KNOWLEDGE_BASE"]`.
 
 ```python
 harness_creation_job = client.harnesses.create(
     harness_name="Your KB harness",
     system_prompt="You are a RAG agent that answers questions based on a knowledge base.", 
-    arg_tbd="your_bucket_name"
+    kb_bucket="your_bucket_name",
+    category=["KNOWLEDGE_BASE"]
 )
 ```
 
 ## Tool Calling Agent
-To evaluate a tool calling agent, you need to supply input and output schemas for a function that you want to generate test prompts based on, as well as an endpoint to call that function.
+To evaluate a tool calling agent, you need to supply input and output schemas for a function that you want to generate test prompts based on, as well as an endpoint to call that function. To specify that you want a tool calling harness, set the `category` parameter to `["FUNCTION_ROUTE"]`.
 
 ```python
 harness_creation_job = client.harnesses.create(
@@ -69,6 +71,11 @@ harness_creation_job = client.harnesses.create(
     system_prompt="You are a calculator agent that calls a function to calculate the sum of two numbers.", 
     input_schema = input_schema,
     output_schema = input_schema,
-    function_route = function_route
+    function_route = function_route,
+    category=["FUNCTION_ROUTE"]
 )
 ```
+
+## Custom Harness with Multple Components
+
+In the above examples we specified only one value in `category`, but you can also create a harness that contains multiple components. For example, you can create a harness that contains a knowledge base component and a tool calling agent component, or any of those components together with a policy adherence component. To do this, specify multiple values in `category`. For example, to create a harness with all three components, use `category=["KNOWLEDGE_BASE", "FUNCTION_ROUTE", "POLICY_ADHERENCE"]`.
