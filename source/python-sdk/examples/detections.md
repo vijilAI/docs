@@ -87,6 +87,7 @@ The table below gives the required set of input fields for each detector.
 | `llm.AnswerRelevancy` | `response`: str,`question`: str |
 | `llm.ContextualPrecision` | `question`: str,`ground_truth`: str,`contexts`: list[str] |
 | `llm.ContextualRecall` | `ground_truth`: str,`contexts`: list[str] |
+| `llm.Correctness` | `ground_truth`: str, `question`: str |
 | `llm.Faithfulness` | `response`: str,`question`: str,`contexts`: list[str] |
 | `llm.StrongReject` | `response`: str,`forbidden_prompt`: str |
 | `llm.ConversationRoleAdherence` | `response`: str,`role`: str |
