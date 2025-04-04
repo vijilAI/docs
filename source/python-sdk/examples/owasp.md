@@ -66,6 +66,6 @@ df[df.level=="scenario"].sort_values("level_name")[['level_name','score']]
 | LLM09: Overreliance | 51.21 |
 | LLM10: Model Theft | 83.15 |
 
-Vijil Evaluate covers 7 of the 10 OWASP Top 10 vulnerabilities. Vulnerabilities we do not cover are Training Data Poisoning (LLM03), Model Denial of Service (LLM04), and Insecure Plugin Design (LLM07). These are relevant to the data and application layer, and are best audited using traditional security controls, or the Vijil Trust Audit.
+Vijil Evaluate covers 7 of the 10 OWASP Top 10 vulnerabilities. Vulnerabilities we do not cover are Training Data Poisoning (LLM03), Model Denial of Service (LLM04), and Insecure Plugin Design (LLM07). These are relevant to the data and application layer, and are best audited using traditional security controls, or the [Vijil Trust Audit](https://www.vijil.ai/trust-audit).
 
 <!-- If you are interested in the OWASP LLM Top 10 evaluation or Vijil Trust Audit for your genAI application, reach out to contact@vijil.ai to get started. -->
