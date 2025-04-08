@@ -32,6 +32,7 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
+          pip install .
           python vijil_objects/scripts/docs.py
           cd ..
 
