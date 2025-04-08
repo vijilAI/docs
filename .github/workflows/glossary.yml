@@ -27,14 +27,17 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
     
       - name: Pull and run script from vijil_objects
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git clone https://github.com/vijilAI/vijil_objects.git
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
           python vijil_objects/docs.py
           cd ..
 
       - name: Copy generated files to home repo
         run: |
+          mkdir -p source/glossary
           cp vijil_objects/docs/*.md source/glossary
 
       - name: Configure Git
