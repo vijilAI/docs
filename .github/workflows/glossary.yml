@@ -28,9 +28,9 @@ jobs:
     
       - name: Pull and run script from vijil_objects
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT_OBJECTS: ${{ secrets.GH_PAT_OBJECTS }}
         run: |
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vijilAI/vijil_objects.git
+          git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
           python vijil_objects/docs.py
           cd ..
