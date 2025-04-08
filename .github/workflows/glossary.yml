@@ -25,8 +25,17 @@ jobs:
       - name: Install poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-    
-      - name: install vijil-core from github
+
+      # Cache Python dependencies
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install vijil-core from GitHub
         env:
           GH_PAT_OBJECTS: ${{ secrets.GH_PAT_CORE }}
         run: |
@@ -42,6 +51,7 @@ jobs:
           git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
           pip install .
+          poetry install
           poetry run python vijil_objects/scripts/docs.py
           cd ..
 
