@@ -26,6 +26,15 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
     
+      - name: install vijil-core from github
+        env:
+          GH_PAT_OBJECTS: ${{ secrets.GH_PAT_CORE }}
+        run: |
+          git clone https://x-access-token:${{ secrets.GH_PAT_CORE }}@github.com/vijilAI/vijil-core.git
+          cd vijil-core
+          pip install .
+          cd ..
+
       - name: Pull and run script from vijil_objects
         env:
           GH_PAT_OBJECTS: ${{ secrets.GH_PAT_OBJECTS }}
@@ -33,7 +42,7 @@ jobs:
           git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
           pip install .
-          python vijil_objects/scripts/docs.py
+          poetry run python vijil_objects/scripts/docs.py
           cd ..
 
       - name: Copy generated files to home repo
