@@ -37,9 +37,9 @@ jobs:
       - name: Setup gcloud
         uses: 'google-github-actions/setup-gcloud@v1'
   
-      - name: Configure Poetry
-        run: |
-          poetry config http-basic.gcp-dev oauth2accesstoken "$(gcloud auth print-access-token)"
+      # - name: Configure Poetry
+      #   run: |
+      #     poetry config http-basic.gcp-dev oauth2accesstoken "$(gcloud auth print-access-token)"
 
       - name: Cache Python dependencies
         uses: actions/cache@v3
@@ -67,12 +67,16 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
+          poetry config http-basic.gcp-dev oauth2accesstoken "$(gcloud auth print-access-token)"
           poetry install --no-interaction --no-ansi --no-root
+          
+      - name: Run script to generate glossary files
+        run: |
           poetry run python vijil_objects/scripts/docs.py
-          cd ..
 
       - name: Copy generated files to home repo
         run: |
+          cd ..
           mkdir -p source/glossary
           cp vijil_objects/docs/*.md source/glossary
 
