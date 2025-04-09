@@ -68,7 +68,7 @@ jobs:
           git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
           poetry config http-basic.gcp-dev oauth2accesstoken "$(gcloud auth print-access-token)"
-          poetry install --no-interaction --no-ansi --no-root
+          poetry install --no-interaction --no-ansi
           
       - name: Run script to generate glossary files
         run: |
