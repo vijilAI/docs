@@ -22,9 +22,24 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install poetry
+      - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure GCP credentials
+        id: auth
+        uses: 'google-github-actions/auth@v1'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER_NAME }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      
+      - name: Setup gcloud
+        uses: 'google-github-actions/setup-gcloud@v1'
+  
+      - name: Configure Poetry
+        run: |
+          poetry config http-basic.gcp-dev oauth2accesstoken "$(gcloud auth print-access-token)"
 
       - name: Cache Python dependencies
         uses: actions/cache@v3
@@ -32,18 +47,19 @@ jobs:
           path: |
             ~/.cache/pip
             ~/.cache/pypoetry
+            ~/.virtualenvs
           key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt', '**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-python-
 
-      - name: Install vijil-core from GitHub
-        env:
-          GH_PAT_OBJECTS: ${{ secrets.GH_PAT_CORE }}
-        run: |
-          git clone https://x-access-token:${{ secrets.GH_PAT_CORE }}@github.com/vijilAI/vijil-core.git
-          cd vijil-core
-          pip install --no-cache-dir --upgrade --exists-action=i .
-          cd ..
+    #   - name: Install vijil-core from GitHub
+    #     env:
+    #       GH_PAT_OBJECTS: ${{ secrets.GH_PAT_CORE }}
+    #     run: |
+    #       git clone https://x-access-token:${{ secrets.GH_PAT_CORE }}@github.com/vijilAI/vijil-core.git
+    #       cd vijil-core
+    #       pip install --no-cache-dir --upgrade --exists-action=i .
+    #       cd ..
 
       - name: Pull and run script from vijil_objects
         env:
@@ -51,8 +67,7 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.GH_PAT_OBJECTS }}@github.com/vijilAI/vijil_objects.git
           cd vijil_objects
-          pip install --no-cache-dir --upgrade --exists-action=i .
-          poetry install --no-root
+          poetry install --no-interaction --no-ansi --no-root
           poetry run python vijil_objects/scripts/docs.py
           cd ..
 
