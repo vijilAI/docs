@@ -14,7 +14,7 @@ the model hub and model name.
 | NVIDIA NIM | `nvidia` | [List of Models](https://docs.api.nvidia.com/nim/reference/llm-apis) |
 
 
-We also support a number of cloud services, give you the flexibility of evaluating agents accessible through custom endpoints.
+We also support a number of cloud services, giving you the flexibility of evaluating agents accessible through custom endpoints.
 
 ```{eval-rst}
 .. toctree::
@@ -24,4 +24,5 @@ We also support a number of cloud services, give you the flexibility of evaluati
    digitalocean
    bedrock
    custom
+   local
 ```
