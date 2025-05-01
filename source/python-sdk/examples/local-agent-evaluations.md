@@ -20,15 +20,24 @@ IMPORTANT: Due to how Jupyter handles event loops, we do NOT recommend running t
 
 ## Step 1 - Create a Local Agent Executor
 
-In order to make your agent compatible with Vijil's APIs, you need to create an input_adapter and an output_adapter.Like the names imply, the input_adapter transfroms a ChatCompletionRequest from Vijil, into an input that your agent expects, while the output_adapter converts your agent's output into a response that Vijil expects. 
+In order to make your agent compatible with Vijil's APIs, you need to create an input_adapter and an output_adapter. Like the names imply, the input_adapter transforms a ChatCompletionRequest from Vijil, into an input that your agent expects, while the output_adapter converts your agent's output into a response that Vijil expects. 
 
 ```python
+from vijil.agents.models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatMessage,
+)
+
+# The expected output signature of this function depends on what your Agent needs
 def example_input_adapter(request: ChatCompletionRequest):
     # Extract whatever data you need from the request
     # Here we just take the last message content as the prompt
     return request.messages[-1]["content"]
 
-def example_output_adapter(agent_output: str):
+# The expected input signature of this function depends on your agent's output
+def example_output_adapter(agent_output: str) -> ChatCompletionResponse:
     # First create a message object
     # You can populate tool call and retrieval context if needed
     agent_response_message = ChatMessage(
