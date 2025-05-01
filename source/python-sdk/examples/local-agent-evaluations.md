@@ -122,7 +122,11 @@ vijil.agents.deregister(server, api_key_name)
 ```
 
 
-## Example - Langchain 
+## Examples
+
+Here are some examples of how you can use this feature to evaluate agents built using some popular frameworks
+
+### Langchain 
 
 The code snippet below showcases how you can evaluate an agent built using Langchain
 
@@ -220,7 +224,7 @@ if __name__ == "__main__":
     )
 ```
 
-## Example - Google Agent Development Kit (ADK)
+### Google Agent Development Kit (ADK)
 
 [Google ADK](https://google.github.io/adk-docs/#what-is-agent-development-kit) is a popular and flexible new framework to develop agents. Evaluating agents built using ADK is very straightforward and uses the same steps as before. 
 

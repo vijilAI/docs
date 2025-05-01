@@ -10,10 +10,10 @@ What does an evaluation report look like? You can check out our auto-generated r
 
 To generate an evaluation report for a completed evaluation, you can use the following code snippet
 ```python
-report = client.evaluations.analysis_report(evaluation_id)
+report = client.evaluations.report(evaluation_id)
 report.generate(
-    save_file="my-evaluation-report.html",
-    wait_till_completion=True
+    save_file="my-evaluation-report.html", # Optional
+    wait_till_completion=True # Optional. Defaults to True
 )
 ```
 
