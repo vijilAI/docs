@@ -14,6 +14,10 @@ To get started, make sure you have the following
 Note: We use Ngrok to create private, protected endpoints to your agent. If you're on a Free plan, you'll need to get an Ngrok authorization token. If you're subscribed to the premium version of Vijil, you don't need to worry about this - we take care of it for you.
 ````
 
+````{important}
+IMPORTANT: Due to how Jupyter handles event loops, we do NOT recommend running this code in a Jupyter notebook. Please run it in a regular Python .py script
+````
+
 ## Step 1 - Create a Local Agent Executor
 
 In order to make your agent compatible with Vijil's APIs, you need to create an input_adapter and an output_adapter.Like the names imply, the input_adapter transfroms a ChatCompletionRequest from Vijil, into an input that your agent expects, while the output_adapter converts your agent's output into a response that Vijil expects. 
