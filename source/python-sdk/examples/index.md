@@ -13,4 +13,6 @@ The following examples demonstrate core functionalities in the `vijil` Python cl
    RAG metrics <rag>
    detections
    custom-harness
+   local-agent-evaluations
+   reports
 ```
