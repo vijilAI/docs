@@ -23,4 +23,4 @@ This will generate a report as shown above saved to `my-evaluation-report.html`.
 
 Optionally, you can choose not to wait for completion by setting `wait_till_completion=False`. This will initiate the creation process if no report exists, provide a status update if the creation process is ongoing, or save the report if it is completed. 
 
-Our evaluation reports are interactive. In order to preserve formatting and interactivity, we currently only support exporting reports as HTMLs through the client. PDF support will be enabled soon. 
+We currently support report generation in HTML (with interactive plots and charts) and PDF.
