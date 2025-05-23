@@ -10,6 +10,9 @@ furo = "*"
 sphinx-inline-tabs = "*"
 sphinx_copybutton = "*"
 sphinxcontrib-openapi = "*"
+h11 = ">=0.16.0" # fix CVE-2025-43859
+tornado = ">=6.5" # fix CVE-2025-47287
+starlette = ">=0.40.0" # fix CVE-2024-47874
 
 [dev-packages]
 ipykernel = "*"
