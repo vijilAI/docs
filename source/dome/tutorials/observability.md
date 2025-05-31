@@ -23,7 +23,7 @@ In the trace, you will see all calls to Dome's `guard_input` and `guard_output` 
 
 ## OpenTelemetry-Compliant Platforms
 
-Dome offers out-of-the-box support for all [OpenTelemetry](https://opentelemetry.io/) compliant observability platforms such as [Uptrace](https://uptrace.dev/), [Jaeger](https://www.jaegertracing.io/), [Signoz](https://signoz.io/) etc. If your application is already using Opentelemetry instrumentation, you can pass your existing `Tracer`, `Meter` and `Handler` objects to Dome. 
+Dome offers out-of-the-box support for all [OpenTelemetry](https://opentelemetry.io/) compliant observability platforms such as [Uptrace](https://uptrace.dev/), [Jaeger](https://www.jaegertracing.io/), [Signoz](https://signoz.io/), [Dash0](https://www.dash0.com) etc. If your application is already using Opentelemetry instrumentation, you can pass your existing `Tracer`, `Meter` and `Handler` objects to Dome. 
 
 ```
 # Add in your Open Telemetry objects
