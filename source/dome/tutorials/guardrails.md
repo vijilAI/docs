@@ -8,13 +8,13 @@ To begin with, let's set up and initialize a `Dome` object in your Python enviro
 This may install models and perform some initial setup the first time it is invoked.
 
 ```python
-from vijil_dome import Dome, get_default_config
+from vijil_dome import Dome
 
 # This is only needed in notebooks to support nested asyncio interactions. You don't need it in a regular script
 import nest_asyncio
 nest_asyncio.apply()
 
-my_dome = Dome(get_default_config())
+my_dome = Dome()
 ```
 
 Note that we load a default config shipped with the Dome library to initialize the `Dome` class. Later in this example
