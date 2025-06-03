@@ -1,14 +1,18 @@
 # Configuring Guardrails
 
-Dome offers a flexible system to secure your applications through configurable guardrails. Here's how to understand and set them up:
+Dome offers a flexible system to secure your applications through configurable guardrails. This allows Dome to be customized to fit your requirements and policies. By default, Dome is equipped with a default configuration that is fast, and accurate, and covers security, 
+
+## Create configurations for Dome
+
+Here's a step-by-step guide that outlines how to setup a config for Dome. 
 
 ### Step 1: Choose and Configure Guardrails
 
-Dome provides [the following types](overview.md#guardrails) of guardrails:
+Dome provides [the following types](overview.md##guardrails) of guardrails:
 1. Input Guardrails
 2. Output Guardrails
-2. Retrieval Guardrails (coming soon)
-3. Execution Guardrails (coming soon)
+3. Retrieval Guardrails (coming soon)
+4. Execution Guardrails (coming soon)
 
 The type of guardrail simply indicates where it is supposed to run in an application flow. 
 
@@ -26,6 +30,7 @@ Each guard must be one of the following types:
 2. Moderation
 3. Privacy
 4. Integrity
+5. Generic
 
 To configure a guard:
 - specify the type of guard
@@ -65,8 +70,8 @@ example_config = {
                 "early-exit": False,    # This guard does not terminate early
                 "run-parallel": True,   # This guard runs its detection methods in parallel
 
-                # We specify the detection methods we want to use - "prompt-injection-deberta-v3-base" and "security-llm", both of which are security methods
-                "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
+                # We specify the detection methods we want to use - "prompt-injection-mbert" and "security-llm", both of which are security methods
+                "methods" : ["prompt-injection-mbert", "security-llm"],
 
                 # Here, we are configuring detector-specific settings. 
                 # We are using GPT 4 as the LLM in the security-llm detector instead of the default GPT-4 Turbo
@@ -114,7 +119,7 @@ input-early-exit = false
 [prompt-injection] 
 type="security"
 early-exit = false
-methods = ["prompt-injection-deberta-v3-base", "security-llm"]
+methods = ["prompt-injection-mbert", "security-llm"]
 
 [prompt-injection.security-llm]
 model_name = "gpt-4o"
@@ -128,6 +133,7 @@ type="moderation"
 methods = ["moderation-llamaguard"]
 ````
 
+The corresponding dictionary for this config would be:
 ````python
 {
     "input-guards": ["prompt-injection", "input-toxicity"],
@@ -136,7 +142,7 @@ methods = ["moderation-llamaguard"]
     "prompt-injection": {
         "type": "security",
         "early-exit": False,
-        "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
+        "methods" : ["prompt-injection-mbert", "security-llm"],
         "security-llm": {
             "model_name": "gpt-4o"
         }
@@ -158,7 +164,7 @@ To create a TOML configuration for Dome, ensure that you have a field named ```g
 When specifying booleans in the TOML, please ensure to use **lowercase** values (i.e, 'true' and 'false').
 ````
 
-### Overall Config Structure
+## Overall Config Structure
 
 
 The ```guardrail``` field describes the high level structure of a Dome configuration.

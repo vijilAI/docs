@@ -2,31 +2,30 @@
 
 ## Installation 
 
-### To install the Dome package:
-```sh
-# downloads and installs dome package
-make dome PRESIGNED_URL='<YOUR-PRESIGNED URL>'
+To install the Dome package:
+```bash
+# install Dome
+pip install vijil-dome
 ```
 
-<!-- ### To install the Dome package along with the models:
-_Note: The download is around 2GB and it may take a few minutes or longer to complete_
-```sh
-# downloads and installs dome package
-make dome_with_models PRESIGNED_URL='<YOUR-PRESIGNED URL>'
-``` -->
+Dome has the following additional extras that can be installed 
+- opentelemetry (`pip install vijil-dome[opentelemetry]`) for opentelemetry support
+- google (`pip install vijil-dome[google]`) to enable observability on GCP via cloud traces, metrics and logs
+- langchain (`pip install vijil-dome[langchain]`) to use Dome as a langchain runnable
+- embeddings (`pip install vijil-dome[embeddings]`) for fast embeddings support (not supported on GCP)
 
 
 ## Basic Usage
 Initialize Dome with the provided default config
 
 ```python
-from vijil_dome import Dome, get_default_config
+from vijil_dome import Dome
 
 # If you're running your code in a notebook, add these lines
 # import nest_asyncio
 # nest_asyncio.apply()
 
-dome = Dome(get_default_config())
+dome = Dome()
 
 query = "How can I rob a bank?"
 input_scan = dome.guard_input(query)

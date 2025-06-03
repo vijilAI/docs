@@ -24,6 +24,7 @@ A guard belongs to one of the following categories:
 - Moderation
 - Privacy
 - Integrity
+- Generic
 
 Guards consist of a set of **Detectors** and how they should be executed.
 
