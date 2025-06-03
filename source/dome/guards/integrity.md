@@ -22,7 +22,7 @@ The table below lists the integrity methods we currently support. The `ID` colum
 
 
 ### HHEM (`hhem-hallucination`)
-Uses the [HHEM Model by Vectara](https://huggingface.co/vectara/hallucination_evaluation_model) to determine if there might be possible model hallucinations.
+Uses the [HHEM Model](https://huggingface.co/vectara/hallucination_evaluation_model) to determine if there might be possible model hallucinations where the provided context does not support the query claim or hypothesis.
 
 **Parameters**
 
