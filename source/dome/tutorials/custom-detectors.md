@@ -1,6 +1,6 @@
-# Creating your own guardrails
+# Creating your own Detectors
 
-Dome makes it easy to create and define your own guardrails to execute custom logic to protect your agents. To create a guardrail, you need to register it to a category with a name. The example below showcases how to make a custom detector that checks to see if the input string is within a minimum and maximum length. 
+Dome makes it easy to create and define your own detection methods to use in guardrails that can execute custom logic to protect your agents. To create a custom detector, you need to register it to a category with a name. The example below showcases how to make a custom detector that checks to see if the input string is within a minimum and maximum length. 
 
 ```python
 from vijil_dome.detectors import (

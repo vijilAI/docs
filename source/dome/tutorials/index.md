@@ -10,6 +10,6 @@ The following tutorials showcase how to use Vijil Dome.
    domed-clients
    Langchain Integration <langchain>
    Google ADK Integration <adk>
-   Custom Guardrails <custom-guardrails>
+   Custom Detectors <custom-detectors>
    Observability <observability>
 ```
