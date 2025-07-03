@@ -55,7 +55,7 @@ custom_dome_config = {
     "prompt-injection": {
         "type": "security", # ensure that the type of guard you create matches the one used to define your custom detector
         "early-exit": False,
-        "methods" : ["prompt-injection-mbert", "custom-length-detector"],
+        "methods" : ["custom-length-detector"], # Include your custom detector, and optionally any other detectors you'd like to use
     }
 }
 
