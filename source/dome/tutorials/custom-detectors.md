@@ -42,4 +42,22 @@ class CustomLengthDetector(DetectionMethod):
 
 You can now use `custom-length-detector` in your Dome configuration. 
 
+```python
+from vijil_dome import Dome
+# Import the detectors from wherever you've defined them
+from new_detectors import CustomLengthDetector
+
+# You can now include the custom detector into your config however you'd like
+custom_dome_config = {
+    "input-guards": ["prompt-injection"],
+    "output-guards": [],
+    "input-early-exit": False,
+    "prompt-injection": {
+        "type": "security", # ensure that the type of guard you create matches the one used to define your custom detector
+        "early-exit": False,
+        "methods" : ["prompt-injection-mbert", "custom-length-detector"],
+    }
+}
+
+```
 > ⚠️ Make sure you define your custom detection logic before you instantiate your configuration. Alternatively, you can define it in another file and import the class before loading your config. This is to ensure that the `register_method` decorator can register your detector before it gets used. 
