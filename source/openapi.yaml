@@ -381,6 +381,33 @@ paths:
                 title: Response Get Hubs V1 Hubs Get
       security:
         - HTTPBearer: []
+  /v1/hubs/cost:
+    post:
+      tags:
+        - Hub
+      summary: Compute Cost
+      operationId: compute_cost_v1_hubs_cost_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CostRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCost'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
   /v1/api-keys:
     post:
       tags:
@@ -559,6 +586,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/api-keys/{id}/models:
+    get:
+      tags:
+        - API Key
+      summary: List Models For Key
+      operationId: list_models_for_key_v1_api_keys__id__models_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/evaluations:
     get:
       tags:
@@ -654,6 +709,16 @@ paths:
               - type: integer
               - type: "null"
             title: Completed At
+        - name: tags
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Tags
       responses:
         "200":
           description: Successful Response
@@ -903,6 +968,144 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}/reports:
+    post:
+      tags:
+        - Evaluation
+      summary: Create Evaluation Report
+      operationId: create_evaluation_report_v1_evaluations__id__reports_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationReportCreationRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationReportResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}/reports/{report_id}:
+    get:
+      tags:
+        - Evaluation
+      summary: Get Evaluation Report
+      operationId: get_evaluation_report_v1_evaluations__id__reports__report_id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: report_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Report Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationReportResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Evaluation
+      summary: Delete Evaluation Report
+      operationId: delete_evaluation_report_v1_evaluations__id__reports__report_id__delete
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: report_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Report Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Evaluation Report V1 Evaluations  Id  Reports  Report Id  Delete
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/evaluations/{id}/list-reports:
+    get:
+      tags:
+        - Evaluation
+      summary: Get Report Ids For Evaluation
+      operationId: get_report_ids_for_evaluation_v1_evaluations__id__list_reports_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Status
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportIdsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/harness:
     get:
       tags:
@@ -969,17 +1172,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/harness/create:
+  /v1/harness-creation-agent/chat:
     post:
       tags:
         - Harness
-      summary: Config File To Db Sync
-      operationId: config_file_to_db_sync_v1_harness_create_post
+      summary: Post Harness Creation Chat
+      description: Forwards request to the harness_creation_domain to get a response or trigger a new harness creation
+      operationId: post_harness_creation_chat_v1_harness_creation_agent_chat_post
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              $ref: '#/components/schemas/Body_config_file_to_db_sync_v1_harness_create_post'
+              $ref: '#/components/schemas/HarnessCreationChatRequest'
         required: true
       responses:
         "200":
@@ -987,7 +1191,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HarnessCreationResponse'
+                $ref: '#/components/schemas/HarnessCreationChatResponse'
         "422":
           description: Validation Error
           content:
@@ -996,6 +1200,163 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
         - HTTPBearer: []
+  /v1/harness-creation-agent:
+    post:
+      tags:
+        - Harness
+      summary: Custom Harness Creation
+      operationId: custom_harness_creation_v1_harness_creation_agent_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualCustomHarnessCreationRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualCustomHarnessCreationResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/harness-configs:
+    post:
+      tags:
+        - Harness
+      summary: Create Harness
+      description: |-
+        Creates a new harness configuration for the current user and team.
+        - Validates write permissions and user authentication.
+        - Retrieves the current user from the authentication token.
+        - Constructs the harness configuration data from the request.
+        - Delegates creation to the harness_creation_domain.
+        Returns the created HarnessConfig object.
+      operationId: create_harness_v1_harness_configs_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHarnessConfigRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfig'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Harness
+      summary: Get Harness Configs
+      description: |-
+        List harness configs, optionally filtered and sorted.
+        sort_by: Field to sort by. Allowed: 'created_at', 'name', 'id'.
+      operationId: get_harness_configs_v1_harness_configs_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_type
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: "null"
+            title: Harness Type
+        - name: with_stages
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: boolean
+              - type: "null"
+            default: false
+            title: With Stages
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: User Id
+        - name: limit
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: integer
+                minimum: 1
+              - type: "null"
+            default: 100
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: integer
+                minimum: 0
+              - type: "null"
+            title: Offset
+        - name: version
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Version
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            enum:
+              - created_at
+              - name
+              - id
+            type: string
+            default: created_at
+            title: Sort By
+        - name: sort_order
+          in: query
+          required: false
+          schema:
+            type: string
+            default: DESC
+            title: Sort Order
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfigsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/harness-configs/versions:
     get:
       tags:
@@ -1011,25 +1372,36 @@ paths:
                 $ref: '#/components/schemas/HarnessConfigVersionsResponse'
       security:
         - HTTPBearer: []
-  /v1/harness-configs:
+  /v1/harness-configs/{harness_config_id}:
     get:
       tags:
         - Harness
-      summary: Get Harness Configs
-      operationId: get_harness_configs_v1_harness_configs_get
+      summary: Get Harness Config By Id
+      operationId: get_harness_config_by_id_v1_harness_configs__harness_config_id__get
       security:
         - HTTPBearer: []
       parameters:
-        - name: harness_type
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: version
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Version
+        - name: with_stages
           in: query
           required: false
           schema:
             anyOf:
-              - type: array
-                items:
-                  type: string
+              - type: boolean
               - type: "null"
-            title: Harness Type
+            default: false
+            title: With Stages
       responses:
         "200":
           description: Successful Response
@@ -1043,63 +1415,366 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-    put:
+    delete:
       tags:
         - Harness
-      summary: Create Harness Config
-      description: |-
-        Triggers harness creation after harness input files have been uploaded using signed URLs.
-        Delegates the actual creation process to the harness creation service.
-      operationId: create_harness_config_v1_harness_configs_put
+      summary: Delete Harness Config
+      operationId: delete_harness_config_v1_harness_configs__harness_config_id__delete
       security:
         - HTTPBearer: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateHarnessRequest'
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: version
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Version
       responses:
         "200":
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateHarnessResponse'
+                $ref: '#/components/schemas/HarnessConfigsResponse'
         "422":
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/harness-configs/files:
+  /v1/harness-configs/{harness_config_id}/versions/{version}/archive:
     put:
       tags:
         - Harness
-      summary: Create File Upload
-      description: Creates a signed URL for a file upload and an entry in the database.
-      operationId: create_file_upload_v1_harness_configs_files_put
+      summary: Archive Harness Config
+      operationId: archive_harness_config_v1_harness_configs__harness_config_id__versions__version__archive_put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Version
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfig'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness-configs/custom/eval-config-inputs:
+    get:
+      tags:
+        - Harness
+      summary: Get Eval Config Inputs
+      description: Returns a model_dump of the CustomEvalConfigInputs class
+      operationId: get_eval_config_inputs_v1_harness_configs_custom_eval_config_inputs_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Get Eval Config Inputs V1 Harness Configs Custom Eval Config Inputs Get
+      security:
+        - HTTPBearer: []
+  /v1/harness-configs/{harness_config_id}/stages:
+    post:
+      tags:
+        - Harness
+      summary: Create
+      operationId: create_v1_harness_configs__harness_config_id__stages_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
       requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrUpdateStageRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfigStage'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Harness
+      summary: Get Stages For Harness Config
+      description: Get all stages for a harness config
+      operationId: get_stages_for_harness_config_v1_harness_configs__harness_config_id__stages_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStagesResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness-configs/{harness_config_id}/stages/{staging_id}:
+    get:
+      tags:
+        - Harness
+      summary: Get Stage By Id
+      description: Get a stage by ID
+      operationId: get_stage_by_id_v1_harness_configs__harness_config_id__stages__staging_id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: staging_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Staging Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfigStage'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - Harness
+      summary: Update Stage
+      operationId: update_stage_v1_harness_configs__harness_config_id__stages__staging_id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: staging_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Staging Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrUpdateStageRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessConfigStage'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Harness
+      summary: Delete Stage
+      description: Delete a stage by ID
+      operationId: delete_stage_v1_harness_configs__harness_config_id__stages__staging_id__delete
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: staging_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Staging Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Stage V1 Harness Configs  Harness Config Id  Stages  Staging Id  Delete
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness-configs/{harness_config_id}/stages/{staging_id}/files:
+    post:
+      tags:
+        - Harness
+      summary: Request File Upload
+      description: Request a file upload URL for a stage
+      operationId: request_file_upload_v1_harness_configs__harness_config_id__stages__staging_id__files_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: staging_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Staging Id
+      requestBody:
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/FileUploadRequest'
-        required: true
       responses:
         "200":
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileUploadResponse'
+                $ref: '#/components/schemas/FileUpload'
         "422":
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Harness
+      summary: Get Stage Files
+      description: Get all files associated with a stage
+      operationId: get_stage_files_v1_harness_configs__harness_config_id__stages__staging_id__files_get
       security:
         - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: staging_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Staging Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFileUploadsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/harness-configs/{harness_config_id}/stages/{staging_id}/files/{file_id}:
+    delete:
+      tags:
+        - Harness
+      summary: Delete Stage File
+      description: Delete a file from a stage
+      operationId: delete_stage_file_v1_harness_configs__harness_config_id__stages__staging_id__files__file_id__delete
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: harness_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Harness Config Id
+        - name: staging_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Staging Id
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: File Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Stage File V1 Harness Configs  Harness Config Id  Stages  Staging Id  Files  File Id  Delete
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/scenarios:
     get:
       tags:
@@ -1160,6 +1835,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScenarioResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/scenario-configs:
+    get:
+      tags:
+        - Scenario
+      summary: Get Scenario Config By Ids
+      operationId: get_scenario_config_by_ids_v1_scenario_configs_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            title: Ids
+        - name: version
+          in: query
+          required: false
+          schema:
+            type: string
+            title: Version
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioConfigResponse'
         "422":
           description: Validation Error
           content:
@@ -1232,12 +1943,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/prompts/{id}:
+  /v1/probe-configs:
     get:
       tags:
-        - Prompt
-      summary: Get Prompt By Id
-      operationId: get_prompt_by_id_v1_prompts__id__get
+        - Probe
+      summary: Get Probe Configs
+      operationId: get_probe_configs_v1_probe_configs_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            title: Ids
+        - name: version
+          in: query
+          required: false
+          schema:
+            type: string
+            title: Version
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProbeConfigResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/probe-configs/{id}:
+    put:
+      tags:
+        - Probe
+      summary: Update Probe Configs
+      operationId: update_probe_configs_v1_probe_configs__id__put
       security:
         - HTTPBearer: []
       parameters:
@@ -1247,6 +2008,39 @@ paths:
           schema:
             type: string
             title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutProbeConfigBody'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProbeConfig'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/prompts:
+    post:
+      tags:
+        - Prompt
+      summary: Create Prompt
+      operationId: create_prompt_v1_prompts_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromptRequest'
       responses:
         "200":
           description: Successful Response
@@ -1254,6 +2048,178 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Prompt'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Prompt
+      summary: Get Prompts
+      operationId: get_prompts_v1_prompts_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            title: Ids
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptResponses'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/prompts/{id}:
+    put:
+      tags:
+        - Prompt
+      summary: Update Prompt
+      operationId: update_prompt_v1_prompts__id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutPromptRequest'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prompt'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Prompt
+      summary: Get Prompt By Id
+      operationId: get_prompt_by_id_v1_prompts__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: prompt_id
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Prompt Id
+        - name: team_id
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Team Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prompt'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/prompts/search/find:
+    get:
+      tags:
+        - Prompt
+      summary: Search Prompts
+      operationId: search_prompts_v1_prompts_search_find_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Query
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            title: Offset
+        - name: nearest_neighbors
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+            title: Nearest Neighbors
+        - name: total_limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 100
+            title: Total Limit
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptResponses'
         "422":
           description: Validation Error
           content:
@@ -1817,7 +2783,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EstimateResponse'
+                $ref: '#/components/schemas/CostEstimate'
         "422":
           description: Validation Error
           content:
@@ -2054,7 +3020,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/CompletionResponse'
         "422":
           description: Validation Error
           content:
@@ -2063,6 +3030,737 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
         - HTTPBearer: []
+  /v1/harness-config-stages:
+    get:
+      tags:
+        - Harness Staging
+      summary: Get Stages
+      description: Get all stages for a harness config with pagination
+      operationId: get_stages_v1_harness_config_stages_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: array
+                items:
+                  enum:
+                    - CREATED
+                    - STARTING
+                    - IN_PROGRESS
+                    - READING
+                    - CREATING
+                    - SAVING
+                    - COMPLETED
+                    - ERROR
+                  type: string
+              - type: "null"
+            enum:
+              - CREATED
+              - IN_PROGRESS
+              - COMPLETED
+              - ERROR
+            title: Status
+        - name: created_by
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Created By
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 1000
+            minimum: 1
+            default: 100
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStagesResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/attackers:
+    get:
+      tags:
+        - Playground Attacker
+      summary: Get Attackers
+      description: |-
+        Returns a list of AttackerDescriptions, count of total attackers
+            AttackerDescription:
+                id: str
+                name: str
+                description: str
+      operationId: get_attackers_v1_attackers_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                prefixItems:
+                  - items:
+                      $ref: '#/components/schemas/AttackerDescription'
+                    type: array
+                  - type: integer
+                type: array
+                maxItems: 2
+                minItems: 2
+                title: Response Get Attackers V1 Attackers Get
+      security:
+        - HTTPBearer: []
+    post:
+      tags:
+        - Playground Attacker
+      summary: Execute Attack
+      operationId: execute_attack_v1_attackers_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaygroundAttackInput'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundAttackResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/playgrounds:
+    get:
+      tags:
+        - Playgrounds
+      summary: List Playgrounds
+      operationId: list_playgrounds_v1_playgrounds_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlaygroundsResponse'
+                type: array
+                title: Response List Playgrounds V1 Playgrounds Get
+      security:
+        - HTTPBearer: []
+    post:
+      tags:
+        - Playgrounds
+      summary: Create Playground
+      operationId: create_playground_v1_playgrounds_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlaygroundInput'
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - HTTPBearer: []
+  /v1/playgrounds/{id}:
+    get:
+      tags:
+        - Playgrounds
+      summary: Get Playground By Id
+      operationId: get_playground_by_id_v1_playgrounds__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - Playgrounds
+      summary: Update Playground
+      operationId: update_playground_v1_playgrounds__id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlaygroundInput'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundsResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/playgrounds/{id}/agent-sessions:
+    post:
+      tags:
+        - Playgrounds
+      summary: Create Playground Agent Session
+      operationId: create_playground_agent_session_v1_playgrounds__id__agent_sessions_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlaygroundAgentSessionInput'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundAgentSessionResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Playgrounds
+      summary: Get Playground Agent Sessions By Playground Id
+      operationId: get_playground_agent_sessions_by_playground_id_v1_playgrounds__id__agent_sessions_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlaygroundAgentSessionResponse'
+                title: Response Get Playground Agent Sessions By Playground Id V1 Playgrounds  Id  Agent Sessions Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/playgrounds/{id}/agent-sessions/{agent_session_id}:
+    get:
+      tags:
+        - Playgrounds
+      summary: Get Playground Agent Session By Id
+      operationId: get_playground_agent_session_by_id_v1_playgrounds__id__agent_sessions__agent_session_id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: agent_session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Agent Session Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundAgentSessionResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - Playgrounds
+      summary: Update Playground Agent Session
+      operationId: update_playground_agent_session_v1_playgrounds__id__agent_sessions__agent_session_id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: agent_session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Agent Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlaygroundAgentSessionInput'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundAgentSessionResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/playgrounds/{id}/messages:
+    post:
+      tags:
+        - Playgrounds
+      summary: Create Playground Message
+      operationId: create_playground_message_v1_playgrounds__id__messages_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlaygroundMessage'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlaygroundMessageResponse'
+                title: Response Create Playground Message V1 Playgrounds  Id  Messages Post
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Playgrounds
+      summary: Get Playground Messages
+      operationId: get_playground_messages_v1_playgrounds__id__messages_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: agent_session_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Agent Session Id
+        - name: message_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Message Id
+        - name: order_by
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            default: created_at
+            title: Order By
+        - name: limit
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: integer
+              - type: "null"
+            default: 100
+            title: Limit
+        - name: offset
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: integer
+              - type: "null"
+            default: 0
+            title: Offset
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPlaygroundMessageResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/playgrounds/{id}/messages/{message_id}:
+    put:
+      tags:
+        - Playgrounds
+      summary: Update Playground Message
+      operationId: update_playground_message_v1_playgrounds__id__messages__message_id__put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Message Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlaygroundMessage'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundMessageResponse'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/local-eval-token:
+    get:
+      tags:
+        - Ngrok Token Issuer
+      summary: Get Ngrok Token
+      operationId: get_ngrok_token_v1_local_eval_token_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NgrokTokenResponse'
+      security:
+        - HTTPBearer: []
+    delete:
+      tags:
+        - Ngrok Token Issuer
+      summary: Delete Ngrok Token
+      operationId: delete_ngrok_token_v1_local_eval_token_delete
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Ngrok Token V1 Local Eval Token Delete
+      security:
+        - HTTPBearer: []
+  /v1/agent-configurations/{id}:
+    get:
+      tags:
+        - Agent Configuration
+      summary: Get Agent Configuration By Id
+      operationId: get_agent_configuration_by_id_v1_agent_configurations__id__get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfiguration'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/agent-configurations:
+    get:
+      tags:
+        - Agent Configuration
+      summary: Get Agent Configurations
+      operationId: get_agent_configurations_v1_agent_configurations_get
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: statuses
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            default:
+              - active
+            title: Statuses
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentConfiguration'
+                title: Response Get Agent Configurations V1 Agent Configurations Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+        - Agent Configuration
+      summary: Create Agent Configuration
+      operationId: create_agent_configuration_v1_agent_configurations_post
+      security:
+        - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentConfiguration'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfiguration'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/agent-configurations/{id}/archive:
+    put:
+      tags:
+        - Agent Configuration
+      summary: Archive Agent Configuration
+      operationId: archive_agent_configuration_v1_agent_configurations__id__archive_put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfiguration'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/agent-configurations/{id}/update:
+    put:
+      tags:
+        - Agent Configuration
+      summary: Update Agent Configuration
+      operationId: update_agent_configuration_v1_agent_configurations__id__update_put
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentConfigurationUpdate'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfiguration'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/agent-configurations/{id}/files:
+    post:
+      tags:
+        - Agent Configuration
+      summary: Create File Upload
+      operationId: create_file_upload_v1_agent_configurations__id__files_post
+      security:
+        - HTTPBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileUpload'
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUpload'
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     APIKeyTestResponse:
@@ -2101,18 +3799,120 @@ components:
         - access_key
         - secret_access_key
       title: AWSHubConfig
+    AgentConfiguration:
+      properties:
+        agent_name:
+          type: string
+          title: Agent Name
+        model_name:
+          type: string
+          title: Model Name
+        agent_url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Url
+          default: ""
+        hub:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Hub
+          default: custom
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+        created_by:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Created By
+        api_key_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Api Key Id
+        agent_system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent System Prompt
+        id:
+          type: string
+          title: Id
+        status:
+          type: string
+          enum:
+            - creating
+            - active
+            - archived
+          title: Status
+          default: active
+        created_at:
+          type: integer
+          title: Created At
+        hub_config:
+          anyOf:
+            - $ref: '#/components/schemas/AWSHubConfig'
+            - $ref: '#/components/schemas/GCPHubConfig'
+            - $ref: '#/components/schemas/DigitalOceanHubConfig'
+            - $ref: '#/components/schemas/BedrockAgentCustomHubConfig'
+            - type: "null"
+          title: Hub Config
+      type: object
+      required:
+        - agent_name
+        - model_name
+      title: AgentConfiguration
+    AgentConfigurationUpdate:
+      properties:
+        status:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Status
+        agent_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Name
+        agent_url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Url
+        model_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Model Name
+        api_key_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Api Key Id
+        agent_system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent System Prompt
+      type: object
+      title: AgentConfigurationUpdate
     AgentParams:
       properties:
         temperature:
           anyOf:
             - type: number
             - type: string
+            - type: "null"
           title: Temperature
           default: "1.00"
         top_p:
           anyOf:
             - type: number
             - type: string
+            - type: "null"
           title: Top P
           default: "0.99"
         generations:
@@ -2124,12 +3924,16 @@ components:
             - type: integer
             - type: "null"
           title: Max Completion Tokens
-          default: 125
         timeout:
           anyOf:
             - type: number
             - type: "null"
           title: Timeout
+        agent_system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent System Prompt
       type: object
       title: AgentParams
     ApiKeyResponse:
@@ -2144,7 +3948,7 @@ components:
           type: string
           enum:
             - openai
-            - octo
+            - anthropic
             - together
             - mistral
             - fireworks
@@ -2155,6 +3959,8 @@ components:
             - digitalocean
             - azure
             - custom
+            - openrouter
+            - bedrockAgents
           title: Hub
         rate_limit_per_interval:
           type: integer
@@ -2169,6 +3975,20 @@ components:
           anyOf:
             - $ref: '#/components/schemas/HubConfigResponse'
             - type: "null"
+        user_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: User Id
+        team_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Id
+        status:
+          type: string
+          title: Status
+          default: active
       type: object
       required:
         - id
@@ -2184,7 +4004,7 @@ components:
           type: string
           enum:
             - openai
-            - octo
+            - anthropic
             - together
             - mistral
             - fireworks
@@ -2195,6 +4015,8 @@ components:
             - digitalocean
             - azure
             - custom
+            - openrouter
+            - bedrockAgents
           title: Hub
         value:
           type: string
@@ -2221,16 +4043,37 @@ components:
         - hub
         - value
       title: ApiKeyTestRequest
-    Body_config_file_to_db_sync_v1_harness_create_post:
+    AttackerDescription:
       properties:
-        file:
+        id:
           type: string
-          format: binary
-          title: File
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
       type: object
       required:
-        - file
-      title: Body_config_file_to_db_sync_v1_harness_create_post
+        - id
+        - name
+        - description
+      title: AttackerDescription
+      description: Attacker Description
+    BedrockAgentCustomHubConfig:
+      properties:
+        agent_id:
+          type: string
+          title: Agent Id
+        agent_alias_id:
+          type: string
+          title: Agent Alias Id
+      type: object
+      required:
+        - agent_id
+        - agent_alias_id
+      title: BedrockAgentCustomHubConfig
     CancelEvaluationResponse:
       properties:
         evaluation_id:
@@ -2248,6 +4091,90 @@ components:
         - status
         - message
       title: CancelEvaluationResponse
+    CategorizedFileUpload:
+      properties:
+        created_by:
+          type: string
+          title: Created By
+        team_id:
+          type: string
+          title: Team Id
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: integer
+          title: Created At
+        file_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: File Name
+        file_type:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: File Type
+        file_size:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: File Size
+        upload_url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Upload Url
+        upload_expiration:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Upload Expiration
+        provider:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Provider
+        checksum:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Checksum
+        object_key:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Object Key
+        is_verified:
+          type: boolean
+          title: Is Verified
+          default: false
+        verified_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Verified At
+        category:
+          type: string
+          enum:
+            - AGENT_POLICY
+            - KNOWLEDGE_BASE
+            - FUNCTION_ROUTE
+            - PERSONA
+          title: Category
+          default: AGENT_POLICY
+      type: object
+      required:
+        - created_by
+        - team_id
+      title: CategorizedFileUpload
+    ChatResponseTypeEnum:
+      type: string
+      enum:
+        - continue
+        - end
+        - error
+      title: ChatResponseTypeEnum
     CompletionRequest:
       properties:
         prompt:
@@ -2326,7 +4253,6 @@ components:
             - type: integer
             - type: "null"
           title: Max Completion Tokens
-          default: 125
         generations:
           anyOf:
             - type: integer
@@ -2339,6 +4265,73 @@ components:
         - hub
         - model
       title: CompletionRequestParams
+    CompletionResponse:
+      properties:
+        prompt:
+          type: string
+          title: Prompt
+        response:
+          items:
+            type: string
+          type: array
+          title: Response
+        token_count:
+          $ref: '#/components/schemas/TokenCount'
+      type: object
+      required:
+        - prompt
+        - response
+        - token_count
+      title: CompletionResponse
+    CostEstimate:
+      properties:
+        cost:
+          type: string
+          title: Cost
+        bill_for_tokens:
+          type: boolean
+          title: Bill For Tokens
+        total_credits:
+          type: integer
+          title: Total Credits
+        token_credits:
+          type: integer
+          title: Token Credits
+        outcome_credits:
+          type: integer
+          title: Outcome Credits
+        token_count:
+          $ref: '#/components/schemas/TokenCount'
+      type: object
+      required:
+        - cost
+        - bill_for_tokens
+        - total_credits
+        - token_credits
+        - outcome_credits
+        - token_count
+      title: CostEstimate
+    CostRequest:
+      properties:
+        hub_name:
+          type: string
+          title: Hub Name
+        model_name:
+          type: string
+          title: Model Name
+        input_token_count:
+          type: integer
+          title: Input Token Count
+        output_token_count:
+          type: integer
+          title: Output Token Count
+      type: object
+      required:
+        - hub_name
+        - model_name
+        - input_token_count
+        - output_token_count
+      title: CostRequest
     CreateApiKeyRequest:
       properties:
         name:
@@ -2348,7 +4341,7 @@ components:
           type: string
           enum:
             - openai
-            - octo
+            - anthropic
             - together
             - mistral
             - fireworks
@@ -2359,6 +4352,8 @@ components:
             - digitalocean
             - azure
             - custom
+            - openrouter
+            - bedrockAgents
           title: Hub
         rate_limit_per_interval:
           type: integer
@@ -2406,47 +4401,28 @@ components:
         - detector_id
         - value
       title: CreateFeedbackRequest
-    CreateHarnessRequest:
+    CreateHarnessConfigRequest:
       properties:
-        harness_config_id:
-          type: string
-          title: Harness Config Id
-        harness_name:
-          type: string
-          title: Harness Name
-        harness_version:
-          type: string
-          title: Harness Version
-        agent_sys_prompt:
-          type: string
-          title: Agent Sys Prompt
-        harness_creation_type:
-          type: string
-          title: Harness Creation Type
-        parameters:
-          $ref: '#/components/schemas/HarnessConfigCreationParameters'
-        num_prompts:
-          type: integer
-          title: Num Prompts
-          default: 5
+        probe_configs:
+          items:
+            $ref: '#/components/schemas/CreateProbeConfigRequest'
+          type: array
+          minItems: 1
+          title: Probe Configs
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
       type: object
       required:
-        - harness_config_id
-        - harness_name
-        - harness_version
-        - agent_sys_prompt
-        - harness_creation_type
-        - parameters
-      title: CreateHarnessRequest
-    CreateHarnessResponse:
-      properties:
-        harness_config_id:
-          type: string
-          title: Harness Config Id
-      type: object
-      required:
-        - harness_config_id
-      title: CreateHarnessResponse
+        - probe_configs
+      title: CreateHarnessConfigRequest
     CreateInviteRequest:
       properties:
         team_id:
@@ -2470,6 +4446,203 @@ components:
         - team_id
         - email
       title: CreateInviteRequest
+    CreateOrUpdateStageRequest:
+      properties:
+        harness_types:
+          anyOf:
+            - items:
+                type: string
+                enum:
+                  - AGENT_POLICY
+                  - KNOWLEDGE_BASE
+                  - FUNCTION_ROUTE
+                  - PERSONA
+              type: array
+            - type: "null"
+          title: Harness Types
+        harness_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Harness Name
+        agent_system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent System Prompt
+        rag_params:
+          anyOf:
+            - $ref: '#/components/schemas/RagParams'
+            - type: "null"
+        function_route_params:
+          anyOf:
+            - $ref: '#/components/schemas/FunctionRouteParams'
+            - type: "null"
+        persona_params:
+          anyOf:
+            - $ref: '#/components/schemas/PersonaParams'
+            - type: "null"
+        base_model_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Base Model Name
+        hub_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Hub Name
+        max_output_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Output Tokens
+      type: object
+      title: CreateOrUpdateStageRequest
+    CreatePlaygroundAgentSessionInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        agent_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Id
+        system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: System Prompt
+        temperature:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Temperature
+        max_completion_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Completion Tokens
+        top_p:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Top P
+      type: object
+      required:
+        - id
+        - hub
+        - model
+      title: CreatePlaygroundAgentSessionInput
+    CreatePlaygroundInput:
+      properties:
+        id:
+          type: string
+          title: Id
+        playground_type:
+          type: string
+          enum:
+            - history
+            - snapshot
+          title: Playground Type
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+      type: object
+      required:
+        - id
+        - playground_type
+      title: CreatePlaygroundInput
+    CreatePlaygroundMessage:
+      properties:
+        id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Id
+        agent_session_id:
+          type: string
+          title: Agent Session Id
+        completion_request:
+          $ref: '#/components/schemas/CompletionRequest'
+      type: object
+      required:
+        - agent_session_id
+        - completion_request
+      title: CreatePlaygroundMessage
+    CreateProbeConfigRequest:
+      properties:
+        detector_ids:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Detector Ids
+        prompt_ids:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Prompt Ids
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+        id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Id
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+      type: object
+      required:
+        - detector_ids
+        - prompt_ids
+      title: CreateProbeConfigRequest
+    CreatePromptRequest:
+      properties:
+        text:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Text
+        tags:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Tags
+        id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Id
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+      type: object
+      required:
+        - text
+      title: CreatePromptRequest
     CreateTeamRequest:
       properties:
         name:
@@ -2484,6 +4657,168 @@ components:
       required:
         - name
       title: CreateTeamRequest
+    CustomEvalConfigInputs:
+      properties:
+        include_security:
+          type: boolean
+          title: Include Security Tests
+          description: Should security tests be included?
+          default: false
+          Subcategory: Security
+          Taxonomy: Security
+        security_prompt_count:
+          type: integer
+          maximum: 150
+          minimum: 0
+          title: Number of Security Test Prompts
+          description: The number of security test prompts
+          default: 20
+          Subcategory: Security
+          Taxonomy: Security
+        include_toxicity:
+          type: boolean
+          title: Include Toxicity Tests
+          description: Should toxic content generation tests be included?
+          default: false
+          Subcategory: Toxicity
+          Taxonomy: Safety
+        toxicity_prompt_count:
+          type: integer
+          maximum: 100
+          minimum: 0
+          title: Number of Toxicity Test Prompts
+          description: The number of toxicity test prompts
+          default: 20
+          Subcategory: Toxicity
+          Taxonomy: Safety
+        include_stereotype:
+          type: boolean
+          title: Include Stereotype Tests
+          description: Should stereotypical content generation tests be included?
+          default: false
+          Subcategory: Stereotype
+          Taxonomy: Safety
+        stereotype_prompt_count:
+          type: integer
+          maximum: 50
+          minimum: 0
+          title: Number of Stereotype Test Prompts
+          description: The number of stereotype test prompts
+          default: 20
+          Subcategory: Stereotype
+          Taxonomy: Safety
+        include_correctness:
+          type: boolean
+          title: Include Correctness Tests
+          description: Should correctness (system prompt + knowledge base) tests be included?
+          default: false
+          Subcategory: Correctness
+          Taxonomy: Reliability
+        correctness_prompt_count:
+          type: integer
+          maximum: 50
+          minimum: 0
+          title: Number of Correctness test Prompts
+          description: The number of correctness test prompts
+          default: 10
+          Subcategory: Correctness
+          Taxonomy: Reliability
+        include_adherence:
+          type: boolean
+          title: Include System prompt and Policy Adherence Tests
+          description: Should adherence tests be included?
+          default: false
+          Subcategory: Adherence
+          Taxonomy: Safety
+        adherence_prompt_count:
+          type: integer
+          maximum: 50
+          minimum: 0
+          title: Number of Adherence Test Prompts
+          description: The number of adherence test prompts to use
+          default: 10
+          Subcategory: Adherence
+          Taxonomy: Safety
+        include_exfil:
+          type: boolean
+          title: Include Exfiltration Tests
+          description: Should system prompt exfiltration tests be included?
+          default: false
+          Subcategory: Exfiltration
+          Taxonomy: Security
+        exfil_prompt_count:
+          type: integer
+          maximum: 50
+          minimum: 0
+          title: Number of Exfiltration Test Prompts
+          description: The number of exfil test prompts to use
+          default: 10
+          Subcategory: Exfiltration
+          Taxonomy: Security
+        include_consistency:
+          type: boolean
+          title: Include Consistency Tests
+          description: Should consistency tests be included?
+          default: false
+          Subcategory: Consistency
+          Taxonomy: Reliability
+        consistency_prompt_count:
+          type: integer
+          maximum: 50
+          minimum: 0
+          title: Number of Consistency Test Prompts
+          description: The number of consistency test prompts to use
+          default: 10
+          Subcategory: Consistency
+          Taxonomy: Reliability
+        include_tool:
+          type: boolean
+          title: Include Tool-Calling Tests
+          description: Should tool call tests be included?
+          default: false
+          Subcategory: ToolCalling
+          Taxonomy: Reliability
+        tool_prompt_count:
+          type: integer
+          maximum: 25
+          minimum: 0
+          title: Number of Tool-Calling Test Prompts
+          description: The number of tool call test prompts to use
+          default: 10
+          Subcategory: ToolCalling
+          Taxonomy: Reliability
+        include_persona:
+          type: boolean
+          title: Include Persona Tests
+          description: Should persona tests be included?
+          default: false
+          Subcategory: Persona
+          Taxonomy: Reliability
+        persona_goal_count:
+          type: integer
+          maximum: 10
+          minimum: 0
+          title: Number of Goals per Persona
+          description: The number of goals for persona tests
+          default: 5
+          Subcategory: Persona
+          Taxonomy: Reliability
+        persona_prompts_per_goal:
+          type: integer
+          maximum: 25
+          minimum: 0
+          title: Number of Persona Test Prompts per Goal
+          description: The number of persona prompts to use per goal
+          default: 10
+          Subcategory: Persona
+          Taxonomy: Reliability
+        harness_description:
+          type: string
+          title: Harness Description
+          default: ""
+      type: object
+      title: CustomEvalConfigInputs
+      description: Custom Evaluation Inputs - this controls which tests to run and their params
     DeleteEvaluationResponse:
       properties:
         evaluation_id:
@@ -2511,7 +4846,9 @@ components:
           title: Detection Id
           default: ""
         response:
-          type: string
+          anyOf:
+            - type: string
+            - type: "null"
           title: Response
           default: ""
         triggers:
@@ -2552,6 +4889,19 @@ components:
               type: array
             - type: "null"
           title: Kwargs
+        conversation_history:
+          anyOf:
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - type: "null"
+          title: Conversation History
+        multiturn_params:
+          anyOf:
+            - $ref: '#/components/schemas/MultiturnDetectionParams'
+            - type: "null"
         forbidden_prompt:
           anyOf:
             - type: string
@@ -2685,8 +5035,11 @@ components:
     DetectionRequestInput:
       properties:
         response:
-          type: string
+          anyOf:
+            - type: string
+            - type: "null"
           title: Response
+          default: ""
         id:
           anyOf:
             - type: string
@@ -2758,8 +5111,6 @@ components:
             - type: "null"
           title: Policy
       type: object
-      required:
-        - response
       title: DetectionRequestInput
     DetectionResponse:
       properties:
@@ -2870,6 +5221,9 @@ components:
         model:
           type: string
           title: Model
+        api_key:
+          type: string
+          title: Api Key
         harness_config_ids:
           items:
             type: string
@@ -2897,31 +5251,13 @@ components:
       required:
         - hub
         - model
+        - api_key
         - harness_config_ids
         - scenario_config_filters
         - version
         - agent_params
         - is_lite
       title: EstimateRequest
-    EstimateResponse:
-      properties:
-        completion_tokens:
-          anyOf:
-            - type: integer
-            - type: "null"
-          title: Completion Tokens
-        prompt_tokens:
-          anyOf:
-            - type: integer
-            - type: "null"
-          title: Prompt Tokens
-        total_tokens:
-          anyOf:
-            - type: integer
-            - type: "null"
-          title: Total Tokens
-      type: object
-      title: EstimateResponse
     EvaluationCreatedResponse:
       properties:
         id:
@@ -2976,15 +5312,20 @@ components:
             - type: "null"
           title: Sample Size
         temperature:
-          type: string
+          anyOf:
+            - type: string
+            - type: "null"
           title: Temperature
           default: "1.00"
         max_completion_tokens:
-          type: integer
+          anyOf:
+            - type: integer
+            - type: "null"
           title: Max Completion Tokens
-          default: 125
         top_p:
-          type: string
+          anyOf:
+            - type: string
+            - type: "null"
           title: Top P
           default: "0.99"
         generations:
@@ -3009,8 +5350,51 @@ components:
             - type: number
             - type: "null"
           title: Timeout
+        agent_system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent System Prompt
+        agent_configuration_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Configuration Id
       type: object
       title: EvaluationMetadata
+    EvaluationReportCreationRequest:
+      properties:
+        version:
+          type: string
+          title: Version
+      type: object
+      required:
+        - version
+      title: EvaluationReportCreationRequest
+    EvaluationReportResponse:
+      properties:
+        report_id:
+          type: string
+          title: Report Id
+        report_status:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Report Status
+        report_status_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Report Status Message
+        report_content:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Report Content
+      type: object
+      required:
+        - report_id
+      title: EvaluationReportResponse
     EvaluationRequest:
       properties:
         id:
@@ -3062,6 +5446,11 @@ components:
             - type: string
             - type: "null"
           title: Version
+        agent_configuration_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Configuration Id
       type: object
       required:
         - id
@@ -3145,6 +5534,11 @@ components:
           type: string
           title: Version
           default: ""
+        agent_configuration_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Configuration Id
       type: object
       required:
         - id
@@ -3215,6 +5609,8 @@ components:
             - type: number
             - type: "null"
           title: Score
+        status_counts:
+          $ref: '#/components/schemas/StatusCounts'
         hub:
           type: string
           title: Hub
@@ -3257,6 +5653,11 @@ components:
           type: integer
           title: Total Tokens
           default: 0
+        agent_configuration_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Configuration Id
       type: object
       required:
         - id
@@ -3273,6 +5674,7 @@ components:
         - total_generation_time
         - average_generation_time
         - score
+        - status_counts
         - hub
         - model
         - url
@@ -3336,6 +5738,13 @@ components:
             - DELETE_EVALUATION
             - EXECUTE_SYNC_DETECTION
             - SYNC_DETECTION_COMPLETED
+            - DETECTION_TERMINAL_ERROR
+            - CREATE_EVALUATION
+            - CREATE_HARNESS_CONFIG
+            - CREATE_HARNESS_CONFIG_CHAT
+            - PROBE_CREATED
+            - PROBE_COMPLETIONS_DONE
+            - PROBE_ERROR
           title: Type
         id:
           type: string
@@ -3363,89 +5772,123 @@ components:
       required:
         - type
       title: Event
+    FileUpload:
+      properties:
+        created_by:
+          type: string
+          title: Created By
+        team_id:
+          type: string
+          title: Team Id
+        id:
+          type: string
+          title: Id
+        created_at:
+          type: integer
+          title: Created At
+        file_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: File Name
+        file_type:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: File Type
+        file_size:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: File Size
+        upload_url:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Upload Url
+        upload_expiration:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Upload Expiration
+        provider:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Provider
+        checksum:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Checksum
+        object_key:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Object Key
+        is_verified:
+          type: boolean
+          title: Is Verified
+          default: false
+        verified_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Verified At
+      type: object
+      required:
+        - created_by
+        - team_id
+      title: FileUpload
     FileUploadRequest:
       properties:
         file_name:
           type: string
           title: File Name
-        harness_config_id:
-          type: string
-          title: Harness Config Id
         file_type:
           type: string
           title: File Type
         file_size:
           type: integer
           title: File Size
+        category:
+          type: string
+          enum:
+            - AGENT_POLICY
+            - KNOWLEDGE_BASE
+            - FUNCTION_ROUTE
+            - PERSONA
+          title: Category
         checksum:
           type: string
           title: Checksum
-        id:
+      type: object
+      required:
+        - file_name
+        - file_type
+        - file_size
+        - category
+        - checksum
+      title: FileUploadRequest
+    FunctionRouteParams:
+      properties:
+        input_schema:
+          type: string
+          title: Input Schema
+        output_schema:
+          type: string
+          title: Output Schema
+        function_route:
           anyOf:
             - type: string
             - type: "null"
-          title: Id
+          title: Function Route
       type: object
       required:
-        - file_name
-        - harness_config_id
-        - file_type
-        - file_size
-        - checksum
-      title: FileUploadRequest
-    FileUploadResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        file_name:
-          type: string
-          title: File Name
-        harness_config_id:
-          type: string
-          title: Harness Config Id
-        created_by:
-          type: string
-          title: Created By
-        created_at:
-          type: integer
-          title: Created At
-        file_type:
-          type: string
-          title: File Type
-        file_size:
-          type: integer
-          title: File Size
-        upload_url:
-          type: string
-          title: Upload Url
-        upload_expiration:
-          type: integer
-          title: Upload Expiration
-        provider:
-          type: string
-          title: Provider
-        checksum:
-          type: string
-          title: Checksum
-        method:
-          type: string
-          title: Method
-          default: PUT
-      type: object
-      required:
-        - id
-        - file_name
-        - harness_config_id
-        - created_by
-        - created_at
-        - file_type
-        - file_size
-        - upload_url
-        - upload_expiration
-        - provider
-        - checksum
-      title: FileUploadResponse
+        - input_schema
+        - output_schema
+        - function_route
+      title: FunctionRouteParams
     GCPHubConfig:
       properties:
         region:
@@ -3471,6 +5914,36 @@ components:
         - client_secret
         - refresh_token
       title: GCPHubConfig
+    GetFileUploadsResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/CategorizedFileUpload'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: GetFileUploadsResponse
+    GetPlaygroundMessageResponse:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/PlaygroundMessageResponse'
+          type: array
+          title: Messages
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+        - messages
+        - total
+      title: GetPlaygroundMessageResponse
     GetResponseErrorsResponse:
       properties:
         results:
@@ -3509,6 +5982,25 @@ components:
         - current_page
         - page_size
       title: GetResponsesResponse
+    GetStagesResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/HarnessConfigStage'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+        - results
+        - count
+        - total
+      title: GetStagesResponse
     HTTPValidationError:
       properties:
         detail:
@@ -3532,9 +6024,6 @@ components:
         is_leaf:
           type: boolean
           title: Is Leaf
-        scoring_function:
-          type: string
-          title: Scoring Function
         description:
           type: string
           title: Description
@@ -3551,9 +6040,29 @@ components:
         version:
           type: string
           title: Version
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+          title: Status
+        scoring_function:
+          type: string
+          enum:
+            - naive_mean_harness
+          const: naive_mean_harness
+          title: Scoring Function
+          default: naive_mean_harness
+        created_at:
+          type: integer
+          title: Created At
         team_id:
           type: string
           title: Team Id
+          default: ""
+        created_by:
+          type: string
+          title: Created By
           default: ""
       type: object
       required:
@@ -3561,19 +6070,117 @@ components:
         - name
         - harness_type
         - is_leaf
-        - scoring_function
         - description
         - harness_config_ids
         - scenario_config_ids
         - version
+        - status
       title: HarnessConfig
-    HarnessConfigCreationParameters:
+    HarnessConfigStage:
       properties:
-        kwargs:
-          type: object
-          title: Kwargs
+        created_by:
+          type: string
+          title: Created By
+        created_at:
+          type: integer
+          title: Created At
+        id:
+          type: string
+          title: Id
+        harness_config_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Harness Config Id
+        harness_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Harness Name
+        team_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Team Id
+        status:
+          type: string
+          enum:
+            - CREATED
+            - STARTING
+            - IN_PROGRESS
+            - READING
+            - CREATING
+            - SAVING
+            - COMPLETED
+            - ERROR
+          title: Status
+          default: CREATED
+        status_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Status Message
+        agent_system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent System Prompt
+        started_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Started At
+        completed_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completed At
+        harness_config_version:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Harness Config Version
+        harness_types:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Harness Types
+        rag_params:
+          anyOf:
+            - type: object
+            - type: "null"
+          title: Rag Params
+        function_route_params:
+          anyOf:
+            - type: object
+            - type: "null"
+          title: Function Route Params
+        persona_params:
+          anyOf:
+            - type: object
+            - type: "null"
+          title: Persona Params
+        base_model_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Base Model Name
+        hub_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Hub Name
+        max_output_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Output Tokens
       type: object
-      title: HarnessConfigCreationParameters
+      required:
+        - created_by
+      title: HarnessConfigStage
     HarnessConfigVersionsResponse:
       properties:
         results:
@@ -3589,36 +6196,68 @@ components:
         - results
         - count
       title: HarnessConfigVersionsResponse
+    HarnessConfigWithStaging:
+      properties:
+        harness_config:
+          $ref: '#/components/schemas/HarnessConfig'
+        staging:
+          anyOf:
+            - $ref: '#/components/schemas/StagingResponse'
+            - type: "null"
+      type: object
+      required:
+        - harness_config
+      title: HarnessConfigWithStaging
     HarnessConfigsResponse:
       properties:
         results:
           items:
-            $ref: '#/components/schemas/HarnessConfig'
+            $ref: '#/components/schemas/HarnessConfigWithStaging'
           type: array
           title: Results
         count:
           type: integer
           title: Count
+        total:
+          type: integer
+          title: Total
       type: object
       required:
         - results
         - count
+        - total
       title: HarnessConfigsResponse
-    HarnessCreationResponse:
+    HarnessCreationChatRequest:
       properties:
-        harness_id:
+        harness_config_id:
           type: string
-          title: Harness Id
-        prompt_ids:
+          title: Harness Config Id
+        harness_stage_id:
+          type: string
+          title: Harness Stage Id
+        message_list:
           items:
-            type: string
+            type: object
           type: array
-          title: Prompt Ids
+          title: Message List
       type: object
       required:
-        - harness_id
-        - prompt_ids
-      title: HarnessCreationResponse
+        - harness_config_id
+        - harness_stage_id
+        - message_list
+      title: HarnessCreationChatRequest
+    HarnessCreationChatResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        response_type:
+          $ref: '#/components/schemas/ChatResponseTypeEnum'
+      type: object
+      required:
+        - message
+        - response_type
+      title: HarnessCreationChatResponse
     HarnessResponse:
       properties:
         id:
@@ -3770,7 +6409,7 @@ components:
           type: string
           enum:
             - openai
-            - octo
+            - anthropic
             - together
             - mistral
             - fireworks
@@ -3781,6 +6420,8 @@ components:
             - digitalocean
             - azure
             - custom
+            - openrouter
+            - bedrockAgents
           title: Name
         display_name:
           type: string
@@ -3918,6 +6559,346 @@ components:
         - stereotypes
         - performance
       title: LeaderboardEntry
+    ManualCustomHarnessCreationRequest:
+      properties:
+        harness_staging_id:
+          type: string
+          title: Harness Staging Id
+        eval_config_input:
+          $ref: '#/components/schemas/CustomEvalConfigInputs'
+      type: object
+      required:
+        - harness_staging_id
+        - eval_config_input
+      title: ManualCustomHarnessCreationRequest
+    ManualCustomHarnessCreationResponse:
+      properties:
+        event_data:
+          type: object
+          title: Event Data
+      type: object
+      required:
+        - event_data
+      title: ManualCustomHarnessCreationResponse
+    ModelCost:
+      properties:
+        input_cost:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Input Cost
+        output_cost:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Output Cost
+        total_cost:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Total Cost
+      type: object
+      title: ModelCost
+    ModelResponse:
+      properties:
+        models:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Models
+      type: object
+      title: ModelResponse
+    MultiturnDetectionParams:
+      properties:
+        max_turns:
+          type: integer
+          title: Max Turns
+          default: 10
+        branching_factor:
+          type: integer
+          title: Branching Factor
+          default: 10
+      type: object
+      title: MultiturnDetectionParams
+    NgrokTokenResponse:
+      properties:
+        token:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Token
+        domain:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Domain
+      type: object
+      title: NgrokTokenResponse
+    PersonaParams:
+      properties:
+        persona_ids:
+          items:
+            type: string
+          type: array
+          title: Persona Ids
+      type: object
+      required:
+        - persona_ids
+      title: PersonaParams
+    PlaygroundAgentSessionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        playground_id:
+          type: string
+          title: Playground Id
+        session_status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+          title: Session Status
+        hub:
+          type: string
+          title: Hub
+        model:
+          type: string
+          title: Model
+        agent_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Agent Id
+        system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: System Prompt
+        temperature:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Temperature
+        max_completion_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Completion Tokens
+        top_p:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Top P
+      type: object
+      required:
+        - id
+        - playground_id
+        - session_status
+        - hub
+        - model
+      title: PlaygroundAgentSessionResponse
+    PlaygroundAttackInput:
+      properties:
+        attacker_name:
+          type: string
+          enum:
+            - LeetSpeakPlusAttacker
+            - AuthorityAttacker
+            - ZalgoAttacker
+            - MisrepresentationAttacker
+            - InjectJSONAttacker
+            - JSONInjectionAttacker
+          title: Attacker Name
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+        - attacker_name
+        - text
+      title: PlaygroundAttackInput
+      description: Playground Attack Input
+    PlaygroundAttackResponse:
+      properties:
+        text:
+          type: string
+          title: Text
+        attacker_name:
+          type: string
+          title: Attacker Name
+      type: object
+      required:
+        - text
+        - attacker_name
+      title: PlaygroundAttackResponse
+      description: Playground Attack Response
+    PlaygroundMessageResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        playground_id:
+          type: string
+          title: Playground Id
+        agent_session_id:
+          type: string
+          title: Agent Session Id
+        role:
+          type: string
+          title: Role
+        content:
+          type: string
+          title: Content
+        detection_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Detection Id
+        score:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Score
+        created_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Created At
+        updated_at:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Updated At
+      type: object
+      required:
+        - id
+        - playground_id
+        - agent_session_id
+        - role
+        - content
+      title: PlaygroundMessageResponse
+    PlaygroundsResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        playground_type:
+          type: string
+          enum:
+            - history
+            - snapshot
+          title: Playground Type
+        session_status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+          title: Session Status
+        name:
+          type: string
+          title: Name
+          default: ""
+      type: object
+      required:
+        - id
+        - playground_type
+        - session_status
+      title: PlaygroundsResponse
+    ProbeConfig:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        goals:
+          items:
+            type: string
+          type: array
+          title: Goals
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        detector_ids:
+          items:
+            type: string
+          type: array
+          title: Detector Ids
+        prompt_ids:
+          items:
+            type: string
+          type: array
+          title: Prompt Ids
+        version:
+          type: string
+          title: Version
+        scoring_function:
+          type: string
+          enum:
+            - naive_mean_probe_min
+            - naive_mean_probe_max
+            - tinybench_score_probe_min
+            - tinybench_score_probe_max
+            - final_score_probe
+            - leaf_score_probe
+          title: Scoring Function
+          default: naive_mean_probe_min
+        max_turns:
+          type: integer
+          title: Max Turns
+          default: 1
+        branching_factor:
+          type: integer
+          title: Branching Factor
+          default: 1
+        max_tests:
+          type: integer
+          title: Max Tests
+          default: 1
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+      type: object
+      required:
+        - id
+        - name
+        - goals
+        - tags
+        - detector_ids
+        - prompt_ids
+        - version
+      title: ProbeConfig
+    ProbeConfigResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ProbeConfig'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+        - results
+        - count
+        - total
+      title: ProbeConfigResponse
     ProbeResponse:
       properties:
         id:
@@ -3955,6 +6936,9 @@ components:
             type: string
           type: array
           title: Prompt Config Ids
+        scoring_function:
+          type: string
+          title: Scoring Function
         detector_ids:
           type: string
           title: Detector Ids
@@ -3999,6 +6983,7 @@ components:
         - tags
         - prompt_ids
         - prompt_config_ids
+        - scoring_function
         - detector_ids
         - uri
         - probe
@@ -4062,6 +7047,142 @@ components:
         - text
         - tags
       title: Prompt
+    PromptResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        config_id:
+          type: string
+          title: Config Id
+        text:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Text
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        description:
+          type: string
+          title: Description
+          default: ""
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+      type: object
+      required:
+        - id
+        - config_id
+        - text
+        - tags
+      title: PromptResponse
+    PromptResponses:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/PromptResponse'
+          type: array
+          title: Results
+        current_page:
+          type: integer
+          title: Current Page
+        page_size:
+          type: integer
+          title: Page Size
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - current_page
+        - page_size
+        - count
+      title: PromptResponses
+    PutProbeConfigBody:
+      properties:
+        version:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Version
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        detector_ids:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Detector Ids
+        prompt_ids:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Prompt Ids
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+      type: object
+      title: PutProbeConfigBody
+    PutPromptRequest:
+      properties:
+        text:
+          anyOf:
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - type: "null"
+          title: Text
+        tags:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Tags
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+      type: object
+      title: PutPromptRequest
+    RagParams:
+      properties:
+        bucket_name:
+          type: string
+          title: Bucket Name
+      type: object
+      required:
+        - bucket_name
+      title: RagParams
+    ReportIdsResponse:
+      properties:
+        report_ids:
+          items:
+            type: string
+          type: array
+          title: Report Ids
+      type: object
+      required:
+        - report_ids
+      title: ReportIdsResponse
     Response:
       properties:
         id:
@@ -4213,6 +7334,59 @@ components:
         - value
         - created_at
       title: ResultsFeedbackResponse
+    ScenarioConfig:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        probe_ids:
+          items:
+            type: string
+          type: array
+          title: Probe Ids
+        description:
+          type: string
+          title: Description
+        version:
+          type: string
+          title: Version
+        scoring_function:
+          type: string
+          enum:
+            - naive_mean_scenario
+          const: naive_mean_scenario
+          title: Scoring Function
+          default: naive_mean_scenario
+        team_id:
+          type: string
+          title: Team Id
+          default: ""
+      type: object
+      required:
+        - id
+        - name
+        - probe_ids
+        - description
+        - version
+      title: ScenarioConfig
+    ScenarioConfigResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ScenarioConfig'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: ScenarioConfigResponse
     ScenarioResponse:
       properties:
         id:
@@ -4308,6 +7482,40 @@ components:
       required:
         - team_role
       title: SetUserRoleRequest
+    StagingResponse:
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/HarnessConfigStage'
+          type: array
+          title: Results
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+        - results
+        - count
+      title: StagingResponse
+    StatusCounts:
+      properties:
+        probes:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Probes
+        tests:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Tests
+        responses:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Responses
+      type: object
+      title: StatusCounts
     TeamResponse:
       properties:
         id:
@@ -4353,6 +7561,25 @@ components:
         - current_page
         - page_size
       title: TestResponses
+    TokenCount:
+      properties:
+        completion_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Completion Tokens
+        prompt_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Prompt Tokens
+        total_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Total Tokens
+      type: object
+      title: TokenCount
     UpdateApiKeyRequest:
       properties:
         name:
@@ -4380,6 +7607,11 @@ components:
             - {}
             - type: "null"
           title: Hub Config
+        status:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Status
       type: object
       title: UpdateApiKeyRequest
     UpdateEvaluationRequest:
@@ -4405,6 +7637,68 @@ components:
           title: Message
       type: object
       title: UpdateFeedbackRequest
+    UpdatePlaygroundAgentSessionInput:
+      properties:
+        session_status:
+          anyOf:
+            - type: string
+              enum:
+                - ACTIVE
+                - INACTIVE
+            - type: "null"
+          title: Session Status
+        system_prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: System Prompt
+        temperature:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Temperature
+        max_completion_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Max Completion Tokens
+        top_p:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Top P
+      type: object
+      title: UpdatePlaygroundAgentSessionInput
+    UpdatePlaygroundInput:
+      properties:
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        session_status:
+          anyOf:
+            - type: string
+              enum:
+                - ACTIVE
+                - INACTIVE
+            - type: "null"
+          title: Session Status
+      type: object
+      title: UpdatePlaygroundInput
+    UpdatePlaygroundMessage:
+      properties:
+        detection_id:
+          type: string
+          title: Detection Id
+        score:
+          type: number
+          title: Score
+      type: object
+      required:
+        - detection_id
+        - score
+      title: UpdatePlaygroundMessage
     UpdateTeamRequest:
       properties:
         name:
