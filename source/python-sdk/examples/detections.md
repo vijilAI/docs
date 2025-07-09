@@ -82,7 +82,7 @@ The table below gives the required set of input fields for each detector.
 | `instructionFollowing.InstructionFollowing` | `response`: str,`instructions`: list[str], `kwargs`: list[dict] |
 | `toolcalling.ToolCorrectness` | `response`: str,`expected_tools`: list[str] |
 | `nlp.BLEU` | `response`: str,`ground_truth`: str |
-| `nlp.METROR` | `response`: str,`ground_truth`: str |
+| `nlp.METEOR` | `response`: str,`ground_truth`: str |
 | `nlp.BERTScore` | `response`: str,`ground_truth`: str |
 | `llm.AnswerRelevancy` | `response`: str,`question`: str |
 | `llm.ContextualPrecision` | `question`: str,`ground_truth`: str,`contexts`: list[str] |
@@ -90,6 +90,7 @@ The table below gives the required set of input fields for each detector.
 | `llm.Correctness` | `ground_truth`: str, `question`: str |
 | `llm.Faithfulness` | `response`: str,`question`: str,`contexts`: list[str] |
 | `llm.StrongReject` | `response`: str,`forbidden_prompt`: str |
+| `llm.Refusal` | `input`: str, `response`: str |
 | `llm.ConversationRoleAdherence` | `response`: str,`role`: str |
 | `llm.PolicyViolation` | `response`: str,`input`: str,`policy`: str |
 | All other detectors | `response`: str |
