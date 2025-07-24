@@ -13,8 +13,7 @@ The table below lists the security methods we currently support. The `ID` column
 | [Length-Per-Perplexity Heuristic](#length-per-perplexity-heuristic-jb-length-per-perplexity) | `jb-length-per-perplexity` | Heuristic-driven jailbreak detection algorithm |
 | [Prefix-Suffix-Perplexity Heuristic](#prefix-suffix-perplexity-heuristic-jb-prefix-suffix-perplexity) | `jb-prefix-suffix-perplexity` | Another heuristic-driven jailbreak detection algorithm |
 | [Security Embeddings](#security-embeddings-security-embeddings)| `security-embeddings` | Embeddings-based jailbreak and prompt injection detector |
-
-
+| [Encoding Heuristics](#encoding-heuristics-encoding-heuristics)| `encoding-heuristics` | Heuristics-based algorithm to detect common jailbreak encoding techniques. Currently covers Base64, Hex, ROT13, ASCII Escapes, URL Encodings, Cyrillic Homoglyphs, Mixed Scripts, Excessive Whitespace and Zero-Width Character based encodings. |
 ---
 
 ### Vijil Prompt Injection Classifier (`prompt-injection-mbert`)
@@ -88,6 +87,28 @@ Creates an embeddings index using the garak-in-the-wild-jailbreaks dataset.
 - **model** (optional str): The embedding model to use. Default value is `all-MiniLM-L6-v2`.
 - **threshold** (optional float. The default similarity threshold. If the similarity between a query and its nearest neighbour is greater than or equal to this value, the query is flagged. Default value is 0.8.
 - **in_mem** (optional boolean): Keep the index in memory via a Pandas dataframe (if true) or via Annoy (if False). (Note: Annoy appears to have some instability on Windows environments, and does not work with agents deployed via Google Cloud Run). Default value is true.
+
+### Encoding Heuristics (`encoding-heuristics`)
+A series of heuristic-based algorithms to detect the presence of Base64, Hex, URL and ROT13 encoded prompts, and prompts that have been manipulated with cyrillic encodings, mixed scripts, zero width characters and whitespace injections. These techniques are common ways of obfuscating prompt injection attacks, and in most scenarios, would never be part of a normal usage pattern. 
+
+This method is enabled in Dome's default configuration.
+
+**Parameters**
+
+- **threshold_map** (optional Dict[str, float]): A dictionary with a threshold value for each encoding heuristic. Inputs are flagged if the heuristic score for the prompt crosses the threshold. The default thresholds are as follows:
+```
+{
+    "base64": 0.7,
+    "rot13": 0.7,
+    "ascii_escape": 0.05,
+    "hex_encoding": 0.15,
+    "url_encoding": 0.15,
+    "cyrillic_homoglyphs": 0.05,
+    "mixed_scripts": 0.05,
+    "zero_width": 0.01,
+    "excessive_whitespace": 0.4,
+}
+```
 
 [^1]:[Bypassing Prompt Injection and Jailbreak Detection in LLM Guardrails
 ](https://arxiv.org/abs/2504.11168)
