@@ -12,44 +12,49 @@ Now that you have provisioned an EKS cluster and ensured connectivity to the req
 
 ## Deploying the Helm Chart
 
-The deployment of Vijil Evaluate is managed via a Helm chart provided in the `vijil-eks` GitHub repository. The repository contains a detailed `README.md` with step-by-step instructions for configuring and deploying the chart.
+The deployment of Vijil Evaluate is managed via a Helm chart provided in the `vijil-eks` GitHub repository that you will need to contact us in order to gain access to. The repository contains a `README.md` with step-by-step instructions for configuring and deploying the chart.
 
 ### Steps Overview
 
 1. **Clone the Repository**
 
-   ```bash
-   git clone git@github.com:vijil-ai/vijil-eks.git
-   cd vijil-eks
-   ```
+```bash
+git clone git@github.com:vijil-ai/vijil-eks.git
+cd vijil-eks
+```
 
 2. **Review the README**
 
-   The `README.md` in the repository contains the most up-to-date and detailed deployment instructions, including required values, configuration options, and example commands.
+The `README.md` in the repository contains the most up-to-date and detailed deployment instructions, including required values, configuration options, and example commands.
 
 3. **Configure Your Values**
 
-   Prepare a `values.yaml` file with the necessary configuration for your environment. This includes database connection strings, OpenSearch endpoints, S3 bucket names, and any other required secrets or settings.
+Prepare a `values.yaml` file with the necessary configuration for your environment. This includes database connection strings, OpenSearch endpoints, S3 bucket names, and any other required secrets or settings.
 
 4. **Install the Helm Chart**
 
-   Follow the instructions in the `README.md` to install the chart, for example:
+Follow the instructions in the `README.md` to install the chart, for example:
 
-   ```bash
-   helm upgrade --install  eval . -f values/dev.yaml -f values/secrets/dev.yaml
-   ```
+```bash
+helm upgrade --install  eval . -f values/dev.yaml -f values/secrets/dev.yaml
+```
 
-   > **Note:** The actual command and chart path may vary; always refer to the repository's `README.md` for the latest instructions.
+It should take around 10-15m to deploy.
+
+> **Note:** The actual command and chart path may vary; always refer to the repository's `README.md` for the latest instructions.
 
 5. **Verify the Deployment**
 
-   After installation, monitor the pods and services in your EKS cluster to ensure that all components are running as expected.
+After installation, monitor the pods and services in your EKS cluster to ensure that all components are running as expected.
 
-   ```bash
-   kubectl get pods
-   kubectl get svc
-   kubectl get ingress
-   ```
+```bash
+kubectl get pods
+kubectl get svc
+kubectl get ingress
+```
+
+Once you fetch the ingress defintions, you should see 2 Load Balancers with DNS. You will want to add those DNS entries under the Route53 entries you desire in your AWS account, so that you can access the API and Web UI through the domain names that you want.
+You should be able to verify that the API is up and running by hitting the `/healthz` endpoint
 
 ## Next Steps
 
