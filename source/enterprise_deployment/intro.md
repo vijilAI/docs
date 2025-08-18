@@ -8,8 +8,12 @@ In this guide, you'll learn how to:
 - Connect Vijil Evaluate to essential AWS resources, including:
   - **Amazon Aurora** databases for persistent, reliable data storage.
   - **Amazon OpenSearch Service** for advanced search and analytics capabilities.
-- Understand the networking, security, and IAM considerations for a production-grade deployment.
 
 By following these instructions, you'll be able to deploy Vijil Evaluate in your AWS environment, integrate it with your existing infrastructure, and ensure it can securely communicate with the necessary AWS services.
+
+![Vijil Evaluate VPC Deployment Overview](VPC_deployment.png)
+
+*Figure: High-level architecture of Vijil Evaluate deployed in an AWS VPC with EKS, Aurora, OpenSearch, and S3 integrations.*
+
 
 Let's get started!
