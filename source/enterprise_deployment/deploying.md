@@ -36,7 +36,7 @@ The deployment of Vijil Evaluate is managed via a Helm chart provided in the `vi
    Follow the instructions in the `README.md` to install the chart, for example:
 
    ```bash
-   helm install vijil-evaluate ./chart -f values.yaml
+   helm upgrade --install  eval . -f values/dev.yaml -f values/secrets/dev.yaml
    ```
 
    > **Note:** The actual command and chart path may vary; always refer to the repository's `README.md` for the latest instructions.
