@@ -10,15 +10,15 @@ Before deploying **Vijil Evaluate** in your enterprise environment, ensure you h
 - **Basic Kubernetes Knowledge**: Familiarity with Kubernetes concepts and resource management is required.
 - **Networking**: Understanding of VPC, subnets, and security groups in AWS.
 
-# Dependencies
+## Dependencies
 
 The following AWS resources and services are required for a production deployment of Vijil Evaluate:
 
-## Core
+### Core
 
 - **Amazon EKS Cluster**: The primary compute environment for running Vijil Evaluate services.
 
-## Datastores
+### Datastores
 
 - **PostgreSQL Database**: Used for persistent storage of application data. This can be provisioned using:
   - **Amazon Aurora (PostgreSQL-compatible)** – recommended for high availability and scalability.
@@ -26,11 +26,11 @@ The following AWS resources and services are required for a production deploymen
 
 - **Amazon OpenSearch Service**: Provides search and analytics capabilities (Elasticsearch-compatible). Required for indexing and querying evaluation data.
 
-## Object Storage
+### Object Storage
 
 - **Amazon S3**: Used for storing large objects such as evaluation artifacts, logs, and backups.
 
-## Summary Table
+### Summary Table
 
 | Dependency         | AWS Service                | Purpose                                 |
 |--------------------|---------------------------|-----------------------------------------|

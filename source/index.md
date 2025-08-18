@@ -60,6 +60,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
 
    enterprise_deployment/intro
    enterprise_deployment/pre-requisites
+   enterprise_deployment/deploying
 ```
 
 <!-- ## About Vijil
