@@ -5,7 +5,6 @@ Before deploying **Vijil Evaluate** in your enterprise environment, ensure you h
 - **AWS Account**: You must have access to an AWS account with sufficient permissions to create and manage EKS clusters, RDS/Aurora databases, OpenSearch domains, and S3 buckets.
 - **AWS CLI**: Install and configure the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) on your local machine.
 - **kubectl**: Install [kubectl](https://kubernetes.io/docs/tasks/tools/) to interact with your Kubernetes cluster.
-- **eksctl** (optional but recommended): Install [eksctl](https://eksctl.io/) for simplified EKS cluster management.
 - **IAM Permissions**: Ensure your AWS user/role has permissions to create and manage EKS, RDS/Aurora, OpenSearch, and S3 resources.
 - **Basic Kubernetes Knowledge**: Familiarity with Kubernetes concepts and resource management is required.
 - **Networking**: Understanding of VPC, subnets, and security groups in AWS.
@@ -23,12 +22,16 @@ The following AWS resources and services are required for a production deploymen
 - **PostgreSQL Database**: Used for persistent storage of application data. This can be provisioned using:
   - **Amazon Aurora (PostgreSQL-compatible)** – recommended for high availability and scalability.
   - **Amazon RDS for PostgreSQL** – suitable for smaller-scale or non-production deployments.
+  - Any other PostgreSQL solution you want that your EKS cluster has permission to access
 
 - **Amazon OpenSearch Service**: Provides search and analytics capabilities (Elasticsearch-compatible). Required for indexing and querying evaluation data.
 
 ### Object Storage
 
-- **Amazon S3**: Used for storing large objects such as evaluation artifacts, logs, and backups.
+- **Amazon S3**: Necessary for storing artifacts and handling data uploads for harness creations and other funcitonality. You will need to create three S3 buckets:
+  1. **Evaluation Data Bucket** – for storing evaluation results and related data.
+  2. **File Uploads Bucket** – for handling file uploads, such as files used in harness creation.
+  3. **Configs Bucket** – for storing configuration files required by the vijil-evaluate service.
 
 ### Summary Table
 

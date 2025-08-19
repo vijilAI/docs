@@ -7,12 +7,12 @@ Now that you have provisioned an EKS cluster and ensured connectivity to the req
 - An EKS cluster with the necessary IAM permissions and networking configuration.
 - Access to a PostgreSQL-compatible database (Aurora or RDS).
 - Access to an OpenSearch or Elasticsearch domain.
-- An S3 bucket for object storage.
+- S3 buckets for object storage.
 - Access to the private `vijil-eks` GitHub repository. If you do not have access, please contact the Vijil team.
 
 ## Deploying the Helm Chart
 
-The deployment of Vijil Evaluate is managed via a Helm chart provided in the `vijil-eks` GitHub repository that you will need to contact us in order to gain access to. The repository contains a `README.md` with step-by-step instructions for configuring and deploying the chart.
+The deployment of Vijil Evaluate is managed via a Helm chart provided in the `vijil-eks` GitHub repository that you will need to contact us in order to gain access to. The repository contains a `README.md` with instructions for configuring and deploying the chart.
 
 ### Steps Overview
 
@@ -29,7 +29,7 @@ The `README.md` in the repository contains the most up-to-date and detailed depl
 
 3. **Configure Your Values**
 
-Prepare a `values.yaml` file with the necessary configuration for your environment. This includes database connection strings, OpenSearch endpoints, S3 bucket names, and any other required secrets or settings.
+Prepare a `values.yaml` and `secrets.yaml` file with the necessary configuration for your environment. This includes database connection strings, OpenSearch endpoints, S3 bucket names, and any other required secrets or settings. There are examples in the `vijil-eks` repository for you to follow.
 
 4. **Install the Helm Chart**
 
@@ -53,7 +53,7 @@ kubectl get svc
 kubectl get ingress
 ```
 
-Once you fetch the ingress defintions, you should see 2 Load Balancers with DNS. You will want to add those DNS entries under the Route53 entries you desire in your AWS account, so that you can access the API and Web UI through the domain names that you want.
+When you fetch the ingress defintions, you should see 2 Load Balancers with DNS. You will want to add those DNS entries under the Route53 entries you desire in your AWS account, so that you can access the API and Web UI through the domain names that you want.
 You should be able to verify that the API is up and running by hitting the `/healthz` endpoint
 
 ## Next Steps
