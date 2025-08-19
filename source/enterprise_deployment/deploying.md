@@ -4,11 +4,12 @@ Now that you have provisioned an EKS cluster and ensured connectivity to the req
 
 ## Prerequisites
 
-- An EKS cluster with the necessary IAM permissions and networking configuration.
-- Access to a PostgreSQL-compatible database (Aurora or RDS).
-- Access to an OpenSearch or Elasticsearch domain.
-- S3 buckets for object storage.
-- Access to the private `vijil-eks` GitHub repository. If you do not have access, please contact the Vijil team.
+- An **EKS cluster** with the necessary IAM permissions and networking configuration.
+- Access to a PostgreSQL-compatible database (**Aurora or RDS**).
+- Access to an **OpenSearch or Elasticsearch** domain.
+- **S3** buckets for object storage.
+- An **Auth0** application for authenticating with all APIs
+- Access to the private **`vijil-eks`** GitHub repository. If you do not have access, please contact the Vijil team.
 
 ## Deploying the Helm Chart
 

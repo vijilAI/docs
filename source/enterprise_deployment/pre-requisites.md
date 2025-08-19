@@ -33,6 +33,10 @@ The following AWS resources and services are required for a production deploymen
   2. **File Uploads Bucket** – for handling file uploads, such as files used in harness creation.
   3. **Configs Bucket** – for storing configuration files required by the vijil-evaluate service.
 
+### Authentication
+
+- **Auth0** - You will require an Auth0 account and the ability to create an Auth0 application in your tenant
+
 ### Summary Table
 
 | Dependency         | AWS Service                | Purpose                                 |
