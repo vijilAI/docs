@@ -4,7 +4,7 @@ In addition to being compatible with popular LLM and Agent cloud service provide
 
 ## Prerequisites
 
-To get started, make sure you have the following
+To get started, make sure you have the following:
 
 1. [A Vijil client](run-your-first-test.md). In this topic we'll assume you've instantiated a Vijil client called `client`.
 2. An agent you want to evaluate
