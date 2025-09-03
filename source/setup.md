@@ -2,6 +2,8 @@
 
 This section will guide you through the process of preparing your development environment to use Vijil cloud services.
 
+Set up [Vijil Evaluate](#vijil-evaluate) to measure your system's trustworthiness, or [Vijil Dome](#vijil-dome) to protect your agent.
+
 ## Vijil Evaluate
 
 To run evaluation jobs through the Vijil Evalute API and interact with the results, you need to install the client library that provides the necessary functionalities. You can do so through downloading the library from PyPI.
@@ -29,14 +31,17 @@ export VIJIL_API_KEY = <eyj-xxxx>
 ```
 ````
 
-Alternatively you can store the key in a `.env` file and load it into your Python environment using a library such as [python-dotenv](https://pypi.org/project/python-dotenv/).
+Alternatively, you can store the key in a `.env` file and load it into your Python environment using a library such as [python-dotenv](https://pypi.org/project/python-dotenv/).
+
 
 ## Vijil Dome
 
-For maximum flexibility, we have made Vijil Dome available through a Python package. Given you're approved for private preview and have received a presigned URL and a Makefile, you can install it by running the command
+Vijil Dome is an [open-source library](https://github.com/vijilAI/vijil-dome) that provides input and output guardrails for your AI agents. You can install it from PyPI:
 
 ````{tab} Shell
 ```bash
-make dome PRESIGNED_URL='<YOUR-PRESIGNED URL>'
+pip install vijil-dome
 ```
-````
+```
+
+After installation, you can quickly test Dome with a [sample input](dome/gettingstarted.md#basic-usage).

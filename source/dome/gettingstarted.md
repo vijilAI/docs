@@ -16,7 +16,7 @@ Dome has the following additional extras that can be installed
 
 
 ## Basic Usage
-Initialize Dome with the provided default config
+Initialize Dome with the provided default config:
 
 ```python
 from vijil_dome import Dome

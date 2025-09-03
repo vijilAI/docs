@@ -1,4 +1,4 @@
-# Tutorials
+# Evaluating Agents
 
 The following examples demonstrate core functionalities in the `vijil` Python client.
 
