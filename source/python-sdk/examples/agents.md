@@ -2,7 +2,7 @@
 
 This guide demonstrates how to manage agent configurations using the Vijil Python SDK. You can create, update, and delete agents programmatically. Creating an agent configuration is the first step in evaluating an agent.
 
-After creating an agent configuration, you can use [evaluate it](evaluations.md).
+After creating an agent configuration, you can [evaluate it](evaluations.md).
 
 ## Add (Create) an Agent
 
@@ -18,7 +18,7 @@ response = client.agents.create(
     agent_name="my-openai-agent",
     hub="openai",
     api_key_name="my-openai-key",  # Use existing API key
-    model_name="gpt-4",
+    model_name="gpt-4o-mini",
     agent_system_prompt="You are a helpful AI assistant."
 )
 print(f"Created agent: {response}")
