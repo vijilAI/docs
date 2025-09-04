@@ -42,6 +42,6 @@ Vijil Dome is an [open-source library](https://github.com/vijilAI/vijil-dome) th
 ```bash
 pip install vijil-dome
 ```
-```
+````
 
 After installation, you can quickly test Dome with a [sample input](dome/gettingstarted.md#basic-usage).
