@@ -32,6 +32,7 @@ Now log into Vijil Evaluate, and navigate to **Keys > Add new key**. From the Mo
 Give the API key configuration a name, save it, and you're ready to go!
 
 To add the credentials using the python client, you need to supply the fields inside the `hub_config` argument.
+
 ````{tab} Python
 ```python
 client.api_keys.create(
@@ -48,7 +49,7 @@ client.api_keys.create(
     rate_limit_interval=60 # optional
 )
 ```
-
+````
 
 ## Run an Evaluation
 

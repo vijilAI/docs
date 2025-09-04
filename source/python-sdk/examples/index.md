@@ -7,8 +7,9 @@ The following examples demonstrate core functionalities in the `vijil` Python cl
    :maxdepth: 2
 
    run-your-first-test
-   evaluations
+   agents
    api-keys
+   evaluations
    OWASP LLM Top 10 <owasp>
    RAG metrics <rag>
    detections
