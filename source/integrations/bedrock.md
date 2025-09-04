@@ -6,7 +6,7 @@ For models, see Bedrock's [list](https://docs.aws.amazon.com/bedrock/latest/user
 
 You can set up RESTful access to agents using [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway).
 
-You can then [specify your agent configuration]() on Vijil Evaluate using the UI or the python client.
+You can then [specify your agent configuration](../python-sdk/examples/agents.md) on Vijil Evaluate using the UI or the python client.
 
 ## Bedrock Foundation Models
 

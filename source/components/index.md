@@ -1,4 +1,4 @@
-# Abstractions
+# Trust Score Components
 
 Vijil's evaluation service consists of harnesses, scenarios, probes, and detectors.
 
@@ -15,8 +15,8 @@ At the next level, each [probe](probes.md) consists of one of more prompts desig
 
 The next highest level consists of [scenarios](scenarios.md), which are collections of probes that have similar goals. 
 
-At the topmost level, [harnesses](harnesses.md) are collections of one or more scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more harnesses to include. Each [dimension](../tests-library/index.md
-) is a harness, but some harnesses are not dimensions.
+At the topmost level, [harnesses](harnesses.md) are collections of one or more scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more harnesses to include. The current Vijil Trust Score consists of three harnesses: Security, Safety, and Reliability.
+
 
 ```{eval-rst}
 
