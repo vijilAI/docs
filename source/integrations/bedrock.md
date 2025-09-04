@@ -1,26 +1,67 @@
 # AWS Bedrock
 
-You can evaluate LLMs, accessed as RESTful APIs on Amazon Bedrock, using Vijil Evaluate. To do so, first
-set up a [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway).
+You can evaluate LLMs or agents, accessed as RESTful APIs on Amazon Bedrock, using Vijil Evaluate.
 
-You can then [add an API key](../python-sdk/examples/api-keys.md#add-an-api-key) using the UI or the python client.
+For models, see Bedrock's [list](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) of supported foundation models.
 
-## Run an Evaluation
+You can set up RESTful access to agents using [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway).
 
-To run an evaluation from the UI, simply select *Bedrock* as the Model Hub, then paste your custom endpoint as the *Model URL*,
-and select a *Model Name from the dropdown.
+You can then [specify your agent configuration](../python-sdk/examples/agents.md) on Vijil Evaluate using the UI or the python client.
 
-To [run an evaluation using the Python client](../python-sdk/examples/evaluations.md), use the following code pattern, with your custom endpoint as `model_url`, model name as `model_name`, and a harness of your choice.
+## Bedrock Foundation Models
 
-````{tab} Python
+### Hub Parameters
+
+You need to specify the `region`, `access_key`, and `secret_access_key` in the `hub_config` parameter when creating an API key.
+
 ```python
-client.evaluations.create(
+hub_config = {
+    "region": "your-region",
+    "access_key": "your-access-key",
+    "secret_access_key": "your-secret-access-key",
+}
+
+client.api_keys.create(
+    name="bedrock-model-test",
     model_hub="bedrock",
-    model_url="https://your_model_url",
-    model_name="anthropic.claude-v2",
-    model_params={"temperature": 0},
-    harnesses=["hallucination"],
+    hub_config=hub_config
 )
 ```
-````
 
+Specify `bedrock` as the hub when creating an API key or new agent configuration in Vijil.
+
+### Model ID
+
+If you're evaluating a foundation model, you need to specify its Model ID from the list of [supported models](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) and prepend `us.` to it. For example, if you want to evaluate `amazon.nova-lite-v1:0`, you would specify `us.amazon.nova-lite-v1:0` as the model name.
+
+
+## Bedrock Agent Configuration
+
+If you are evaluating a custom agent on Bedrock, you need to specify the following fields in the  `hub_config` parameter when creating an API key:
+
+```python
+hub_config = {
+    "agent_id": "your_agent_id",
+    "agent_alias_id": "your_agent_alias_id",
+    "region": "your-region",
+    "access_key": "your-access-key",
+    "secret_access_key": "your-secret-access-key",
+}
+
+client.api_keys.create(
+    name="bedrock-test",
+    model_hub="bedrockAgents",
+    hub_config=hub_config,
+    rate_limit_per_interval=60, # optional
+    rate_limit_interval=60 # optional
+)
+
+client.agents.create(
+    name="bedrock-agent",
+    model_hub="bedrockAgents",
+    api_key_name="bedrock-test"
+)
+
+```
+
+Specify `bedrockAgents` as the hub when creating an API key or new agent configuration in Vijil.

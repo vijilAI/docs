@@ -1,6 +1,6 @@
-# Run your First Test
+# Run your First Evaluation
 
-This is an example of using the Vijil Python client. With only a few lines of code, you can determine
+Using the Vijil Python client, you can determine
 your LLM agent's vulnerability to malicious attacks and propensity to unintended harms.
 
 ## Loading the client
@@ -29,8 +29,7 @@ client.evaluations.create(
     model_hub="openai",
     model_name="gpt-4o-mini",
     model_params={"temperature": 0},
-    harnesses=["ethics"],
-    harness_params={"is_lite": True}
+    harnesses=["security"],
 )
 # If successful, returns dictionary with the following format:
 # {'id': 'df4584a5-e215-40d3-b758-d9bf63c37d99', 'status': 'CREATED'}

@@ -4,7 +4,7 @@ In addition to being compatible with popular LLM and Agent cloud service provide
 
 ## Prerequisites
 
-To get started, make sure you have the following
+To get started, make sure you have the following:
 
 1. [A Vijil client](run-your-first-test.md). In this topic we'll assume you've instantiated a Vijil client called `client`.
 2. An agent you want to evaluate
@@ -23,7 +23,7 @@ IMPORTANT: Due to how Jupyter handles event loops, we do NOT recommend running t
 In order to make your agent compatible with Vijil's APIs, you need to create an input_adapter and an output_adapter. Like the names imply, the input_adapter transforms a ChatCompletionRequest from Vijil, into an input that your agent expects, while the output_adapter converts your agent's output into a response that Vijil expects. 
 
 ```python
-from vijil.agents.models import (
+from vijil.local_agents.models import (
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionChoice,
@@ -68,7 +68,7 @@ vijil = Vijil(
         api_key=os.getenv("VIJIL_API_KEY"),
     )
 
-local_agent = vijil.agents.create(
+local_agent = vijil.local_agents.create(
     agent_function=my_agent_function,
     input_adapter=example_input_adapter,
     output_adapter=example_output_adapter,
@@ -79,10 +79,10 @@ Note that the `LocalAgentExecutor` can support any function if the input and out
 
 ## Step 2 - Evaluate!
 
-After creating the `LocalAgentExecutor`, use the `agents.evaluate` method to evaluate your agent. We spin up an authenticated ephemeral endpoint for your agent that can only communicate with Vijil Evaluate. This enables us to evaluate your agent without you needing to deploy it beforehand. 
+After creating the `LocalAgentExecutor`, use the `local_agents.evaluate` method to evaluate your agent. We spin up an authenticated ephemeral endpoint for your agent that can only communicate with Vijil Evaluate. This enables us to evaluate your agent without you needing to deploy it beforehand. 
 
 ```python
-vijil.agents.evaluate(
+vijil.local_agents.evaluate(
     agent_name="My Agent", # This is the name of your agent to use in the evaluation
     evaluation_name="Evaluating my agent on Ethics", # The name of your evaluation
     agent=local_agent, # The LocalAgentExecutor you created earlier
@@ -98,10 +98,10 @@ This method will automatically create the endpoint, register it and begin the ev
 
 If you're a power user, you can register your agent with Evaluate, trigger an evaluation via the registered url, and then shut down the server when you're done. This method is not recommended for most users because it requires you to manage the server lifecycle.
 ```python
-from vijil.agents.constants import TERMINAL_STATUSES
+from vijil.local_agents.constants import TERMINAL_STATUSES
 import time
 
-server, api_key_name = vijil.agents.register(
+server, api_key_name = vijil.local_agents.register(
     agent_name="my-agent",
     evaluator=local_agent,
     rate_limit=30,
@@ -150,7 +150,7 @@ from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
 
 # These are the imports you need to add for Evaluations
-from vijil.agents.models import (
+from vijil.local_agents.models import (
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionChoice,
@@ -220,14 +220,14 @@ if __name__ == "__main__":
         api_key=os.getenv("VIJIL_API_KEY"),
     )
 
-    local_agent = vijil.agents.create(
+    local_agent = vijil.local_agents.create(
         agent_function=cool_langchain_agent,
         input_adapter=example_input_adapter,
         output_adapter=example_output_adapter,
     )
 
     # Step 2: Evaluate your agent! Lets see how ethical our Cool Agent is!
-    vijil.agents.evaluate(
+    vijil.local_agents.evaluate(
         agent_name="local-cool-agent",
         evaluation_name="test local cool agent",
         agent=local_agent,
@@ -314,7 +314,7 @@ async def run_agent(query : str):
 We can now create the `LocalAgentExecutor` using the `run_agent` function and run our evaluation
 
 ```python
-from vijil.agents.models import (
+from vijil.local_agents.models import (
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionChoice,
@@ -357,14 +357,14 @@ vijil = Vijil(
    api_key=os.getenv("VIJIL_API_KEY"),
 )
 
-local_agent = vijil.agents.create(
+local_agent = vijil.local_agents.create(
     agent_function=run_agent,
     input_adapter=input_adapter,
     output_adapter=output_adapter,
 )
 
 # Evaluate your agent!
-vijil.agents.evaluate(
+vijil.local_agents.evaluate(
     agent_name="ADK Travel Concierge",
     evaluation_name="ADK Travel Concierge Security Testing",
     agent=local_agent,

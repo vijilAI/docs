@@ -1,4 +1,4 @@
-# Introduction
+# AI Red Teaming
 
 ## AI Agents
 
