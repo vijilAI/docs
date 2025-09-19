@@ -18,4 +18,5 @@ If you're just starting out, you'll need to [create an agent](agents.md) before 
    custom-harness
    local-agent-evaluations
    reports
+   playground
 ```
