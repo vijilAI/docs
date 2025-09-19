@@ -64,7 +64,7 @@ OpenAI (`openai`), Together (`together`), or OctoAI (`octoai`).
 - **model_name** (str):   -->
 
 Under the argument `harnesses`, you can also supply a list of trust dimensions or evaluation scenarios.
-We look into them in [later examples](python-sdk/examples/evaluations.md).
+We look into them in [later examples](evaluate/examples/evaluations.md).
 
 ## Running Detections
 
@@ -85,7 +85,7 @@ client.detections.create(
 Runs our LLM-based answer relevancy RAG metric on pairs of questions and actual responses.
 
 <!-- You can use `client.detections.list()` to obtain a full list of supported detectors.  -->
-We look into detections in more detail in [later examples](python-sdk/examples/detections.md).
+We look into detections in more detail in [later examples](evaluate/examples/detections.md).
 
 ## Setting up Guardrails
 

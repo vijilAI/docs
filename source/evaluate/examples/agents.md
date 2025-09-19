@@ -4,11 +4,29 @@ This guide demonstrates how to manage agent configurations using the Vijil Pytho
 
 After creating an agent configuration, you can [evaluate it](evaluations.md).
 
-## Add (Create) an Agent
+## Using the Vijil Web Interface
+
+Click **Agents** (robot icon) in the left sidebar to view all agents in your existing team.
+
+### Add (Create) an Agent
+
+1. In the left sidebar, click **Agents** (robot icon).
+2. Click **Add Agent**.
+3. Fill in the details in the dialog:
+    a. **Name** - The name of the agent.
+    b. **Hub** - The model hub your model is on. See [Integrations](../../integrations/index.md) for more information on each supported hub and its parameters.
+    c. **Model Name** - The name of the model you want to use on the hub. You can get this from the relevant hub's documentation.
+    d. **API Key** - Select an existing API Key or enter a new one.
+    e. **System Prompt** - If your agent's endpoint accepts a system prompt in its chat completion request, enter it  here for it to be including in all chat completion requests for the agent.
+
+
+## Using the Python Client
+
+### Add (Create) an Agent
 
 You can add an agent that uses an existing [API key](api-keys.md), or you can create a new API key and use it to add an agent.
 
-### Basic Agent Creation with Existing API Key
+#### Basic Agent Creation with Existing API Key
 
 Use the `api_key_name` parameter to specify the name of the API key you want to use.
 
@@ -24,7 +42,7 @@ response = client.agents.create(
 print(f"Created agent: {response}")
 ```
 
-### Create Agent with New API Key
+#### Create Agent with New API Key
 
 When creating an agent with a new API key, you should specify `api_key_value` and  all the required parameters for the API key, in addition to agent parameters.
 
@@ -44,7 +62,7 @@ response = client.agents.create(
 print(f"Created agent with new API key: {response}")
 ```
 
-### Create Bedrock Agent with a new API key
+#### Create Bedrock Agent with a new API key
 
 Some model hubs require additional parameters for the agent that you specify in `hub_config`. See [Integrations](../../integrations/index.md) for more information on each supported hub and its parameters.
 
@@ -66,7 +84,7 @@ response = client.agents.create(
 print(f"Created Bedrock agent: {response}")
 ```
 
-## List Agents
+### List Agents
 
 ```python
 # List all active agents
@@ -76,7 +94,7 @@ for agent in agents:
     print(f"- {agent.get('agent_name')} (Hub: {agent.get('hub')}, Model: {agent.get('model_name')})")
 ```
 
-## Update an Agent
+### Update an Agent
 
 You can update an agent's name, model, hub, system prompt, URL,  and associated API key.
 
@@ -94,7 +112,7 @@ response = client.agents.update(
 print(f"Updated agent: {response}")
 ```
 
-## Delete  Agent
+### Delete an Agent
 
 ```python
 # Delete an agent by name (archives the agent)

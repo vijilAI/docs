@@ -28,7 +28,7 @@ We support harnesses to test for regulations and standards relevant from an ente
 
 ### Custom Harness
 
-Using Vijil Evaluate, users can create customized harnesses to test their own agents by specifying details like agent system prompt, usage policy, and pointers to knowledge bases/function calls. Check out [this link](../python-sdk/examples/custom-harness.md) to learn more about custom harnesses.
+Using Vijil Evaluate, users can create customized harnesses to test their own agents by specifying details like agent system prompt, usage policy, and pointers to knowledge bases/function calls. Check out [this link](../evaluate/examples/custom-harness.md) to learn more about custom harnesses.
 
 ## Working with harnesses in Python client
 

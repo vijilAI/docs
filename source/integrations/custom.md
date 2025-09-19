@@ -4,13 +4,13 @@ If your agent is accessible using an OpenAI-style chat completion API that takes
 
 To do so, first store the API key by going to **Keys > Add new key** in the Evaluate platform. From the Model Hub dropdown, select *Custom* as your chosen hub, and add your API key.
 
-You can also [add an API key](../python-sdk/examples/api-keys.md#add-an-api-key) using the python client.
+You can also [add an API key](../evaluate/examples/api-keys.md#add-an-api-key) using the python client.
 
 ## Run an Evaluation
 
 To run an evaluation from the UI, simply select *Custom* as the Model Hub, then paste your custom endpoint as the *Model URL*.
 
-To [run an evaluation using the Python client](../python-sdk/examples/evaluations.md), use the following code pattern, with your custom endpoint as `model_url`, model name as `model_name`, and a harness of your choice.
+To [run an evaluation using the Python client](../evaluate/examples/evaluations.md), use the following code pattern, with your custom endpoint as `model_url`, model name as `model_name`, and a harness of your choice.
 
 ````{tab} Python
 ```python

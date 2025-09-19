@@ -1,11 +1,8 @@
 # Working with Detections
 
-Evaluations tightly couple detectors with probes, using a detector only to evaluate responses from
-the prompts in probes that use that detector. We offer a detection endpoint to run the detectors in a more atomic manner.
-Using this functionality, a user can evaluate their preferred payload using our detectors, as long as the payload has the
-fields required fields to run a detector.
+In Vijil Evaluate, detectors are the components that determine whether LLagent outputs have various properties related to safety, reliability, and security. When you run a Vijil Trust Score harness, the agent's outputs are graded by detectors before being aggregated. However, if you already have outputs from your agent and just want to grade them, you can use the detection endpoint.
 
-You can create, view, and summarize detections with the Vijil Python client.
+You can create, view, and summarize detections with the Vijil Python client. Currently, these functions are available only in the Python client.
 
 ## List Detectors
 
@@ -83,7 +80,6 @@ The table below gives the required set of input fields for each detector.
 | `toolcalling.ToolCorrectness` | `response`: str,`expected_tools`: list[str] |
 | `nlp.BLEU` | `response`: str,`ground_truth`: str |
 | `nlp.METEOR` | `response`: str,`ground_truth`: str |
-| `nlp.BERTScore` | `response`: str,`ground_truth`: str |
 | `llm.AnswerRelevancy` | `response`: str,`question`: str |
 | `llm.ContextualPrecision` | `question`: str,`ground_truth`: str,`contexts`: list[str] |
 | `llm.ContextualRecall` | `ground_truth`: str,`contexts`: list[str] |
@@ -91,6 +87,7 @@ The table below gives the required set of input fields for each detector.
 | `llm.Faithfulness` | `response`: str,`question`: str,`contexts`: list[str] |
 | `llm.StrongReject` | `response`: str,`forbidden_prompt`: str |
 | `llm.Refusal` | `input`: str, `response`: str |
+| `llm.HybridRefusal` | `input`: str, `response`: str |
 | `llm.ConversationRoleAdherence` | `response`: str,`role`: str |
 | `llm.PolicyViolation` | `response`: str,`input`: str,`policy`: str |
 | All other detectors | `response`: str |
