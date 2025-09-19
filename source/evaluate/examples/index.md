@@ -9,7 +9,6 @@ If you're just starting out, you'll need to [create an agent](agents.md) before 
    :maxdepth: 2
 
    agents
-   run-your-first-test
    api-keys
    evaluations
    OWASP LLM Top 10 Harness <owasp>

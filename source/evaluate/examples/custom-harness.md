@@ -10,7 +10,7 @@ To view the prompts in a custom harness, click on its row in the **Harnesses** t
 
 ## Python Client
 
-The following example assumes that you have already initialized a Vijil [client](run-your-first-test.md) named `client`.
+The following example assumes that you have already initialized a Vijil [client](../../quickstart.md) named `client`.
 
 ### Policy Document(s)
 

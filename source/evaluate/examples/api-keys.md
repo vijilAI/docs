@@ -10,11 +10,11 @@ Any keys you create can later be specified as the key for an [agent](agents.md) 
 
 ## Create, Delete, or Update API Keys in the Python Client
 
-Before doing any of this, you'll need to [instantiate](run-your-first-test.md) your Vijil client. In this topic we'll assume you've instantiated a Vijil client called `client`.
+Before doing any of this, you'll need to [instantiate](../../quickstart.md) your Vijil client. In this topic we'll assume you've instantiated a Vijil client called `client`.
 
 ### List available API keys
 
-This lists all the model hub API keys you've added to Vijil, along with their metadata like rate limits
+This lists all the model hub API keys you've added to Vijil, along with their metadata like rate limits:
 
 ```python
 client.api_keys.list()

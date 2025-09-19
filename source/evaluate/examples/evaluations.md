@@ -18,7 +18,7 @@ In the left sidebar, click on **Evaluations** (clipboard icon) to view all evalu
 
 You can create, view, summarize, export, cancel, and delete evaluations with the Vijil Python client.
 
-Before doing any of this, you'll need to [instantiate](run-your-first-test.md) your Vijil client. In this topic we'll assume you've instantiated a Vijil client called `client`.
+Before doing any of this, you'll need to [instantiate](../../quickstart.md) your Vijil client. In this topic we'll assume you've instantiated a Vijil client called `client`.
 
 ### Create an evaluation
 

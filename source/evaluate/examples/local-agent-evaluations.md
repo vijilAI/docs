@@ -6,7 +6,7 @@ Vijil Evaluate lets you evaluate agents that are hosted on popular LLM and Agent
 
 To get started, make sure you have the following:
 
-1. [A Vijil client](run-your-first-test.md). In this topic we'll assume you've instantiated a Vijil client called `client`.
+1. [A Vijil client](../../quickstart.md). In this topic we'll assume you've instantiated a Vijil client called `client`.
 2. An agent you want to evaluate
 2. If you are not a Vijil Premium user, [an Ngrok Authorization Token](https://dashboard.ngrok.com/get-started/setup/pythonhttps://dashboard.ngrok.com/get-started/setup/python)
 
