@@ -2,6 +2,8 @@
 
 At Vijil, we have scoured the latest AI security and red teaming research to gather a large volume of prompts relevant to the vulnerabilities in [OWASP Top 10 for LLMs](https://owasp.org/www-project-top-10-for-large-language-model-applications/). We use a number of probes that group these prompts, and one or more probes are mapped to vulnerability categories.
 
+You can run our OWASP Top 10 evaluation using the Vijil Python client.
+
 ```python
 # !pip install vijil
 

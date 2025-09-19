@@ -1,6 +1,6 @@
-# Evaluating Custom Agents
+# Evaluating Agents with Custom Endpoints
 
-In addition to being compatible with popular LLM and Agent cloud service providers, the Vijil Python Client enables users to evaluate any agent they have access to with just a few lines of code. The Vijil client can automatically spin up an endpoint for your agent, allowing you to use to test it just like you would any other model. 
+Vijil Evaluate lets you evaluate agents that are hosted on popular LLM and Agent cloud service providers. If you don't have an agent hosted on any of these [hubs](../../integrations/index.md), you can use the Vijil Python Client to evaluate any agent you have access to with just a few lines of code. The Vijil client can automatically spin up an endpoint for your agent, allowing you to use to test it just like you would any other model.
 
 ## Prerequisites
 
