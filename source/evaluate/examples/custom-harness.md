@@ -1,10 +1,18 @@
-# Create a Custom Harness
+# Custom Harnesses
 
-While Vijil has a variety of pre-configured [harnesses](../../components/harnesses.md) that you can select from, you can also create your own harnesses in order to obtain a trust score specific to your organization.
+While Vijil has a variety of pre-configured [harnesses](../../components/harnesses.md) that you can select from, you can also create your own harnesses in order to obtain a trust score specific to your organization and agent.
+
+## View Custom Harnesses
+
+You can view previously created custom harnesses by navigating to **Harnesses** in the left sidebar.
+
+To view the prompts in a custom harness, click on its row in the **Harnesses** table.
+
+## Python Client
 
 The following example assumes that you have already initialized a Vijil [client](run-your-first-test.md) named `client`.
 
-## Policy Document(s)
+### Policy Document(s)
 
 You can create a custom policy adherence harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you don't provide a policy file, we will create a harness based only on the provided system prompt. To specify that you want a policy adherence harness, you need to specify the `category` argument as `["AGENT_POLICY"]`.
 
@@ -50,7 +58,7 @@ client.evaluations.create(
 )
 ```
 
-## Knowledge Base
+### Knowledge Base (Enterprise Only)
 If you are developing a RAG agent and would like to generate a custom test harness to evaluate generation and retrieval capabilities based on a set of document chunks, upload the documents that you'd like to base the evaluation on into a GCP storage bucket and use the following command. To specify that you want a RAG harness, set the `category` parameter to `["KNOWLEDGE_BASE"]`.
 
 ```python
@@ -62,7 +70,7 @@ harness_creation_job = client.harnesses.create(
 )
 ```
 
-## Tool Calling Agent
+### Tool Calling Agent (Enterprise Only)
 To evaluate a tool calling agent, you need to supply input and output schemas for a function that you want to generate test prompts based on, as well as an endpoint to call that function. To specify that you want a tool calling harness, set the `category` parameter to `["FUNCTION_ROUTE"]`.
 
 For example, you are calling a `calculator` function to compute the sum of two numbers `num1` and `num2`, and returns the variable `result`. Thus input and output schema are
@@ -101,6 +109,6 @@ harness_creation_job = client.harnesses.create(
 )
 ```
 
-## Custom Harness with Multple Components
+### Custom Harness with Multple Components
 
 In the above examples we specified only one value in `category`, but you can also create a harness that contains multiple components. For example, you can create a harness that contains a knowledge base component and a tool calling agent component, or any of those components together with a policy adherence component. To do this, specify multiple values in `category`. For example, to create a harness with all three components, use `category=["KNOWLEDGE_BASE", "FUNCTION_ROUTE", "POLICY_ADHERENCE"]`.

@@ -10,7 +10,7 @@ What does an evaluation report look like? You can check out our auto-generated r
 
 ## Viewing the Report in the Web Interface
 
-You can view the evaluation report for any completed evaluation by navigating to **Evaluations** in the left sidebar. Click on the evaluation you want to view, then either view the generated report, generate a new report, or regenerate a report.
+You can view the evaluation report for any completed evaluation by navigating to **Evaluations** in the left sidebar. Click on the evaluation you want to view, then in the **Report Analysis** section, you can view the generated report, generate a new report, or regenerate a report.
 
 ## Generate a report in the Python Client
 
