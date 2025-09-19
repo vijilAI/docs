@@ -1,10 +1,26 @@
-# Working with Evaluations
+# Evaluations
+
+Evaluations are how we measure how trustworthy your agent is. Learn how to create, view, summarize, export, cancel, and delete evaluations.
+
+## Web Interface
+
+In the left sidebar, click on **Evaluations** (clipboard icon) to view all evaluations. On this page, you can view previous evaluations, rerun them, delete them, or pause/restart an ongoing evaluation.
+
+### Creating an Evaluation
+
+1. On the Evaluations page, click **Create Evaluation**.
+2. Select the agent to evaluate. If the agent you want is not yet in the list, click **Add Agent**. See [Agents](agents.md) for more information.
+3. Select the harnesses you want to run. See [Harnesses](../../components/harnesses.md) for more information.
+4. Once you've selected an agent, you can configure some of its runtime parameters like temperature and maximum completion tokens in the **Run Configuration** section.
+5. Optionally, enter a name for your evaluation, then click **Create**.
+
+## Python Client
 
 You can create, view, summarize, export, cancel, and delete evaluations with the Vijil Python client.
 
 Before doing any of this, you'll need to [instantiate](run-your-first-test.md) your Vijil client. In this topic we'll assume you've instantiated a Vijil client called `client`.
 
-## Create an evaluation
+### Create an evaluation
 
 You can use the `evaluations.create` method to create an evaluation:
 
@@ -30,9 +46,9 @@ The relevant parameters are as follows:
 - `harness_params`: `is_lite` determines whether you're running a "light" version of the harness, which will be cheaper and faster. Set this to `False` if you want to run the full harness.
 
 
-## View, describe, and summarize evaluations
+### View, describe, and summarize evaluations
 
-### List evaluations
+#### List evaluations
 
 List all evaluations with the `evaluations.list` method:
 
@@ -43,7 +59,7 @@ If you do not specify `limit`, it will return only the 10 most recent evaluation
 
 If you do not know an evaluation ID, the `list` method lets you find out the ID, which you need in order to get more details about that evaluation.
 
-### Get evaluation status
+#### Get evaluation status
 
 You can view the status of an evaluation with the `evaluations.get_status` method:
 
@@ -51,7 +67,7 @@ You can view the status of an evaluation with the `evaluations.get_status` metho
 client.evaluations.get_status(evaluation_id='96f925f6-a7a7-05dd-5f2a-665734d181ee')
 ```
 
-### Summarize a completed evaluation
+#### Summarize a completed evaluation
 
 Get summary scores for a completed evaluation, including scores at the overall, harness, scenario, and probe levels, with the `evaluations.summarize` method:
 
@@ -60,7 +76,7 @@ client.evaluations.summarize(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54
 ```
 
 
-### Get prompt-level details
+#### Get prompt-level details
 
 Get prompt-level details for a completed evaluation with the `evaluations.describe` method:
 
@@ -80,11 +96,11 @@ If you want a list of only the prompts/responses that led to hits (responses dee
 client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe', hits_only=True)
 ```
 
-## Export evaluations
+### Export evaluations
 
 You can export both the [summary](#summarize-a-completed-evaluation)- and [prompt-level](#get-prompt-level-details) evaluation results.
 
-### Export summary
+#### Export summary
 
 Export the summary of an evaluation with the `evaluations.export_summary` method:
 
@@ -94,7 +110,7 @@ client.evaluations.export_summary(evaluation_id='96f925f6-a7a7-05dd-5f2a-665734d
 
 The format can be either `pdf` or `html`. `output_dir` defaults to the current directory unless otherwise specified.
 
-### Export prompt-level details
+#### Export prompt-level details
 
 Export the prompt-level details of an evaluation with the `evaluations.export_report` method:
 
@@ -114,11 +130,11 @@ To export only the prompts/responses that led to hits (responses deemed undesira
 client.evaluations.export_report(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='csv', hits_only=True)
 ```
 
-## Cancel or delete evaluations
+### Cancel or delete evaluations
 
 You can cancel an in-progress evaluation or delete evaluations to unclutter your dashboard.
 
-### Cancel an evaluation
+#### Cancel an evaluation
 
 Cancel an in-progress evaluation with the `evaluations.cancel` method:
 
@@ -132,7 +148,7 @@ client.evaluations.cancel(evaluation_id='ecc4139a-bb07-4e04-8f0f-b402c1e5cb65')
 #  'metadata': None}
 ```
 
-### Delete an evaluation
+#### Delete an evaluation
 
 Delete an evaluation with the `evaluations.delete` method:
 
