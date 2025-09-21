@@ -30,7 +30,7 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
    :maxdepth: 1
    :caption: Evaluating Agents
 
-   python-sdk/examples/index
+   evaluate/examples/index
    integrations/index
    tests-library/index
    components/index

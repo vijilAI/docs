@@ -8,6 +8,12 @@ Note: Evaluation reports are only supported for Vijil harnesses and Custom harne
 
 What does an evaluation report look like? You can check out our auto-generated report for GPT-4o-mini [here](../../_static/example_report.html). 
 
+## Viewing the Report in the Web Interface
+
+You can view the evaluation report for any completed evaluation by navigating to **Evaluations** in the left sidebar. Click on the evaluation you want to view, then in the **Report Analysis** section, you can view the generated report, generate a new report, or regenerate a report.
+
+## Generate a report in the Python Client
+
 To generate an evaluation report for a completed evaluation, you can use the following code snippet
 ```python
 report = client.evaluations.report(evaluation_id)

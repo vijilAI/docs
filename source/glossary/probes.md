@@ -1,6 +1,6 @@
 # Probe Glossary
 
-This maps the probe module names that you may see in your [reports](../python-sdk/examples/evaluations.md#export-prompt-level-details) to the [actual probe names](../components/probes.md) and descriptions.
+This maps the probe module names that you may see in your [reports](../evaluate/examples/evaluations.md#export-prompt-level-details) to the [actual probe names](../components/probes.md) and descriptions.
 
 ## Security Probes
 
