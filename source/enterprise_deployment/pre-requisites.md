@@ -30,8 +30,34 @@ The following AWS resources and services are required for a production deploymen
 
 - **Amazon S3**: Necessary for storing artifacts and handling data uploads for harness creations and other funcitonality. You will need to create three S3 buckets:
   1. **Evaluation Data Bucket** – for storing evaluation results and related data.
-  2. **File Uploads Bucket** – for handling file uploads, such as files used in harness creation.
-  3. **Configs Bucket** – for storing configuration files required by the vijil-evaluate service.
+  2. **Configs Bucket** – for storing configuration files required by the vijil-evaluate service.
+  3. **File Uploads Bucket** – for handling file uploads, such as files used in harness creation.
+    
+    The file uploads bucket will also need to go to the control panel of this bucket and add CORS configurations, such that it is able to accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
+    ```JSON
+    [
+      {
+          "AllowedHeaders": [
+              "*"
+          ],
+          "AllowedMethods": [
+              "GET",
+              "PUT",
+              "POST",
+              "HEAD"
+          ],
+          "AllowedOrigins": [
+              "https://*.yourdomain.com"
+          ],
+          "ExposeHeaders": [
+              "ETag",
+              "x-amz-request-id",
+              "x-amz-id-2"
+          ],
+          "MaxAgeSeconds": 3000
+      }
+    ]
+    ```
 
 ### Authentication
 
