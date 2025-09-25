@@ -33,7 +33,7 @@ The following AWS resources and services are required for a production deploymen
   2. **Configs Bucket** – for storing configuration files required by the vijil-evaluate service.
   3. **File Uploads Bucket** – for handling file uploads, such as files used in harness creation.
     
-    The file uploads bucket will also need to go to the control panel of this bucket and add CORS configurations, such that it is able to accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
+    For the file uploads bucket you will also need to go to the control panel of this bucket and add CORS configurations, such that it is able to accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
     ```JSON
     [
       {
