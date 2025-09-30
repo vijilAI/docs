@@ -33,6 +33,8 @@ export VIJIL_API_KEY = <eyj-xxxx>
 
 Alternatively, you can store the key in a `.env` file and load it into your Python environment using a library such as [python-dotenv](https://pypi.org/project/python-dotenv/).
 
+This user token expires after 24 hours. If you plan to use the API over long periods of time, you should use [machine-to-machine secrets](evaluate/examples/cicd) to regularly refresh the token.
+
 
 ## Vijil Dome
 

@@ -1,4 +1,4 @@
-# Evaluating Agents
+# Tutorials
 
 The following examples demonstrate tasks you can carry out with Vijil Evaluate.
 
@@ -18,4 +18,5 @@ If you're just starting out, you'll need to [create an agent](agents.md) before 
    local-agent-evaluations
    reports
    playground
+   cicd
 ```
