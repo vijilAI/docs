@@ -1,6 +1,6 @@
 # Integrating Vijil Evaluate into CI/CD
 
-You can use Vijil Evaluate to automatically run evaluations as part of your CI/CD pipeline. To do that, you'll need to use obtain machine-to-machine secrets and use those to get and refresh authentication tokens. This is necessary because the regular user token expires every 24 hours.
+You can use Vijil Evaluate to automatically run evaluations as part of your CI/CD pipeline. To do that, you'll need to obtain machine-to-machine secrets and use those to get and refresh authentication tokens. This is necessary because the regular user token expires every 24 hours.
 
 ## Obtaining Machine-to-Machine Secrets
 
