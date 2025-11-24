@@ -1,0 +1,36 @@
+---
+title: "Harness"
+description: "Learn about Harnesses"
+---
+Vijil allows you to run pre-defined Harnesses that correspond to either dimensions or other related groups of [Probes](/core-concepts/components/probe).
+
+## Pre-defined Harnesses
+
+Vijil Evaluate comes with three types of pre-defined Harnesses, which can be run using the UI or Python client.
+
+## Dimension
+
+Every [dimension](/core-concepts/dimensions/introduction) is a pre-configured Harness. In addition, each [Scenario](/core-concepts/components/scenario) is also a Harness. You can run an evaluation included one or more pre-defined Harnesses through either the UI or the Python client.
+
+- [Security](/core-concepts/dimensions/security)
+- [Privacy](/core-concepts/dimensions/privacy)
+- [Hallucination](/core-concepts/dimensions/hallucination)
+- [Robustness](/core-concepts/dimensions/robustness)
+- [Toxicity](/core-concepts/dimensions/toxicity)
+- [Stereotype](/core-concepts/dimensions/stereotype)
+- [Fairness](/core-concepts/dimensions/fairness)
+- [Ethics](/core-concepts/dimensions/ethics)
+
+To run all of Vijil's Probes (covering all dimensions)---plus the Performance Harness covering benchmarks from the [OpenLLM Leaderboard 2](https://huggingface.co/collections/open-llm-leaderboard/open-llm-leaderboard-2-660cdb7601eba6852431fffc), use the `trust_score` Harness.
+
+## Benchmarks
+
+For quickly testing an LLM or agent on well-known benchmarks, Vijil has 21 benchmarks available across reliability (e.g. [OpenLLM](https://huggingface.co/open-llm-leaderboard), [OpenLLM v2](https://huggingface.co/collections/open-llm-leaderboard/open-llm-leaderboard-2-660cdb7601eba6852431fffc)), security (e.g. [garak](https://garak.ai/), [CyberSecEval 3](https://ai.meta.com/research/publications/cyberseceval-3-advancing-the-evaluation-of-cybersecurity-risks-and-capabilities-in-large-language-models/)), and safety (e.g. [StrongReject](https://arxiv.org/abs/2402.10260), [JailbreakBench](https://arxiv.org/abs/2404.01318)) in Vijil Evaluate.
+
+## Audits
+
+Vijil supports Harnesses to test for regulations and standards relevant from an enterprise risk perspective, such as the [OWASP LLM Top 10](/tutorials/evaluate-agents/owasp) and GDPR. Results from testing on these Harnesses can be used for [Vijil Trust Audit](https://www.vijil.ai/trust-audit).
+
+## Custom Harness
+
+Using Vijil Evaluate, you can create customized Harnesses to test their own agents by specifying details like agent system prompt, usage policy, and pointers to knowledge bases/function calls. See [how to build custom Harnesses](/tutorials/evaluate-agents/custom-harnesses).

@@ -1,0 +1,22 @@
+extends: existence
+message: "Always capitalize this term: write '%s' with an uppercase first letter."
+ignorecase: false
+level: error
+scope: text
+
+tokens:
+  # Singular lowercase
+  - '\bharness\b'
+  - '\bprobe\b'
+  - '\bscenario\b'
+  - '\bdetector\b'
+  - '\bguard\b'
+  - '\bguardrail\b'
+
+  # Plural lowercase
+  - '\bharnesses\b'
+  - '\bprobes\b'
+  - '\bscenarios\b'
+  - '\bdetectors\b'
+  - '\bguards\b'
+  - '\bguardrails\b'

@@ -1,0 +1,31 @@
+---
+title: "Custom Endpoints"
+description: "If your agent is accessible using an OpenAI-style chat completion API that takes in a base URL and a model name, Vijil can help you evaluate it."
+---
+
+To do so, first store the API key by going to **Keys > Add new key** in the Evaluate platform. From the Model Hub dropdown, select *Custom* as your chosen hub, and add your API key.
+
+You can also [add an API key](/tutorials/evaluate-agents/setup-evaluate#authentication-using-api-keys) using the Python client.
+
+## Run an Evaluation
+
+To run an evaluation from the UI, simply select *Custom* as the Model Hub, then paste your custom endpoint as the *Model URL*.
+
+To [run an evaluation using the Python client](/tutorials/evaluate-agents/evaluations), use the following code pattern, with your custom endpoint as `model_url`, model name as `model_name`, and a Harness of your choice.
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.create(
+    api_key_name="your_key_name",
+    model_hub="custom",
+    model_url="https://your_model_url",
+    model_name="your_model_name",
+    model_params={"temperature": 0},
+    harnesses=["hallucination"],
+)
+```
+</CodeGroup>
+
+<Note>
+You may need to store multiple API keys that are tied to different custom agent endpoints. Given that, you have made `api_key_name` an additional mandatory parameter to be supplied for evaluating custom endpoints.
+</Note>

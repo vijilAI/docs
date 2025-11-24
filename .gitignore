@@ -1,7 +1,2 @@
-_build/
-notebooks/harness/.env
-.env
-
-.vscode/
-.venv/
-.DS_Store
+.vscode
+Styles

@@ -1,0 +1,202 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Vijil",
+  "description": "Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Vijil Docs",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["get-started/welcome", "get-started/quickstart"]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "core-concepts/introduction",
+              {
+                "group": "Dimensions of Trust",
+                "expanded": true,
+                "pages": [
+                  "core-concepts/dimensions/introduction",
+                  "core-concepts/dimensions/security",
+                  "core-concepts/dimensions/privacy",
+                  "core-concepts/dimensions/hallucination",
+                  "core-concepts/dimensions/robustness",
+                  "core-concepts/dimensions/toxicity",
+                  "core-concepts/dimensions/stereotype",
+                  "core-concepts/dimensions/fairness",
+                  "core-concepts/dimensions/ethics"
+                ]
+              },
+              {
+                "group": "Trust Score Components",
+                "expanded": true,
+                "pages": [
+                  "core-concepts/components/introduction",
+                  "core-concepts/components/harness",
+                  "core-concepts/components/scenario",
+                  "core-concepts/components/probe",
+                  "core-concepts/components/detector",
+                  "core-concepts/components/guard",
+                  "core-concepts/components/guardrail"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Manage Agents",
+            "pages": [
+              "manage-agents/introduction",
+              {
+                "group": "Integrations",
+                "expanded": true,
+                "pages": [
+                  "manage-agents/integrations/vertex",
+                  "manage-agents/integrations/digitalocean",
+                  "manage-agents/integrations/bedrock",
+                  "manage-agents/integrations/custom",
+                  "manage-agents/integrations/local",
+                  "manage-agents/integrations/platform"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Protect Agents",
+            "pages": ["protect-agents/introduction"]
+          },
+          {
+            "group": "Evaluate Agents",
+            "pages": ["evaluate-agents/setup-evaluate"]
+          },
+          {
+            "group": "Tutorials",
+            "pages": [
+              "tutorials/manage-api-keys",
+              "tutorials/manage-agents",
+              {
+                "group": "Protect Agents",
+                "pages": [
+                  "tutorials/protect-agents/setup-dome",
+                  "tutorials/protect-agents/setup-guards",
+                  "tutorials/protect-agents/configuring-guardrails",
+                  "tutorials/protect-agents/using-guardrails",
+                  "tutorials/protect-agents/domed-clients",
+                  "tutorials/protect-agents/langchain",
+                  "tutorials/protect-agents/adk",
+                  "tutorials/protect-agents/custom-detectors",
+                  "tutorials/protect-agents/observability"
+                ]
+              },
+              {
+                "group": "Evaluate Agents",
+                "pages": [
+                  "tutorials/evaluate-agents/setup-evaluate",
+                  "tutorials/evaluate-agents/evaluations",
+                  "tutorials/evaluate-agents/owasp",
+                  "tutorials/evaluate-agents/rag",
+                  "tutorials/evaluate-agents/detections",
+                  "tutorials/evaluate-agents/custom-harnesses",
+                  "tutorials/evaluate-agents/local-agent-evaluation",
+                  "tutorials/evaluate-agents/reports",
+                  "tutorials/evaluate-agents/cicd",
+                  {
+                    "group": "Enterprise Deployment of Evaluate",
+                    "expanded": true,
+                    "pages": [
+                      "tutorials/evaluate-agents/enterprise/introduction",
+                      "tutorials/evaluate-agents/enterprise/prerequisites",
+                      "tutorials/evaluate-agents/enterprise/deployment"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "References",
+            "pages": [
+              "references/glossary",
+              "references/release-notes",
+              "references/documentation"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "API documentation",
+            "pages": ["api-reference/introduction"]
+          },
+          {
+            "group": "Endpoint examples",
+            "pages": [
+              "api-reference/endpoint/get",
+              "api-reference/endpoint/create",
+              "api-reference/endpoint/delete",
+              "api-reference/endpoint/webhook"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Blog",
+          "href": "https://www.vijil.ai/blog",
+          "icon": "newspaper"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hi@mintlify.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://dashboard.mintlify.com"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://vijil.ai",
+      "github": "https://github.com/vijilAI/",
+      "linkedin": "https://www.linkedin.com/company/vijil"
+    }
+  },
+  "banner": {
+    "content": "🚀 Vijil Docs - Migrated to Mintlify. Test Banner",
+    "dismissible": true
+  }
+}
