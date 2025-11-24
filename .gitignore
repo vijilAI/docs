@@ -1,7 +1,9 @@
 _build/
 notebooks/harness/.env
 .env
+.python-version
 
 .vscode/
 .venv/
+venv/
 .DS_Store
