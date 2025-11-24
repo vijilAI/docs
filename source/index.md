@@ -57,9 +57,17 @@ Vijil helps organizations that are adapting open-source and API-only AI models t
    :maxdepth: 1
    :caption: Enterprise Deployment of Evaluate
 
-   enterprise_deployment/intro
-   enterprise_deployment/pre-requisites
-   enterprise_deployment/deploying
+   enterprise_deployment_eval/intro
+   enterprise_deployment_eval/pre-requisites
+   enterprise_deployment_eval/deploying
+```
+
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
+   :caption: Enterprise Deployment of Dome
+
+   enterprise_deployment_dome/deployment
 ```
 
 <!-- ## About Vijil
