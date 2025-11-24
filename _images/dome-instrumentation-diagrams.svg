@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1050">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#000"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect x="0" y="0" width="900" height="1050" fill="#f0f0f0"/>
+  
+  <!-- Tracing Diagram -->
+  <rect x="50" y="50" width="800" height="300" fill="#e1f5fe" stroke="#01579b" stroke-width="2"/>
+  <text x="450" y="90" font-family="Arial" font-size="24" text-anchor="middle" fill="#01579b">Tracing</text>
+  
+  <rect x="100" y="120" width="200" height="200" fill="#b3e5fc" stroke="#0288d1" stroke-width="2"/>
+  <text x="200" y="150" font-family="Arial" font-size="18" text-anchor="middle">Guardrail Span</text>
+  <text x="200" y="180" font-family="Arial" font-size="14" text-anchor="middle">- Input</text>
+  <text x="200" y="210" font-family="Arial" font-size="14" text-anchor="middle">- Output</text>
+  <text x="200" y="240" font-family="Arial" font-size="14" text-anchor="middle">- Error info</text>
+  
+  <rect x="350" y="120" width="200" height="200" fill="#b3e5fc" stroke="#0288d1" stroke-width="2"/>
+  <text x="450" y="150" font-family="Arial" font-size="18" text-anchor="middle">Guard Span</text>
+  <text x="450" y="180" font-family="Arial" font-size="14" text-anchor="middle">- Input</text>
+  <text x="450" y="210" font-family="Arial" font-size="14" text-anchor="middle">- Output</text>
+  <text x="450" y="240" font-family="Arial" font-size="14" text-anchor="middle">- Error info</text>
+  
+  <rect x="600" y="120" width="200" height="200" fill="#b3e5fc" stroke="#0288d1" stroke-width="2"/>
+  <text x="700" y="150" font-family="Arial" font-size="18" text-anchor="middle">Detector Span</text>
+  <text x="700" y="180" font-family="Arial" font-size="14" text-anchor="middle">- Input</text>
+  <text x="700" y="210" font-family="Arial" font-size="14" text-anchor="middle">- Output</text>
+  <text x="700" y="240" font-family="Arial" font-size="14" text-anchor="middle">- Error info</text>
+  
+  <!-- Monitoring Diagram -->
+  <rect x="50" y="400" width="800" height="300" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="450" y="440" font-family="Arial" font-size="24" text-anchor="middle" fill="#2e7d32">Monitoring</text>
+  
+  <rect x="100" y="470" width="700" height="200" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+  <text x="450" y="500" font-family="Arial" font-size="18" text-anchor="middle">Instruments for each component</text>
+  <text x="450" y="530" font-family="Arial" font-size="14" text-anchor="middle">- Requests Count (requests)</text>
+  <text x="450" y="560" font-family="Arial" font-size="14" text-anchor="middle">- Flagged Count (flagged)</text>
+  <text x="450" y="590" font-family="Arial" font-size="14" text-anchor="middle">- Error Count (errors)</text>
+  <text x="450" y="620" font-family="Arial" font-size="14" text-anchor="middle">- Latency (latency)</text>
+  
+  <!-- Logging Diagram -->
+  <rect x="50" y="750" width="800" height="250" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="450" y="790" font-family="Arial" font-size="24" text-anchor="middle" fill="#e65100">Logging</text>
+  
+  <rect x="75" y="820" width="140" height="100" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+  <text x="145" y="845" font-family="Arial" font-size="16" text-anchor="middle">DEBUG</text>
+  <text x="145" y="880" font-family="Arial" font-size="10" text-anchor="middle">Setup messages</text>
+  
+  <rect x="225" y="820" width="140" height="100" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+  <text x="295" y="845" font-family="Arial" font-size="16" text-anchor="middle">INFO</text>
+  <text x="295" y="880" font-family="Arial" font-size="10" text-anchor="middle">Inputs and outputs</text>
+  
+  <rect x="375" y="820" width="140" height="100" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+  <text x="445" y="845" font-family="Arial" font-size="16" text-anchor="middle">WARNING</text>
+  <text x="445" y="865" font-family="Arial" font-size="10" text-anchor="middle">Missing components</text>
+  <text x="445" y="880" font-family="Arial" font-size="10" text-anchor="middle">Detector Warnings</text>
+  <text x="445" y="895" font-family="Arial" font-size="10" text-anchor="middle">Timeouts</text>
+  
+  <rect x="525" y="820" width="140" height="100" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+  <text x="595" y="845" font-family="Arial" font-size="16" text-anchor="middle">ERROR</text>
+  <text x="595" y="880" font-family="Arial" font-size="10" text-anchor="middle">Handled errors</text>
+  
+  <rect x="675" y="820" width="140" height="100" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+  <text x="745" y="845" font-family="Arial" font-size="16" text-anchor="middle">CRITICAL</text>
+  <text x="745" y="865" font-family="Arial" font-size="10" text-anchor="middle">Invalid Configurations</text>
+  <text x="745" y="880" font-family="Arial" font-size="10" text-anchor="middle">Unhandled Exceptions</text>
+</svg>

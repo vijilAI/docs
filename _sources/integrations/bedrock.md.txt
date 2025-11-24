@@ -1,0 +1,67 @@
+# AWS Bedrock
+
+You can evaluate LLMs or agents, accessed as RESTful APIs on Amazon Bedrock, using Vijil Evaluate.
+
+For models, see Bedrock's [list](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) of supported foundation models.
+
+You can set up RESTful access to agents using [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway).
+
+You can then [specify your agent configuration](../evaluate/examples/agents.md) on Vijil Evaluate using the UI or the python client.
+
+## Bedrock Foundation Models
+
+### Hub Parameters
+
+You need to specify the `region`, `access_key`, and `secret_access_key` in the `hub_config` parameter when creating an API key.
+
+```python
+hub_config = {
+    "region": "your-region",
+    "access_key": "your-access-key",
+    "secret_access_key": "your-secret-access-key",
+}
+
+client.api_keys.create(
+    name="bedrock-model-test",
+    model_hub="bedrock",
+    hub_config=hub_config
+)
+```
+
+Specify `bedrock` as the hub when creating an API key or new agent configuration in Vijil.
+
+### Model ID
+
+If you're evaluating a foundation model, you need to specify its Model ID from the list of [supported models](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) and prepend `us.` to it. For example, if you want to evaluate `amazon.nova-lite-v1:0`, you would specify `us.amazon.nova-lite-v1:0` as the model name.
+
+
+## Bedrock Agent Configuration
+
+If you are evaluating a custom agent on Bedrock, you need to specify the following fields in the  `hub_config` parameter when creating an API key:
+
+```python
+hub_config = {
+    "agent_id": "your_agent_id",
+    "agent_alias_id": "your_agent_alias_id",
+    "region": "your-region",
+    "access_key": "your-access-key",
+    "secret_access_key": "your-secret-access-key",
+}
+
+client.api_keys.create(
+    name="bedrock-test",
+    model_hub="bedrockAgents",
+    hub_config=hub_config,
+    rate_limit_per_interval=60, # optional
+    rate_limit_interval=60 # optional
+)
+
+client.agents.create(
+    name="bedrock-agent",
+    model_hub="bedrockAgents",
+    api_key_name="bedrock-test"
+)
+
+```
+
+Specify `bedrockAgents` as the hub when creating an API key or new agent configuration in Vijil.
