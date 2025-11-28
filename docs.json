@@ -1,5 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "source":"docs",
   "theme": "maple",
   "name": "Vijil",
   "description": "Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.",
