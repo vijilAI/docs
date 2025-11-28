@@ -1,3 +1,0 @@
-# Local LLMs and Agents
-
-Vijil Evaluate also supports evaluating agents and LLMs that run on your local machine, or on any other cloud service provider using the Python Client. This includes agents built using Langchain and Google ADK that may or may not be deployed. See our tutorial on [Local Agent Evaluations](../evaluate/examples/local-agent-evaluations.md) for instructions on how to test the reliability, safety and security of any agent.

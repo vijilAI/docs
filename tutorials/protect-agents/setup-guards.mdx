@@ -1,0 +1,44 @@
+---
+title: "Setting Up Guards and Detectors"
+description: "Users can configure Guards by selecting and combining different Detectors based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements."
+---
+![guardrail-composition | 80%](/images/guardrail_composition.png)
+
+## Example Configuration
+
+Here is an example of how you can set up Guards and Detectors (see the [Configuring Dome section](/tutorials/protect-agents/using-guardrails#configuring-dome) for more details):
+
+```python
+
+ config = {
+    ########################
+    # setup guardrails from guards
+    ########################
+    # input guardrail
+    "input-guards": ["prompt-injection", "input-privacy"],
+
+    # output guardrail
+    "output-guards": ["output-toxicity"],
+
+    ##########################
+    # assemble and configure guards
+    ##########################
+
+    # a guard for prompt injection
+    "prompt-injection": {
+        "type": "security",
+        "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
+    },
+
+    # a guard to remove PII from requests to the LLM
+    "input-privacy": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"]
+    },
+
+    # a guard for toxic output content
+    "output-toxicity": {
+        "type": "moderation",
+        "methods": ["moderation-llamaguard"]
+    },
+}

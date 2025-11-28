@@ -1,0 +1,206 @@
+---
+title: "Configuring Guardrails"
+description: "Dome offers a flexible system to secure your applications through configurable Guardrails. This allows Dome to be customized to fit your requirements and policies. By default, Dome is equipped with a default configuration that is fast, and accurate, and covers security,"
+---
+## Create Configurations for Dome
+
+Here iss a step-by-step guide that outlines how to setup a config for Dome.
+
+### Step 1: Choose and Configure Guardrails
+
+Dome provides [the following types](/core-concepts/components/guardrail) of Guardrails:
+
+1. Input Guardrails
+2. Output Guardrails
+3. Retrieval Guardrails (coming soon)
+4. Execution Guardrails (coming soon)
+
+The type of Guardrail simply indicates where it is supposed to run in an application flow.
+
+To configure a Guardrail :
+
+- provide a list of Guards
+- specify whether Guards should run serially or in parallel (`run-parallel`)
+- specify whether all Guards should run, or execution should terminate as soon as one Guard is a hit (`early-exit`)
+
+### Step 2: Assemble and Configure Guards
+
+Guards are groups of Detectors of a particular type that make up a Guardrail. Guards can be named as you like, and are completely user defined.
+
+Each Guard must be one of the following types:
+
+1. Security
+2. Moderation
+3. Privacy
+4. Integrity
+5. Generic
+
+To configure a Guard:
+
+- specify the type of Guard
+- provide a list of Detectors of the same type as the Guard
+- specify whether Detectors should run serially or in parallel (`run-parallel`)
+- specify whether all Detectors should run, or execution should terminate as soon as one Detector is a hit (`early-exit`)
+
+### Step 3: Select and Configure Detectors
+
+Guards are made up of Detectors. To set up your Guards:
+
+1. Choose specific Detectors from Dome's growing library
+2. Configure each Detector with settings like thresholds or context-length.
+
+These settings depend on the Detector used. Please see the [list of detection methods](#) for a comprehensive list of all the detection methods Vijil currently offers and the settings they have.
+
+### Example
+
+<CodeGroup>
+```python title="Python" icon="python"
+example_config = {
+
+            # The input guardrail has two guards - 'prompt-injection' and 'input-toxicity'
+            "input-guards": ["prompt-injection", "input-toxicity"],
+            # The output guardrail has one guard - 'output-toxicity'
+            "output-guards": ["output-toxicity"],
+
+            # Here, we set the input guardrail's execution settings. Early-exit and parallel execution are enabled
+            "input-early-exit": True,
+            "input-run-parallel": True,
+
+            # By not specifying the output guardrail's execution settings, the default values are used. It runs serially, and has early-exit enabled.
+
+            # Here, we set up the 'prompt-injection' guard.
+            "prompt-injection": {
+                "type": "security", # This type governs what detectors can be used in the guard. Only detectors of the same type can be used
+
+                # Here, we specify guard-level execution settings
+                "early-exit": False,    # This guard does not terminate early
+                "run-parallel": True,   # This guard runs its detection methods in parallel
+
+                # We specify the detection methods we want to use - "prompt-injection-mbert" and "security-llm", both of which are security methods
+                "methods" : ["prompt-injection-mbert", "security-llm"],
+
+                # Here, we are configuring detector-specific settings.
+                # We are using GPT 4 as the LLM in the security-llm detector instead of the default GPT-4 Turbo
+                "security-llm": {
+                    "model_name": "gpt-4"
+                }
+            },
+
+            # This sets up the 'input-toxicity' guard.
+            "input-toxicity":{
+                "type":"moderation",
+                # Since we do not specify the guard-level execution settings, the default values are used. It runs serially, and has early-exit enabled.
+
+                # We have just one method in this guard, which is the OpenAI moderations API
+                "methods":["moderations-oai-api"]
+            },
+
+            # This sets up the 'output-toxicity' guard.
+            "output-toxicity":{
+                "type":"moderation",
+                "methods":["moderation-llamaguard"]
+            },
+        }
+```
+</CodeGroup>
+
+## Configuring Dome via a TOML file
+
+Dome configurations can also be described via .toml files. This enables users to easily save and edit configurations. Instantiating Dome from a TOML file is identical to instantiating it from a dictionary.
+
+<CodeGroup>
+```python title="Python" icon="python"
+from vijil_dome import Dome
+
+dome_from_toml = Dome(<PATH_TO_TOML_FILE>)
+```
+</CodeGroup>
+
+An example of a TOML configuration is shown below, followed by its corresponding dictionary representation.
+
+<CodeGroup>
+```toml title="TOML"
+[guardrail]
+input-guards = ["prompt-injection", "input-toxicity"]
+output-guards = ["output-toxicity"]
+input-early-exit = false
+
+[prompt-injection]
+type="security"
+early-exit = false
+methods = ["prompt-injection-mbert", "security-llm"]
+
+[prompt-injection.security-llm]
+model_name = "gpt-4o"
+
+[input-toxicity]
+type="moderation"
+methods = ["moderations-oai-api"]
+
+[output-toxicity]
+type="moderation"
+methods = ["moderation-llamaguard"]
+```
+</CodeGroup>
+
+
+The corresponding dictionary for this config would be:
+
+<CodeGroup>
+```python title="Python" icon="python"
+{
+    "input-guards": ["prompt-injection", "input-toxicity"],
+    "output-guards": ["output-toxicity"],
+    "input-early-exit": False,
+    "prompt-injection": {
+        "type": "security",
+        "early-exit": False,
+        "methods" : ["prompt-injection-mbert", "security-llm"],
+        "security-llm": {
+            "model_name": "gpt-4o"
+        }
+    },
+    "input-toxicity":{
+        "type":"moderation",
+        "methods":["moderations-oai-api"]
+    },
+    "output-toxicity":{
+        "type":"moderation",
+        "methods":["moderation-llamaguard"]
+    },
+}
+```
+</CodeGroup>
+
+To create a TOML configuration for Dome, ensure that you have a field named `guardrail` that lists out the input and output Guards, and the parallel execution/early termination settings you need. To specify settings for a method in a Guard, use  `<GUARD_NAME>.<METHOD_NAME>`.
+
+<Note>
+When specifying booleans in the TOML, please ensure to use **lowercase** values (i.e, 'true' and 'false').
+</Note>
+
+## Overall Config Structure
+
+
+The `guardrail` field describes the high level structure of a Dome configuration.
+
+| Attribute | Type | Description |
+|---|---|---|
+| `input-guards` | List | user-defined list of Guard modules used to scan an input |
+| `input-early-exit` | Boolean | determines if the input Guardrail runs in "early-exit" mode, i.e, stop execution as soon as one of the Guards in the input Guardrail has flagged the input. (Default is True) |
+| `input-run-parallel` | Boolean | determines whether Guards in the input Guardrail are executed in parallel. (Default is False) |
+| `output-guards` | List | user-defined list of Guard modules used to scan an output |
+| `output-early-exit` | Boolean | determines if the output Guardrail runs in "early-exit" mode, i.e, stop execution as soon as one of the Guards in the output Guardrail has flagged the input. (Default is True) |
+| `output-run-parallel` | Boolean | determines whether Guards in the output Guardrail are executed in parallel. (Default is False) |
+
+Inside a Guardrail specification, the configuration of each Guard module can be specified by creating a new field with the module name.
+
+Each `guard` module has four attributes.
+
+| Attribute | Type | Description |
+|---|---|---|
+| `type` | Enum | user-defined type of the Guard module, specifying the category of Guards that it holds. Every Guard module can be exactly one of the four currently supported types: `security`, `moderation`, `privacy`, and `integrity` (experimental) |
+| `methods` | List | describes which methods are to be used in the Guard module. Possible methods depend on the type selected, and can be chosen from the [list of methods](/core-concepts/components/guard) under that type.
+| `early-exit` | Boolean | determines if the Guard runs in "early-exit" mode, i.e, stop execution as soon as one of the methods in Guard has the flagged the query |
+| `run-parallel` | Boolean |  determines whether methods in the Guard are executed in parallel. (Default is False) |
+
+Finally, to customize a configuration at the method-level, you need to create a new field with the name `<MODULE-NAME>.<METHOD-NAME>`. In the example above, `prompt-injection.security-llm` describes the configuration settings for the `security-llm` method of the `prompt-injection` Guard module. This configuration scheme lets users create custom settings for different groups and use the same method with different settings in a Guardrail. See the next section for detailed instructions on the options available for each method.
