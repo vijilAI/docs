@@ -1,0 +1,38 @@
+---
+title: "Evaluation Reports"
+description: ""
+---
+For an evaluation to be useful, it needs to be more than just a bunch of scores and numbers - it needs to tell you what went wrong, why it matters, and how you can try to fix it. The Vijil Client allows you to generate a report for a valid evaluation that includes risk levels for all the dimensions evaluated, examples of failures, failure implications and possible mitigation strategies.
+
+<Note>
+Evaluation reports are only supported for Vijil Harnesses and Custom Harnesses. Evaluation reports cannot be generated for benchmarks.
+</Note>
+
+What does an evaluation report look like? You can check out Vijil's auto-generated report for GPT-4o-mini [here](/assets/example_report.html).
+{/* need to host this? */}
+
+## Viewing the Report in the Web Interface
+
+You can view the evaluation report for any completed evaluation by navigating to **Evaluations** in the left sidebar. Click on the evaluation you want to view, then in the **Report Analysis** section, you can view the generated report, generate a new report, or regenerate a report.
+
+## Generate a report in the Python Client
+
+To generate an evaluation report for a completed evaluation, you can use the following code snippet
+
+<CodeGroup>
+```python title="Python" icon="python"
+report = client.evaluations.report(evaluation_id)
+report.generate(
+    save_file="my-evaluation-report.html", # Optional
+    wait_till_completion=True # Optional. Defaults to True
+)
+```
+</CodeGroup>
+
+This will generate a report as shown above saved to `my-evaluation-report.html`. If no `save_file` is specified, the report is saved to `{evaluation_id}-report.html`. The report generation can take a few seconds, and you will see status updates as the report is generated.
+
+![Report generation progress](/images/report_creation_cropped.gif)
+
+Optionally, you can choose not to wait for completion by setting `wait_till_completion=False`. This will initiate the creation process if no report exists, provide a status update if the creation process is ongoing, or save the report if it is completed.
+
+We currently support report generation in HTML (with interactive plots and charts) and PDF.

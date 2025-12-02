@@ -1,0 +1,9 @@
+extends: existence
+message: "Wrap technical tokens in inline code using backticks: `%s`."
+level: suggestion
+scope: text
+
+tokens:
+  - '\b[\w\-]+\.(js|ts|jsx|tsx|py|go|rs|java|yaml|yml|json|toml|ini|md|sql|sh|zsh)\b'
+  - '\b[a-zA-Z_]\w*\(\)\b'
+  - '\s(--[a-zA-Z0-9\-]+)\b'

@@ -1,0 +1,9 @@
+extends: existence
+message: "Avoid 'we' unless you define who 'we' is. Prefer second person."
+ignorecase: true
+level: warning
+
+tokens:
+  - '\bwe\b'
+  - '\bour\b'
+  - '\bus\b'
