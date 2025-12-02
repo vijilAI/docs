@@ -79,7 +79,7 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": ["evaluate-agents/setup-evaluate"]
+            "pages": ["evaluate-agents/introduction"]
           },
           {
             "group": "Tutorials",
@@ -129,26 +129,7 @@
             "group": "References",
             "pages": [
               "references/glossary",
-              "references/release-notes",
-              "references/documentation"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": ["api-reference/introduction"]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "references/release-notes"
             ]
           }
         ]
@@ -197,7 +178,7 @@
     }
   },
   "banner": {
-    "content": "🚀 Vijil Docs - Migrated to Mintlify. Test Banner",
+    "content": "🚀 Welcome to the Vijil Documentation!",
     "dismissible": true
   }
 }
