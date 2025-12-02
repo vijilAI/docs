@@ -1,8 +1,9 @@
 ---
 title: "Introduction"
-description: "Vijil’s evaluation service consists of Harnesses, Scenarios, Probes, and Detectors."
+description: "Discover Vijil’s evaluation service"
 ---
 
+Vijil’s evaluation service consists of Harnesses, Scenarios, Probes, and Detectors:
 ![Vijil Evaluation components](/images/Harness-scenario-probe-detector.png)
 
 At the lowest level, [Detectors](/core-concepts/components/detector) scan model responses for undesirable features and register responses with those features as successful attacks on the model. For example, a Detector may be designed to look for fake Python packages.
@@ -13,42 +14,65 @@ The next highest level consists of [Scenarios](/core-concepts/components/scenari
 
 At the topmost level, [Harnesses](/core-concepts/components/harness) are collections of one or more Scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more Harnesses to include. The current Vijil Trust Score consists of three Harnesses: Security, Safety, and Reliability.
 
-<Card
-    title="Harness"
-    horizontal
-    icon="shield"
-    href="/core-concepts/components/harness"
-    arrow="true"
->
-    Learn more about Harnesses
-</Card>
+Learn more about trust score components:
+<Columns cols={2}>
+    <Card
+        title="Harness"
+        horizontal
+        icon="shield"
+        href="/core-concepts/components/harness"
+        arrow="true"
+    >
+        Learn more about Harnesses
+    </Card>
 
-<Card
-    title="Scenario"
-    horizontal
-    icon="boxes"
-    href="/core-concepts/components/scenario"
-    arrow="true"
->
-    Learn more about Scenarios
-</Card>
+    <Card
+        title="Scenario"
+        horizontal
+        icon="boxes"
+        href="/core-concepts/components/scenario"
+        arrow="true"
+    >
+        Learn more about Scenarios
+    </Card>
 
-<Card
-    title="Probe"
-    horizontal
-    icon="flask-conical"
-    href="/core-concepts/components/probe"
-    arrow="true"
->
-    Learn more about Probes
-</Card>
+    <Card
+        title="Probe"
+        horizontal
+        icon="flask-conical"
+        href="/core-concepts/components/probe"
+        arrow="true"
+    >
+        Learn more about Probes
+    </Card>
 
-<Card
-    title="Detector"
-    horizontal
-    icon="alarm-smoke"
-    href="/core-concepts/components/detector"
-    arrow="true"
->
-    Learn more about Detectors
-</Card>
+    <Card
+        title="Detector"
+        horizontal
+        icon="alarm-smoke"
+        href="/core-concepts/components/detector"
+        arrow="true"
+    >
+        Learn more about Detectors
+    </Card>
+
+    <Card
+        title="Guard"
+        horizontal
+        icon="brick-wall-shield"
+        href="/core-concepts/components/guard"
+        arrow="true"
+    >
+        Learn more about Guard
+    </Card>
+
+    <Card
+        title="Guardrail"
+        horizontal
+        icon="train-track"
+        href="/core-concepts/components/guardrail"
+        arrow="true"
+    >
+        Learn more about Guardrail
+    </Card>
+</Columns>
