@@ -1,16 +1,12 @@
 ---
 title: "Welcome"
-description: "Welcome to Vijil: the software that help you create and evaluate safe and trustable AI agents"
+description: "Vijil is the trust infrastructure that makes AI agents reliable, secure, and safe for enterprises."
 ---
 
-Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.
+Vijil provides a layer of trust between your agent development framework and the agent runtime platform to close the loop between development and operations. Vijil helps AI teams build agents with hardened components (LLMs, MCP gateways), verify agent identity in an enterprise registry, test agent behavior and composition for reliability, security, and safety (benign and adversarial test cases customized to your agent), deploy agents in secure runtimes (with custom guardrails, inside a minimalist container, in a trusted execution environment), and continuously improve agent resilience (with reinformcement learning over production telemetry).
 
-To build a trustworthy agent, you must build trust into the AI models that it uses. For that, you must be able to inspect, modify, and control the models. This is easier to do when the models are open-source.
+The Vijil platform has several modules that you can use independently:
 
-Vijil helps organizations that are adapting open-source and API-only AI models to new domains, tasks, and facts. For AI developers customizing open-source large language models, Vijil provides red-team and blue-team cloud services to harden models during development, defend models during operation, and evaluate models for reliability, security, and safety continuously.
-
-**Vijil Evaluate** is Vijil's flagship evaluation service that enables AI developers evaluate the trustworthiness of an LLM, generative AI application, or agent. Using the Evaluate API, developers can test an AI system under benign and hostile conditions in minutes along 9 dimensions of trust. Evaluations are based on a combination of Vijil-provided test harnesses informed by latest research, and dynamically generated adeversarial tests based on user-provided seed prompts.
+**Vijil Diamond** is a testing module to evaluate, verify, and validate the trustworthiness of the agent and its components (LLM, MCP gateway, delegated agents). Using Diamond, developers can test the agent comprehensively for reliability, security, and safety. Deployed as a container alongside your agent, Diamond runs entirely within your corporate network combination of Vijil-provided test harnesses informed by latest research, and dynamically generated adeversarial tests based on user-provided seed prompts.
 
 **Vijil Dome** is the guardrailing service by Vijil that provides a defensive layer around an agent against malicious or harmful inputs and prevents it from providing outputs that suffer from these issues. While we retain the core elements of current firewall approaches---a combination of string matching, ML and NLP classifiers, and embedding/LLM-based approaches, we put a premium on configurability, latency, and reusability.
-
-## Contents
