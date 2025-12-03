@@ -2,6 +2,10 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
   "name": "Vijil",
+  "logo": {
+    "dark":"/logo/vijil-logo.svg",
+    "light":"/logo/vijil-logo.svg"
+  },
   "description": "Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.",
   "colors": {
     "primary": "#16A34A",
