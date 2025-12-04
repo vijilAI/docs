@@ -3,8 +3,8 @@
   "theme": "maple",
   "name": "Vijil",
   "logo": {
-    "dark":"/logo/vijil-logo.svg",
-    "light":"/logo/vijil-logo.svg"
+    "dark":"/logo/vijil-logo-dark.svg",
+    "light":"/logo/vijil-logo-light.svg"
   },
   "description": "Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.",
   "colors": {
