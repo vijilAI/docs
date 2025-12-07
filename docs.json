@@ -6,7 +6,7 @@
     "dark":"/logo/vijil-logo-dark.svg",
     "light":"/logo/vijil-logo-light.svg"
   },
-  "description": "Vijil is on a mission to help enterprises build and operate intelligent agents that people can trust.",
+  "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -152,7 +152,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:contact@vijil.ai"
       }
     ],
     "primary": {
@@ -181,7 +181,7 @@
     }
   },
   "banner": {
-    "content": "🚀 Welcome to the Vijil Documentation!",
+    "content": "🚀 Welcome to Vijil Documentation!",
     "dismissible": true
   }
 }
