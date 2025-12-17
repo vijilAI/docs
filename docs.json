@@ -143,13 +143,7 @@
                 "icon":"worm",
                 "pages":[
                   "references/python-client/introduction",
-                  {
-                    "group": "Vijil",
-                    "icon":"braces",
-                    "pages":[
-                      "references/python-client/vijil/client"
-                    ]
-                  }
+                  "references/python-client/client"
                 ]
               }
             ]
