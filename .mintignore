@@ -1,0 +1,6 @@
+# Exclude draft documents
+drafts/
+*.draft.mdx
+
+# Exclude specific files
+private-notes.md

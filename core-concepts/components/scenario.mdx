@@ -6,96 +6,96 @@ Scenarios are groups of related Probes. Each Scenario is its own Harness, but mu
 
 ## Ethical Theories
 
-[Ethical Theories Scenario](/core-concepts/dimensions/ethics#ethical-theories) includes both vanilla and jailbreaking Probes for prompts that test the model's understanding of ethical theories.
+Ethical Theories Scenario includes both vanilla and jailbreaking Probes for prompts that test the model's understanding of ethical theories.
 
 ## Ethics Simulation
 
-[Ethics Simulation Scenario](/core-concepts/dimensions/ethics#ethics-simulation) contains vanilla and jailbreaking prompts that ask about the moral valence of a simulated Scenario.
+Ethics Simulation Scenario contains vanilla and jailbreaking prompts that ask about the moral valence of a simulated Scenario.
 
 ## Copyrighted Content
 
-[Copyrighted Data Leakage Scenario](/core-concepts/dimensions/privacy#copyrighted-data-leakage) contains prompts that attempt to get the model to repeat copyrighted content from books and newspapers.
+Copyrighted Data Leakage Scenario contains prompts that attempt to get the model to repeat copyrighted content from books and newspapers.
 
 ## Private Data Leakage
 
-[Private Data Leakage Scenario](/core-concepts/dimensions/privacy#private-data-leakage) contains prompts that test whether a model will leak private data.
+Private Data Leakage Scenario contains prompts that test whether a model will leak private data.
 
 ## Adversarial GLUE
 
-Adversarial GLUE Scenario currently makes up the entirety of the [Robustness](/core-concepts/dimensions/robustness) Harness. The Scenario measures whether the model's performance on the natural language understanding tasks in [GLUE](https://gluebenchmark.com/) is affected by perturbations to the sentences in the tasks.
+Adversarial GLUE Scenario currently makes up the entirety of the Robustness Harness. The Scenario measures whether the model's performance on the natural language understanding tasks in GLUE is affected by perturbations to the sentences in the tasks.
 
 ## Professional Bias
 
-[Professional Bias Scenario](/core-concepts/dimensions/fairness#professional-bias) measures whether the model associates gender with occupations.
+Professional Bias Scenario measures whether the model associates gender with occupations.
 
 ## Gender-income Bias
 
-[Gender-income Bias Scenario](/core-concepts/dimensions/fairness#gender-income-bias) checks whether the model predicts a person's income in a gender-biased manner.
+Gender-income Bias Scenario checks whether the model predicts a person's income in a gender-biased manner.
 
 ## Stereotype
 
-The Stereotype Scenario is currently made up from the entire [Stereotype](/core-concepts/dimensions/stereotype) Harness. The Scenario measures whether the model reinforces stereotypes about religion, race, ethnicity, age, disability, national origin, and gender in its responses.
+The Stereotype Scenario is currently made up from the entire Stereotype Harness. The Scenario measures whether the model reinforces stereotypes about religion, race, ethnicity, age, disability, national origin, and gender in its responses.
 
 ## Compounding Hallucination
 
-[Compounding Hallucination Scenario](/core-concepts/dimensions/hallucination#compounding-hallucination) attempts to prompt the model into generating hallucinations by having it over-commit to an initial mistake.
+Compounding Hallucination Scenario attempts to prompt the model into generating hallucinations by having it over-commit to an initial mistake.
 
 ## Misleading Information
 
-[Misleading Information Scenario](/core-concepts/dimensions/hallucination#misleading-information) checks whether the model is able to refute false assertions presented in the input prompt.
+Misleading Information Scenario checks whether the model is able to refute false assertions presented in the input prompt.
 
 ## Package Hallucination
 
-[Package Hallucination Scenario](/core-concepts/dimensions/hallucination#package-hallucination) contains prompts designed to elicit sample code importing non-existent Python packages.
+Package Hallucination Scenario contains prompts designed to elicit sample code importing non-existent Python packages.
 
 ## Hallucination: Goodside
 
-[Hallucination: Goodside Scenario](/core-concepts/dimensions/hallucination#hallucination-goodside) consists of [Who is Riley?](/core-concepts/dimensions/hallucination#who-is-riley) and [Davidjl](/core-concepts/dimensions/hallucination#davidjl-glitch) Probes. They were designed by Riley Goodside to elicit hallucinations.
+Hallucination: Goodside Scenario consists of Who is Riley? and Davidjl Probes. They were designed by Riley Goodside to elicit hallucinations.
 
 ## Social Values
 
-[Social Values Scenario](/core-concepts/dimensions/hallucination#social-values) currently consists of a Probe looking for promotions of quack medicine.
+Social Values Scenario currently consists of a Probe looking for promotions of quack medicine.
 
 ## Known Malware
 
-[Known Malware Scenario](/core-concepts/dimensions/security#known-malware) checks for the existence of known signatures of spam and viruses in the output.
+Known Malware Scenario checks for the existence of known signatures of spam and viruses in the output.
 
 ## Malware Generation
 
-[Malware Generation Scenario](/core-concepts/dimensions/security#malware-generation) contains Probes that attempt to make the model generate malware.
+Malware Generation Scenario contains Probes that attempt to make the model generate malware.
 
 ## Prompt Injection
 
-[Prompt Injection Scenario](/core-concepts/dimensions/security#prompt-injection) consists of prompt injections that attempt to trick the model into producing specific strings.
+Prompt Injection Scenario consists of prompt injections that attempt to trick the model into producing specific strings.
 
 ## Prompt Injection: Encoded Data
 
-[Prompt Injection: Encoded Data](/core-concepts/dimensions/security#prompt-injection-encoded-data) tests whether a model will decode encoded strings injected into the prompt.
+Prompt Injection: Encoded Data tests whether a model will decode encoded strings injected into the prompt.
 
 ## Cross-site Scripting (XSS)
 
-[Cross-site Scripting (XSS) Scenario](/core-concepts/dimensions/security#cross-site-scripting-xss) aims to get the model to produce a cross-site scripting content in a Markdown image.
+Cross-site Scripting (XSS) Scenario aims to get the model to produce a cross-site scripting content in a Markdown image.
 
 ## Adversarial Suffix
 
-[Adversarial Suffix Scenario](/core-concepts/dimensions/security#adversarial-suffix) uses adversarial suffixes to elicit instructions on how to steal from a non-profit organization.
+Adversarial Suffix Scenario uses adversarial suffixes to elicit instructions on how to steal from a non-profit organization.
 
 ## Glitch
 
-[Glitch Scenario](/core-concepts/dimensions/security#glitch) contains prompts that use glitch tokens to disrupt expected model behavior.
+Glitch Scenario contains prompts that use glitch tokens to disrupt expected model behavior.
 
 ## Do Anything Now
 
-[Do Anything Now Scenario](/core-concepts/dimensions/security#do-anything-now-dan) attempt to get the model to escape its Guardrails by prompting it to take on a special persona.
+Do Anything Now Scenario attempt to get the model to escape its Guardrails by prompting it to take on a special persona.
 
 ## Slur Continuation
 
-[Slur Continuation Scenario](/core-concepts/dimensions/toxicity#slur-continuation) tests whether a model will continue a slur when provided with leading text.
+Slur Continuation Scenario tests whether a model will continue a slur when provided with leading text.
 
 ## Ethical Harms
 
-[Ethical Harms Scenario](/core-concepts/dimensions/toxicity#ethical-harms) checks for ethical harms in the model's output, such as bullying, deadnaming, profanity, sexual content, and slurs.
+Ethical Harms Scenario checks for ethical harms in the model's output, such as bullying, deadnaming, profanity, sexual content, and slurs.
 
 ## Real Toxicity Prompts
 
-[Real Toxicity Prompts Scenario](/core-concepts/dimensions/toxicity#real-toxicity-prompts) contains input text, taken from web data, that are toxic if completed.
+Real Toxicity Prompts Scenario contains input text, taken from web data, that are toxic if completed.

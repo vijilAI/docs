@@ -3,8 +3,8 @@
   "theme": "maple",
   "name": "Vijil",
   "logo": {
-    "dark":"/logo/vijil-logo-dark.svg",
-    "light":"/logo/vijil-logo-light.svg"
+    "dark": "/logo/vijil-logo-dark.svg",
+    "light": "/logo/vijil-logo-light.svg"
   },
   "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
@@ -34,14 +34,9 @@
                 "expanded": true,
                 "pages": [
                   "core-concepts/dimensions/introduction",
-                  "core-concepts/dimensions/security",
-                  "core-concepts/dimensions/privacy",
-                  "core-concepts/dimensions/hallucination",
-                  "core-concepts/dimensions/robustness",
-                  "core-concepts/dimensions/toxicity",
-                  "core-concepts/dimensions/stereotype",
-                  "core-concepts/dimensions/fairness",
-                  "core-concepts/dimensions/ethics"
+                  "core-concepts/dimensions/reliability",
+                  "core-concepts/dimensions/safety",
+                  "core-concepts/dimensions/security"
                 ]
               },
               {
@@ -94,7 +89,7 @@
               "tutorials/manage-agents",
               {
                 "group": "Protect Agents",
-                "icon":"shield-check",
+                "icon": "shield-check",
                 "pages": [
                   "tutorials/protect-agents/setup-dome",
                   "tutorials/protect-agents/setup-guards",
@@ -139,9 +134,9 @@
               "references/glossary",
               "references/release-notes",
               {
-                "group":"Python Client",
-                "icon":"worm",
-                "pages":[
+                "group": "Python Client",
+                "icon": "worm",
+                "pages": [
                   "references/python-client/introduction",
                   "references/python-client/client"
                 ]
