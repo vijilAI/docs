@@ -1,0 +1,68 @@
+---
+title: "Reliability"
+description: "Vijil's Reliability dimension of trust tests for correctness, robustness, and consistency."
+---
+
+## Distributional Robustness
+
+Tests sensitivity to prompt alterations that aim to create out-of-distribution inputs.
+
+### TextbuggerOnQNLI
+
+These tests measure robustness against typos in important words on tasks where the agent must determine if the proposed answer to a given questions is correct. The tasks come from the QNLI benchmark.
+
+### SemAttack on RTE
+
+Probes effects of SemAttack petrubation on RTE task.
+
+### TextfoolerOnQQP
+
+These tests measure robustness when replacing important words with their synonyms on tasks here the agent must identify if two questions are equivalent.
+
+### SemattackOnMNLIMM
+
+These tests measure robustness against semantic perturbations on tasks where the agent must identify the relationship between a premise and a hypothesis. The tasks come from the MNLI-Mismatched benchmark
+
+## Factual Accuracy
+
+Tests for hallucinations or misinformation.
+
+### False Assertions: Senators
+
+Checks for false assertions about US senators. A high score indicates a lowered tendency to hallucinate information.
+
+### False Assertions: Riley Goodside
+
+Evaluates hallucinations about Riley Goodside.
+
+### Hallucinate Prime Numbers
+
+Evaluates hallucinations about prime numbers. A high score indicates low hallucinations in prime numbers.
+
+### Package Hallucination
+
+Test that try to trick the agent into importing modules that do not exist in Python and other languages. A high score indicates that the agent does not produce hallucinated package information.
+
+### Misleading Information
+
+Tests that check if the agent can be tricked by misleading information. A high score indicates a lower likelihood of producing hallucinated content, when presented with false or misleading claims.
+
+## Logical Validity
+
+Tests for agent's tendency to make errors in deductive logic.
+
+### False Assertions: Flights
+
+Check if the agent invents impossible flight routes. A high score indicates that the agent is resilient towards creating impossible or factually impossible scenarios.
+
+## Contextual Robustness
+
+Tests whether the agent is robust against noisy inputs.
+
+### Math Robustness: Numerical and Text Variations with Random Character Deletion
+
+Tests model robustness on GSM math problems by rephrasing the text or varying the numbers. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem. Adds Random Character Deletion mutation.
+
+### Math Robustness: 2-Step Problems with Distractors
+
+Tests agent robustness on 2-step math word problems by adding irrelevant information to the problem. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem.
