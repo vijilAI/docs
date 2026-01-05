@@ -1,0 +1,211 @@
+/* Vijil Documentation Custom Styles
+ * Matches vijil.ai website design
+ * Primary: #DE1616 (Vijil Red)
+ * Secondary: #0247A9 (Vijil Blue)
+ * Dark background: #262626
+ */
+
+/* Typography - Futura PT with fallbacks */
+@import url('https://fonts.cdnfonts.com/css/futura-pt');
+
+:root {
+  --vijil-red: #DE1616;
+  --vijil-red-light: #FF4444;
+  --vijil-blue: #0247A9;
+  --vijil-dark: #262626;
+  --vijil-dark-lighter: #333333;
+  --vijil-white: #FFFFFF;
+  --vijil-gray: #9CA3AF;
+  --vijil-gray-light: #F3F4F6;
+}
+
+/* Base typography */
+body {
+  font-family: 'Futura PT', 'Century Gothic', 'CenturyGothic', 'AppleGothic', sans-serif;
+}
+
+/* Headings with letter-spacing like vijil.ai */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Futura PT', 'Century Gothic', 'CenturyGothic', 'AppleGothic', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Main title styling */
+h1 {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Code blocks styling */
+pre, code {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+/* Dark mode header enhancement */
+[data-theme="dark"] .header,
+.dark .header {
+  background-color: var(--vijil-dark);
+}
+
+/* Primary button styling to match vijil.ai */
+.navbar-primary-button,
+[data-mint-component="NavbarPrimary"] {
+  background-color: var(--vijil-red) !important;
+  color: var(--vijil-white) !important;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navbar-primary-button:hover,
+[data-mint-component="NavbarPrimary"]:hover {
+  background-color: var(--vijil-red-light) !important;
+  transform: translateY(-1px);
+}
+
+/* Tab navigation styling */
+[data-mint-component="TabNavigation"] {
+  font-family: 'Futura PT', 'Century Gothic', sans-serif;
+  font-weight: 500;
+}
+
+/* Sidebar navigation */
+[data-mint-component="Sidebar"] {
+  font-family: 'Futura PT', 'Century Gothic', sans-serif;
+}
+
+/* Card hover effects */
+.card,
+[data-mint-component="Card"] {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.card:hover,
+[data-mint-component="Card"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Links styling */
+a {
+  transition: color 0.2s ease;
+}
+
+/* Callout boxes styling */
+[data-mint-component="Callout"] {
+  border-radius: 8px;
+  border-left-width: 4px;
+}
+
+/* Code tab styling */
+[data-mint-component="CodeGroup"] {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table styling */
+table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+}
+
+/* Badge styling */
+.badge,
+[data-mint-component="Badge"] {
+  font-family: 'Futura PT', 'Century Gothic', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Icon styling to use Vijil colors */
+.icon-primary {
+  color: var(--vijil-red);
+}
+
+.icon-secondary {
+  color: var(--vijil-blue);
+}
+
+/* Hero section styling for landing pages */
+.hero-section {
+  background: linear-gradient(135deg, var(--vijil-dark) 0%, var(--vijil-dark-lighter) 100%);
+  padding: 4rem 2rem;
+  border-radius: 12px;
+}
+
+/* Feature cards */
+.feature-card {
+  background: var(--vijil-white);
+  border: 1px solid var(--vijil-gray-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: var(--vijil-red);
+  box-shadow: 0 4px 20px rgba(222, 22, 22, 0.1);
+}
+
+/* Dark mode feature cards */
+[data-theme="dark"] .feature-card,
+.dark .feature-card {
+  background: var(--vijil-dark-lighter);
+  border-color: var(--vijil-dark);
+}
+
+[data-theme="dark"] .feature-card:hover,
+.dark .feature-card:hover {
+  border-color: var(--vijil-red);
+  box-shadow: 0 4px 20px rgba(222, 22, 22, 0.2);
+}
+
+/* Footer styling */
+footer {
+  border-top: 1px solid var(--vijil-gray-light);
+}
+
+[data-theme="dark"] footer,
+.dark footer {
+  border-top-color: var(--vijil-dark-lighter);
+}
+
+/* Search highlight styling */
+mark,
+.search-highlight {
+  background-color: rgba(222, 22, 22, 0.2);
+  color: inherit;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .hero-section {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navbar-primary-button,
+  [data-mint-component="NavbarPrimary"] {
+    display: none;
+  }
+}
