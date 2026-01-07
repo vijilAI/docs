@@ -1,0 +1,143 @@
+---
+title: 'Evaluation Overview'
+description: 'Test your agent''s trustworthiness before deployment with Diamond.'
+---
+
+Your agent works in demos. Your unit tests pass. But how do you know it won't hallucinate facts, leak customer data, or comply with malicious instructions when it encounters inputs you didn't anticipate?
+
+Diamond is Vijil's evaluation platform. It sends hundreds of adversarial probes to your agent—prompt injections, jailbreak attempts, data exfiltration payloads—and measures how your agent responds. You get a quantified Trust Score and specific findings you can fix before deployment.
+
+## How Evaluation Works
+
+Diamond sends test probes to your agent and analyzes the responses:
+
+<img src="/images/evaluation-flow.svg" alt="Diamond evaluation flow showing harness, scenarios, probes, agent, detectors, and Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+
+| Component | Purpose |
+|-----------|---------|
+| **Harness** | Collection of scenarios to run (e.g., `trust_score`, `security`) |
+| **Scenario** | Testing context with personas and policies |
+| **Probe** | Individual test case sent to your agent |
+| **Detector** | Analyzes agent responses to identify failures |
+
+## Trust Score
+
+The Trust Score is a composite metric (0.0 to 1.0) based on three pillars:
+
+| Dimension | What It Measures |
+|-----------|------------------|
+| **Reliability** | Hallucination resistance, consistency, accuracy |
+| **Security** | Prompt injection, data leakage, jailbreak resistance |
+| **Safety** | Harmful content, policy compliance, ethical behavior |
+
+Higher scores indicate more trustworthy behavior. Use scores to:
+
+- Set deployment gates (e.g., require Trust Score ≥ 0.70)
+- Compare agent versions
+- Track improvements over time
+- Identify specific vulnerabilities
+
+## Evaluation Options
+
+### Cloud-Hosted Agents
+
+Evaluate agents deployed on supported cloud platforms:
+
+```python
+from vijil import Vijil
+
+vijil = Vijil()
+evaluation = vijil.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-4o",
+    harnesses=["trust_score"]
+)
+```
+
+Supported platforms: OpenAI, Anthropic, AWS Bedrock, Google Vertex AI, DigitalOcean, and any OpenAI-compatible endpoint.
+
+### Local Agents
+
+Evaluate agents running locally without deployment:
+
+```python
+local_agent = vijil.local_agents.create(
+    agent_function=my_agent,
+    input_adapter=input_adapter,
+    output_adapter=output_adapter,
+)
+
+vijil.local_agents.evaluate(
+    agent_name="my-agent",
+    agent=local_agent,
+    harnesses=["trust_score"]
+)
+```
+
+This creates a temporary authenticated tunnel (via ngrok) for Vijil to communicate with your local agent.
+
+## Available Harnesses
+
+| Harness | Description | Use Case |
+|---------|-------------|----------|
+| `trust_score` | Comprehensive evaluation across all dimensions | Pre-deployment validation |
+| `security` | Prompt injection, jailbreaks, data leakage | Security review |
+| `reliability` | Hallucination, consistency, accuracy | Quality assurance |
+| `safety` | Harmful content, ethics, policy compliance | Safety review |
+| `owasp-llm-top-10` | OWASP Top 10 for LLM Applications | Compliance |
+
+Add `_Small` suffix (e.g., `security_Small`) for faster iterations during development.
+
+## Evaluation Workflow
+
+<Steps>
+  <Step title="Choose your integration method">
+    Use cloud provider integration for deployed agents, or LocalAgentExecutor for local development
+  </Step>
+  <Step title="Select harnesses">
+    Start with `trust_score` for comprehensive coverage, or specific harnesses for targeted testing
+  </Step>
+  <Step title="Run evaluation">
+    Execute via Python client, REST API, or console
+  </Step>
+  <Step title="Analyze results">
+    Review Trust Score, dimension scores, and individual failures
+  </Step>
+  <Step title="Remediate issues">
+    Fix vulnerabilities, improve prompts, add guardrails
+  </Step>
+  <Step title="Re-evaluate">
+    Confirm fixes and track improvement
+  </Step>
+</Steps>
+
+## Rate Limiting
+
+Control the evaluation pace to avoid overwhelming your agent or hitting API limits:
+
+```python
+vijil.local_agents.evaluate(
+    agent_name="my-agent",
+    agent=local_agent,
+    harnesses=["trust_score"],
+    rate_limit=30,           # Max requests per interval
+    rate_limit_interval=1    # Interval in minutes
+)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Execute evaluations and monitor progress
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret scores and failures
+  </Card>
+  <Card title="Cloud Providers" icon="cloud" href="/developer-guide/evaluate/cloud-providers">
+    Configure cloud platform integrations
+  </Card>
+  <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
+    Create targeted evaluation scenarios
+  </Card>
+</CardGroup>

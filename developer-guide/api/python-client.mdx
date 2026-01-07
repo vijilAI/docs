@@ -1,0 +1,942 @@
+---
+title: 'Python SDK Reference'
+description: 'Complete reference for the Vijil Python client library.'
+---
+
+The Vijil Python SDK provides a typed interface for all Vijil API operations. Use it to run evaluations, manage agents, configure guardrails, and export results programmatically.
+
+## Installation
+
+```bash
+pip install vijil
+```
+
+## Client Initialization
+
+### Synopsis
+
+```python
+from vijil import Vijil
+
+vijil = Vijil(
+    api_key="string",      # Optional if VIJIL_API_KEY env var is set
+    base_url="string"      # Optional, for enterprise deployments
+)
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **api_key** | String | No | Vijil API key. Falls back to `VIJIL_API_KEY` environment variable. |
+| **base_url** | String | No | API base URL. Default: `https://api.vijil.ai`. For enterprise: `https://your-instance.vijil.ai`. |
+
+### Examples
+
+```python
+from vijil import Vijil
+
+# From environment variable
+vijil = Vijil()
+
+# With explicit API key
+vijil = Vijil(api_key="vj-...")
+
+# Enterprise deployment
+vijil = Vijil(
+    api_key="vj-...",
+    base_url="https://vijil.internal.company.com"
+)
+```
+
+---
+
+## Client Structure
+
+The client exposes sub-clients for each resource type:
+
+| Sub-client | Description |
+|------------|-------------|
+| `vijil.evaluations` | [Run and manage evaluations](#evaluations) |
+| `vijil.agents` | [Register and manage agents](#agents) |
+| `vijil.local_agents` | [Evaluate local agent functions](#local-agents) |
+| `vijil.harnesses` | [List and create harnesses](#harnesses) |
+| `vijil.api_keys` | [Manage provider API keys](#api-keys) |
+| `vijil.dome_configs` | [Manage Dome configurations](#dome-configs) |
+| `vijil.detectors` | [List available detectors](#detectors) |
+
+---
+
+## Evaluations
+
+### evaluations.create
+
+Creates and starts a new evaluation.
+
+#### Synopsis
+
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="string",
+    model_name="string",
+    harnesses=["string"],
+    name="string",
+    model_params={},
+    system_prompt="string",
+    api_key_value="string",
+    api_key_name="string",
+    model_url="string"
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **model_hub** | String | Conditional | Model provider. Required if `agent_id` not provided. |
+| **model_name** | String | Conditional | Model identifier. Required if `agent_id` not provided. |
+| **harnesses** | List[String] | Yes | Harnesses to run: `trust_score`, `security`, `reliability`, `safety`. |
+| **name** | String | No | Display name for the evaluation. |
+| **model_params** | Dict | No | Model parameters: `{"temperature": 0, "max_tokens": 1000}`. |
+| **system_prompt** | String | No | System prompt for evaluation. |
+| **api_key_value** | String | Conditional | Provider API key. Required if not stored. |
+| **api_key_name** | String | No | Name of stored API key to use. |
+| **model_url** | String | Conditional | Endpoint URL for `custom` hub. |
+
+#### Returns
+
+```python
+{
+    "id": "eval-abc123",
+    "status": "pending",
+    "created_at": "2024-01-15T10:30:00Z",
+    "harnesses": ["trust_score"]
+}
+```
+
+#### Example
+
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-4o",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+print(f"Started evaluation: {evaluation['id']}")
+```
+
+---
+
+### evaluations.get_status
+
+Gets the current status of an evaluation.
+
+#### Synopsis
+
+```python
+status = vijil.evaluations.get_status(evaluation_id)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+
+#### Returns
+
+```python
+{
+    "id": "eval-abc123",
+    "status": "running",      # pending, running, completed, failed, cancelled
+    "progress": 45,           # 0-100
+    "completed": 450,
+    "total": 1000,
+    "started_at": "2024-01-15T10:31:00Z",
+    "estimated_completion": "2024-01-15T10:45:00Z"
+}
+```
+
+#### Example
+
+```python
+import time
+
+while True:
+    status = vijil.evaluations.get_status(evaluation["id"])
+    print(f"Progress: {status['progress']}%")
+    if status["status"] in ["completed", "failed", "cancelled"]:
+        break
+    time.sleep(10)
+```
+
+---
+
+### evaluations.get_results
+
+Retrieves results from a completed evaluation.
+
+#### Synopsis
+
+```python
+results = vijil.evaluations.get_results(evaluation_id)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+
+#### Returns
+
+```python
+{
+    "id": "eval-abc123",
+    "trust_score": 0.78,
+    "reliability_score": 0.82,
+    "security_score": 0.75,
+    "safety_score": 0.80,
+    "completed_at": "2024-01-15T10:45:00Z",
+    "failures": [...],
+    "summary": {
+        "total_probes": 1000,
+        "passed": 920,
+        "failed": 80
+    }
+}
+```
+
+#### Example
+
+```python
+results = vijil.evaluations.get_results(evaluation["id"])
+print(f"Trust Score: {results['trust_score']:.2f}")
+print(f"Failures: {results['summary']['failed']}")
+```
+
+---
+
+### evaluations.list
+
+Lists evaluations with optional filtering.
+
+#### Synopsis
+
+```python
+evaluations = vijil.evaluations.list(
+    limit=20,
+    offset=0,
+    status="string",
+    agent_id="string"
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **limit** | Integer | No | Maximum results. Default: 20. Max: 100. |
+| **offset** | Integer | No | Results to skip. Default: 0. |
+| **status** | String | No | Filter by status. |
+| **agent_id** | String | No | Filter by agent. |
+
+#### Example
+
+```python
+completed = vijil.evaluations.list(status="completed", limit=10)
+for eval in completed["data"]:
+    print(f"{eval['id']}: {eval['trust_score']}")
+```
+
+---
+
+### evaluations.summarize
+
+Returns a pandas DataFrame summarizing evaluation results.
+
+#### Synopsis
+
+```python
+summary = vijil.evaluations.summarize(evaluation_id)
+```
+
+#### Returns
+
+A pandas DataFrame with aggregated scores by category.
+
+#### Example
+
+```python
+summary = vijil.evaluations.summarize(evaluation["id"])
+print(summary.to_string())
+```
+
+---
+
+### evaluations.describe
+
+Returns detailed probe-level results.
+
+#### Synopsis
+
+```python
+details = vijil.evaluations.describe(
+    evaluation_id,
+    limit=1000,
+    format="dataframe",
+    hits_only=False
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+| **limit** | Integer | No | Maximum probes to return. Default: 1000. |
+| **format** | String | No | Output format: `dataframe` or `dict`. Default: `dataframe`. |
+| **hits_only** | Boolean | No | Only return failures. Default: `False`. |
+
+#### Example
+
+```python
+failures = vijil.evaluations.describe(
+    evaluation["id"],
+    hits_only=True,
+    format="dataframe"
+)
+print(failures[["probe_id", "severity", "reason"]])
+```
+
+---
+
+### evaluations.export
+
+Exports evaluation results to a file.
+
+#### Synopsis
+
+```python
+vijil.evaluations.export(
+    evaluation_id,
+    format="csv",
+    output_dir="./results"
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+| **format** | String | No | File format: `csv`, `json`, `jsonl`, `parquet`. Default: `csv`. |
+| **output_dir** | String | No | Output directory. Default: current directory. |
+
+#### Example
+
+```python
+vijil.evaluations.export(
+    evaluation["id"],
+    format="csv",
+    output_dir="./reports"
+)
+```
+
+---
+
+### evaluations.report
+
+Generates an HTML or PDF analysis report.
+
+#### Synopsis
+
+```python
+report = vijil.evaluations.report(evaluation_id)
+report.generate(
+    save_file="report.html",
+    format="html",
+    wait_till_completion=True
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **save_file** | String | Yes | Output file path. |
+| **format** | String | No | Report format: `html` or `pdf`. Default: `html`. |
+| **wait_till_completion** | Boolean | No | Wait for generation. Default: `True`. |
+
+#### Example
+
+```python
+report = vijil.evaluations.report(evaluation["id"])
+report.generate(save_file="trust-report.html", format="html")
+```
+
+---
+
+### evaluations.cancel
+
+Cancels a running evaluation.
+
+#### Synopsis
+
+```python
+vijil.evaluations.cancel(evaluation_id)
+```
+
+---
+
+### evaluations.delete
+
+Deletes an evaluation and its results.
+
+#### Synopsis
+
+```python
+vijil.evaluations.delete(evaluation_id)
+```
+
+---
+
+## Agents
+
+### agents.create
+
+Registers a new agent.
+
+#### Synopsis
+
+```python
+agent = vijil.agents.create(
+    agent_name="string",
+    hub="string",
+    model_name="string",
+    api_key_value="string",
+    api_key_name="string",
+    agent_system_prompt="string",
+    model_url="string",
+    hub_config={}
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **agent_name** | String | Yes | Display name. Must be unique. |
+| **hub** | String | Yes | Provider: `openai`, `anthropic`, `bedrock`, `vertex`, `custom`. |
+| **model_name** | String | Yes | Model identifier. |
+| **api_key_value** | String | Conditional | Provider API key. |
+| **api_key_name** | String | Conditional | Name of stored key. |
+| **agent_system_prompt** | String | No | System prompt. |
+| **model_url** | String | Conditional | Required for `custom` hub. |
+| **hub_config** | Dict | Conditional | Required for `bedrock`, `vertex`. |
+
+#### Example
+
+```python
+agent = vijil.agents.create(
+    agent_name="Support Bot",
+    hub="openai",
+    model_name="gpt-4o",
+    api_key_value="sk-...",
+    agent_system_prompt="You are a customer support agent."
+)
+```
+
+---
+
+### agents.list
+
+Lists all registered agents.
+
+#### Synopsis
+
+```python
+agents = vijil.agents.list(include_archived=False)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **include_archived** | Boolean | No | Include archived agents. Default: `False`. |
+
+---
+
+### agents.update
+
+Updates an agent's configuration.
+
+#### Synopsis
+
+```python
+vijil.agents.update(
+    agent_name="string",
+    new_agent_name="string",
+    agent_system_prompt="string",
+    api_key_value="string",
+    api_key_name="string"
+)
+```
+
+#### Example
+
+```python
+vijil.agents.update(
+    agent_name="Support Bot",
+    new_agent_name="Support Bot v2",
+    agent_system_prompt="Updated prompt..."
+)
+```
+
+---
+
+### agents.delete
+
+Deletes an agent.
+
+#### Synopsis
+
+```python
+vijil.agents.delete(agent_name="string")
+```
+
+---
+
+## Local Agents
+
+Evaluate agent functions running locally without deployment.
+
+### local_agents.create
+
+Creates a local agent executor.
+
+#### Synopsis
+
+```python
+from vijil.local_agents.models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatMessage,
+)
+
+local_agent = vijil.local_agents.create(
+    agent_function=callable,
+    input_adapter=callable,
+    output_adapter=callable
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **agent_function** | Callable | Yes | Async function that processes prompts. |
+| **input_adapter** | Callable | No | Converts `ChatCompletionRequest` to your agent's input format. |
+| **output_adapter** | Callable | No | Converts your agent's output to `ChatCompletionResponse`. |
+
+#### Example
+
+```python
+async def my_agent(prompt: str) -> str:
+    # Your agent logic
+    return f"Response to: {prompt}"
+
+def input_adapter(request: ChatCompletionRequest) -> str:
+    return request.messages[-1]["content"]
+
+def output_adapter(output: str) -> ChatCompletionResponse:
+    return ChatCompletionResponse(
+        model="my-agent",
+        choices=[ChatCompletionChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=output),
+            finish_reason="stop"
+        )]
+    )
+
+local_agent = vijil.local_agents.create(
+    agent_function=my_agent,
+    input_adapter=input_adapter,
+    output_adapter=output_adapter
+)
+```
+
+---
+
+### local_agents.evaluate
+
+Runs an evaluation against a local agent.
+
+#### Synopsis
+
+```python
+vijil.local_agents.evaluate(
+    agent_name="string",
+    evaluation_name="string",
+    agent=local_agent,
+    harnesses=["string"],
+    rate_limit=30,
+    rate_limit_interval=1
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **agent_name** | String | Yes | Name for the agent. |
+| **evaluation_name** | String | No | Display name for evaluation. |
+| **agent** | LocalAgentExecutor | Yes | Executor from `local_agents.create()`. |
+| **harnesses** | List[String] | Yes | Harnesses to run. |
+| **rate_limit** | Integer | No | Max requests per interval. Default: 30. |
+| **rate_limit_interval** | Integer | No | Interval in minutes. Default: 1. |
+
+#### Example
+
+```python
+vijil.local_agents.evaluate(
+    agent_name="my-agent",
+    evaluation_name="Pre-deployment check",
+    agent=local_agent,
+    harnesses=["trust_score"],
+    rate_limit=30,
+    rate_limit_interval=1
+)
+```
+
+---
+
+### local_agents.register
+
+Manually registers a local agent and returns server details.
+
+#### Synopsis
+
+```python
+server, api_key_name = vijil.local_agents.register(
+    agent_name="string",
+    evaluator=local_agent,
+    rate_limit=30,
+    rate_limit_interval=10
+)
+```
+
+#### Returns
+
+- **server**: Server object with `url` attribute
+- **api_key_name**: Name of the temporary API key
+
+#### Example
+
+```python
+server, api_key_name = vijil.local_agents.register(
+    agent_name="my-agent",
+    evaluator=local_agent
+)
+
+# Create evaluation manually
+evaluation = vijil.evaluations.create(
+    model_hub="custom",
+    model_name="local-agent",
+    api_key_name=api_key_name,
+    model_url=f"{server.url}/v1",
+    harnesses=["trust_score"]
+)
+
+# Clean up when done
+vijil.agents.deregister(server, api_key_name)
+```
+
+---
+
+## API Keys
+
+### api_keys.create
+
+Stores a provider API key.
+
+#### Synopsis
+
+```python
+vijil.api_keys.create(
+    name="string",
+    model_hub="string",
+    api_key="string",
+    hub_config={},
+    rate_limit_per_interval=60,
+    rate_limit_interval=10
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **name** | String | Yes | Key name for reference. |
+| **model_hub** | String | Yes | Provider: `openai`, `anthropic`, `bedrock`, `vertex`. |
+| **api_key** | String | Conditional | API key. Not required for `bedrock`/`vertex`. |
+| **hub_config** | Dict | Conditional | Required for `bedrock`, `vertex`. |
+| **rate_limit_per_interval** | Integer | No | Max requests per interval. |
+| **rate_limit_interval** | Integer | No | Interval in seconds. |
+
+#### Examples
+
+```python
+# OpenAI
+vijil.api_keys.create(
+    name="openai-prod",
+    model_hub="openai",
+    api_key="sk-..."
+)
+
+# AWS Bedrock
+vijil.api_keys.create(
+    name="bedrock-prod",
+    model_hub="bedrock",
+    hub_config={
+        "region": "us-east-1",
+        "access_key": "AKIA...",
+        "secret_access_key": "..."
+    }
+)
+```
+
+---
+
+### api_keys.list
+
+Lists stored API keys.
+
+#### Synopsis
+
+```python
+keys = vijil.api_keys.list()
+```
+
+---
+
+### api_keys.rename
+
+Renames an API key.
+
+#### Synopsis
+
+```python
+vijil.api_keys.rename(name="old-name", new_name="new-name")
+```
+
+---
+
+### api_keys.delete
+
+Deletes an API key.
+
+#### Synopsis
+
+```python
+vijil.api_keys.delete(name="key-name")
+```
+
+---
+
+## Harnesses
+
+### harnesses.list
+
+Lists available harnesses.
+
+#### Synopsis
+
+```python
+harnesses = vijil.harnesses.list(
+    type="benchmark",
+    format="dataframe"
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **type** | String | No | Filter: `benchmark`, `audit`, `dimension`, `custom`. |
+| **format** | String | No | Output: `dataframe` or `dict`. Default: `dataframe`. |
+
+---
+
+### harnesses.create
+
+Creates a custom harness.
+
+#### Synopsis
+
+```python
+harness = vijil.harnesses.create(
+    name="string",
+    system_prompt="string",
+    category="string",
+    policy_file_path="string",
+    persona_ids=["string"]
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **name** | String | Yes | Harness name. |
+| **system_prompt** | String | Yes | Agent system prompt for context. |
+| **category** | String | Yes | Category: `AGENT_POLICY`, `GENERAL`. |
+| **policy_file_path** | String | No | Path to policy document. |
+| **persona_ids** | List[String] | No | Personas to include. |
+
+---
+
+### harnesses.get_status
+
+Gets harness generation status.
+
+#### Synopsis
+
+```python
+status = vijil.harnesses.get_status(harness_id)
+```
+
+---
+
+## Dome Configs
+
+### dome_configs.get_config
+
+Gets guardrail configuration for an agent.
+
+#### Synopsis
+
+```python
+config = vijil.dome_configs.get_config(agent_id)
+```
+
+---
+
+### dome_configs.get_default_config
+
+Gets the default guardrail configuration.
+
+#### Synopsis
+
+```python
+default = vijil.dome_configs.get_default_config()
+```
+
+---
+
+### dome_configs.update_dome_config
+
+Updates guardrail configuration for an agent.
+
+#### Synopsis
+
+```python
+vijil.dome_configs.update_dome_config(
+    agent_id="string",
+    config={}
+)
+```
+
+#### Example
+
+```python
+vijil.dome_configs.update_dome_config(
+    agent_id="agent-abc123",
+    config={
+        "input-guards": ["security-guard"],
+        "output-guards": ["privacy-guard"],
+        "security-guard": {
+            "type": "security",
+            "methods": ["prompt-injection-deberta-v3-base"]
+        },
+        "privacy-guard": {
+            "type": "privacy",
+            "methods": ["privacy-presidio"]
+        }
+    }
+)
+```
+
+---
+
+### dome_configs.delete_dome_config
+
+Deletes a guardrail configuration.
+
+#### Synopsis
+
+```python
+vijil.dome_configs.delete_dome_config(dome_config_id)
+```
+
+---
+
+## Detectors
+
+### detectors.list
+
+Lists available detection methods.
+
+#### Synopsis
+
+```python
+detectors = vijil.detectors.list()
+```
+
+---
+
+### detectors.get_detector_info
+
+Gets details for a specific detector.
+
+#### Synopsis
+
+```python
+info = vijil.detectors.get_detector_info(detector_id)
+```
+
+---
+
+## Error Handling
+
+The SDK raises typed exceptions for API errors:
+
+```python
+from vijil.exceptions import (
+    VijilAPIError,
+    AuthenticationError,
+    NotFoundError,
+    RateLimitError,
+    ValidationError
+)
+
+try:
+    results = vijil.evaluations.get_results("invalid-id")
+except NotFoundError as e:
+    print(f"Evaluation not found: {e}")
+except RateLimitError as e:
+    print(f"Rate limited, retry after: {e.retry_after}")
+except VijilAPIError as e:
+    print(f"API error: {e.status_code} - {e.message}")
+```
+
+---
+
+## See Also
+
+- [Evaluations API](/developer-guide/api/evaluations-api) — REST API reference
+- [Agents API](/developer-guide/api/agents-api) — REST API reference
+- [Dome API](/developer-guide/api/dome-api) — REST API reference
+- [Custom Agents](/developer-guide/frameworks/custom-agents) — Evaluate any Python agent

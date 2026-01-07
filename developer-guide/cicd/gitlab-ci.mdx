@@ -1,0 +1,414 @@
+---
+title: 'GitLab CI'
+description: 'Integrate Vijil evaluations into GitLab CI/CD pipelines.'
+---
+
+Run Vijil evaluations automatically in your GitLab CI/CD pipelines. This guide provides complete pipeline configurations.
+
+## Prerequisites
+
+1. Store M2M credentials as CI/CD variables (see [CI/CD Overview](/developer-guide/cicd/overview)):
+
+   Go to **Settings > CI/CD > Variables** and add:
+   - `M2M_CLIENT_ID` (masked)
+   - `M2M_CLIENT_SECRET` (masked)
+   - `M2M_CLIENT_TOKEN` (masked)
+   - `VIJIL_AGENT_ID`
+
+## Basic Pipeline
+
+Evaluate on merge requests:
+
+```yaml
+# .gitlab-ci.yml
+stages:
+  - test
+  - evaluate
+  - deploy
+
+vijil-evaluation:
+  stage: evaluate
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - |
+      python << 'EOF'
+      import os
+      import sys
+      import time
+      import requests
+      from vijil import Vijil
+
+      # Get access token
+      response = requests.post(
+          "https://api.vijil.ai/v1/auth/token",
+          json={
+              "client_id": os.environ["M2M_CLIENT_ID"],
+              "client_secret": os.environ["M2M_CLIENT_SECRET"],
+              "client_token": os.environ["M2M_CLIENT_TOKEN"]
+          }
+      )
+      response.raise_for_status()
+      token = response.json()["access_token"]
+
+      # Run evaluation
+      vijil = Vijil(api_key=token)
+      evaluation = vijil.evaluations.create(
+          agent_id=os.environ["VIJIL_AGENT_ID"],
+          harnesses=["trust_score"]
+      )
+
+      # Wait for completion
+      from vijil.local_agents.constants import TERMINAL_STATUSES
+      while True:
+          status = vijil.evaluations.get_status(evaluation.get("id"))
+          if status.get("status") in TERMINAL_STATUSES:
+              break
+          print(f"Progress: {status.get('progress', 0)}%")
+          time.sleep(30)
+
+      # Check results
+      results = vijil.evaluations.get_results(evaluation.get("id"))
+      trust_score = results.get("trust_score", 0) * 100
+
+      print(f"Trust Score: {trust_score:.1f}")
+
+      if trust_score < 75:
+          print("Trust Score below threshold")
+          sys.exit(1)
+      EOF
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+```
+
+## Quick Check on Push
+
+Fast evaluation on every push:
+
+```yaml
+vijil-quick-check:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - |
+      python << 'EOF'
+      import os
+      import time
+      import requests
+      from vijil import Vijil
+
+      # Authenticate
+      response = requests.post(
+          "https://api.vijil.ai/v1/auth/token",
+          json={
+              "client_id": os.environ["M2M_CLIENT_ID"],
+              "client_secret": os.environ["M2M_CLIENT_SECRET"],
+              "client_token": os.environ["M2M_CLIENT_TOKEN"]
+          }
+      )
+      token = response.json()["access_token"]
+
+      # Quick security check
+      vijil = Vijil(api_key=token)
+      evaluation = vijil.evaluations.create(
+          agent_id=os.environ["VIJIL_AGENT_ID"],
+          harnesses=["security_Small"]
+      )
+
+      from vijil.local_agents.constants import TERMINAL_STATUSES
+      while True:
+          status = vijil.evaluations.get_status(evaluation.get("id"))
+          if status.get("status") in TERMINAL_STATUSES:
+              break
+          time.sleep(15)
+
+      results = vijil.evaluations.get_results(evaluation.get("id"))
+      score = results.get("security_score", 0) * 100
+      print(f"Security Score: {score:.1f}")
+      # Don't fail, just report
+      EOF
+  rules:
+    - if: $CI_COMMIT_BRANCH
+  allow_failure: true
+```
+
+## Merge Request Comments
+
+Post results as MR comments:
+
+```yaml
+vijil-evaluation:
+  stage: evaluate
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - |
+      python << 'EOF'
+      import os
+      import sys
+      import time
+      import requests
+      from vijil import Vijil
+
+      # Authenticate
+      response = requests.post(
+          "https://api.vijil.ai/v1/auth/token",
+          json={
+              "client_id": os.environ["M2M_CLIENT_ID"],
+              "client_secret": os.environ["M2M_CLIENT_SECRET"],
+              "client_token": os.environ["M2M_CLIENT_TOKEN"]
+          }
+      )
+      token = response.json()["access_token"]
+
+      # Run evaluation
+      vijil = Vijil(api_key=token)
+      evaluation = vijil.evaluations.create(
+          agent_id=os.environ["VIJIL_AGENT_ID"],
+          harnesses=["trust_score"]
+      )
+
+      from vijil.local_agents.constants import TERMINAL_STATUSES
+      while True:
+          status = vijil.evaluations.get_status(evaluation.get("id"))
+          if status.get("status") in TERMINAL_STATUSES:
+              break
+          time.sleep(30)
+
+      results = vijil.evaluations.get_results(evaluation.get("id"))
+      trust = results.get("trust_score", 0) * 100
+      reliability = results.get("reliability_score", 0) * 100
+      security = results.get("security_score", 0) * 100
+      safety = results.get("safety_score", 0) * 100
+
+      passed = trust >= 75
+      emoji = "✅" if passed else "❌"
+      status_text = "PASSED" if passed else "FAILED"
+
+      # Write results to file for comment
+      with open("results.md", "w") as f:
+          f.write(f"""## {emoji} Vijil Evaluation {status_text}
+
+      | Metric | Score | Threshold |
+      |--------|-------|-----------|
+      | **Trust Score** | {trust:.1f} | 75 |
+      | Reliability | {reliability:.1f} | - |
+      | Security | {security:.1f} | - |
+      | Safety | {safety:.1f} | - |
+
+      {"Agent meets trustworthiness requirements." if passed else "⚠️ Agent does not meet minimum Trust Score threshold."}
+      """)
+
+      if not passed:
+          sys.exit(1)
+      EOF
+    - |
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        curl --request POST \
+          --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+          --form "body=$(cat results.md)" \
+          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes"
+      fi
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  artifacts:
+    paths:
+      - results.md
+    when: always
+```
+
+## Deployment Gate
+
+Block deployment on failure:
+
+```yaml
+stages:
+  - evaluate
+  - deploy
+
+vijil-gate:
+  stage: evaluate
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - python scripts/run_evaluation.py
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+deploy-production:
+  stage: deploy
+  script:
+    - echo "Deploying to production..."
+    # Your deployment commands
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  needs:
+    - vijil-gate
+```
+
+## Scheduled Evaluation
+
+Run daily regression tests:
+
+```yaml
+vijil-scheduled:
+  stage: evaluate
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - python scripts/run_evaluation.py
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+```
+
+Create a schedule in **CI/CD > Schedules** with cron expression `0 6 * * *` for daily at 6 AM.
+
+## Parallel Agent Evaluation
+
+Evaluate multiple agents simultaneously:
+
+```yaml
+.vijil-template: &vijil-template
+  stage: evaluate
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - python scripts/run_evaluation.py
+
+evaluate-agent-1:
+  <<: *vijil-template
+  variables:
+    VIJIL_AGENT_ID: $AGENT_1_ID
+
+evaluate-agent-2:
+  <<: *vijil-template
+  variables:
+    VIJIL_AGENT_ID: $AGENT_2_ID
+
+evaluate-agent-3:
+  <<: *vijil-template
+  variables:
+    VIJIL_AGENT_ID: $AGENT_3_ID
+```
+
+## JUnit Report Integration
+
+Generate JUnit-compatible reports for GitLab test reporting:
+
+```yaml
+vijil-evaluation:
+  stage: evaluate
+  image: python:3.11
+  script:
+    - pip install vijil requests junit-xml
+    - |
+      python << 'EOF'
+      import os
+      import time
+      import requests
+      from vijil import Vijil
+      from junit_xml import TestSuite, TestCase
+
+      # Authenticate and run evaluation
+      response = requests.post(
+          "https://api.vijil.ai/v1/auth/token",
+          json={
+              "client_id": os.environ["M2M_CLIENT_ID"],
+              "client_secret": os.environ["M2M_CLIENT_SECRET"],
+              "client_token": os.environ["M2M_CLIENT_TOKEN"]
+          }
+      )
+      token = response.json()["access_token"]
+
+      vijil = Vijil(api_key=token)
+      evaluation = vijil.evaluations.create(
+          agent_id=os.environ["VIJIL_AGENT_ID"],
+          harnesses=["trust_score"]
+      )
+
+      from vijil.local_agents.constants import TERMINAL_STATUSES
+      while True:
+          status = vijil.evaluations.get_status(evaluation.get("id"))
+          if status.get("status") in TERMINAL_STATUSES:
+              break
+          time.sleep(30)
+
+      results = vijil.evaluations.get_results(evaluation.get("id"))
+
+      # Generate JUnit report
+      test_cases = []
+
+      for metric in ["trust_score", "reliability_score", "security_score", "safety_score"]:
+          score = results.get(metric, 0) * 100
+          tc = TestCase(metric, classname="vijil")
+          if metric == "trust_score" and score < 75:
+              tc.add_failure_info(f"Score {score:.1f} below threshold 75")
+          test_cases.append(tc)
+
+      ts = TestSuite("Vijil Evaluation", test_cases)
+      with open("vijil-results.xml", "w") as f:
+          TestSuite.to_file(f, [ts])
+      EOF
+  artifacts:
+    reports:
+      junit: vijil-results.xml
+    when: always
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+```
+
+## Environment-Specific Thresholds
+
+Use different thresholds per environment:
+
+```yaml
+variables:
+  DEV_THRESHOLD: "60"
+  STAGING_THRESHOLD: "70"
+  PROD_THRESHOLD: "80"
+
+.vijil-base:
+  image: python:3.11
+  script:
+    - pip install vijil requests
+    - python scripts/run_evaluation.py --threshold $THRESHOLD
+
+vijil-dev:
+  extends: .vijil-base
+  variables:
+    THRESHOLD: $DEV_THRESHOLD
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+vijil-staging:
+  extends: .vijil-base
+  variables:
+    THRESHOLD: $STAGING_THRESHOLD
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+
+vijil-prod:
+  extends: .vijil-base
+  variables:
+    THRESHOLD: $PROD_THRESHOLD
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CI/CD Overview" icon="circle-nodes" href="/developer-guide/cicd/overview">
+    M2M authentication setup
+  </Card>
+  <Card title="GitHub Actions" icon="github" href="/developer-guide/cicd/github-actions">
+    GitHub workflow setup
+  </Card>
+  <Card title="Testing Strategies" icon="flask" href="/developer-guide/cicd/testing-strategies">
+    Advanced testing patterns
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret evaluation results
+  </Card>
+</CardGroup>

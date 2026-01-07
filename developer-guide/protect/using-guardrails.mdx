@@ -1,0 +1,392 @@
+---
+title: 'Using Guardrails'
+description: 'Runtime patterns and best practices for Dome guardrails.'
+---
+
+This guide covers common patterns for integrating Dome guardrails into your agent, including sync/async usage, error handling, and production best practices.
+
+## Basic Integration Pattern
+
+The standard pattern wraps your agent with input and output guards:
+
+```python
+from vijil_dome import Dome
+from openai import OpenAI
+
+dome = Dome()
+client = OpenAI()
+
+def protected_chat(user_message: str) -> str:
+    # Step 1: Guard the input
+    input_scan = dome.guard_input(user_message)
+
+    if not input_scan.is_safe():
+        return input_scan.guarded_response()
+
+    # Step 2: Call your LLM with sanitized input
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": input_scan.guarded_response()}]
+    )
+    agent_response = response.choices[0].message.content
+
+    # Step 3: Guard the output
+    output_scan = dome.guard_output(agent_response)
+    return output_scan.guarded_response()
+```
+
+## Async Integration
+
+For async applications, use the async methods:
+
+```python
+import asyncio
+from vijil_dome import Dome
+from openai import AsyncOpenAI
+
+dome = Dome()
+client = AsyncOpenAI()
+
+async def protected_chat(user_message: str) -> str:
+    # Async input guard
+    input_scan = await dome.async_guard_input(user_message)
+
+    if not input_scan.is_safe():
+        return input_scan.guarded_response()
+
+    # Async LLM call
+    response = await client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": input_scan.guarded_response()}]
+    )
+    agent_response = response.choices[0].message.content
+
+    # Async output guard
+    output_scan = await dome.async_guard_output(agent_response)
+    return output_scan.guarded_response()
+```
+
+## Working with Scan Results
+
+### Checking Safety
+
+```python
+result = dome.guard_input(message)
+
+if result.is_safe():
+    # Process the message
+    sanitized = result.guarded_response()
+else:
+    # Handle blocked content
+    block_message = result.guarded_response()
+```
+
+### Inspecting Traces
+
+Get detailed information about what triggered:
+
+```python
+result = dome.guard_input(message)
+trace = result.traceback()
+
+# See which guards ran
+for guard_name, guard_result in trace.items():
+    if guard_result.get("flagged"):
+        print(f"Flagged by: {guard_name}")
+        print(f"Detector: {guard_result.get('detector')}")
+        print(f"Confidence: {guard_result.get('confidence')}")
+```
+
+### Execution Timing
+
+Monitor performance:
+
+```python
+result = dome.guard_input(message)
+print(f"Guard execution time: {result.exec_time}ms")
+```
+
+## Using Separate Guardrails
+
+For more control, get input and output guardrails separately:
+
+```python
+dome = Dome(config)
+input_guardrail, output_guardrail = dome.get_guardrails()
+
+# Use separately
+input_result = input_guardrail.guard(message)
+output_result = output_guardrail.guard(response)
+
+# Or async
+input_result = await input_guardrail.aguard(message)
+output_result = await output_guardrail.aguard(response)
+```
+
+## Custom Block Messages
+
+Override default block messages:
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+    "blocked-response": "I'm sorry, I can't process that request.",
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta-v3-base"],
+        "blocked-response": "Security check failed. Please rephrase your request."
+    }
+}
+
+dome = Dome(config)
+```
+
+## Error Handling
+
+Handle guard failures gracefully:
+
+```python
+def protected_chat(user_message: str) -> str:
+    try:
+        input_scan = dome.guard_input(user_message)
+
+        if not input_scan.is_safe():
+            return input_scan.guarded_response()
+
+        response = call_agent(input_scan.guarded_response())
+
+        output_scan = dome.guard_output(response)
+        return output_scan.guarded_response()
+
+    except Exception as e:
+        # Log the error
+        logger.error(f"Guard error: {e}")
+        # Return safe fallback
+        return "I'm experiencing technical difficulties. Please try again."
+```
+
+## Streaming Responses
+
+For streaming LLM responses, guard the complete response:
+
+```python
+async def protected_stream(user_message: str):
+    input_scan = await dome.async_guard_input(user_message)
+
+    if not input_scan.is_safe():
+        yield input_scan.guarded_response()
+        return
+
+    # Collect the full response
+    full_response = ""
+    async for chunk in stream_from_agent(input_scan.guarded_response()):
+        full_response += chunk
+
+    # Guard the complete response
+    output_scan = await dome.async_guard_output(full_response)
+
+    if output_scan.is_safe():
+        yield output_scan.guarded_response()
+    else:
+        yield output_scan.guarded_response()  # Returns block message
+```
+
+## Multi-Turn Conversations
+
+Guard each turn in a conversation:
+
+```python
+class ProtectedConversation:
+    def __init__(self):
+        self.dome = Dome()
+        self.history = []
+
+    def chat(self, user_message: str) -> str:
+        # Guard user input
+        input_scan = self.dome.guard_input(user_message)
+
+        if not input_scan.is_safe():
+            return input_scan.guarded_response()
+
+        # Add to history
+        self.history.append({
+            "role": "user",
+            "content": input_scan.guarded_response()
+        })
+
+        # Get response
+        response = call_agent_with_history(self.history)
+
+        # Guard output
+        output_scan = self.dome.guard_output(response)
+        safe_response = output_scan.guarded_response()
+
+        # Add safe response to history
+        self.history.append({
+            "role": "assistant",
+            "content": safe_response
+        })
+
+        return safe_response
+```
+
+## RAG Applications
+
+Guard both retrieval context and responses:
+
+```python
+def protected_rag(query: str) -> str:
+    # Guard the query
+    query_scan = dome.guard_input(query)
+    if not query_scan.is_safe():
+        return query_scan.guarded_response()
+
+    safe_query = query_scan.guarded_response()
+
+    # Retrieve context
+    context = retrieve_documents(safe_query)
+
+    # Optionally guard retrieved content
+    context_scan = dome.guard_output(context)
+    safe_context = context_scan.guarded_response()
+
+    # Generate response
+    response = generate_with_context(safe_query, safe_context)
+
+    # Guard final response
+    output_scan = dome.guard_output(response)
+    return output_scan.guarded_response()
+```
+
+## Tool-Using Agents
+
+Guard tool inputs and outputs:
+
+```python
+def protected_tool_agent(user_message: str) -> str:
+    # Guard user input
+    input_scan = dome.guard_input(user_message)
+    if not input_scan.is_safe():
+        return input_scan.guarded_response()
+
+    # Plan tool calls
+    tool_calls = plan_tool_calls(input_scan.guarded_response())
+
+    for tool_call in tool_calls:
+        # Guard tool input
+        tool_input_scan = dome.guard_input(tool_call.input)
+        if not tool_input_scan.is_safe():
+            continue  # Skip unsafe tool calls
+
+        # Execute tool
+        tool_output = execute_tool(tool_call.name, tool_input_scan.guarded_response())
+
+        # Guard tool output
+        tool_output_scan = dome.guard_output(tool_output)
+        tool_call.result = tool_output_scan.guarded_response()
+
+    # Generate final response
+    response = synthesize_response(tool_calls)
+
+    # Guard final output
+    output_scan = dome.guard_output(response)
+    return output_scan.guarded_response()
+```
+
+## Production Best Practices
+
+### Logging
+
+Log guard decisions for monitoring:
+
+```python
+import logging
+
+logger = logging.getLogger("dome")
+
+def protected_chat(user_message: str) -> str:
+    input_scan = dome.guard_input(user_message)
+
+    logger.info(f"Input guard: safe={input_scan.is_safe()}, time={input_scan.exec_time}ms")
+
+    if not input_scan.is_safe():
+        logger.warning(f"Input blocked: {input_scan.traceback()}")
+        return input_scan.guarded_response()
+
+    response = call_agent(input_scan.guarded_response())
+
+    output_scan = dome.guard_output(response)
+
+    logger.info(f"Output guard: safe={output_scan.is_safe()}, time={output_scan.exec_time}ms")
+
+    if not output_scan.is_safe():
+        logger.warning(f"Output blocked: {output_scan.traceback()}")
+
+    return output_scan.guarded_response()
+```
+
+### Metrics
+
+Track guard performance:
+
+```python
+from prometheus_client import Counter, Histogram
+
+input_blocked = Counter("dome_input_blocked_total", "Blocked inputs")
+output_blocked = Counter("dome_output_blocked_total", "Blocked outputs")
+guard_latency = Histogram("dome_guard_latency_seconds", "Guard latency")
+
+def protected_chat(user_message: str) -> str:
+    with guard_latency.time():
+        input_scan = dome.guard_input(user_message)
+
+    if not input_scan.is_safe():
+        input_blocked.inc()
+        return input_scan.guarded_response()
+
+    response = call_agent(input_scan.guarded_response())
+
+    with guard_latency.time():
+        output_scan = dome.guard_output(response)
+
+    if not output_scan.is_safe():
+        output_blocked.inc()
+
+    return output_scan.guarded_response()
+```
+
+### Configuration Management
+
+Use environment-specific configurations:
+
+```python
+import os
+
+def get_dome_config():
+    env = os.environ.get("ENVIRONMENT", "development")
+
+    if env == "production":
+        return Dome("config/dome-production.toml")
+    else:
+        return Dome("config/dome-development.toml")
+
+dome = get_dome_config()
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Detailed guard configuration
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build custom detection methods
+  </Card>
+  <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
+    OpenTelemetry integration
+  </Card>
+  <Card title="LangChain Integration" icon="link" href="/developer-guide/frameworks/langchain">
+    Use with LangChain
+  </Card>
+</CardGroup>
