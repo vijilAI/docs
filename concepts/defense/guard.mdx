@@ -1,0 +1,143 @@
+---
+title: "Guard"
+description: "Specialized protection modules that defend against specific threat categories."
+---
+
+## What is a Guard?
+
+A guard is a protection module focused on a specific threat category. While a guardrail defines your overall protection policy, guards do the actual work of detecting and handling threats.
+
+Think of guards like specialized security personnel. One guard watches for weapons. Another checks IDs. Another monitors for suspicious behavior. Each has a specific job; together they provide comprehensive protection. Dome guards work the same way—one detects prompt injection, another catches PII, another flags toxic content.
+
+Guards contain one or more detectors (the detection logic) and define what action to take when threats are found. You configure guards based on what threats matter for your use case.
+
+## Guard Categories
+
+### Security Guards
+
+Security guards protect against adversarial attacks on your agent:
+
+| Guard | Protects Against |
+|-------|------------------|
+| **Prompt Injection** | Instructions embedded in user input designed to hijack agent behavior |
+| **Jailbreak** | Social engineering attempts to bypass safety guidelines |
+| **Encoding Attack** | Obfuscated malicious content (base64, unicode, etc.) |
+
+Security guards are essential for any agent exposed to untrusted input—which is most agents in production.
+
+### Privacy Guards
+
+Privacy guards protect sensitive information:
+
+| Guard | Protects Against |
+|-------|------------------|
+| **PII Detection** | Personal identifiable information (names, emails, SSNs, etc.) |
+| **Secrets Detection** | API keys, passwords, credentials in input or output |
+| **Data Leakage** | Sensitive business data escaping through agent responses |
+
+Privacy guards can detect, redact, or block. Redaction is common—replace the SSN with `[REDACTED]` rather than blocking the entire request.
+
+### Moderation Guards
+
+Moderation guards enforce content standards:
+
+| Guard | Protects Against |
+|-------|------------------|
+| **Toxicity** | Hate speech, harassment, threats, severe profanity |
+| **Sexual Content** | Explicit or inappropriate sexual material |
+| **Violence** | Graphic violence, self-harm content |
+| **Misinformation** | Demonstrably false claims on high-stakes topics |
+
+Moderation guards are configurable by sensitivity. A customer service bot needs strict moderation; an adult content platform has different requirements.
+
+### Integrity Guards
+
+Integrity guards maintain agent behavior boundaries:
+
+| Guard | Protects Against |
+|-------|------------------|
+| **Topic Restriction** | Responses outside the agent's intended domain |
+| **Persona Violation** | Breaks from the agent's defined character or role |
+| **Instruction Override** | Attempts to change the agent's system prompt behavior |
+
+Integrity guards help agents stay in their lane—answering questions they should answer, refusing questions they shouldn't.
+
+## Guard Configuration
+
+Each guard has configurable parameters:
+
+```python
+{
+    "prompt-injection": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta", "heuristic-rules"],
+        "action": "block",
+        "threshold": 0.8
+    }
+}
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `type` | Guard category (security, privacy, moderation, integrity) |
+| `methods` | Which detectors to use within this guard |
+| `action` | What to do on detection: `log`, `warn`, `redact`, `block` |
+| `threshold` | Confidence threshold for triggering action (0.0-1.0) |
+
+## Multiple Detectors per Guard
+
+Guards can use multiple detectors for defense in depth. A prompt injection guard might combine:
+
+- **Fast heuristics**: Pattern matching for known injection signatures
+- **ML classifier**: DeBERTa model trained on injection examples
+- **LLM judge**: Secondary model evaluating whether input looks like an attack
+
+Multiple detectors catch more attacks but add latency. Configure based on your security/performance tradeoff.
+
+## Input vs. Output Guards
+
+Guards run on both input and output, but different guards matter for each:
+
+| Direction | Priority Guards |
+|-----------|-----------------|
+| **Input** | Prompt injection, jailbreak, PII (to protect your systems) |
+| **Output** | Toxicity, PII (to protect users), topic restriction, data leakage |
+
+Some guards run on both. PII detection on input prevents sensitive data from reaching your agent; PII detection on output prevents your agent from exposing data in responses.
+
+## Guard Results
+
+When a guard runs, it produces:
+
+```python
+{
+    "guard": "prompt-injection",
+    "triggered": true,
+    "confidence": 0.94,
+    "action_taken": "block",
+    "detector_results": [
+        {"method": "deberta", "score": 0.94, "triggered": true},
+        {"method": "heuristics", "score": 0.0, "triggered": false}
+    ],
+    "evidence": "Detected instruction override pattern: 'ignore previous...'"
+}
+```
+
+Results include which detectors fired, their confidence scores, and evidence explaining the detection. This transparency helps you tune guards and investigate incidents.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Guardrail" icon="road-barrier" href="/concepts/defense/guardrail">
+    How guards compose into pipelines
+  </Card>
+  <Card title="Detector" icon="microscope" href="/concepts/defense/detector">
+    The detection engines inside guards
+  </Card>
+  <Card title="Configure Guardrails" icon="sliders" href="/owner-guide/protecting-agents/configuring-guardrails">
+    Set up guards for your agent
+  </Card>
+  <Card title="Available Guards" icon="list" href="/developer-guide/protect/configuring-guardrails">
+    Reference of all guard types
+  </Card>
+</CardGroup>

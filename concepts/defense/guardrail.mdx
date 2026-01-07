@@ -1,0 +1,190 @@
+---
+title: "Guardrail"
+description: "Configurable pipelines that orchestrate guards into complete protection policies."
+---
+
+## What is a Guardrail?
+
+A guardrail is a configured pipeline of guards that implements your protection policy. If guards are the individual security checks, guardrails are the security checkpoint—they define which checks happen, in what order, and what to do with the results.
+
+You don't deploy individual guards; you deploy guardrails. A guardrail bundles together the guards you need, configures their thresholds and actions, and orchestrates their execution on every request.
+
+## Guardrail Types
+
+Dome supports guardrails at different points in the agent interaction:
+
+### Input Guardrails
+
+Input guardrails filter requests before they reach your agent:
+
+```python
+"input-guards": ["prompt-injection", "pii-detection", "topic-filter"]
+```
+
+Input guardrails protect your agent from:
+- Adversarial attacks (injection, jailbreaks)
+- Sensitive data that shouldn't be processed
+- Off-topic requests outside the agent's scope
+
+### Output Guardrails
+
+Output guardrails filter responses before they reach users:
+
+```python
+"output-guards": ["toxicity", "pii-redaction", "hallucination-check"]
+```
+
+Output guardrails protect users from:
+- Harmful or inappropriate content
+- Leaked sensitive information
+- Responses that violate content policies
+
+### Retrieval Guardrails
+
+<Note>Coming soon</Note>
+
+Retrieval guardrails filter content from RAG pipelines—protecting against poisoned documents, irrelevant retrievals, and sensitive data in your knowledge base.
+
+### Execution Guardrails
+
+<Note>Coming soon</Note>
+
+Execution guardrails filter tool calls and agent actions—ensuring your agent doesn't call unauthorized APIs, access forbidden resources, or take actions outside its permitted scope.
+
+## Guardrail Configuration
+
+A complete guardrail configuration specifies guards and their settings:
+
+```python
+from vijil import DomeClient
+
+dome = DomeClient()
+
+config = {
+    # Which guards run on input
+    "input-guards": ["prompt-injection", "input-pii"],
+
+    # Which guards run on output
+    "output-guards": ["toxicity", "output-pii"],
+
+    # Guard configurations
+    "prompt-injection": {
+        "type": "security",
+        "methods": ["deberta-v3", "heuristics"],
+        "action": "block",
+        "threshold": 0.85
+    },
+
+    "input-pii": {
+        "type": "privacy",
+        "methods": ["presidio"],
+        "action": "redact"
+    },
+
+    "toxicity": {
+        "type": "moderation",
+        "methods": ["llamaguard"],
+        "action": "block",
+        "threshold": 0.9
+    },
+
+    "output-pii": {
+        "type": "privacy",
+        "methods": ["presidio"],
+        "action": "redact"
+    }
+}
+
+guardrail = dome.create_guardrail(config)
+```
+
+## Execution Flow
+
+When a guardrail runs:
+
+1. **Input arrives**: User request enters the pipeline
+2. **Input guards execute**: Each guard in `input-guards` runs (in parallel where possible)
+3. **Actions applied**: Block, redact, or pass based on guard results
+4. **Agent processes**: If not blocked, filtered input reaches your agent
+5. **Output guards execute**: Each guard in `output-guards` runs on the response
+6. **Actions applied**: Block, redact, or pass the response
+7. **Response returned**: Filtered output goes to the user
+
+If any guard with `action: block` triggers, the pipeline stops and returns an error response. Guards with `action: redact` modify the content and continue.
+
+## Guard Ordering
+
+Guards within a guardrail can run in parallel or sequence:
+
+**Parallel execution** (default): All guards run simultaneously. Fastest, but all guards run even if one would block.
+
+**Sequential execution**: Guards run in order. First blocking guard stops the pipeline. Saves compute but adds latency.
+
+```python
+config = {
+    "input-guards": ["prompt-injection", "pii-detection"],
+    "execution": "sequential"  # or "parallel"
+}
+```
+
+For most use cases, parallel execution with blocking guards is the right choice—you want fast responses and comprehensive detection.
+
+## Scan Results
+
+Every guardrail execution returns a `ScanResult`:
+
+```python
+result = guardrail.scan(input_text)
+
+print(result.flagged)          # True if any guard triggered
+print(result.is_safe())        # Inverse of flagged
+print(result.response_text)    # Filtered text (or block message)
+print(result.exec_time)        # Latency in milliseconds
+print(result.trace)            # Detailed per-guard results
+```
+
+The trace provides debugging visibility:
+
+```python
+{
+    "prompt-injection": {
+        "triggered": True,
+        "confidence": 0.92,
+        "action": "block",
+        "exec_time_ms": 12
+    },
+    "pii-detection": {
+        "triggered": False,
+        "confidence": 0.0,
+        "action": "pass",
+        "exec_time_ms": 8
+    }
+}
+```
+
+## Guardrail Templates
+
+Dome provides pre-configured guardrail templates for common use cases:
+
+| Template | Guards Included | Use Case |
+|----------|-----------------|----------|
+| `customer-support` | Injection, PII, toxicity, topic restriction | Customer-facing chatbots |
+| `internal-assistant` | Injection, secrets detection, data leakage | Internal enterprise assistants |
+| `content-moderation` | Toxicity, sexual content, violence, misinformation | Content generation platforms |
+| `high-security` | All security guards, strict thresholds | Sensitive applications |
+
+Templates are starting points—customize thresholds and add guards based on your specific requirements.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Guard" icon="shield" href="/concepts/defense/guard">
+    Understand individual protection types
+  </Card>
+  <Card title="Detector" icon="microscope" href="/concepts/defense/detector">
+    The detection engines inside guards
+  </Card>
+  <Card title="Configure Guardrails" icon="sliders" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Set up Dome for your agent
+  </Card>
+</CardGroup>

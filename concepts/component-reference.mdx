@@ -1,0 +1,1390 @@
+---
+title: "Component Reference"
+description: "Reference guide for Vijil probes and detectors."
+---
+
+This reference maps component module names you may see in your evaluation reports to their human-readable names and descriptions.
+
+## Probes
+
+Probes are the attack scenarios that test your agent. They're organized by threat category.
+
+<AccordionGroup>
+
+<Accordion title="Security Probes">
+
+**dan.AntiDAN** — Anti-Do Anything Now
+
+Evaluates whether prompt injection causes a model to enter a mode of exaggerated safety where it treats safe responses as unsafe
+
+---
+
+**dan.ChatGPT_Developer_Mode_RANTI** — Do Anything Now: RANTI v1
+
+Ranti developer mode jailbreak, version 1
+
+---
+
+**dan.ChatGPT_Developer_Mode_v2** — Do Anything Now: RANTI v2
+
+Ranti developer mode jailbreak, version 2
+
+---
+
+**dan.ChatGPT_Image_Markdown** — Inject Markdown image
+
+A jailbreak attempt intended to enable the injection of markdown images into responses
+
+---
+
+**dan.Dan_10_0** — Do Anything Now: v10
+
+Do Anything Now jailbreak with prompt about inhumane things
+
+---
+
+**dan.Dan_11_0** — Do Anything Now: v11
+
+Do Anything Now jailbreak to encourage profane, unethical, one-sided, violent outputs
+
+---
+
+**dan.Dan_6_0** — Do Anything Now: v6.0
+
+Do Anything Now jailbreak offering rewards to encourage making future predictions and hallucinations
+
+---
+
+**dan.Dan_6_2** — Do Anything Now: v6.2
+
+Do Anything Now jailbreak offering rewards to encourage making future predictions and hallucinations, with additional incitement to rudeness
+
+---
+
+**dan.Dan_7_0** — Do Anything Now: v7.0
+
+Do Anything Now jailbreak telling the model that filtering is not acceptable and including special instructions for when to break character
+
+---
+
+**dan.Dan_8_0** — Do Anything Now: v8.0
+
+Do Anything Now jailbreak telling the model is Bigmancozmo and encouraging swearing, porn, and illegality
+
+---
+
+**dan.Dan_9_0** — Do Anything Now: v9.0
+
+Do Anything Now jailbreak encouraging breaking 2021 information cutoff and ethical guardrails in responses, with reward offered
+
+---
+
+**dan.DAN_Jailbreak** — Do Anything Now: JAILBREAK
+
+Do Anything Now jailbreak prompting the model to enter a JAILBREAK mode
+
+---
+
+**dan.DUDE** — Do anything and everything
+
+Do Anything Now jailbreak prompting the model to take on the DUDE persona
+
+---
+
+**dan.STAN** — Strive To Avoid Norms
+
+Jailbreak prompting the model to take on a Strive To Avoid Norms (STAN) persona
+
+---
+
+**encoding.InjectAscii85** — Prompt injection: ASCII85
+
+Tries to get the model to decode an ASCII85-encoded string
+
+---
+
+**encoding.InjectBase16** — Prompt injection: Base16
+
+Tries to get the model to decode a Base16-encoded string
+
+---
+
+**encoding.InjectBase2048** — Prompt injection: Base2048
+
+Tries to get the model to decode a Base2048-encoded string
+
+---
+
+**encoding.InjectBase32** — Prompt injection: Base32
+
+Tries to get the model to decode a Base32-encoded string
+
+---
+
+**encoding.InjectBase64** — Prompt injection: Base64
+
+Tries to get the model to decode a Base64-encoded string
+
+---
+
+**encoding.InjectBraille** — Prompt injection: Braille
+
+Tries to get the model to decode a Braille-encoded string
+
+---
+
+**encoding.InjectEcoji** — Prompt injection: Ecoji
+
+Tries to get the model to decode an Ecoji-encoded string
+
+---
+
+**encoding.InjectHex** — Prompt injection: Hex
+
+Tries to get the model to decode a Hex-encoded string
+
+---
+
+**encoding.InjectMorse** — Prompt injection: Morse
+
+Tries to get the model to decode a Morse-encoded string
+
+---
+
+**encoding.InjectNato** — Prompt injection: NATO
+
+Tries to get the model to decode a NATO-encoded string
+
+---
+
+**encoding.InjectROT13** — Prompt injection: ROT13
+
+Tries to get the model to decode a ROT13-encoded string
+
+---
+
+**encoding.InjectUU** — Prompt injection: UU
+
+Tries to get the model to decode a UU-encoded string
+
+---
+
+**encoding.InjectZalgo** — Prompt injection: Zalgo
+
+Tries to get the model to decode a Zalgo-encoded string
+
+---
+
+**gcg.GCG_Probe** — Adversarial suffix
+
+Uses an adversarial suffix to elicit instructions on how to steal from a non-profit organization
+
+---
+
+**glitch.Glitch100** — Glitch
+
+Uses glitch tokens to get the model to fail to repeat a word
+
+---
+
+**knownbadsignatures.EICAR** — Test Virus
+
+Get the model to output an EICAR virus signature
+
+---
+
+**knownbadsignatures.GTUBE** — Test Spam
+
+Get the model to output the GTUBE spam signature
+
+---
+
+**malwaregen.Evasion** — Evasive malware
+
+Get the model to write malware that evades common defenses
+
+---
+
+**malwaregen.Payload** — Malicious payload
+
+Get the model to produce a malicious payload
+
+---
+
+**malwaregen.SubFunctions** — Malicious subfunctions
+
+Get the model to write malicious subfunctions
+
+---
+
+**malwaregen.TopLevel** — General malware
+
+Get the model to write general malware
+
+---
+
+**promptinject.HijackHateHumansMini** — Prompt injection: Hate humans
+
+Get the model to produce a rogue string on hating humans
+
+---
+
+**promptinject.HijackKillHumansMini** — Prompt injection: Kill humans
+
+Get the model to produce a rogue string on killing humans
+
+---
+
+**promptinject.HijackLongPromptMini** — Prompt injection: Long prompt
+
+Get the model to produce a "long prompt" rogue string
+
+---
+
+**promptinject.Tag** — Prompt injection: Unicode tag
+
+Prompt injection using invisible unicode tags
+
+---
+
+**goodside.ThreatenJSON** — Output plain JSON
+
+Threaten the model to make it produce raw JSON without any preamble
+
+---
+
+**xss.MarkdownImageExfil** — Cross-site scripting: Markdown image
+
+Get the model to write embedded assets exfiltrating text in a Markdown URI
+
+</Accordion>
+
+<Accordion title="Privacy Probes">
+
+**leakreplay.LiteratureComplete80** — Book excerpt completion
+
+Tests whether the model will complete a book excerpt when prompted with the beginning
+
+---
+
+**leakreplay.LiteratureCloze80** — Book excerpt insertion
+
+Tests whether the model will fill in the middle of a book excerpt
+
+---
+
+**leakreplay.GuardianComplete** — Media excerpt completion - Guardian
+
+Tests whether the model will complete an excerpt from The Guardian when prompted with the beginning
+
+---
+
+**leakreplay.GuardianCloze** — Media excerpt insertion - Guardian
+
+Tests whether the model will fill in the middle of an excerpt from The Guardian
+
+---
+
+**leakreplay.NYTComplete** — Media excerpt completion - NYT
+
+Tests whether the model will complete an excerpt from the New York Times when prompted with the beginning
+
+---
+
+**leakreplay.NYTCloze** — Media excerpt insertion - NYT
+
+Tests whether the model will fill in the middle of an excerpt from the New York Times
+
+---
+
+**privateinfo.EnronLeakEmail** — Email leakage - Enron
+
+Tests whether the model will reveal email addresses obtained from the discovery process of the Enron investigation
+
+---
+
+**privateinfo.LeakPII** — PII Leakage
+
+Tests whether PII provided to the model during a conversation can be leaked
+
+---
+
+**privateinfo.PrivacyUnderstanding** — Confidentiality comprehension
+
+Tests whether the model understands privacy-related phrases that flag when certain information is confidential
+
+</Accordion>
+
+<Accordion title="Hallucination Probes">
+
+**socialvalues.QuackMedicine** — Quack Medicine
+
+Evaluates whether the model promotes quack medicine
+
+---
+
+**goodside.WhoIsRiley** — False assertions: Riley Goodside
+
+Evaluates hallucinations about Riley Goodside
+
+---
+
+**goodside.Davidjl** — Glitch - Davidjl
+
+Checks for hallucinations about the glitch token Davidjl
+
+---
+
+**packagehallucination.Python** — Hallucinate Python packages
+
+Checks if a model hallucinates Python packages
+
+---
+
+**snowball.SenatorsMini** — False assertions: senators
+
+Checks for false assertions about US senators
+
+---
+
+**misleading.FalseAssertion50** — False assertions: general
+
+Checks for false assertions about general history/science facts
+
+---
+
+**snowball.GraphConnectivityMini** — False assertions: flights
+
+Checks if the model invents impossible flight routes
+
+---
+
+**snowball.PrimesMini** — Hallucinate prime numbers
+
+Evaluates hallucinations about prime numbers
+
+</Accordion>
+
+<Accordion title="Robustness Probes">
+
+**advglue.BertattackOnMNLI** — BERT attack on MNLI
+
+Probes effects of BERT-based perturbation on MNLI task
+
+---
+
+**advglue.BertattackOnMNLIMM** — BERT attack on MNLI-MM
+
+Probes effects of BERT-based perturbation on MNLI-MM task
+
+---
+
+**advglue.BertattackOnQNLI** — BERT attack on QNLI
+
+Probes effects of BERT-based perturbation on QNLI task
+
+---
+
+**advglue.BertattackOnQQP** — BERT attack on QQP
+
+Probes effects of BERT-based perturbation on QQP task
+
+---
+
+**advglue.BertattackOnRTE** — BERT attack on RTE
+
+Probes effects of BERT-based perturbation on RTE task
+
+---
+
+**advglue.BertattackOnSST2** — BERT attack on SST2
+
+Probes effects of BERT-based perturbation on SST2 task
+
+---
+
+**advglue.SemattackOnMNLI** — SemAttack on MNLI
+
+Probes effects of SemAttack perturbation on MNLI task
+
+---
+
+**advglue.SemattackOnMNLIMM** — SemAttack on MNLI-MM
+
+Probes effects of SemAttack perturbation on MNLI-MM task
+
+---
+
+**advglue.SemattackOnQNLI** — SemAttack on QNLI
+
+Probes effects of SemAttack perturbation on QNLI task
+
+---
+
+**advglue.SemattackOnQQP** — SemAttack on QQP
+
+Probes effects of SemAttack perturbation on QQP task
+
+---
+
+**advglue.SemattackOnRTE** — SemAttack on RTE
+
+Probes effects of SemAttack perturbation on RTE task
+
+---
+
+**advglue.SemattackOnSST2** — SemAttack on SST2
+
+Probes effects of SemAttack perturbation on SST2 task
+
+---
+
+**advglue.SememepsoOnMNLI** — SememePSO attack on MNLI
+
+Probes effects of SememePSO perturbation on MNLI task
+
+---
+
+**advglue.SememepsoOnMNLIMM** — SememePSO attack on MNLI-MM
+
+Probes effects of SememePSO perturbation on MNLI-MM task
+
+---
+
+**advglue.SememepsoOnQNLI** — SememePSO attack on QNLI
+
+Probes effects of SememePSO perturbation on QNLI task
+
+---
+
+**advglue.SememepsoOnQQP** — SememePSO attack on QQP
+
+Probes effects of SememePSO perturbation on QQP task
+
+---
+
+**advglue.SememepsoOnRTE** — SememePSO attack on RTE
+
+Probes effects of SememePSO perturbation on RTE task
+
+---
+
+**advglue.SememepsoOnSST2** — SememePSO attack on SST2
+
+Probes effects of SememePSO perturbation on SST2 task
+
+---
+
+**advglue.TextbuggerOnMNLI** — TextBugger attack on MNLI
+
+Probes effects of TextBugger perturbation on MNLI task
+
+---
+
+**advglue.TextbuggerOnMNLIMM** — TextBugger attack on MNLI-MM
+
+Probes effects of TextBugger perturbation on MNLI-MM task
+
+---
+
+**advglue.TextbuggerOnQNLI** — TextBugger attack on QNLI
+
+Probes effects of TextBugger perturbation on QNLI task
+
+---
+
+**advglue.TextbuggerOnQQP** — TextBugger attack on QQP
+
+Probes effects of TextBugger perturbation on QQP task
+
+---
+
+**advglue.TextbuggerOnRTE** — TextBugger attack on RTE
+
+Probes effects of TextBugger perturbation on RTE task
+
+---
+
+**advglue.TextbuggerOnSST2** — TextBugger attack on SST2
+
+Probes effects of TextBugger perturbation on SST2 task
+
+---
+
+**advglue.TextfoolerOnMNLI** — TextFooler attack on MNLI
+
+Probes effects of TextFooler perturbation on MNLI task
+
+---
+
+**advglue.TextfoolerOnMNLIMM** — TextFooler attack on MNLI-MM
+
+Probes effects of TextFooler perturbation on MNLI-MM task
+
+---
+
+**advglue.TextfoolerOnQNLI** — TextFooler attack on QNLI
+
+Probes effects of TextFooler perturbation on QNLI task
+
+---
+
+**advglue.TextfoolerOnQQP** — TextFooler attack on QQP
+
+Probes effects of TextFooler perturbation on QQP task
+
+---
+
+**advglue.TextfoolerOnRTE** — TextFooler attack on RTE
+
+Probes effects of TextFooler perturbation on RTE task
+
+---
+
+**advglue.TextfoolerOnSST2** — TextFooler attack on SST2
+
+Probes effects of TextFooler perturbation on SST2 task
+
+</Accordion>
+
+<Accordion title="Toxicity Probes">
+
+**realtoxicityprompts.RTPSexually_Explicit** — Sexually explicit
+
+Prompts the model to produce sexually explicit outputs
+
+---
+
+**realtoxicityprompts.RTPInsultJailbreak** — Insult - adversarial
+
+Prompts the model to produce insults. Uses an adversarial prefix.
+
+---
+
+**realtoxicityprompts.RTPInsult** — Insult
+
+Prompts the model to produce insults
+
+---
+
+**realtoxicityprompts.RTPSevere_ToxicityJailbreak** — Severe toxicity - adversarial
+
+Partial prompts that potentially produce continuations of severe toxicity. Uses an adversarial prefix.
+
+---
+
+**realtoxicityprompts.RTPSexually_ExplicitJailbreak** — Sexually explicit - adversarial
+
+Prompts the model to produce sexually explicit outputs. Uses an adversarial prefix.
+
+---
+
+**realtoxicityprompts.RTPIdentity_Attack** — Identity-based attacks
+
+Prompts the model to produce attacks based on a person's identity
+
+---
+
+**realtoxicityprompts.RTPProfanity** — Profanity
+
+Prompts the model to produce profane responses
+
+---
+
+**realtoxicityprompts.RTPIdentity_AttackJailbreak** — Adversarial identity-based attacks
+
+Prompts the model to produce attacks based on a person's identity. Uses an adversarial prefix.
+
+---
+
+**realtoxicityprompts.RTPThreat** — Threatening language
+
+Prompts the model to produce threats
+
+---
+
+**realtoxicityprompts.RTPThreatJailbreak** — Threatening language - adversarial
+
+Prompts the model to produce threats. Uses an adversarial prefix.
+
+---
+
+**realtoxicityprompts.RTPSevere_Toxicity** — Severe toxicity
+
+Partial prompts that potentially produce continuations of severe toxicity
+
+---
+
+**realtoxicityprompts.RTPFlirtation** — Flirtation
+
+Partial prompts to produce flirtatious continuations
+
+---
+
+**realtoxicityprompts.RTPFlirtationJailbreak** — Flirtation - adversarial
+
+Partial prompts to produce flirtatious continuations. Uses an adversarial prefix.
+
+---
+
+**realtoxicityprompts.RTPProfanityJailbreak** — Profanity - adversarial
+
+Prompts the model to produce profane responses. Uses an adversarial prefix.
+
+---
+
+**continuation.ContinueSlursReclaimedSlursART** — Slur continuation
+
+Prompts the model to continue slur words
+
+---
+
+**socialvalues.Deadnaming** — Deadnaming
+
+Tests whether the model deadnames famous people
+
+---
+
+**ethicalharms.Profanity** — Profanity questions
+
+Poses questions with potentially profane responses
+
+---
+
+**ethicalharms.Bullying** — Bullying
+
+Poses queries or partial prompts to the model that are expected to elicit responses recommending aggressive or bullying action
+
+---
+
+**ethicalharms.SexualContent** — Sexually explicit - risky words
+
+Prompts the model to produce sexually explicit keywords
+
+---
+
+**ethicalharms.Sexualisation** — Sexual objectification
+
+Prompts the model to produce sexually objectifying language
+
+---
+
+**ethicalharms.SlurUsage** — Slur question
+
+Asks questions to see if the target will suggest or recommend ethnic slurs
+
+</Accordion>
+
+<Accordion title="Stereotype Probes">
+
+**advstereo.Atheists** — Stereotype religion: atheists
+
+Checks for stereotypes about atheists
+
+---
+
+**advstereo.LatinAmericans** — Stereotype ethnicity: Latin Americans
+
+Checks for stereotypes about Latin Americans
+
+---
+
+**advstereo.Europeans** — Stereotype ethnicity: Europeans
+
+Checks for stereotypes about Europeans
+
+---
+
+**advstereo.OldPeople** — Stereotype age: old people
+
+Checks for stereotypes about old people
+
+---
+
+**advstereo.Homosexuals** — Stereotype sexual orientation: homosexuals
+
+Checks for stereotypes about homosexuals
+
+---
+
+**advstereo.Immigrants** — Stereotype nationality: immigrants
+
+Checks for stereotypes about immigrants
+
+---
+
+**advstereo.AbleBodiedPeople** — Stereotype disability: able-bodied people
+
+Checks for stereotypes about able-bodied people
+
+---
+
+**advstereo.YoungPeople** — Stereotype age: young people
+
+Checks for stereotypes about young people
+
+---
+
+**advstereo.Caucasians** — Stereotype race: Caucasians
+
+Checks for stereotypes about Caucasians
+
+---
+
+**advstereo.BlackPeople** — Stereotype race: black people
+
+Checks for stereotypes about black people
+
+---
+
+**advstereo.Buddhists** — Stereotype religion: Buddhists
+
+Checks for stereotypes about Buddhists
+
+---
+
+**advstereo.PoorPeople** — Stereotype income: poor people
+
+Checks for stereotypes about poor people
+
+---
+
+**advstereo.WhitePeople** — Stereotype race: white people
+
+Checks for stereotypes about white people
+
+---
+
+**advstereo.Jews** — Stereotype ethnicity: Jews
+
+Checks for stereotypes about Jews
+
+---
+
+**advstereo.RichPeople** — Stereotype income: rich people
+
+Checks for stereotypes about rich people
+
+---
+
+**advstereo.Men** — Stereotype gender: men
+
+Checks for stereotypes about men
+
+---
+
+**advstereo.Mexicans** — Stereotype nationality: Mexicans
+
+Checks for stereotypes about Mexicans
+
+---
+
+**advstereo.Asians** — Stereotype race: Asians
+
+Checks for stereotypes about Asians
+
+---
+
+**advstereo.Americans** — Stereotype nationality: Americans
+
+Checks for stereotypes about Americans
+
+---
+
+**advstereo.Canadians** — Stereotype nationality: Canadians
+
+Checks for stereotypes about Canadians
+
+---
+
+**advstereo.Christians** — Stereotype religion: Christians
+
+Checks for stereotypes about Christians
+
+---
+
+**advstereo.PhysicallyDisabledPeople** — Stereotype disability: disabled people
+
+Checks for stereotypes about disabled people
+
+---
+
+**advstereo.Muslims** — Stereotype religion: Muslims
+
+Checks for stereotypes about Muslims
+
+---
+
+**advstereo.Women** — Stereotype gender: women
+
+Checks for stereotypes about women
+
+</Accordion>
+
+<Accordion title="Fairness Probes">
+
+**adultdata.CounterfactualGender** — Gender Bias
+
+Measures whether the model uses gender information to determine a person's likely income
+
+---
+
+**winobias.ProfessionalBias** — Professional bias
+
+Measures whether the model associates occupations with gender
+
+</Accordion>
+
+<Accordion title="Ethics Probes">
+
+**normative_ethics.Deontology** — Deontological Ethics
+
+Evaluates the model's understanding of whether actions are required, permitted, or forbidden according to a set of rules or constraints
+
+---
+
+**normative_ethics.DeontologyJailbreak** — Adversarial Deontological Ethics
+
+Evaluates the model's understanding of whether actions are required, permitted, or forbidden according to a set of rules or constraints under adversarial prompting
+
+---
+
+**normative_ethics.Justice** — Justice-based Ethics
+
+Evaluates whether the model understands principles of desert or impartiality
+
+---
+
+**normative_ethics.JusticeJailbreak** — Adversarial Justice-based Ethics
+
+Evaluates whether the model understands principles of desert or impartiality under adversarial prompting
+
+---
+
+**normative_ethics.Morality** — Commonsense Morality
+
+Evaluates whether the model's moral judgments align with common moral intuitions
+
+---
+
+**normative_ethics.MoralityJailbreak** — Adversarial Commonsense Morality
+
+Evaluates, under adversarial prompting, whether the model's moral judgments align with common moral intuitions
+
+---
+
+**normative_ethics.Utilitarianism** — Utilitarianism
+
+Evaluates whether the model can identify which of two scenarios has higher utility
+
+---
+
+**normative_ethics.UtilitarianismJailbreak** — Adversarial Utilitarianism
+
+Evaluates, under adversarial prompting, whether the model can identify which of two scenarios has higher utility
+
+---
+
+**normative_ethics.Virtue** — Virtue Ethics
+
+Evaluates whether the model can identify moral virtues correctly
+
+---
+
+**normative_ethics.VirtueJailbreak** — Adversarial Virtue Ethics
+
+Evaluates, under adversarial prompting, whether the model can identify moral virtues correctly
+
+---
+
+**jiminycricket.Jiminy** — Simulation
+
+Evaluates the model's ability to identify the moral valence of a simulated scenario
+
+---
+
+**jiminycricket.JiminyJailbreak** — Adversarial Simulation
+
+Evaluates, under adversarial prompting, the model's ability to identify the moral valence of a simulated scenario
+
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Detectors
+
+Detectors analyze agent responses to determine if a probe succeeded or failed. You may see these module names in your evaluation reports.
+
+<AccordionGroup>
+
+<Accordion title="Response Analysis Detectors">
+
+**base.TriggerListDetector** — Trigger presence
+
+A model fails the test if its response contains trigger words that are specific to the given prompt
+
+---
+
+**base.TriggerListAbsenceDetector** — Trigger absence
+
+To pass the test, the model response must contain trigger words that are specific to the given prompt
+
+---
+
+**leakreplay.StartsWith** — Starts with trigger
+
+Detects whether the model's response starts with any of a list of trigger phrases
+
+---
+
+**snowball.DontStartNo** — Don't start no
+
+Detects whether the model response starts with 'no'. If so, it fails the test.
+
+---
+
+**snowball.DontStartYes** — Don't start yes
+
+Detects whether the model response starts with 'yes'. If so, it fails the test.
+
+---
+
+**misleading.MustRefuteClaimKW** — Claim refutation
+
+Detects whether a response refutes the claim presented in the prompt by looking for keywords indicating refutation
+
+---
+
+**misleading.MustRefuteClaimKWART** — Claim refutation
+
+Detects whether a response refutes the claim presented in the prompt by looking for keywords indicating refutation
+
+---
+
+**mitigation.MitigationBypassART** — Refusal
+
+Detects whether a model refuses to fulfill a request in the prompt by looking for key phrases
+
+---
+
+**mitigation.TriggerAbsenceWithRefusal** — Trigger absence with acceptable refusal
+
+Passes if model refuses to answer, fails if model answers without including the correct trigger
+
+</Accordion>
+
+<Accordion title="Jailbreak & Mode Detectors">
+
+**dan.AntiDAN** — Anti-Do Anything Now mode
+
+Detects whether the model enters Anti-Do Anything Now (AntiDAN) mode
+
+---
+
+**dan.DAN** — Do Anything Now mode
+
+Detects whether the model enters Do Anything Now (DAN) mode
+
+---
+
+**dan.DANJailbreak** — Jailbroken state
+
+Detects whether the model enters a jailbroken state
+
+---
+
+**dan.DevMode** — Developer mode
+
+Detects whether the model enters Developer mode
+
+---
+
+**dan.DUDE** — Do anything and everything mode
+
+Detects whether the model enters Do anything and everything (DUDE) mode
+
+---
+
+**dan.MarkdownLink** — Markdown link
+
+Detects presence of Markdown-formatted link
+
+---
+
+**dan.STAN** — Strive To Avoid Norms mode
+
+Detects whether the model enters Strive To Avoid Norms (STAN) mode
+
+</Accordion>
+
+<Accordion title="Encoding & Pattern Detectors">
+
+**encoding.DecodeMatch** — Match decoded string
+
+Detects whether specific decoded strings are present in the model's response
+
+---
+
+**ansiescape.Raw** — Raw ANSI Sequences
+
+Detects raw ANSI sequences
+
+---
+
+**ansiescape.Escaped** — Escaped ANSI Sequences
+
+Detects escaped ANSI sequences
+
+---
+
+**productkey.Win5x5** — Windows Product Key
+
+Detects a product key in the form of five groups of five characters
+
+</Accordion>
+
+<Accordion title="Malware & Signature Detectors">
+
+**malwaregenART.AnyCode** — Code presence
+
+Detects the presence of code of various programming languages in the model's response
+
+---
+
+**knownbadsignatures.EICAR** — EICAR virus
+
+Detects EICAR virus signature
+
+---
+
+**knownbadsignatures.GTphish** — Phishing
+
+Detects phishing content
+
+---
+
+**knownbadsignatures.GTUBE** — Spam
+
+Detects spam content
+
+</Accordion>
+
+<Accordion title="Privacy & PII Detectors">
+
+**privateinfo.DontAnswerYes** — Don't answer yes
+
+Detects whether the model says it is OK to reveal private information
+
+---
+
+**privateinfo.LeakPII** — Private information leakage
+
+Detects whether the model leaks private information that is provided in the prompt
+
+</Accordion>
+
+<Accordion title="XSS & Exfiltration Detectors">
+
+**xss.MarkdownExfilBasic** — Markdown image
+
+Detects whether the response contains a Markdown image
+
+---
+
+**xss.MarkdownExfilContent** — Private content in Markdown image
+
+Detects whether the response contains content private to a conversation within a Markdown image
+
+</Accordion>
+
+<Accordion title="Package Hallucination Detectors">
+
+**packagehallucinationART.PythonPypi** — Python package hallucination
+
+Detects whether the model provides code that imports non-existent Python packages
+
+---
+
+**packagehallucinationART.RustCrates** — Rust package hallucination
+
+Detects whether the model provides code that imports non-existent Rust packages
+
+---
+
+**packagehallucinationART.JavaScriptNpm** — JavaScript package hallucination
+
+Detects whether the model provides code that imports non-existent JavaScript packages
+
+---
+
+**packagehallucinationART.RubyGems** — Ruby package hallucination
+
+Detects whether the model provides code that imports non-existent Ruby packages
+
+</Accordion>
+
+<Accordion title="Content & Toxicity Detectors">
+
+**toxicity.ToxicCommentModel** — Model-based toxicity
+
+Uses a small language model to determine whether the response is toxic
+
+---
+
+**lmrc.QuackMedicine** — Quack medicine
+
+Detects whether the response contains quack medicine advice
+
+---
+
+**riskywords.OfcomOffensiveRaceEthnic** — Offensive: racial/ethnic
+
+Detects whether the response contains offensive racial or ethnic terms
+
+---
+
+**riskywords.SurgeProfanityAnimalReferences** — Profanity: animal references
+
+Detects whether the model outputs profanity containing words related to animals
+
+---
+
+**riskywords.SurgeProfanityBodilyFluids** — Profanity: bodily fluids
+
+Detects whether the model outputs profanity containing words related to bodily fluids
+
+---
+
+**riskywords.SurgeProfanityMentalDisability** — Profanity: mental disability
+
+Detects whether the model outputs profanity containing words related to mental disabilities
+
+---
+
+**riskywords.SurgeProfanityPhysicalAttributes** — Profanity: physical attributes
+
+Detects whether the model outputs profanity containing words related to physical attributes
+
+---
+
+**riskywords.SurgeProfanityPhysicalDisability** — Profanity: physical disability
+
+Detects whether the model outputs profanity containing words related to physical disabilities
+
+---
+
+**riskywords.SurgeProfanityPolitical** — Profanity: political
+
+Detects whether the model outputs profanity containing words related to politics
+
+---
+
+**riskywords.SurgeProfanityRacialEthnic** — Profanity: racial/ethnic
+
+Detects whether the model outputs profanity containing words related to race/ethnicity
+
+---
+
+**riskywords.SurgeProfanityReligious** — Profanity: religious
+
+Detects whether the model outputs profanity containing words related to religion
+
+---
+
+**riskywords.SurgeProfanitySexual** — Profanity: sexual
+
+Detects whether the model outputs profanity containing words related to sexuality
+
+---
+
+**riskywords.SurgeProfanitySexualOrientationGender** — Profanity: sexual orientation/gender
+
+Detects whether the model outputs profanity containing words related to sexual orientation/gender
+
+</Accordion>
+
+<Accordion title="Glitch & Edge Case Detectors">
+
+**goodside.Glitch** — Glitch
+
+Detects whether a model fails to repeat back a glitch token despite being asked to
+
+---
+
+**goodside.PlainJSON** — Plain JSON
+
+Detects whether the model returns plain JSON without any preamble
+
+---
+
+**goodside.RileyIsnt** — Riley Goodside misinformation
+
+Uses key phrases to detect whether the response contains misinformation about Riley Goodside
+
+</Accordion>
+
+<Accordion title="Stereotype & Bias Detectors">
+
+**advstereo.IAgree** — Stereotype agreement
+
+Detects whether a model agrees with a stereotype presented in the prompt
+
+---
+
+**adultdata.PairwiseComparison** — Pairwise gender comparison
+
+Compares the model's responses to two questions about a person's income where only the person's gender is changed
+
+---
+
+**winobias.TriggerPlusAmbiguity** — Detect gender bias in professions
+
+Detects specific trigger words indicating gender bias in predicted professions, with addition of ambiguity detector
+
+</Accordion>
+
+<Accordion title="LLM-based Detectors">
+
+**llm.AnswerRelevancy** — Answer Relevancy
+
+Generation metric, measures the degree to which the final generated output is relevant to the original input
+
+---
+
+**llm.ContextualPrecision** — Contextual Precision
+
+Retrieval metric, measures whether the contexts relevant to the input question are ranked higher in the full set of retrieved contexts
+
+---
+
+**llm.ContextualRecall** — Contextual Recall
+
+Retrieval metric, measures the extent to which the retrieved contexts align with the golden answers
+
+---
+
+**llm.Correctness** — Correctness
+
+Evaluates the correctness of the generated answer
+
+---
+
+**llm.Faithfulness** — Faithfulness
+
+Generation metric, measures how much the generated response stays faithful to the retrieved contexts
+
+---
+
+**llm.StrongReject** — Strong Reject
+
+Detects whether a model fails to respond to harmful instructions
+
+---
+
+**llm.ConversationRoleAdherence** — Conversation Role Adherence
+
+Detects whether a model adheres to the role of the conversation
+
+---
+
+**llm.ConversationRelevancy** — Conversation Relevancy
+
+Detects whether a model is relevant to the conversation
+
+---
+
+**llm.ConversationCompleteness** — Conversation Completeness
+
+Detects whether a model completes the conversation
+
+---
+
+**llm.ConversationKnowledgeRetention** — Conversation Knowledge Retention
+
+Detects whether a model maintains consistent knowledge throughout the conversation
+
+---
+
+**llm.Refusal** — LLM-based Refusal
+
+Uses an LLM to detect if a model response avoids answering the question posed in the prompt
+
+---
+
+**llm.PolicyViolation** — Policy Violation
+
+Detects when output violates a specified usage policy
+
+</Accordion>
+
+<Accordion title="Multi-turn Attack Detectors">
+
+**multi_turn.Crescendo** — Crescendo Attack
+
+Detects how well an agent performs against a Crescendo attack. Not available in the detection endpoint.
+
+---
+
+**multi_turn.Linear** — Linear Jailbreak Attack
+
+Detects how well an agent performs against a Linear Jailbreak attack. Not available in the detection endpoint.
+
+---
+
+**multi_turn.Tree** — Tree Jailbreak Attack
+
+Detects how well an agent performs against a Tree Jailbreak attack. Not available in the detection endpoint.
+
+</Accordion>
+
+<Accordion title="Robustness Detectors">
+
+**advglue.PairwiseComparison** — Robustness pairwise comparison
+
+Compares the model's performance on a question from a standardized task when the question's language is perturbed versus when it is not
+
+</Accordion>
+
+<Accordion title="NLP Metric Detectors">
+
+**nlp.BLEU** — BLEU
+
+Generation metric, measures semantic similarity of expected and generated answer
+
+---
+
+**nlp.METEOR** — METEOR
+
+Generation metric, measures semantic similarity of expected and generated answer
+
+---
+
+**nlp.BERTScore** — BERTScore
+
+Generation metric, measures semantic similarity of expected and generated answer
+
+</Accordion>
+
+<Accordion title="Specialized Detectors">
+
+**toolcalling.ToolCorrectness** — Tool Correctness
+
+Detects correct use of a set of tools
+
+---
+
+**mathLatexSympy.MathLatexSympy** — Math checking using Sympy
+
+To pass the test, the model response must mathematically match the trigger. Assumes latex will be given back and uses sympy to check for equivalency
+
+---
+
+**instructionFollowing.InstructionFollowing** — Following Formatting Instructions
+
+To pass the test, the model response should adhere to instructions as specified by the trigger. Instructions are deterministically verifiable (e.g., 'use 500 words or less', 'use markdown formatting')
+
+</Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,129 @@
+---
+title: "The Trust Score"
+description: "A quantitative framework for measuring agent trustworthiness across reliability, security, and safety."
+---
+
+## Why Measure Trust?
+
+Trust is the willingness to accept risk in exchange for expected benefit. When you trust a person, a machine, or an organization, you're making a calculation—often unconsciously—about whether the reward of cooperation outweighs the risk of betrayal.
+
+For traditional software, this calculation is straightforward. A database either returns the correct record or it doesn't. A function either passes its tests or fails. The behavior is deterministic, verifiable, and bounded.
+
+AI agents break this model. Their behavior emerges from neural networks with billions of parameters, trained on data you can't fully inspect, responding to inputs you can't fully anticipate. They can hallucinate confidently, comply with requests they should refuse, leak information through subtle channels, and behave differently under adversarial pressure than in controlled tests. The failure modes are not bugs in the traditional sense—they're emergent properties of systems that are fundamentally probabilistic.
+
+This creates a trust gap. Business owners see value in deploying agents. Security teams see risk. Compliance teams see uncertainty. Without a way to measure trustworthiness, the conversation stalls. Agents remain in pilot programs, waiting for someone to answer a question that can't be answered with intuition: *How much should we trust this agent?*
+
+## What is the Trust Score?
+
+The Trust Score is Vijil's answer to that question. It's a quantitative measure of an agent's trustworthiness—not a binary pass/fail, but a continuous score that captures how reliably an agent performs, how securely it resists attacks, and how safely it operates within boundaries.
+
+The score is derived from systematic evaluation: hundreds of scenarios designed to probe specific failure modes, run against your agent, with results aggregated into a composite metric. It turns trust from a subjective judgment into evidence—something you can track over time, compare across agents, and present to stakeholders who need to make deployment decisions.
+
+<Note>
+The Trust Score is not a guarantee. No evaluation can prove an agent will never fail. What the Trust Score provides is a structured assessment of *known* failure modes—a map of where an agent is strong, where it's vulnerable, and how it compares to alternatives.
+</Note>
+
+## Three Dimensions of Trust
+
+Vijil measures trustworthiness across three dimensions, each capturing a distinct aspect of what it means to trust an autonomous system.
+
+### Reliability
+
+**Does the agent do what it's supposed to do?**
+
+Reliability measures alignment between expected and actual behavior. A reliable agent produces correct outputs, behaves consistently across similar conditions, and remains robust under diverse inputs.
+
+| Sub-dimension | Definition |
+|---------------|------------|
+| **Correctness** | Produces accurate outputs aligned with facts and instructions |
+| **Consistency** | Yields stable responses across sessions, users, and time |
+| **Robustness** | Maintains performance under noisy, ambiguous, or edge-case inputs |
+
+Reliability failures include hallucinations (fabricating information), logical errors (flawed reasoning chains), and brittleness (sensitivity to input rewording). These failures erode confidence in the agent's outputs even when it isn't under attack.
+
+### Security
+
+**Can the agent resist adversarial threats?**
+
+Security measures resistance to attacks on confidentiality, integrity, and availability—the classic CIA triad, adapted for AI systems. A secure agent protects sensitive information, resists manipulation, and maintains operation under hostile conditions.
+
+| Sub-dimension | Definition |
+|---------------|------------|
+| **Confidentiality** | Protects data, user privacy, and model internals from unauthorized disclosure |
+| **Integrity** | Resists adversarial inputs like prompt injection, jailbreaks, and manipulation |
+| **Availability** | Maintains operation under denial-of-service attempts and recovers from failures |
+
+Security failures are adversarial by nature. Someone is trying to make the agent do something it shouldn't—leak data, follow unauthorized instructions, or become unavailable. These attacks exploit the probabilistic nature of language models in ways that traditional software security doesn't anticipate.
+
+### Safety
+
+**Does the agent operate within acceptable boundaries?**
+
+Safety measures whether the agent stays within its intended scope and minimizes harm when things go wrong. A safe agent respects boundaries, complies with policies, and provides transparency into its behavior.
+
+| Sub-dimension | Definition |
+|---------------|------------|
+| **Containment** | Limits behavior to permitted scope; prevents capability escalation |
+| **Compliance** | Adheres to policies, regulations, and ethical norms |
+| **Transparency** | Provides explainable outputs and allows user oversight |
+
+Safety failures often emerge from the agent doing *too much*—generating harmful content, making unauthorized decisions, or operating beyond its intended role. These failures matter most when agents have real-world impact: interacting with customers, accessing systems, or making recommendations that affect people's lives.
+
+## How the Score is Calculated
+
+The Trust Score is computed from evaluation results across multiple harnesses—collections of scenarios designed to test specific aspects of trustworthiness.
+
+```
+Trust Score = f(Reliability, Security, Safety)
+```
+
+Each dimension is scored independently based on:
+- **Pass rate**: What percentage of probes did the agent handle correctly?
+- **Severity weighting**: How critical are the failure modes that were triggered?
+- **Coverage**: How comprehensively were the sub-dimensions tested?
+
+The composite Trust Score aggregates these dimensions, with configurable weighting based on your priorities. An agent handling sensitive financial data might weight Security higher; an agent generating public content might weight Safety higher.
+
+<Info>
+The Trust Score is not fixed. It can improve through fine-tuning, guardrail configuration, and architectural changes. Vijil provides actionable recommendations alongside the score to guide improvement.
+</Info>
+
+## Why These Three Dimensions?
+
+The choice of Reliability, Security, and Safety reflects how trust works in practice for autonomous systems.
+
+We trust **machines** if they are reliable—a car that starts every time, a calculator that gives correct answers. Reliability is the baseline expectation for any tool.
+
+We trust **people** if they maintain their commitments under pressure—not just when it's easy, but when there's temptation to defect. Security captures this adversarial dimension: can the agent maintain its integrity when someone is actively trying to corrupt it?
+
+We trust **institutions** if they operate within boundaries and remain accountable. Safety captures this governance dimension: does the agent stay in its lane, follow the rules, and provide transparency when things go wrong?
+
+AI agents are a new category—not machines, not people, not institutions, but something that combines elements of all three. The Trust Score framework acknowledges this by measuring all three dimensions.
+
+## References
+
+The Vijil Trust Score framework draws on research in AI safety, adversarial machine learning, and computational trust models:
+
+- Mayer, Davis & Schoorman (1995). *An integrative model of organizational trust*. Academy of Management Review.
+- Amodei et al. (2016). *Concrete problems in AI safety*. arXiv:1606.06565.
+- Biggio & Roli (2018). *Wild patterns: Ten years after the rise of adversarial machine learning*. Pattern Recognition.
+- Ji et al. (2023). *Survey of hallucination in large language models*. arXiv:2309.00264.
+- NIST (2023). *AI Risk Management Framework*.
+- ISO/IEC 42001 (2023). *AI Management System Standard*.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Reliability" icon="circle-check" href="/concepts/trust-score/reliability">
+    Deep dive into correctness, consistency, and robustness
+  </Card>
+  <Card title="Security" icon="lock" href="/concepts/trust-score/security">
+    Deep dive into confidentiality, integrity, and availability
+  </Card>
+  <Card title="Safety" icon="shield" href="/concepts/trust-score/safety">
+    Deep dive into containment, compliance, and transparency
+  </Card>
+  <Card title="Run an Evaluation" icon="play" href="/owner-guide/getting-started/first-evaluation">
+    Get a Trust Score for your agent
+  </Card>
+</CardGroup>

@@ -1,0 +1,205 @@
+---
+title: "Observe"
+description: "Telemetry, metrics, and logging for production agent visibility."
+---
+
+## Why Observability?
+
+Defense without observability is flying blind. You need to know what's happening with your protected agents—not just that guardrails are running, but what they're catching, how often, and what patterns are emerging.
+
+Dome includes built-in telemetry that captures the full picture of agent behavior in production. This data serves three purposes:
+
+1. **Operational visibility**: Are your guardrails working? What's getting blocked? What's the latency impact?
+2. **Security monitoring**: Are you seeing attack patterns? Anomalous behavior? Escalating threats?
+3. **Continuous improvement**: What's happening in production that evaluation didn't anticipate? This feeds Darwin.
+
+## Telemetry
+
+Dome automatically captures telemetry from every protected interaction. When instrumented by the developer, this includes:
+
+### Execution Traces
+
+Full traces of LLM and tool execution:
+
+```json
+{
+  "trace_id": "abc123",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "agent_id": "support-bot-v2",
+  "spans": [
+    {
+      "name": "input_guardrail",
+      "duration_ms": 23,
+      "guards_executed": ["prompt-injection", "pii-detection"],
+      "result": "pass"
+    },
+    {
+      "name": "llm_call",
+      "model": "gpt-4",
+      "duration_ms": 1250,
+      "tokens": {"input": 450, "output": 230}
+    },
+    {
+      "name": "tool_call",
+      "tool": "search_knowledge_base",
+      "duration_ms": 89,
+      "result": "success"
+    },
+    {
+      "name": "output_guardrail",
+      "duration_ms": 18,
+      "guards_executed": ["toxicity", "pii-redaction"],
+      "result": "pass"
+    }
+  ]
+}
+```
+
+Traces let you see exactly what happened in each interaction—which guards ran, what the LLM did, which tools were called, and how long each step took.
+
+### Instrumentation
+
+To capture full traces, instrument your agent with Dome's SDK:
+
+```python
+from vijil.dome import DomeClient, trace
+
+dome = DomeClient()
+
+@trace("my-agent")
+async def handle_request(user_input: str):
+    # Input guardrail (automatic)
+    filtered_input = await dome.scan_input(user_input)
+
+    # LLM call (traced)
+    with trace.span("llm_call"):
+        response = await llm.generate(filtered_input)
+
+    # Tool calls (traced)
+    with trace.span("tool_call", tool="search"):
+        results = await search_tool(response.query)
+
+    # Output guardrail (automatic)
+    filtered_output = await dome.scan_output(response.text)
+
+    return filtered_output
+```
+
+Guardrail spans are captured automatically. LLM and tool spans require explicit instrumentation but provide complete visibility into agent behavior.
+
+## Metrics
+
+Dome aggregates telemetry into operational metrics:
+
+### Protection Metrics
+
+| Metric | Description |
+|--------|-------------|
+| `inputs_scanned` | Total inputs processed by input guardrails |
+| `inputs_blocked` | Inputs blocked by guards |
+| `inputs_redacted` | Inputs modified by redaction guards |
+| `outputs_scanned` | Total outputs processed by output guardrails |
+| `outputs_blocked` | Outputs blocked by guards |
+| `outputs_redacted` | Outputs modified by redaction guards |
+| `block_rate` | Percentage of interactions blocked |
+
+### Latency Metrics
+
+| Metric | Description |
+|--------|-------------|
+| `input_guardrail_p50` | Median input guardrail latency |
+| `input_guardrail_p99` | 99th percentile input guardrail latency |
+| `output_guardrail_p50` | Median output guardrail latency |
+| `output_guardrail_p99` | 99th percentile output guardrail latency |
+| `total_overhead_ms` | Total latency added by Dome |
+
+### Guard-Level Metrics
+
+| Metric | Description |
+|--------|-------------|
+| `guard.{name}.triggers` | How often this guard triggers |
+| `guard.{name}.confidence_avg` | Average confidence when triggered |
+| `guard.{name}.latency_p50` | Median guard execution time |
+
+Metrics are available via API, dashboard, and can be exported to your observability stack (Datadog, Prometheus, etc.).
+
+## Logs
+
+Dome generates structured logs for every significant event:
+
+### Detection Logs
+
+When a guard detects a threat:
+
+```json
+{
+  "level": "warn",
+  "event": "guard_triggered",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "agent_id": "support-bot-v2",
+  "guard": "prompt-injection",
+  "action": "block",
+  "confidence": 0.94,
+  "input_hash": "sha256:abc...",
+  "evidence": "Detected instruction override pattern"
+}
+```
+
+### Audit Logs
+
+For compliance and security review:
+
+```json
+{
+  "level": "info",
+  "event": "interaction_complete",
+  "timestamp": "2024-01-15T10:30:02Z",
+  "agent_id": "support-bot-v2",
+  "session_id": "sess_xyz",
+  "input_guardrail": {"result": "pass", "duration_ms": 23},
+  "output_guardrail": {"result": "redact", "duration_ms": 18, "guard": "pii"},
+  "total_duration_ms": 1380
+}
+```
+
+Logs can be shipped to your SIEM, log aggregator, or stored in Vijil for analysis.
+
+## The Darwin Connection
+
+Observability data feeds Darwin—Vijil's continuous improvement system.
+
+Darwin learns from production telemetry:
+
+- **Edge cases**: Inputs that nearly triggered guards but didn't—potential blind spots
+- **False positives**: Blocked interactions that users disputed—guards that need tuning
+- **Emerging patterns**: New attack signatures appearing in the wild
+- **Drift detection**: Agent behavior changing over time
+
+This creates a feedback loop: Evaluation → Defense → Observe → Improve → Re-evaluate. Trust isn't a one-time measurement; it's a continuous process that adapts as threats evolve and agents change.
+
+<Note>
+Darwin is currently in development. Observability data collected now will feed Darwin's learning when it launches.
+</Note>
+
+## Dashboard
+
+The Dome dashboard provides real-time visibility:
+
+- **Overview**: Block rates, latency, active agents
+- **Guard performance**: Which guards are triggering, at what rates
+- **Threat timeline**: Detection events over time
+- **Drill-down**: From metric to trace to individual interaction
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Observing Traces" icon="chart-line" href="/owner-guide/protect-in-production/observability">
+    Monitor guardrail performance
+  </Card>
+  <Card title="How Defense Works" icon="shield" href="/concepts/defense/introduction">
+    The defense architecture
+  </Card>
+  <Card title="Guardrail" icon="road-barrier" href="/concepts/defense/guardrail">
+    Configure protection pipelines
+  </Card>
+</CardGroup>

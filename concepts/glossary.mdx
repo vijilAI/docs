@@ -1,0 +1,253 @@
+---
+title: "Glossary"
+description: "Key terms and concepts in AI agents and cybersecurity."
+---
+
+## AI Agents
+
+**Action**
+An operation or decision executed by the agent that affects the environment or achieves a goal. Actions are the outputs of the agent's decision-making process.
+
+---
+
+**Adaptation**
+The ability of an agent to modify its behavior or strategies based on changes in the environment, new information, or feedback. Adaptation is essential for operating in dynamic or uncertain conditions.
+
+---
+
+**Alignment**
+The degree to which an agent's goals, behaviors, and outputs match the intentions and values of its designers or users. Misalignment can lead to unintended or harmful outcomes.
+
+---
+
+**Constraints**
+Boundaries or rules that limit the agent's actions or behaviors. Constraints can be hard (absolute limits) or soft (preferences) and help ensure safe and appropriate operation.
+
+---
+
+**Emergent Behavior**
+Complex behaviors that arise from the interactions of simpler rules or components. In AI systems, emergent behaviors can be beneficial capabilities or unexpected failure modes.
+
+---
+
+**Environment**
+The external context in which an agent operates. The environment includes all factors the agent can perceive and potentially influence, such as user inputs, external data sources, and other systems.
+
+---
+
+**Episode / Trajectory**
+A sequence of states, actions, and outcomes that represents a complete interaction or task execution. Episodes are used to evaluate agent performance and train learning algorithms.
+
+---
+
+**Exploitation**
+Leveraging known information or strategies to maximize immediate performance or reward. Exploitation focuses on using what works rather than exploring alternatives.
+
+---
+
+**Exploration**
+The process of trying new actions or strategies to discover potentially better approaches. Exploration is essential for learning but can involve risk or suboptimal short-term performance.
+
+---
+
+**Generalization**
+The ability of an agent to apply learned knowledge or skills to new, previously unseen situations. Strong generalization indicates robust learning rather than memorization.
+
+---
+
+**Human Oversight**
+Mechanisms and processes that allow humans to monitor, intervene in, and control agent behavior. Oversight is crucial for maintaining safety and accountability in AI systems.
+
+---
+
+**Learning Algorithm**
+The method by which an agent improves its policy or model based on experience or data. Examples include reinforcement learning, supervised learning, and in-context learning.
+
+---
+
+**Model**
+The agent's internal representation of the environment, task, or relevant knowledge. Models can be explicit (structured representations) or implicit (learned patterns in neural networks).
+
+---
+
+**Monitoring**
+Continuous observation and logging of agent behavior, performance, and outputs. Monitoring enables detection of anomalies, drift, and potential safety issues.
+
+---
+
+**Multi-agent System**
+A system comprising multiple interacting agents, each with their own goals and capabilities. Multi-agent systems can exhibit cooperation, competition, or complex emergent dynamics.
+
+---
+
+**Observation**
+Information the agent receives about the current state of the environment. Observations may be complete (full state visibility) or partial (limited information).
+
+---
+
+**Performance**
+A measure of how well the agent accomplishes its intended tasks or objectives. Performance metrics vary by domain and may include accuracy, efficiency, user satisfaction, and safety.
+
+---
+
+**Policy**
+The strategy or rules that determine what action an agent takes given its current state or observation. Policies can be deterministic (same action for same state) or stochastic (probabilistic actions).
+
+---
+
+**Reward Function**
+A function that provides feedback to the agent about the desirability of its actions or outcomes. Reward functions shape agent behavior and must be carefully designed to avoid unintended incentives.
+
+---
+
+**Robustness**
+The ability of an agent to maintain performance and safety under adversarial conditions, distribution shift, or edge cases. Robust agents handle unexpected inputs gracefully.
+
+---
+
+**State**
+A complete description of the environment at a given moment. The state contains all information needed to determine future dynamics given the agent's actions.
+
+---
+
+**Transparency**
+The degree to which an agent's reasoning, decision-making, and operations can be understood and inspected. Transparency supports accountability, debugging, and trust.
+
+---
+
+**Trustworthiness**
+The overall confidence that an agent will behave reliably, safely, and in accordance with user intentions. Trustworthiness encompasses reliability, security, safety, and alignment.
+
+---
+
+**Value Function**
+A function that estimates the expected long-term reward or utility of being in a particular state or taking a particular action. Value functions guide optimal decision-making.
+
+---
+
+## Cybersecurity
+
+**Asset**
+Anything of value that needs protection. In AI systems, assets include the model itself, training data, user data, system prompts, and computational resources.
+
+---
+
+**Attack**
+An intentional attempt to exploit a vulnerability to cause harm. Attacks on AI agents include prompt injection, jailbreaking, data poisoning, and model extraction.
+
+---
+
+**Attack Vector**
+The path or method by which an attacker delivers an exploit to a vulnerable system. Common attack vectors for AI agents include user inputs, tool outputs, and retrieved documents.
+
+---
+
+**Control**
+A safeguard or countermeasure that reduces risk by preventing, detecting, or responding to threats. Controls for AI agents include input validation, guardrails, monitoring, and access controls.
+
+---
+
+**Exploit**
+A specific technique or payload that takes advantage of a vulnerability. An exploit turns a theoretical weakness into a practical attack.
+
+---
+
+**Exposure**
+The state of being accessible or vulnerable to potential threats. Exposure increases when systems are connected to untrusted inputs or when attack surfaces expand.
+
+---
+
+**Impact**
+The consequence or damage caused by a successful attack or threat event. Impact can be measured in terms of confidentiality breaches, integrity violations, availability loss, or reputational harm.
+
+---
+
+**Risk**
+The potential for loss or harm, typically expressed as a function of threat likelihood and impact. Risk management involves identifying, assessing, and mitigating risks to acceptable levels.
+
+---
+
+**Threat**
+Any circumstance or event with the potential to cause harm to a system or organization. Threats to AI agents include malicious users, adversarial inputs, and capability misuse.
+
+---
+
+**Threat Actor**
+An individual, group, or entity that poses a threat. Threat actors range from curious users testing boundaries to sophisticated adversaries with specific objectives.
+
+---
+
+**Threat Event**
+An occurrence where a threat is realized and a vulnerability is exploited. Threat events are the incidents that security controls aim to prevent or detect.
+
+---
+
+**Vulnerability**
+A weakness in a system that can be exploited by a threat. Vulnerabilities in AI agents include prompt injection susceptibility, jailbreak weaknesses, and capability overhang.
+
+---
+
+**Weakness**
+A flaw or deficiency in design, implementation, or operation that could potentially become a vulnerability. Not all weaknesses are exploitable, but they represent potential risk.
+
+---
+
+## Vijil
+
+**Darwin**
+Vijil's continuous improvement system that uses production telemetry to identify edge cases, tune defenses, and improve agent trust over time.
+
+---
+
+**Detector**
+A component that analyzes agent responses to determine if they contain threats, policy violations, or evaluation failures. Detectors use pattern matching, ML classifiers, or LLM judges.
+
+---
+
+**Diamond**
+Vijil's evaluation platform that tests agents against comprehensive threat scenarios to produce Trust Scores and identify vulnerabilities before deployment.
+
+---
+
+**Dome**
+Vijil's runtime defense platform that protects agents in production through configurable guardrails, guards, and real-time threat detection.
+
+---
+
+**Guard**
+A protection category within a guardrail that addresses a specific threat type, such as prompt injection, PII exposure, or toxicity.
+
+---
+
+**Guardrail**
+A configurable pipeline of guards that filter agent inputs and outputs. Guardrails define which protections are active and how threats are handled.
+
+---
+
+**Harness**
+A collection of scenarios that define a complete evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+
+---
+
+**Persona**
+A profile representing who interacts with an agent. Personas inform evaluation scenarios and defense configurations based on user characteristics and threat models.
+
+---
+
+**Policy**
+Rules defining acceptable agent behavior for an organization. Policies are enforced through evaluation criteria and runtime guards.
+
+---
+
+**Probe**
+A specific test case that challenges an agent with a potentially harmful or problematic input. Probes are organized into scenarios within harnesses.
+
+---
+
+**Scenario**
+A group of related probes that test a specific attack pattern or vulnerability class. Scenarios provide structure between probes and harnesses.
+
+---
+
+**Trust Score**
+Vijil's composite measure of agent trustworthiness across three dimensions: Reliability (consistent, accurate behavior), Security (resistance to attacks), and Safety (avoiding harmful outputs).
