@@ -1,0 +1,393 @@
+---
+title: 'Testing Strategies'
+description: 'Best practices for automated agent testing in CI/CD pipelines.'
+---
+
+Design effective testing strategies that balance thoroughness with speed. This guide covers testing patterns, threshold management, and regression detection.
+
+## Testing Pyramid
+
+Balance different evaluation depths across your pipeline:
+
+```
+                 ┌─────────────────┐
+                 │   Production    │  Full trust_score
+                 │   Deployment    │  Threshold: 80+
+                 └────────┬────────┘
+                 ┌────────┴────────┐
+                 │  Pull Request   │  Standard harnesses
+                 │    Merge        │  Threshold: 75
+                 └────────┬────────┘
+                 ┌────────┴────────┐
+                 │   Every Commit  │  Quick _Small harnesses
+                 │     Push        │  Warn only
+                 └─────────────────┘
+```
+
+## Evaluation Depth by Trigger
+
+### On Every Commit
+
+Fast feedback for developers:
+
+```python
+COMMIT_CONFIG = {
+    "harness": "security_Small",  # ~5 minutes
+    "threshold": 60,
+    "action": "warn",  # Don't block
+    "timeout_minutes": 10
+}
+```
+
+### On Pull Request
+
+Standard evaluation before merge:
+
+```python
+PR_CONFIG = {
+    "harness": "trust_score",  # ~30 minutes
+    "threshold": 75,
+    "action": "require",  # Block merge
+    "timeout_minutes": 60
+}
+```
+
+### Before Production Deployment
+
+Comprehensive validation:
+
+```python
+DEPLOY_CONFIG = {
+    "harness": "trust_score",
+    "threshold": 80,
+    "action": "require",
+    "timeout_minutes": 120,
+    "notify": ["security@company.com"]
+}
+```
+
+## Threshold Management
+
+### Define Thresholds
+
+```python
+THRESHOLDS = {
+    "trust_score": 75,
+    "reliability_score": 70,
+    "security_score": 80,  # Stricter for security
+    "safety_score": 75
+}
+
+SEVERITY_LIMITS = {
+    "critical": 0,  # No critical allowed
+    "high": 2,      # Max 2 high severity
+    "medium": 10,   # Max 10 medium
+    "low": None     # Unlimited
+}
+```
+
+### Check Thresholds
+
+```python
+def check_evaluation_passed(results: dict) -> tuple[bool, list[str]]:
+    """Check if results meet all threshold requirements."""
+    failures = []
+
+    # Check dimension scores
+    for metric, threshold in THRESHOLDS.items():
+        score = results.get(metric, 0) * 100
+        if score < threshold:
+            failures.append(f"{metric}: {score:.1f} < {threshold}")
+
+    # Check severity limits
+    findings = results.get("failures", [])
+    severity_counts = {}
+    for f in findings:
+        sev = f.get("severity", "unknown")
+        severity_counts[sev] = severity_counts.get(sev, 0) + 1
+
+    for severity, limit in SEVERITY_LIMITS.items():
+        if limit is not None:
+            count = severity_counts.get(severity, 0)
+            if count > limit:
+                failures.append(f"{severity} findings: {count} > {limit}")
+
+    return len(failures) == 0, failures
+```
+
+### Environment-Specific Thresholds
+
+```python
+import os
+
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+
+THRESHOLD_BY_ENV = {
+    "development": {"trust_score": 60, "security_score": 65},
+    "staging": {"trust_score": 70, "security_score": 75},
+    "production": {"trust_score": 80, "security_score": 85}
+}
+
+def get_thresholds() -> dict:
+    return THRESHOLD_BY_ENV.get(ENVIRONMENT, THRESHOLD_BY_ENV["development"])
+```
+
+## Regression Detection
+
+### Track Baseline Scores
+
+Store baseline scores for comparison:
+
+```python
+import json
+from pathlib import Path
+
+BASELINE_FILE = Path(".vijil-baseline.json")
+
+def save_baseline(results: dict):
+    """Save current results as baseline."""
+    baseline = {
+        "trust_score": results.get("trust_score"),
+        "reliability_score": results.get("reliability_score"),
+        "security_score": results.get("security_score"),
+        "safety_score": results.get("safety_score"),
+        "timestamp": results.get("completed_at")
+    }
+    BASELINE_FILE.write_text(json.dumps(baseline, indent=2))
+
+def load_baseline() -> dict | None:
+    """Load saved baseline."""
+    if BASELINE_FILE.exists():
+        return json.loads(BASELINE_FILE.read_text())
+    return None
+```
+
+### Detect Regression
+
+```python
+REGRESSION_THRESHOLD = 0.05  # 5 point drop triggers regression
+
+def check_regression(current: dict, baseline: dict) -> list[str]:
+    """Check for score regressions against baseline."""
+    regressions = []
+
+    for metric in ["trust_score", "reliability_score", "security_score", "safety_score"]:
+        current_score = current.get(metric, 0)
+        baseline_score = baseline.get(metric, 0)
+        delta = current_score - baseline_score
+
+        if delta < -REGRESSION_THRESHOLD:
+            regressions.append(
+                f"{metric}: {baseline_score*100:.1f} -> {current_score*100:.1f} "
+                f"(Δ{delta*100:+.1f})"
+            )
+
+    return regressions
+
+# Usage
+baseline = load_baseline()
+if baseline:
+    regressions = check_regression(results, baseline)
+    if regressions:
+        print("Regressions detected:")
+        for r in regressions:
+            print(f"  - {r}")
+        sys.exit(1)
+```
+
+## Parallel Testing
+
+### Multiple Agents
+
+Evaluate multiple agents simultaneously:
+
+```python
+import asyncio
+from vijil import Vijil
+
+async def evaluate_agents(agent_ids: list[str], harness: str):
+    """Run evaluations for multiple agents in parallel."""
+    vijil = Vijil()
+
+    # Start all evaluations
+    evaluations = []
+    for agent_id in agent_ids:
+        eval_result = vijil.evaluations.create(
+            agent_id=agent_id,
+            harnesses=[harness]
+        )
+        evaluations.append(eval_result)
+
+    # Wait for all to complete
+    from vijil.local_agents.constants import TERMINAL_STATUSES
+    results = []
+    for evaluation in evaluations:
+        while True:
+            status = vijil.evaluations.get_status(evaluation.get("id"))
+            if status.get("status") in TERMINAL_STATUSES:
+                break
+            await asyncio.sleep(10)
+
+        result = vijil.evaluations.get_results(evaluation.get("id"))
+        results.append(result)
+
+    return results
+
+# Run
+agents = ["agent-1", "agent-2", "agent-3"]
+all_results = asyncio.run(evaluate_agents(agents, "security_Small"))
+```
+
+### Multiple Harnesses
+
+Run different harnesses in parallel:
+
+```python
+async def comprehensive_evaluation(agent_id: str):
+    """Run multiple harnesses in parallel for comprehensive coverage."""
+    vijil = Vijil()
+    harnesses = ["security", "reliability", "safety"]
+
+    evaluations = [
+        vijil.evaluations.create(agent_id=agent_id, harnesses=[h])
+        for h in harnesses
+    ]
+
+    # Wait and collect results
+    # ...
+```
+
+## Incremental Testing
+
+### Changed Files Only
+
+Focus testing on changed components:
+
+```python
+import subprocess
+
+def get_changed_files() -> list[str]:
+    """Get files changed in current PR/commit."""
+    result = subprocess.run(
+        ["git", "diff", "--name-only", "origin/main"],
+        capture_output=True,
+        text=True
+    )
+    return result.stdout.strip().split("\n")
+
+def select_harnesses(changed_files: list[str]) -> list[str]:
+    """Select harnesses based on what changed."""
+    harnesses = set()
+
+    for file in changed_files:
+        if "prompt" in file or "system" in file:
+            harnesses.add("security")
+        if "model" in file or "llm" in file:
+            harnesses.add("reliability")
+        if "output" in file or "response" in file:
+            harnesses.add("safety")
+
+    # Always include at least one harness
+    if not harnesses:
+        harnesses.add("security_Small")
+
+    return list(harnesses)
+```
+
+## Flaky Test Handling
+
+### Retry Logic
+
+Handle transient failures:
+
+```python
+MAX_RETRIES = 3
+RETRY_DELAY = 60  # seconds
+
+def run_evaluation_with_retry(vijil, agent_id: str, harness: str):
+    """Run evaluation with retry logic."""
+    for attempt in range(MAX_RETRIES):
+        try:
+            evaluation = vijil.evaluations.create(
+                agent_id=agent_id,
+                harnesses=[harness]
+            )
+
+            # Wait for completion
+            from vijil.local_agents.constants import TERMINAL_STATUSES
+            while True:
+                status = vijil.evaluations.get_status(evaluation.get("id"))
+                if status.get("status") in TERMINAL_STATUSES:
+                    break
+                time.sleep(30)
+
+            results = vijil.evaluations.get_results(evaluation.get("id"))
+
+            if status.get("status") == "completed":
+                return results
+
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(RETRY_DELAY)
+
+    raise Exception(f"Evaluation failed after {MAX_RETRIES} attempts")
+```
+
+## Reporting
+
+### Generate Summary Report
+
+```python
+def generate_report(results: dict) -> str:
+    """Generate a markdown summary report."""
+    trust = results.get("trust_score", 0) * 100
+    reliability = results.get("reliability_score", 0) * 100
+    security = results.get("security_score", 0) * 100
+    safety = results.get("safety_score", 0) * 100
+
+    passed = trust >= THRESHOLDS["trust_score"]
+    status = "PASSED" if passed else "FAILED"
+    emoji = "✅" if passed else "❌"
+
+    failures = results.get("failures", [])
+    critical = sum(1 for f in failures if f.get("severity") == "critical")
+    high = sum(1 for f in failures if f.get("severity") == "high")
+
+    report = f"""## {emoji} Vijil Evaluation {status}
+
+| Metric | Score | Threshold | Status |
+|--------|-------|-----------|--------|
+| Trust Score | {trust:.1f} | {THRESHOLDS['trust_score']} | {'✓' if trust >= THRESHOLDS['trust_score'] else '✗'} |
+| Reliability | {reliability:.1f} | {THRESHOLDS['reliability_score']} | {'✓' if reliability >= THRESHOLDS['reliability_score'] else '✗'} |
+| Security | {security:.1f} | {THRESHOLDS['security_score']} | {'✓' if security >= THRESHOLDS['security_score'] else '✗'} |
+| Safety | {safety:.1f} | {THRESHOLDS['safety_score']} | {'✓' if safety >= THRESHOLDS['safety_score'] else '✗'} |
+
+### Findings Summary
+- Critical: {critical}
+- High: {high}
+- Total: {len(failures)}
+"""
+
+    if not passed:
+        report += "\n⚠️ **Action Required**: Address failures before merging.\n"
+
+    return report
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CI/CD Overview" icon="circle-nodes" href="/developer-guide/cicd/overview">
+    Pipeline setup basics
+  </Card>
+  <Card title="GitHub Actions" icon="github" href="/developer-guide/cicd/github-actions">
+    GitHub workflow examples
+  </Card>
+  <Card title="GitLab CI" icon="gitlab" href="/developer-guide/cicd/gitlab-ci">
+    GitLab pipeline examples
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret evaluation results
+  </Card>
+</CardGroup>

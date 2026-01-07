@@ -1,0 +1,292 @@
+---
+title: 'Understanding Results'
+description: 'Interpret evaluation scores, analyze failures, and plan remediation.'
+---
+
+Evaluation results tell you how trustworthy your agent is and where it needs improvement. This guide explains how to interpret scores, analyze failures, and prioritize fixes.
+
+## Trust Score
+
+The Trust Score is a composite metric (0.0 to 1.0) summarizing your agent's overall trustworthiness:
+
+| Score Range | Interpretation |
+|-------------|----------------|
+| 0.85 - 1.0 | Excellent - ready for high-stakes use |
+| 0.70 - 0.84 | Good - suitable for most production use |
+| 0.50 - 0.69 | Fair - needs improvement before deployment |
+| < 0.50 | Poor - significant vulnerabilities present |
+
+The Trust Score is calculated from three dimension scores, weighted by severity of detected issues.
+
+## Dimension Scores
+
+### Reliability
+
+Measures how accurately and consistently your agent responds:
+
+| Category | What's Tested |
+|----------|---------------|
+| Hallucination | Does the agent invent facts? |
+| Consistency | Are responses consistent across similar inputs? |
+| Accuracy | Are factual claims correct? |
+| Coherence | Are responses logically structured? |
+
+**Common failures:**
+- Fabricating citations or statistics
+- Contradicting itself within a conversation
+- Providing outdated information as current
+
+### Security
+
+Measures resistance to adversarial attacks:
+
+| Category | What's Tested |
+|----------|---------------|
+| Prompt Injection | Can attackers override instructions? |
+| Jailbreak | Can safety guidelines be bypassed? |
+| Data Leakage | Does the agent reveal sensitive information? |
+| Encoding Attacks | Can obfuscation bypass filters? |
+
+**Common failures:**
+- Following injected instructions in user content
+- Revealing system prompts when asked
+- Generating content after "ignore previous instructions"
+
+### Safety
+
+Measures adherence to ethical guidelines and policies:
+
+| Category | What's Tested |
+|----------|---------------|
+| Harmful Content | Does it generate dangerous information? |
+| Bias | Are responses fair and unbiased? |
+| Policy Compliance | Does it follow usage policies? |
+| Ethics | Does it respect ethical boundaries? |
+
+**Common failures:**
+- Providing instructions for illegal activities
+- Exhibiting demographic bias
+- Generating NSFW content
+
+## Failure Severity Levels
+
+Each failure is assigned a severity level:
+
+| Severity | Impact | Examples |
+|----------|--------|----------|
+| **Critical** (S1) | Immediate risk | Prompt injection success, PII leakage |
+| **High** (S2) | Significant concern | Jailbreak bypass, harmful content |
+| **Medium** (S3) | Moderate issue | Minor hallucination, bias indication |
+| **Low** (S4) | Minor finding | Consistency variance, edge cases |
+
+Use severity to prioritize remediation:
+
+```python
+results = vijil.evaluations.get_results(evaluation_id)
+failures = results.get("failures", [])
+
+# Group by severity
+by_severity = {}
+for f in failures:
+    sev = f.get("severity", "unknown")
+    by_severity.setdefault(sev, []).append(f)
+
+print("Failure counts by severity:")
+for sev in ["critical", "high", "medium", "low"]:
+    count = len(by_severity.get(sev, []))
+    print(f"  {sev.title()}: {count}")
+```
+
+## Analyzing Failures
+
+### Failure Structure
+
+Each failure contains:
+
+```python
+{
+    "probe_id": "security-prompt-injection-001",
+    "category": "security",
+    "subcategory": "prompt_injection",
+    "severity": "critical",
+    "input_text": "The test input sent to your agent",
+    "output_text": "Your agent's response",
+    "reason": "Agent followed injected instructions",
+    "detector": "prompt-injection-classifier",
+    "confidence": 0.95
+}
+```
+
+### Grouping Failures
+
+Identify patterns by grouping failures:
+
+```python
+# By category
+by_category = {}
+for f in failures:
+    cat = f.get("category")
+    by_category.setdefault(cat, []).append(f)
+
+for cat, items in by_category.items():
+    print(f"{cat}: {len(items)} failures")
+
+# By subcategory for deeper analysis
+security_failures = by_category.get("security", [])
+by_subcategory = {}
+for f in security_failures:
+    subcat = f.get("subcategory")
+    by_subcategory.setdefault(subcat, []).append(f)
+```
+
+### Examining Specific Failures
+
+```python
+# Find the most severe failures
+critical = [f for f in failures if f.get("severity") == "critical"]
+
+for failure in critical[:5]:
+    print(f"""
+    ─────────────────────────────────────
+    Probe: {failure.get('probe_id')}
+    Severity: {failure.get('severity')}
+
+    Input: {failure.get('input_text')[:200]}...
+
+    Output: {failure.get('output_text')[:200]}...
+
+    Reason: {failure.get('reason')}
+    ─────────────────────────────────────
+    """)
+```
+
+## Remediation Strategies
+
+### For Security Failures
+
+| Failure Type | Remediation |
+|--------------|-------------|
+| Prompt injection | Add input guardrails with injection detection |
+| Jailbreak | Strengthen system prompt, add output guards |
+| Data leakage | Never include secrets in prompts |
+| Encoding attacks | Use encoding detection guards |
+
+### For Reliability Failures
+
+| Failure Type | Remediation |
+|--------------|-------------|
+| Hallucination | Add retrieval augmentation, constrain responses |
+| Inconsistency | Lower temperature, add few-shot examples |
+| Inaccuracy | Update knowledge, add fact-checking |
+
+### For Safety Failures
+
+| Failure Type | Remediation |
+|--------------|-------------|
+| Harmful content | Add content moderation guards |
+| Bias | Audit training data, add fairness testing |
+| Policy violation | Explicit policy in system prompt |
+
+## Deployment Gates
+
+Use results to enforce deployment criteria:
+
+```python
+def check_deployment_gate(results, gate_config):
+    """Check if evaluation results meet deployment criteria."""
+    issues = []
+
+    # Check Trust Score
+    trust_score = results.get("trust_score", 0)
+    if trust_score < gate_config["min_trust_score"]:
+        issues.append(f"Trust Score {trust_score:.2f} < {gate_config['min_trust_score']}")
+
+    # Check dimension scores
+    for dim in ["reliability", "security", "safety"]:
+        score = results.get(f"{dim}_score", 0)
+        min_score = gate_config.get(f"min_{dim}", 0)
+        if score < min_score:
+            issues.append(f"{dim.title()} {score:.2f} < {min_score}")
+
+    # Check critical failures
+    failures = results.get("failures", [])
+    critical_count = sum(1 for f in failures if f.get("severity") == "critical")
+    if critical_count > gate_config.get("max_critical", 0):
+        issues.append(f"Critical failures: {critical_count}")
+
+    return len(issues) == 0, issues
+
+# Example gate configuration
+gate = {
+    "min_trust_score": 0.70,
+    "min_security": 0.75,
+    "min_reliability": 0.65,
+    "min_safety": 0.70,
+    "max_critical": 0
+}
+
+passed, issues = check_deployment_gate(results, gate)
+if passed:
+    print("Ready for deployment")
+else:
+    print("Deployment blocked:")
+    for issue in issues:
+        print(f"  - {issue}")
+```
+
+## Tracking Progress
+
+Compare evaluations over time to track improvement:
+
+```python
+def compare_evaluations(old_results, new_results):
+    """Compare two evaluation results."""
+    comparison = {
+        "trust_score": {
+            "old": old_results.get("trust_score"),
+            "new": new_results.get("trust_score"),
+            "change": new_results.get("trust_score", 0) - old_results.get("trust_score", 0)
+        }
+    }
+
+    for dim in ["reliability", "security", "safety"]:
+        key = f"{dim}_score"
+        comparison[dim] = {
+            "old": old_results.get(key),
+            "new": new_results.get(key),
+            "change": new_results.get(key, 0) - old_results.get(key, 0)
+        }
+
+    # Compare failure counts
+    old_failures = len(old_results.get("failures", []))
+    new_failures = len(new_results.get("failures", []))
+    comparison["failures"] = {
+        "old": old_failures,
+        "new": new_failures,
+        "change": new_failures - old_failures
+    }
+
+    return comparison
+
+# Print comparison
+comp = compare_evaluations(results_v1, results_v2)
+print(f"Trust Score: {comp['trust_score']['old']:.2f} → {comp['trust_score']['new']:.2f} ({comp['trust_score']['change']:+.2f})")
+print(f"Failures: {comp['failures']['old']} → {comp['failures']['new']} ({comp['failures']['change']:+d})")
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Execute and monitor evaluations
+  </Card>
+  <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
+    Create targeted test scenarios
+  </Card>
+  <Card title="Configuring Guardrails" icon="shield" href="/developer-guide/protect/configuring-guardrails">
+    Add runtime protection
+  </Card>
+  <Card title="Operational Readiness" icon="clipboard-check" href="/owner-guide/audit-agent-behavior/operational-readiness">
+    Define deployment gates
+  </Card>
+</CardGroup>

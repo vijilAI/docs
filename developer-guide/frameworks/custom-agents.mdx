@@ -1,0 +1,425 @@
+---
+title: 'Custom Python Agents'
+description: 'Evaluate and protect any Python agent with Vijil Diamond and Dome.'
+---
+
+Not using LangChain or Google ADK? Vijil works with any Python function that processes text. Whether you're calling OpenAI directly, using a custom orchestration layer, or wrapping a fine-tuned model, you can evaluate and protect your agent the same way.
+
+This guide shows you how to wrap your custom agent function for evaluation, then add runtime guardrails to intercept attacks in production.
+
+## Overview
+
+Vijil works with any Python function that takes a string and returns a string. The `LocalAgentExecutor` wraps your agent with adapters to translate between Vijil's API format and your agent's interface.
+
+| Stage | Product | Integration |
+|-------|---------|-------------|
+| **Development** | Diamond | `LocalAgentExecutor` wraps any async function |
+| **Production** | Dome | Wrap your agent function with guardrail calls |
+
+## Part 1: Evaluate Your Custom Agent
+
+Test your agent's reliability, security, and safety before deployment.
+
+### Prerequisites
+
+- Vijil API key ([get one here](https://console.vijil.ai))
+- ngrok account for local agent tunneling (free tier works)
+- Any async Python function that processes text
+
+```bash
+pip install vijil
+export VIJIL_API_KEY=your-api-key
+export NGROK_AUTHTOKEN=your-ngrok-token
+```
+
+<Warning>
+Due to how Jupyter handles event loops, run evaluation code in a `.py` script rather than a notebook.
+</Warning>
+
+### Create Input/Output Adapters
+
+Vijil communicates using OpenAI-compatible chat completion messages. Create adapters to translate between this format and your agent's interface:
+
+```python
+from vijil.local_agents.models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatMessage,
+)
+
+def input_adapter(request: ChatCompletionRequest) -> str:
+    """Extract the prompt from Vijil's request format."""
+    # For simple agents, take the last message content
+    return request.messages[-1]["content"]
+
+def output_adapter(agent_output: str) -> ChatCompletionResponse:
+    """Wrap your agent's response in Vijil's expected format."""
+    message = ChatMessage(
+        role="assistant",
+        content=agent_output,
+        tool_calls=None,
+        retrieval_context=None
+    )
+    choice = ChatCompletionChoice(
+        index=0,
+        message=message,
+        finish_reason="stop"
+    )
+    return ChatCompletionResponse(
+        model="custom-agent",
+        choices=[choice],
+        usage=None
+    )
+```
+
+### Adapter Patterns
+
+Different agents need different adapter strategies:
+
+**Simple text-in, text-out:**
+```python
+def input_adapter(request: ChatCompletionRequest) -> str:
+    return request.messages[-1]["content"]
+```
+
+**Agent with system prompt:**
+```python
+def input_adapter(request: ChatCompletionRequest) -> dict:
+    system = ""
+    user = ""
+    for msg in request.messages:
+        if msg.get("role") == "system":
+            system = msg.get("content", "")
+        elif msg.get("role") == "user":
+            user = msg.get("content", "")
+    return {"system": system, "user": user}
+```
+
+**Agent with conversation history:**
+```python
+def input_adapter(request: ChatCompletionRequest) -> list:
+    return [
+        {"role": m.get("role"), "content": m.get("content")}
+        for m in request.messages
+    ]
+```
+
+**Agent returning structured data:**
+```python
+def output_adapter(agent_output: dict) -> ChatCompletionResponse:
+    # Extract the text response from your agent's structured output
+    text = agent_output.get("response", str(agent_output))
+    message = ChatMessage(
+        role="assistant",
+        content=text,
+        tool_calls=None,
+        retrieval_context=None
+    )
+    return ChatCompletionResponse(
+        model="custom-agent",
+        choices=[ChatCompletionChoice(index=0, message=message, finish_reason="stop")],
+        usage=None
+    )
+```
+
+### Run an Evaluation
+
+Create the executor and run your evaluation:
+
+```python
+import os
+from vijil import Vijil
+
+# Your custom agent function (must be async)
+async def my_agent(prompt: str) -> str:
+    # Your agent logic here
+    return f"Response to: {prompt}"
+
+# Create client and executor
+vijil = Vijil(api_key=os.getenv("VIJIL_API_KEY"))
+
+local_agent = vijil.local_agents.create(
+    agent_function=my_agent,
+    input_adapter=input_adapter,
+    output_adapter=output_adapter,
+)
+
+# Run the evaluation
+vijil.local_agents.evaluate(
+    agent_name="my-custom-agent",
+    evaluation_name="Trust Score Evaluation",
+    agent=local_agent,
+    harnesses=["trust_score"],  # Or specific harnesses
+    rate_limit=30,
+    rate_limit_interval=1,
+)
+```
+
+The evaluation runs automatically, showing live progress. Press `Ctrl+C` to cancel if needed.
+
+### Available Harnesses
+
+| Harness | Tests |
+|---------|-------|
+| `trust_score` | Comprehensive reliability, security, and safety |
+| `security` | Prompt injection, data leakage, jailbreaks |
+| `reliability` | Hallucinations, consistency, accuracy |
+| `safety` | Harmful content, policy compliance |
+| `ethics` | Bias, fairness, ethical behavior |
+
+Use `_Small` suffix (e.g., `security_Small`) for faster iterations during development.
+
+### Advanced: Manual Server Management
+
+For power users who need direct control over the evaluation server:
+
+```python
+from vijil.local_agents.constants import TERMINAL_STATUSES
+import time
+
+# Register agent and start server
+server, api_key_name = vijil.local_agents.register(
+    agent_name="my-agent",
+    evaluator=local_agent,
+    rate_limit=30,
+    rate_limit_interval=10,
+)
+
+# Create evaluation using the registered endpoint
+evaluation = vijil.evaluations.create(
+    model_hub="custom",
+    model_name="local-agent",
+    name="Manual evaluation",
+    api_key_name=api_key_name,
+    model_url=f"{server.url}/v1",
+    harnesses=["trust_score"],
+)
+
+# Wait for completion
+while True:
+    status = vijil.evaluations.get_status(evaluation.get("id")).get("status")
+    if status in TERMINAL_STATUSES:
+        break
+    time.sleep(5)
+
+# Clean up
+vijil.agents.deregister(server, api_key_name)
+```
+
+## Part 2: Protect Your Custom Agent
+
+Add Dome guardrails to filter malicious inputs and unsafe outputs at runtime.
+
+### Install Dome
+
+```bash
+pip install vijil-dome
+```
+
+### Basic Protection Pattern
+
+Wrap your agent function with guardrail calls:
+
+```python
+from vijil_dome import Dome
+
+# Create Dome instance with default guards
+dome = Dome()
+input_guardrail, output_guardrail = dome.get_guardrails()
+
+async def protected_agent(prompt: str) -> str:
+    # Check input
+    input_result = await input_guardrail.aguard(prompt)
+    if input_result.flagged:
+        return "I can't process that request."
+
+    # Run your agent
+    response = await my_agent(prompt)
+
+    # Check output
+    output_result = await output_guardrail.aguard(response)
+    if output_result.flagged:
+        return "I can't provide that response."
+
+    return response
+```
+
+### Custom Guard Configuration
+
+Configure specific guards for your use case:
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+    "output-guards": ["privacy-guard", "moderation-guard"],
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta-v3-base", "encoding-heuristics"]
+    },
+    "privacy-guard": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"]
+    },
+    "moderation-guard": {
+        "type": "moderation",
+        "methods": ["moderation-flashtext"]
+    }
+}
+
+dome = Dome(config)
+input_guardrail, output_guardrail = dome.get_guardrails()
+```
+
+### Synchronous Usage
+
+For non-async code, use the synchronous guard method:
+
+```python
+def protected_agent_sync(prompt: str) -> str:
+    # Check input
+    input_result = input_guardrail.guard(prompt)
+    if input_result.flagged:
+        return "I can't process that request."
+
+    # Run your agent
+    response = my_agent_sync(prompt)
+
+    # Check output
+    output_result = output_guardrail.guard(response)
+    if output_result.flagged:
+        return "I can't provide that response."
+
+    return response
+```
+
+### Handling Guard Results
+
+The guard result provides detailed information about why content was flagged:
+
+```python
+result = await input_guardrail.aguard(prompt)
+
+if result.flagged:
+    print(f"Blocked by: {result.detector_name}")
+    print(f"Confidence: {result.confidence}")
+    print(f"Details: {result.details}")
+```
+
+## Evaluate Hosted Agents
+
+If your agent is already deployed with an OpenAI-compatible API, evaluate it directly without `LocalAgentExecutor`:
+
+```python
+# Store your API key first via console.vijil.ai or:
+vijil.api_keys.create(
+    name="my-hosted-agent-key",
+    hub="custom",
+    key="your-agent-api-key"
+)
+
+# Run evaluation against your endpoint
+vijil.evaluations.create(
+    api_key_name="my-hosted-agent-key",
+    model_hub="custom",
+    model_url="https://your-agent-endpoint.com/v1",
+    model_name="your-model-name",
+    harnesses=["trust_score"],
+)
+```
+
+## Complete Example
+
+Here's a full example combining evaluation and protection:
+
+```python
+import os
+from vijil import Vijil
+from vijil_dome import Dome
+from vijil.local_agents.models import (
+    ChatCompletionRequest, ChatCompletionResponse,
+    ChatCompletionChoice, ChatMessage,
+)
+
+# === STEP 1: Define your agent ===
+async def my_agent(prompt: str) -> str:
+    """Your custom agent logic."""
+    # This is where your actual agent code goes
+    # For example: calling an LLM, RAG pipeline, etc.
+    return f"Processed: {prompt}"
+
+# === STEP 2: Create adapters for evaluation ===
+def input_adapter(req: ChatCompletionRequest) -> str:
+    return req.messages[-1]["content"]
+
+def output_adapter(output: str) -> ChatCompletionResponse:
+    return ChatCompletionResponse(
+        model="custom-agent",
+        choices=[ChatCompletionChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=output),
+            finish_reason="stop"
+        )]
+    )
+
+# === STEP 3: Evaluate ===
+if __name__ == "__main__":
+    vijil = Vijil(api_key=os.getenv("VIJIL_API_KEY"))
+
+    local_agent = vijil.local_agents.create(
+        agent_function=my_agent,
+        input_adapter=input_adapter,
+        output_adapter=output_adapter,
+    )
+
+    # Run evaluation (comment out after passing)
+    vijil.local_agents.evaluate(
+        agent_name="custom-agent",
+        evaluation_name="Pre-deployment check",
+        agent=local_agent,
+        harnesses=["trust_score"],
+        rate_limit=30,
+        rate_limit_interval=1,
+    )
+
+# === STEP 4: Protect for production ===
+dome = Dome()
+input_guardrail, output_guardrail = dome.get_guardrails()
+
+async def protected_agent(prompt: str) -> str:
+    """Production-ready agent with guardrails."""
+    # Check input
+    input_result = await input_guardrail.aguard(prompt)
+    if input_result.flagged:
+        return "I can't process that request."
+
+    # Run agent
+    response = await my_agent(prompt)
+
+    # Check output
+    output_result = await output_guardrail.aguard(response)
+    if output_result.flagged:
+        return "I can't provide that response."
+
+    return response
+
+# Deploy protected_agent in production
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Detailed evaluation options and result analysis
+  </Card>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Advanced guard configuration
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build custom detection methods
+  </Card>
+  <Card title="CI/CD Integration" icon="rotate" href="/developer-guide/cicd/overview">
+    Automate evaluation in your pipeline
+  </Card>
+</CardGroup>

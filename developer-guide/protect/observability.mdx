@@ -1,0 +1,353 @@
+---
+title: 'Observability'
+description: 'Monitor Dome guardrails with OpenTelemetry, tracing, and logging.'
+---
+
+Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup.
+
+## Quick Setup
+
+Install with OpenTelemetry support:
+
+```bash
+pip install vijil-dome[opentelemetry]
+```
+
+## LLM Tracing Platforms
+
+### Weights & Biases Weave
+
+[Weave](https://weave-docs.wandb.ai/) is W&B's toolkit for tracing LLM applications.
+
+```python
+import weave
+from vijil_dome import Dome
+
+# Initialize Weave
+weave.init("my-project")
+
+# Create Dome and enable Weave tracing
+dome = Dome()
+dome.apply_decorator(weave.op)
+
+# Now all guard calls appear in Weave traces
+result = dome.guard_input("User message")
+```
+
+In your Weave dashboard, you'll see:
+- All `guard_input` and `guard_output` calls
+- Individual guard execution within each guardrail
+- Detector-level details for each guard
+
+### AgentOps
+
+[AgentOps](https://www.agentops.ai/) provides agent-focused observability.
+
+```python
+import os
+import agentops
+from vijil_dome import Dome
+
+# Initialize AgentOps
+agentops.init(os.getenv("AGENTOPS_API_KEY"))
+
+# Create Dome and enable AgentOps tracking
+dome = Dome()
+dome.apply_decorator(agentops.record_action())
+
+# Use with an AgentOps-tracked agent
+@agentops.track_agent("MyAgent")
+class MyAgent:
+    def chat(self, query: str):
+        input_scan = dome.guard_input(query)
+        if input_scan.is_safe():
+            response = self.call_llm(input_scan.guarded_response())
+            output_scan = dome.guard_output(response)
+            return output_scan.guarded_response()
+        return input_scan.guarded_response()
+
+# Run your agent
+agent = MyAgent()
+response = agent.chat("Hello!")
+
+# End session
+agentops.end_session("Success")
+```
+
+## OpenTelemetry Integration
+
+Dome works with any OpenTelemetry-compliant platform (Jaeger, Uptrace, Signoz, etc.).
+
+### Basic Setup
+
+```python
+from vijil_dome import Dome
+
+dome = Dome()
+
+# Instrument with your OpenTelemetry objects
+dome.instrument(
+    tracer=your_tracer,    # Optional: for tracing
+    meter=your_meter,      # Optional: for metrics
+    handlers=[your_handler] # Optional: for logging
+)
+```
+
+### Full Example with Jaeger
+
+```python
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import Resource
+from vijil_dome import Dome
+
+# Set up tracer
+resource = Resource.create({"service.name": "my-agent"})
+provider = TracerProvider(resource=resource)
+jaeger_exporter = JaegerExporter(
+    agent_host_name="localhost",
+    agent_port=6831,
+)
+provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer(__name__)
+
+# Create and instrument Dome
+dome = Dome()
+dome.instrument(tracer=tracer)
+
+# All guard calls now create spans in Jaeger
+result = dome.guard_input("User message")
+```
+
+## Tracing
+
+When instrumented with a tracer, Dome creates spans for:
+
+- **Guardrail execution**: Top-level span for `guard_input` / `guard_output`
+- **Guard execution**: Nested span for each guard in the guardrail
+- **Detector execution**: Nested span for each detector in the guard
+
+Each span includes:
+- Input and output data
+- Execution time
+- Error information (if any)
+- Whether content was flagged
+
+### Span Hierarchy
+
+```
+guard_input
+├── security-guard
+│   ├── prompt-injection-mbert
+│   └── encoding-heuristics
+└── moderation-guard
+    └── moderation-flashtext
+```
+
+## Metrics
+
+When instrumented with a meter, Dome automatically tracks:
+
+| Metric | Description |
+|--------|-------------|
+| `requests` | Total requests to each component |
+| `flagged` | Requests flagged by each component |
+| `errors` | Errors encountered |
+| `latency` | Execution time |
+
+### Metric Naming
+
+Metrics follow the pattern: `[guardrail].[guard].[detector].[metric]`
+
+Examples:
+- `input_guardrail.security_guard.requests`
+- `input_guardrail.security_guard.prompt_injection_mbert.flagged`
+- `output_guardrail.latency`
+
+### Example: Prometheus
+
+```python
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from prometheus_client import start_http_server
+from vijil_dome import Dome
+
+# Start Prometheus server
+start_http_server(8000)
+
+# Set up meter
+reader = PrometheusMetricReader()
+provider = MeterProvider(metric_readers=[reader])
+metrics.set_meter_provider(provider)
+
+meter = metrics.get_meter(__name__)
+
+# Create and instrument Dome
+dome = Dome()
+dome.instrument(meter=meter)
+
+# Metrics are now available at http://localhost:8000
+```
+
+## Logging
+
+Dome logs to Python loggers under `vijil.dome`. Add handlers to capture logs:
+
+```python
+import logging
+from vijil_dome import Dome
+
+# Set up logging
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# Create Dome with handler
+dome = Dome()
+dome.instrument(handlers=[handler])
+```
+
+### Log Levels
+
+| Level | What's Logged |
+|-------|---------------|
+| `DEBUG` | Initialization details, parameters |
+| `INFO` | Inputs and outputs from each component |
+| `WARNING` | Missing config, context window exceeded, timeouts |
+| `ERROR` | Handled exceptions during execution |
+| `CRITICAL` | Initialization failures, unhandled exceptions |
+
+### Structured Logging
+
+For JSON-structured logs:
+
+```python
+import logging
+import json
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_obj = {
+            "timestamp": self.formatTime(record),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        if hasattr(record, 'extra'):
+            log_obj.update(record.extra)
+        return json.dumps(log_obj)
+
+handler = logging.StreamHandler()
+handler.setFormatter(JSONFormatter())
+
+dome = Dome()
+dome.instrument(handlers=[handler])
+```
+
+## Custom Metrics
+
+Add your own metrics alongside Dome's:
+
+```python
+from opentelemetry import metrics
+
+meter = metrics.get_meter(__name__)
+
+# Custom counters
+blocked_by_policy = meter.create_counter(
+    "agent.blocked_by_policy",
+    description="Requests blocked by guardrails"
+)
+
+guard_latency = meter.create_histogram(
+    "agent.guard_latency",
+    description="Guard execution latency"
+)
+
+def protected_chat(message: str):
+    import time
+    start = time.time()
+
+    result = dome.guard_input(message)
+
+    guard_latency.record(time.time() - start)
+
+    if not result.is_safe():
+        blocked_by_policy.add(1, {"guard": "input"})
+        return result.guarded_response()
+
+    # ... rest of agent logic
+```
+
+## Dashboard Examples
+
+### Grafana Dashboard
+
+Track key metrics:
+
+```
+# Blocked request rate
+sum(rate(input_guardrail_flagged[5m])) / sum(rate(input_guardrail_requests[5m]))
+
+# Average latency
+histogram_quantile(0.95, rate(input_guardrail_latency_bucket[5m]))
+
+# Error rate
+sum(rate(input_guardrail_errors[5m])) / sum(rate(input_guardrail_requests[5m]))
+```
+
+### Alerts
+
+Set up alerts for anomalies:
+
+```yaml
+# High block rate (potential attack)
+- alert: HighBlockRate
+  expr: sum(rate(input_guardrail_flagged[5m])) / sum(rate(input_guardrail_requests[5m])) > 0.5
+  for: 5m
+  labels:
+    severity: warning
+  annotations:
+    summary: High guardrail block rate detected
+
+# Guard errors
+- alert: GuardErrors
+  expr: sum(rate(input_guardrail_errors[5m])) > 0
+  for: 1m
+  labels:
+    severity: critical
+  annotations:
+    summary: Guardrail errors detected
+```
+
+## Best Practices
+
+1. **Always instrument in production**: Visibility is essential for security
+2. **Set appropriate log levels**: Use INFO for production, DEBUG for troubleshooting
+3. **Monitor block rates**: Sudden increases may indicate attacks
+4. **Track latency**: Ensure guards don't impact user experience
+5. **Alert on errors**: Guard failures should be investigated immediately
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Guard configuration options
+  </Card>
+  <Card title="Using Guardrails" icon="shield" href="/developer-guide/protect/using-guardrails">
+    Runtime integration patterns
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build custom detection methods
+  </Card>
+  <Card title="Protection Overview" icon="book" href="/developer-guide/protect/overview">
+    Dome architecture overview
+  </Card>
+</CardGroup>
