@@ -13,6 +13,7 @@
     "dark": "#0247A9"
   },
   "css": "/styles.css",
+  "favicon": "/favicon.svg",
   "icons": {
     "library": "lucide"
   },
