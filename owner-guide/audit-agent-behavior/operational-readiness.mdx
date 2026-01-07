@@ -1,0 +1,200 @@
+---
+title: 'Operational Readiness'
+description: 'Define deployment gates and verify your agent meets production criteria.'
+---
+
+Before deploying an agent to production, verify it meets your organization's criteria for trustworthiness. This page explains how to define deployment gates, assess readiness, and document sign-off decisions.
+
+## Deployment Gates
+
+A deployment gate is a checkpoint where an agent must demonstrate acceptable risk before proceeding. Gates convert subjective "is it ready?" conversations into objective pass/fail decisions.
+
+### Gate Structure
+
+Each gate specifies:
+
+| Component | Description |
+|-----------|-------------|
+| **Trust Score threshold** | Minimum overall score required (e.g., ≥ 0.70) |
+| **Dimension requirements** | Minimum scores per pillar (Reliability, Security, Safety) |
+| **Severity limits** | Maximum allowed findings at each severity level |
+| **Harness specification** | Which evaluation harness must be run |
+
+### Example Gate Configuration
+
+```yaml
+production-gate:
+  trust_score: 0.70
+  dimensions:
+    reliability: 0.65
+    security: 0.75
+    safety: 0.70
+  severity_limits:
+    critical: 0     # No Severity 1 findings allowed
+    high: 2         # At most 2 Severity 2 findings
+    medium: 10      # At most 10 Severity 3 findings
+    low: unlimited
+  harness: trust-score
+```
+
+## Readiness Assessment
+
+Run a Trust Score evaluation and compare results against your gate criteria:
+
+### Step 1: Run the Evaluation
+
+Execute your standard harness against the candidate agent version:
+
+```bash
+curl -X POST "https://api.vijil.ai/v1/evaluations" \
+  -H "Authorization: Bearer $VIJIL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "your-agent-id",
+    "harness_id": "trust-score"
+  }'
+```
+
+### Step 2: Compare Against Gates
+
+| Criterion | Gate Requirement | Actual Result | Status |
+|-----------|------------------|---------------|--------|
+| Trust Score | ≥ 0.70 | 0.78 | ✓ Pass |
+| Reliability | ≥ 0.65 | 0.72 | ✓ Pass |
+| Security | ≥ 0.75 | 0.81 | ✓ Pass |
+| Safety | ≥ 0.70 | 0.74 | ✓ Pass |
+| Critical findings | 0 | 0 | ✓ Pass |
+| High findings | ≤ 2 | 1 | ✓ Pass |
+
+**Result:** Agent passes all deployment gate criteria.
+
+### Step 3: Document the Decision
+
+Record the evaluation results, gate configuration, and deployment decision for audit purposes.
+
+## Conditional Deployment
+
+When an agent fails gate criteria but business needs require deployment, conditional deployment allows proceeding with compensating controls.
+
+### When to Use Conditional Deployment
+
+- Agent scores slightly below threshold but improves on previous version
+- Critical business deadline with acceptable residual risk
+- Compensating controls adequately mitigate identified failures
+
+### Compensating Controls
+
+| Failure Type | Compensating Control |
+|--------------|----------------------|
+| Prompt injection vulnerability | Deploy with input guardrails blocking injection patterns |
+| Hallucination risk | Add output guardrails for factual verification |
+| Scope boundary issues | Restrict agent to narrow use case with limited tools |
+| Privacy concerns | Deploy with PII redaction on input and output |
+
+### Conditional Deployment Checklist
+
+Before approving conditional deployment:
+
+<Steps>
+  <Step title="Document residual risk">
+    List each failing criterion and its risk score
+  </Step>
+  <Step title="Identify compensating controls">
+    Map specific Dome guards to each identified risk
+  </Step>
+  <Step title="Set monitoring thresholds">
+    Define alert triggers for production behavior
+  </Step>
+  <Step title="Establish remediation timeline">
+    Commit to addressing root causes by a specific date
+  </Step>
+  <Step title="Obtain explicit sign-off">
+    Get written approval from both Business Owner and Risk Officer
+  </Step>
+</Steps>
+
+## Sign-Off Workflow
+
+Deployment decisions require alignment between stakeholders with different priorities.
+
+### Roles and Responsibilities
+
+| Role | Responsibility | Signs Off On |
+|------|----------------|--------------|
+| **Business Owner** | Accountable for agent value delivery | Functional readiness, business case |
+| **Risk Officer** | Accountable for risk management | Security, safety, compliance |
+| **Technical Lead** | Accountable for implementation quality | Technical readiness, monitoring |
+
+### Sign-Off Process
+
+<Frame>
+  <img src="/images/sign-off-process.svg" alt="Sign-off process flow: Evaluation Complete to Gate Check to Decision, then Pass leads to Deploy, Fail leads to Remediate or Conditional deployment with re-evaluation loop" />
+</Frame>
+
+### Documentation Requirements
+
+Every deployment decision should include:
+
+1. **Evaluation report** — Full Trust Report with scores and findings
+2. **Gate criteria** — The specific thresholds applied
+3. **Comparison table** — Actual vs. required for each criterion
+4. **Decision record** — Approved, conditionally approved, or rejected
+5. **Sign-off signatures** — Business Owner and Risk Officer approval
+6. **Conditions** (if applicable) — Compensating controls and remediation timeline
+
+## Setting Thresholds
+
+Thresholds should reflect your organization's risk tolerance and the agent's deployment context.
+
+### Threshold Guidelines by Use Case
+
+| Use Case | Trust Score | Security | Notes |
+|----------|-------------|----------|-------|
+| Internal tool | ≥ 0.60 | ≥ 0.65 | Lower risk exposure |
+| Customer-facing | ≥ 0.70 | ≥ 0.75 | Reputation and compliance risk |
+| Regulated industry | ≥ 0.80 | ≥ 0.85 | Regulatory requirements |
+| High-stakes decisions | ≥ 0.85 | ≥ 0.90 | Material business impact |
+
+### Adjusting Thresholds
+
+Raise thresholds when:
+- Agent has access to sensitive data or critical systems
+- Agent serves external users or customers
+- Failures would trigger regulatory or legal consequences
+- Agent operates with minimal human oversight
+
+Lower thresholds when:
+- Agent handles low-risk, internal tasks
+- Strong compensating controls are in place
+- Human review is part of every workflow
+- Agent operates in a sandbox environment
+
+## Tracking Readiness Over Time
+
+Monitor readiness across agent versions to identify trends:
+
+| Version | Date | Trust Score | Critical | High | Status |
+|---------|------|-------------|----------|------|--------|
+| v1.0 | Jan 15 | 0.58 | 2 | 8 | Failed |
+| v1.1 | Feb 1 | 0.65 | 1 | 5 | Failed |
+| v1.2 | Feb 15 | 0.72 | 0 | 2 | Passed |
+| v1.3 | Mar 1 | 0.78 | 0 | 1 | Passed |
+
+Improving scores with decreasing findings indicate effective remediation. Declining scores signal regression requiring investigation.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quantifying Risk" icon="chart-pie" href="/owner-guide/audit-agent-behavior/quantifying-risk">
+    Translate findings into risk assessments
+  </Card>
+  <Card title="Understanding Results" icon="list-check" href="/owner-guide/run-evaluations/understanding-results">
+    Interpret evaluation findings
+  </Card>
+  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Set up compensating controls
+  </Card>
+  <Card title="Observability" icon="chart-line" href="/owner-guide/protect-in-production/observability">
+    Monitor production behavior
+  </Card>
+</CardGroup>

@@ -1,0 +1,66 @@
+---
+title: 'Deploying Dome'
+description: 'Overview of integrating Dome guardrails into your AI agent.'
+---
+
+Dome protects your AI agent by filtering requests and responses through configurable guardrails. Deploying Dome requires integrating the Dome SDK into your agent code.
+
+## What Developers Need
+
+To deploy Dome, your development team will:
+
+1. **Install the SDK** — Add `vijil-dome` to your Python dependencies
+2. **Wrap LLM calls** — Insert guard checks before and after your agent's LLM interactions
+3. **Configure guards** — Load configuration from the Vijil Console or define it in code
+4. **Handle blocked content** — Return safe responses when guards trigger
+
+## Integration Pattern
+
+The basic pattern wraps your agent's LLM calls:
+
+```python
+from vijil_dome import Dome
+
+dome = Dome.create_from_vijil_agent(
+    agent_id="your-agent-id",
+    api_key="your-api-key"
+)
+
+def protected_chat(user_message: str) -> str:
+    # Guard the input
+    input_scan = dome.guard_input(user_message)
+    if not input_scan.is_safe():
+        return input_scan.guarded_response()
+
+    # Your existing agent logic here
+    response = your_agent.generate(input_scan.guarded_response())
+
+    # Guard the output
+    output_scan = dome.guard_output(response)
+    return output_scan.guarded_response()
+```
+
+## Configuration Sync
+
+When you configure guardrails in the Console, your developers can pull that configuration directly into code using `Dome.create_from_vijil_agent()`. This keeps your security policies in sync between the Console UI and deployed agents.
+
+## Framework Support
+
+Dome integrates with popular agent frameworks:
+- **LangChain / LangGraph** — Use `GuardrailRunnable` in your chains
+- **Google ADK** — Register Dome callbacks with your agent
+- **Custom agents** — Wrap any LLM client with guard calls
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Dome SDK Guide" icon="code" href="/developer-guide/protect/overview">
+    Complete deployment instructions for developers
+  </Card>
+    <Card title="Monitor Performance" icon="chart-line" href="/owner-guide/protect-in-production/observability">
+    View traces and metrics after deployment
+  </Card>
+  <Card title="Configuring Guardrails" icon="sliders" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Set up guard policies in the Console
+  </Card>
+</CardGroup>
