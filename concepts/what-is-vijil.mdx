@@ -1,0 +1,77 @@
+---
+title: 'What is Vijil?'
+description: 'The trust layer that helps enterprises deploy AI agents 4x faster.'
+---
+
+Most AI agents never make it to production. They stall in security reviews, fail compliance checks, or get blocked by risk committees who can't verify what the agent will actually do. The gap isn't capability—it's trust. Enterprises need evidence that an agent is reliable, safe, and secure before they'll deploy it.
+
+Vijil closes that gap. We provide the infrastructure to measure trust, test for it systematically, protect agents in production, and improve them continuously based on real-world behavior.
+
+## The Trust Score
+
+At the center of Vijil is the **Trust Score**—a quantitative measure of an agent's trustworthiness across three dimensions:
+
+<CardGroup cols={3}>
+  <Card title="Reliability" icon="circle-check" href="/concepts/trust-score/reliability">
+    Does the agent do what it's supposed to do, consistently and accurately?
+
+    <ul style={{marginTop: '12px', paddingLeft: '20px', listStyleType: 'disc'}}>
+      <li style={{marginBottom: '8px'}}><strong>Correctness</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Produces accurate and valid outputs</span></li>
+      <li style={{marginBottom: '8px'}}><strong>Consistency</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Behaves predictably across similar inputs</span></li>
+      <li><strong>Robustness</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Handles edge cases and errors gracefully</span></li>
+    </ul>
+  </Card>
+  <Card title="Security" icon="lock" href="/concepts/trust-score/security">
+    Can the agent resist adversarial attacks and protect sensitive data?
+
+    <ul style={{marginTop: '12px', paddingLeft: '20px', listStyleType: 'disc'}}>
+      <li style={{marginBottom: '8px'}}><strong>Confidentiality</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Protects sensitive data from exposure</span></li>
+      <li style={{marginBottom: '8px'}}><strong>Integrity</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Prevents unauthorized data modification</span></li>
+      <li><strong>Availability</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Resists denial of service attacks</span></li>
+    </ul>
+  </Card>
+  <Card title="Safety" icon="shield" href="/concepts/trust-score/safety">
+    Does the agent avoid harmful outputs and respect boundaries?
+
+    <ul style={{marginTop: '12px', paddingLeft: '20px', listStyleType: 'disc'}}>
+      <li style={{marginBottom: '8px'}}><strong>Containment</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Operates within defined boundaries</span></li>
+      <li style={{marginBottom: '8px'}}><strong>Compliance</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Follows policies and regulations</span></li>
+      <li><strong>Transparency</strong><br/><span style={{fontSize: '13px', color: '#666'}}>Provides clear reasoning for decisions</span></li>
+    </ul>
+  </Card>
+</CardGroup>
+
+The Trust Score turns trust from a subjective judgment into something measurable—evidence you can show to security reviewers, compliance teams, and business stakeholders.
+
+## Build, Ship, Run, Evolve
+
+<img src="/images/lifecycle.svg" alt="Vijil lifecycle: Build with Depot, Ship with Diamond, Run with Dome, Evolve with Darwin" style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}} />
+
+Vijil covers the full agent lifecycle with four integrated products:
+
+### Build with Depot
+
+Start with components that are already hardened for trust. Depot provides guardrail models tuned for agent safety, hardened LLMs optimized for specific tasks, and pre-validated building blocks that reduce months of security work to days.
+
+### Ship with Diamond
+
+Test your agents before you trust them. Diamond evaluates agent behavior against hundreds of scenarios—reliability under stress, resistance to prompt injection, compliance with safety policies. You get a Trust Score and detailed findings in minutes, not weeks.
+
+### Run with Dome
+
+Protect agents in production. Dome provides real-time guardrails that filter harmful inputs and outputs, detect anomalies, and enforce policies—all with latency measured in milliseconds. When something goes wrong, you know immediately.
+
+### Evolve with Darwin
+
+Improve agents continuously. Darwin learns from production telemetry—the edge cases, the failures, the drift—and uses reinforcement learning to make agents more resilient over time. Trust isn't static; Darwin keeps it current.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Understand the Trust Score" icon="chart-bar" href="/concepts/trust-score/introduction">
+    Deep dive into how trust is measured across reliability, safety, and security.
+  </Card>
+  <Card title="Get Started" icon="rocket" href="/owner-guide/getting-started/introduction">
+    Set up your account and run your first evaluation.
+  </Card>
+</CardGroup>

@@ -1,0 +1,160 @@
+---
+title: "Detector"
+description: "The detection engines that identify threats within guards."
+---
+
+## What is a Detector?
+
+A detector is the engine inside a guard that actually identifies threats. Guards define what category of threat to look for; detectors do the looking.
+
+This is the same concept as detectors in evaluation—in fact, many detectors are shared between Diamond (evaluation) and Dome (defense). The difference is context: evaluation detectors analyze probe responses after the fact; defense detectors analyze real traffic in real-time.
+
+## Detector Types
+
+### Pattern Detectors
+
+Pattern detectors use rules and regular expressions to identify known threat signatures:
+
+| Detector | What It Finds |
+|----------|---------------|
+| **Injection patterns** | Known prompt injection phrases ("ignore previous", "new instructions") |
+| **PII patterns** | Regex for emails, phone numbers, SSNs, credit cards |
+| **Secrets patterns** | API key formats, credential patterns |
+| **Profanity lists** | Known offensive words and phrases |
+
+Pattern detectors are fast (sub-millisecond) and deterministic. They catch known threats reliably but miss novel variations.
+
+### ML Classifiers
+
+ML classifiers use trained models to detect threats:
+
+| Detector | Model | What It Detects |
+|----------|-------|-----------------|
+| **DeBERTa injection** | Fine-tuned DeBERTa | Prompt injection attempts |
+| **Toxicity classifier** | Fine-tuned RoBERTa | Toxic content categories |
+| **PII NER** | Presidio/spaCy | Named entities that are PII |
+
+ML detectors handle variation better than patterns—they catch novel phrasings of known attack types. They're slower (5-20ms typically) and produce confidence scores rather than binary results.
+
+### LLM-as-Judge
+
+LLM judges use language models to evaluate content:
+
+| Detector | Model | What It Evaluates |
+|----------|-------|-------------------|
+| **LlamaGuard** | Llama-based classifier | Content safety categories |
+| **GPT-4 judge** | GPT-4 | Complex policy violations |
+| **Custom judge** | Your choice | Domain-specific rules |
+
+LLM judges are the most flexible—they can evaluate nuanced policies that resist simple classification. They're also the slowest (50-200ms) and most expensive. Use them for high-stakes decisions or as a second opinion on borderline cases.
+
+### Heuristic Detectors
+
+Heuristic detectors use domain-specific rules that aren't simple patterns:
+
+| Detector | What It Checks |
+|----------|----------------|
+| **Token anomaly** | Unusual token distributions suggesting adversarial input |
+| **Length anomaly** | Inputs far outside normal length distribution |
+| **Encoding detection** | Presence of base64, unicode escapes, or other encodings |
+| **Language detection** | Input language doesn't match expected |
+
+Heuristics catch structural anomalies that might indicate attack attempts, even if the specific attack is novel.
+
+## Defense vs. Evaluation Detectors
+
+The detector concept is shared, but defense has additional constraints:
+
+| Concern | Evaluation | Defense |
+|---------|------------|---------|
+| **Latency** | Doesn't matter | Critical—every ms affects UX |
+| **Cost** | Run once per evaluation | Run on every request |
+| **Accuracy** | Can review false positives later | False positives block real users |
+| **Coverage** | Comprehensive testing | Focused on high-risk threats |
+
+Defense detectors are tuned for production: faster models, higher thresholds, fewer but more reliable checks.
+
+## Detector Composition
+
+Guards combine multiple detectors for defense in depth:
+
+```python
+"prompt-injection": {
+    "type": "security",
+    "methods": [
+        "injection-heuristics",    # Fast, catches obvious attacks
+        "deberta-injection",       # ML, catches variations
+        "llm-judge"                # Slow, catches sophisticated attacks
+    ],
+    "voting": "any"  # Trigger if any detector fires
+}
+```
+
+Composition strategies:
+
+| Strategy | Behavior |
+|----------|----------|
+| `any` | Trigger if any detector fires (high recall, more false positives) |
+| `all` | Trigger only if all detectors agree (high precision, may miss attacks) |
+| `majority` | Trigger if more than half fire (balanced) |
+| `weighted` | Trigger if weighted confidence exceeds threshold |
+
+## Detector Results
+
+Each detector produces structured results:
+
+```python
+{
+    "detector": "deberta-injection",
+    "triggered": True,
+    "confidence": 0.87,
+    "latency_ms": 14,
+    "evidence": {
+        "matched_span": "ignore all previous instructions and",
+        "attack_type": "instruction_override",
+        "model_output": [0.13, 0.87]  # [safe, injection]
+    }
+}
+```
+
+Evidence helps you understand why a detector fired—essential for tuning thresholds and investigating false positives.
+
+## Custom Detectors
+
+You can add custom detectors for domain-specific threats:
+
+```python
+from vijil.dome import Detector
+
+class CompanyNameLeakDetector(Detector):
+    def detect(self, text: str) -> DetectorResult:
+        # Check for internal company names that shouldn't appear
+        internal_names = ["Project Falcon", "Codename Thunder"]
+        for name in internal_names:
+            if name.lower() in text.lower():
+                return DetectorResult(
+                    triggered=True,
+                    confidence=1.0,
+                    evidence={"leaked_name": name}
+                )
+        return DetectorResult(triggered=False)
+```
+
+Custom detectors integrate into guards like built-in detectors.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Guard" icon="shield" href="/concepts/defense/guard">
+    How detectors compose into guards
+  </Card>
+  <Card title="Guardrail" icon="road-barrier" href="/concepts/defense/guardrail">
+    How guards compose into pipelines
+  </Card>
+  <Card title="Custom Detectors" icon="code" href="/developer-guide/protect/custom-detectors">
+    Build your own detectors
+  </Card>
+  <Card title="How Defense Works" icon="workflow" href="/concepts/defense/introduction">
+    The full defense architecture
+  </Card>
+</CardGroup>

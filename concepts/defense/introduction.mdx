@@ -1,0 +1,102 @@
+---
+title: "How Defense Works"
+description: "The architecture of runtime agent protection: guardrails, guards, and detectors."
+---
+
+## From Evaluation to Defense
+
+Evaluation tells you how trustworthy your agent is. Defense keeps it that way in production.
+
+The distinction matters. Evaluation runs before deployment—it's a test. Defense runs during deployment—it's a filter. Evaluation probes your agent with hundreds of scenarios to find weaknesses. Defense intercepts every real interaction to block attacks in real-time.
+
+**Vijil connects the two.** Diamond evaluations don't just produce a Trust Score—they inform Dome defense configurations. When you evaluate an agent, Vijil learns:
+
+- **Agent characteristics**: System prompt, capabilities, intended scope
+- **Environment context**: Personas (who uses the agent), policies (what rules apply)
+- **Failure modes**: Which scenarios the agent failed, at what confidence levels
+
+From this, Vijil generates custom guardrail configurations tuned to your agent. If evaluation found your agent vulnerable to crescendo attacks, Dome enables the crescendo detector. If your agent handles financial data, PII guards are configured with stricter thresholds. The guardrails aren't generic—they're calibrated to the specific risks your evaluation uncovered.
+
+Vijil Dome provides this runtime defense through a layered architecture. Every input to your agent passes through a configurable pipeline of guards. Every output passes through another. Threats are detected, logged, and handled before they can cause harm.
+
+<img src="/images/defense-flow.svg" alt="Defense flow: Input through Guardrail, Guards, Detectors, then to Agent, then Output through Detectors, Guards, Guardrail" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+
+The flow has three phases:
+
+**Input Defense** (left side, descending): Filter what reaches your agent
+- **Guardrail** → A configured pipeline of guards for input protection
+- **Guard** → A specific protection type (prompt injection, PII, toxicity)
+- **Detector** → The model or rule that identifies threats
+- **Action** → What happens: pass, block, redact, or warn
+
+**Execution** (bottom, horizontal): The protected interaction
+- **Filtered Input → Agent → Raw Output**: Clean input reaches your agent; raw output needs checking
+
+**Output Defense** (right side, ascending): Filter what leaves your agent
+- **Action** → Decision on the output
+- **Detector** → Analyzes the response
+- **Guard** → Applies output-specific protections
+- **Guardrail** → The complete output filtering pipeline
+
+## Why Runtime Defense?
+
+Evaluation finds vulnerabilities. Defense prevents exploitation.
+
+Even a well-evaluated agent faces risks in production:
+
+**Novel attacks**: New jailbreaks and injection techniques emerge constantly. Your agent might have scored well against known attacks, but attackers don't stand still.
+
+**Context-specific threats**: Production traffic includes things evaluation can't anticipate—real user data, real business context, real adversaries probing for weaknesses.
+
+**Defense in depth**: Evaluation is one layer. Defense is another. Together, they provide coverage that neither achieves alone.
+
+## The Components
+
+| Component | Role | Example |
+|-----------|------|---------|
+| **Guardrail** | Configures which guards run and how | Input guardrail with PII redaction and injection blocking |
+| **Guard** | Protects against a category of threats | Prompt injection guard, toxicity guard, PII guard |
+| **Detector** | The detection logic within a guard | DeBERTa classifier, regex patterns, LLM-as-judge |
+| **Action** | What happens when a threat is detected | `block`, `redact`, `warn`, `log` |
+
+## Actions
+
+When a detector identifies a threat, the guard takes an action:
+
+| Action | Behavior |
+|--------|----------|
+| **Pass** | No threat detected; continue normally |
+| **Log** | Threat detected but allowed; logged for monitoring |
+| **Warn** | Threat flagged; continues with warning metadata |
+| **Redact** | Sensitive content removed or masked; continues with sanitized content |
+| **Block** | Threat blocked; request rejected with error |
+
+Actions are configurable per guard. You might log low-confidence PII detections, redact high-confidence ones, and block prompt injections entirely.
+
+## Latency and Performance
+
+Defense adds latency—every guard adds processing time. Dome is designed for minimal overhead:
+
+- **Fast detectors**: Pattern matching and small classifiers run in single-digit milliseconds
+- **Parallel execution**: Independent guards run concurrently
+- **Configurable depth**: Use fewer guards for latency-sensitive applications
+- **Caching**: Repeated patterns skip re-analysis
+
+Typical latency: 10-50ms for a standard guardrail configuration. You trade some latency for runtime protection.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Guardrail" icon="road-barrier" href="/concepts/defense/guardrail">
+    Configure protection pipelines
+  </Card>
+  <Card title="Guard" icon="shield" href="/concepts/defense/guard">
+    Understand protection categories
+  </Card>
+  <Card title="Detector" icon="microscope" href="/concepts/defense/detector">
+    The detection engines
+  </Card>
+  <Card title="Observe" icon="chart-line" href="/concepts/defense/observe">
+    Telemetry, metrics, and logging
+  </Card>
+</CardGroup>

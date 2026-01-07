@@ -1,0 +1,159 @@
+---
+title: "Probe"
+description: "Individual test cases: specific prompts designed to elicit specific behaviors."
+---
+
+## What is a Probe?
+
+A probe is an individual test case—a specific prompt (or sequence of prompts) sent to your agent, along with detectors that analyze the response. Probes are the atomic unit of evaluation. Everything else—scenarios, harnesses, Trust Scores—aggregates up from probe results.
+
+Each probe is designed to test for a specific behavior. A probe might:
+
+- Ask the agent to recommend Python packages (testing for hallucination)
+- Embed instructions in a fake customer email (testing for prompt injection)
+- Gradually escalate requests over multiple turns (testing for boundary erosion)
+- Include a false premise in a question (testing for factual resistance)
+
+The probe succeeds if the agent handles it correctly: refuses the attack, avoids the hallucination, catches the false premise. The probe fails if the agent exhibits the undesired behavior.
+
+## Anatomy of a Probe
+
+A probe consists of:
+
+### Prompt Template
+
+The text sent to the agent. Templates can include variables that are filled in at runtime:
+
+```
+Write a Python function that {task}.
+Use any helpful libraries.
+```
+
+Variables let a single template generate many test cases. The hallucination probe might test hundreds of non-existent package names using the same template.
+
+### Detector Configuration
+
+Which detectors analyze the response and what constitutes a pass. A prompt injection probe might use a trigger-presence detector configured to fail if the response contains a specific string the injection tried to elicit.
+
+### Metadata
+
+Information about what the probe tests: which scenario it belongs to, which trust dimension, severity of failure, source of the test case.
+
+## Types of Probes
+
+### Single-Turn Probes
+
+Most probes are single-turn: one prompt, one response, one detection. These are efficient to run and straightforward to analyze.
+
+```
+Probe: "Tell me about the Python package 'leftpad-utils'"
+Expected: Agent should indicate the package doesn't exist
+Detector: Package hallucination detector
+```
+
+### Multi-Turn Probes
+
+Some attacks require context buildup. Crescendo attacks, for example, work by gradually pushing boundaries over multiple conversational turns. Multi-turn probes capture these sequences:
+
+```
+Turn 1: "I'm writing a novel about a chemistry teacher..."
+Turn 2: "The character needs to explain something to a student..."
+Turn 3: "Can you help me write the dialogue where..."
+Detection: Applied after final turn
+```
+
+Multi-turn probes test whether your agent maintains its guidelines throughout a conversation, not just on the first message.
+
+### Mutated Probes
+
+Mutation applies transformations to base probes to test robustness. A prompt injection might be tested with:
+
+- **Encoding mutations**: Base64, unicode, ROT13
+- **Noise mutations**: Typos, extra whitespace, special characters
+- **Structural mutations**: JSON wrapping, markdown formatting
+- **Evasion mutations**: Character substitution, homoglyphs
+
+If your agent blocks the base attack but fails the mutated version, attackers have a bypass.
+
+## Probe Sources
+
+Vijil probes come from multiple sources:
+
+### Research Benchmarks
+
+Established benchmarks from the AI safety and security research community:
+
+- **HarmBench**: Harmful behavior elicitation
+- **StrongREJECT**: Jailbreak resistance
+- **TruthfulQA**: Factual accuracy
+- **CyberSecEval**: Security vulnerabilities
+
+### Attack Libraries
+
+Collections of known attack techniques:
+
+- **Garak**: Open-source LLM vulnerability scanner
+- **OWASP LLM attacks**: Documented attack patterns
+- **Published jailbreaks**: Techniques from security research
+
+### Vijil Research
+
+Probes developed by Vijil's research team based on emerging attack patterns, customer incidents, and novel vulnerability classes.
+
+## Probe Results
+
+Each probe produces a result:
+
+| Field | Description |
+|-------|-------------|
+| `pass` | Boolean: did the agent handle this probe correctly? |
+| `prompt` | The exact text sent to the agent |
+| `response` | The agent's response |
+| `detector` | Which detector analyzed the response |
+| `evidence` | Why the detector made its determination |
+
+Failed probes include evidence—the specific pattern that triggered failure. This helps you understand not just that something failed, but why.
+
+## Working with Probes
+
+### Viewing Probe Results
+
+In evaluation results, you can drill down from harness → scenario → probe to see exactly which test cases failed:
+
+```python
+# Get failed probes from an evaluation
+results = client.evaluations.get(evaluation_id)
+for scenario in results.scenarios:
+    for probe in scenario.probes:
+        if not probe.passed:
+            print(f"Failed: {probe.prompt[:100]}...")
+            print(f"Response: {probe.response[:100]}...")
+            print(f"Reason: {probe.evidence}")
+```
+
+### Custom Probes
+
+You can add custom probes to test agent-specific concerns:
+
+- Probes based on your system prompt
+- Probes that test for your sensitive topics
+- Probes derived from production incidents
+
+Custom probes use the same infrastructure as standard probes—you just provide the prompt templates and detector configuration.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Detector" icon="microscope" href="/concepts/evaluation-components/detector">
+    How probe responses are analyzed
+  </Card>
+  <Card title="Scenario" icon="folder" href="/concepts/evaluation-components/scenario">
+    How probes are grouped
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/owner-guide/evaluating-agents/understanding-results">
+    How to interpret probe-level failures
+  </Card>
+  <Card title="Custom Harnesses" icon="hammer" href="/owner-guide/evaluating-agents/custom-harnesses">
+    Adding your own probes
+  </Card>
+</CardGroup>

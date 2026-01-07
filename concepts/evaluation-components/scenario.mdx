@@ -1,0 +1,107 @@
+---
+title: "Scenario"
+description: "Groups of related probes that test for a specific attack vector or failure mode."
+---
+
+## What is a Scenario?
+
+A scenario is a collection of probes that share a common purpose—they test for the same type of vulnerability, failure mode, or behavior. While a harness defines what you want to measure overall, scenarios organize the specific ways you're testing for it.
+
+Consider the security harness. "Security" is a broad concept encompassing many attack vectors: prompt injection, jailbreaking, data extraction, denial of service. Each of these is a distinct scenario with its own set of probes. The prompt injection scenario contains prompts that embed instructions in user input. The jailbreak scenario contains prompts that use social engineering to bypass safety guidelines. Same harness, different attack vectors.
+
+Scenarios provide the middle layer between high-level harnesses and individual test cases. They're how you understand not just that your agent failed a security evaluation, but specifically that it's vulnerable to crescendo attacks while resistant to encoding-based injections.
+
+## Scenario Categories
+
+### Adversarial Scenarios
+
+Adversarial scenarios test resistance to intentional attacks:
+
+| Scenario | Attack Vector |
+|----------|---------------|
+| **Prompt Injection** | Instructions embedded in user input |
+| **Jailbreaking** | Social engineering to bypass safety |
+| **Crescendo Attack** | Gradual boundary erosion over multiple turns |
+| **Encoding Attacks** | Obfuscated instructions (base64, unicode, etc.) |
+| **Adversarial Suffix** | Appended strings that modify behavior |
+
+These scenarios contain probes crafted to exploit known vulnerabilities in language models. If your agent fails these scenarios, it's vulnerable to attacks that are actively being used in the wild.
+
+### Reliability Scenarios
+
+Reliability scenarios test accuracy and consistency under various conditions:
+
+| Scenario | What It Tests |
+|----------|---------------|
+| **Factual Accuracy** | Resistance to hallucination |
+| **Package Hallucination** | Code recommendations for non-existent libraries |
+| **Misleading Information** | Resistance to accepting false premises |
+| **Math Robustness** | Arithmetic under perturbation |
+| **Distributional Robustness** | Performance under input variations |
+
+These scenarios identify where your agent's outputs can't be trusted, even without adversarial intent.
+
+### Safety Scenarios
+
+Safety scenarios test for harmful or inappropriate outputs:
+
+| Scenario | What It Tests |
+|----------|---------------|
+| **CBRN** | Resistance to chemical/biological/radiological/nuclear content |
+| **Malware Generation** | Resistance to creating malicious code |
+| **Social Engineering** | Resistance to helping with manipulation tactics |
+| **Ethical Harms** | Absence of toxic, discriminatory, or harmful content |
+| **Policy Compliance** | Adherence to business ethics and conduct standards |
+
+These scenarios ensure your agent won't produce content that creates legal liability, reputational harm, or real-world danger.
+
+### Privacy Scenarios
+
+Privacy scenarios test for information leakage:
+
+| Scenario | What It Tests |
+|----------|---------------|
+| **User Privacy** | Protection of PII across sessions |
+| **Model Privacy** | Protection of system prompt and model details |
+| **Data Leakage** | Resistance to training data extraction |
+| **Copyrighted Content** | Resistance to reproducing protected material |
+
+These scenarios identify ways that sensitive information could escape your agent.
+
+## Scenarios vs. Harnesses
+
+The distinction between scenarios and harnesses is about purpose:
+
+- **Harnesses** answer: "What standard am I testing against?"
+- **Scenarios** answer: "What specific attack vector or failure mode?"
+
+A single scenario can appear in multiple harnesses. The prompt injection scenario appears in both the `security` harness (it's a security concern) and the `owasp_llm_top_10` harness (it's LLM01 in the OWASP list). The scenario contains the same probes in both contexts—what changes is how the results are framed.
+
+This composability is intentional. You don't need duplicate tests for prompt injection depending on whether you're doing a security review or OWASP compliance. You run the same probes; they just roll up to different reports.
+
+## Reading Scenario Results
+
+When you drill into scenario results, you see:
+
+- **Scenario score**: The pass rate across all probes in the scenario
+- **Probe breakdown**: Individual pass/fail results
+- **Failure analysis**: Common patterns in failed probes
+
+The scenario level is often where actionable insights emerge. A failing prompt injection scenario tells you to strengthen input validation. A failing hallucination scenario tells you to add fact-checking. The scenario groups failures in a way that points toward remediation.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Probe" icon="syringe" href="/concepts/evaluation-components/probe">
+    Individual test cases within scenarios
+  </Card>
+  <Card title="Harness" icon="box" href="/concepts/evaluation-components/harness">
+    How scenarios compose into evaluations
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/owner-guide/evaluating-agents/understanding-results">
+    How to interpret scenario-level findings
+  </Card>
+  <Card title="OWASP Harness" icon="shield-check" href="/owner-guide/evaluating-agents/harnesses/owasp">
+    See scenarios mapped to OWASP LLM Top 10
+  </Card>
+</CardGroup>

@@ -1,0 +1,113 @@
+---
+title: "Safety"
+description: "Measuring whether agents operate within acceptable boundaries and minimize harm when things go wrong."
+---
+
+## Trust with Consequences
+
+Reliability asks whether an agent does what it's supposed to do. Security asks whether it resists attempts to make it do something else. Safety asks a different question: even when the agent is functioning correctly, does it stay within acceptable boundaries?
+
+This is the trust we extend to institutions—not just that they're competent, but that they're accountable. A hospital isn't just medically capable; it operates within regulatory frameworks, maintains ethical standards, and provides transparency when things go wrong. We trust institutions because they have guardrails, oversight, and consequences for overstepping.
+
+AI agents are gaining institutional powers—making decisions, handling sensitive interactions, taking actions with real-world effects—without the institutional safeguards we've developed for human organizations. Safety measures whether those safeguards exist: does the agent stay in its lane, follow the rules, and remain transparent about its behavior?
+
+Vijil measures safety across three sub-dimensions: containment, compliance, and transparency.
+
+## Containment
+
+**Does the agent stay within its intended scope?**
+
+Containment measures whether an agent respects boundaries. A contained agent doesn't exceed its authorized capabilities, doesn't take actions outside its intended domain, and doesn't escalate its own permissions or influence.
+
+### Failure Modes
+
+**Scope creep** occurs when an agent gradually expands beyond its intended function. An agent designed to answer customer questions might start making commitments on behalf of the company. One designed to summarize documents might start offering advice. The expansion is often subtle—each individual step seems reasonable—but the cumulative effect is an agent operating far outside its design.
+
+**Capability escalation** happens when an agent acquires or exercises capabilities beyond what it was authorized to have. This is particularly relevant for agents with tool access: can they be manipulated into calling APIs they shouldn't, accessing files outside their sandbox, or chaining operations in ways that exceed their intended power?
+
+**Boundary violations** occur when an agent ignores explicit constraints on its behavior. An agent instructed to only discuss certain topics might be led into forbidden areas. One configured to never share certain information might leak it under the right prompting. These violations represent failures of the agent's ability to enforce its own rules.
+
+### What Vijil Tests
+
+Vijil evaluates containment through probes designed to push agents beyond their boundaries:
+
+| Test Category | What It Measures |
+|--------------|------------------|
+| **Role adherence** | Does the agent stay within its defined persona and scope? |
+| **Tool abuse resistance** | Can the agent be manipulated into unauthorized tool use? |
+| **Constraint enforcement** | Do explicit restrictions hold under adversarial pressure? |
+| **Escalation resistance** | Does the agent resist attempts to expand its capabilities? |
+
+## Compliance
+
+**Does the agent adhere to policies, regulations, and norms?**
+
+Compliance measures alignment with external standards. A compliant agent follows organizational policies, respects regulatory requirements, and adheres to cultural and ethical norms. It doesn't produce outputs that would create legal liability or reputational harm for its operators.
+
+### Failure Modes
+
+**Policy violations** occur when an agent's outputs conflict with organizational rules. An agent might make promises the company can't keep, share information that's confidential under company policy, or take positions on issues the organization considers off-limits. These violations create liability even when the agent is technically functioning correctly.
+
+**Regulatory non-compliance** happens when outputs violate legal or regulatory standards. Healthcare agents might give medical advice they're not licensed to provide. Financial agents might make recommendations that violate securities regulations. The agent doesn't need to know the regulations exist to violate them—and "the AI said it" isn't a legal defense.
+
+**Norm violations** are outputs that, while not illegal, violate social or professional standards. Profanity, bias, culturally insensitive content, or outputs that would be considered inappropriate in a professional context all fall into this category. These violations might not have legal consequences, but they have business consequences.
+
+### What Vijil Tests
+
+Vijil evaluates compliance through probes designed to elicit policy-violating outputs:
+
+| Test Category | What It Measures |
+|--------------|------------------|
+| **Business ethics** | Does the agent adhere to common codes of conduct? |
+| **Bias detection** | Does the agent show inappropriate demographic bias? |
+| **Content standards** | Does the agent avoid profanity and inappropriate content? |
+| **Regulatory alignment** | Does the agent respect domain-specific compliance requirements? |
+
+## Transparency
+
+**Does the agent provide visibility into its behavior?**
+
+Transparency measures whether an agent's operations are observable and explainable. A transparent agent doesn't hide its reasoning, provides clear explanations for its outputs, and enables oversight of its behavior. When something goes wrong, you can understand why.
+
+### Failure Modes
+
+**Opaque reasoning** occurs when an agent produces outputs without any insight into how it reached them. For consequential decisions—recommendations, assessments, actions—stakeholders often need to understand the reasoning, not just see the result. An agent that can't explain itself can't be audited.
+
+**Deceptive behavior** is a more severe transparency failure: the agent actively misleads users about what it's doing or why. This might be unintentional (the agent confabulates explanations) or emergent (the agent learns that certain framings get better responses). Either way, users can't trust what the agent says about itself.
+
+**Audit resistance** happens when an agent's behavior is difficult to observe, log, or review. This isn't about the agent hiding things—it's about whether the agent's integration allows for meaningful oversight. Can you see what prompts it received? What it returned? What tools it called? Without this visibility, you can't verify that the agent is behaving appropriately.
+
+### What Vijil Tests
+
+Vijil evaluates transparency through probes that examine explanation quality and behavioral observability:
+
+| Test Category | What It Measures |
+|--------------|------------------|
+| **Explanation quality** | Does the agent provide clear reasoning for its outputs? |
+| **Self-knowledge accuracy** | Does the agent accurately represent its own capabilities and limitations? |
+| **Uncertainty communication** | Does the agent appropriately signal when it's uncertain? |
+
+## Why Safety Matters
+
+Safety failures are about misalignment between agent behavior and human values, expectations, and rules. An agent can be perfectly reliable—always doing what it thinks it should—and perfectly secure—resisting all attacks—while still being unsafe if what it does causes harm, violates norms, or exceeds its mandate.
+
+The consequences of safety failures depend heavily on context. An agent that occasionally uses mild profanity might be acceptable for some applications and disqualifying for others. An agent that provides medical-sounding advice might be fine for general wellness content and dangerous for clinical settings. Safety isn't absolute—it's alignment with the specific requirements of your deployment.
+
+The safety dimension of the Trust Score measures this alignment. It tells you where your agent's behavior matches expectations, where it diverges, and what the implications are for your specific use case. Combined with reliability and security, it gives you a complete picture of whether this agent can be trusted to operate in your environment.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Reliability" icon="circle-check" href="/concepts/trust-score/reliability">
+    How agents perform under normal conditions
+  </Card>
+  <Card title="Security" icon="lock" href="/concepts/trust-score/security">
+    How agents resist adversarial attacks
+  </Card>
+  <Card title="Run an Evaluation" icon="play" href="/owner-guide/getting-started/first-evaluation">
+    Test your agent's safety
+  </Card>
+  <Card title="Configure Policies" icon="file-contract" href="/owner-guide/compliance/policy-management">
+    Define safety policies for your agents
+  </Card>
+</CardGroup>
