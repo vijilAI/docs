@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420">
+  <defs>
+    <!-- Pencil sketch filter -->
+    <filter id="pencil" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+    <!-- Arrow marker -->
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+    </marker>
+  </defs>
+
+  <!-- 1. Agent developer improves agent trustworthiness (green oval, left) -->
+  <g filter="url(#pencil)">
+    <ellipse cx="100" cy="200" rx="80" ry="55" fill="#bbf7d0" stroke="#22c55e" stroke-width="2"/>
+    <text x="100" y="190" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#166534" font-weight="500">Agent developer</text>
+    <text x="100" y="206" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#166534" font-weight="500">improves agent</text>
+    <text x="100" y="222" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#166534" font-weight="500">trustworthiness</text>
+  </g>
+
+  <!-- Line from oval right edge, splitting to two boxes -->
+  <path d="M 180 200 L 230 200" stroke="#6b7280" stroke-width="1.5" fill="none" filter="url(#pencil)"/>
+  <path d="M 230 200 L 230 100 L 290 100" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrow)" filter="url(#pencil)"/>
+  <path d="M 230 200 L 230 300 L 290 300" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrow)" filter="url(#pencil)"/>
+
+  <!-- 2. Risk officer verifies security and safety (blue rounded rect, top) -->
+  <g filter="url(#pencil)">
+    <rect x="300" y="50" width="180" height="100" rx="12" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+    <text x="390" y="85" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#1e40af" font-weight="500">Risk officer verifies</text>
+    <text x="390" y="103" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#1e40af" font-weight="500">security and safety</text>
+    <text x="390" y="121" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e40af">(based on org policies)</text>
+  </g>
+
+  <!-- 3. Business owner verifies reliability (blue rounded rect, bottom) -->
+  <g filter="url(#pencil)">
+    <rect x="300" y="250" width="180" height="100" rx="12" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+    <text x="390" y="285" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#1e40af" font-weight="500">Business owner verifies</text>
+    <text x="390" y="303" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#1e40af" font-weight="500">reliability</text>
+    <text x="390" y="321" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e40af">(based on user personas)</text>
+  </g>
+
+  <!-- Lines from boxes right edges merging to diamond left vertex -->
+  <path d="M 480 100 L 530 100 L 530 200" stroke="#6b7280" stroke-width="1.5" fill="none" filter="url(#pencil)"/>
+  <path d="M 480 300 L 530 300 L 530 200 L 570 200" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrow)" filter="url(#pencil)"/>
+
+  <!-- 4. Agent passes evaluation (blue diamond, center-right) -->
+  <g filter="url(#pencil)">
+    <polygon points="580,200 640,140 700,200 640,260" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+    <text x="640" y="195" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#1e40af" font-weight="500">Agent passes</text>
+    <text x="640" y="212" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#1e40af" font-weight="500">evaluation</text>
+  </g>
+
+  <!-- Yes arrow from diamond right vertex to deployed oval left edge -->
+  <path d="M 700 200 L 765 200" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrow)" filter="url(#pencil)"/>
+  <text x="730" y="190" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#6b7280" filter="url(#pencil)">Yes</text>
+
+  <!-- 5. Agent deployed with observability (green oval, right) -->
+  <g filter="url(#pencil)">
+    <ellipse cx="830" cy="200" rx="65" ry="45" fill="#bbf7d0" stroke="#22c55e" stroke-width="2"/>
+    <text x="830" y="193" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#166534" font-weight="500">Agent deployed</text>
+    <text x="830" y="210" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#166534" font-weight="500">with observability</text>
+  </g>
+
+  <!-- No arrow from diamond bottom vertex looping back to start oval bottom -->
+  <path d="M 640 260 L 640 380 L 100 380 L 100 255" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#arrow)" filter="url(#pencil)"/>
+  <text x="400" y="398" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#6b7280" filter="url(#pencil)">No</text>
+
+  <!-- Loop back from end state (deployed) top to start state top -->
+  <path d="M 830 155 L 830 30 L 100 30 L 100 145" stroke="#6b7280" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow)" filter="url(#pencil)"/>
+  <text x="465" y="20" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#6b7280" filter="url(#pencil)">Continuous improvement</text>
+</svg>

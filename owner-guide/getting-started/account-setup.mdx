@@ -1,0 +1,129 @@
+---
+title: 'Configuring Workspace'
+description: 'Create your account, set up your team, and connect your model provider keys.'
+---
+
+## Before You Begin
+
+Vijil requires two things to evaluate your agents:
+
+1. **An account** — Where your agents, evaluations, and results live
+2. **Model provider keys** — Credentials for the LLM providers your agents use (OpenAI, Anthropic, etc.)
+
+If your organization uses SSO, your administrator may have already provisioned your account. Check with your team before creating a new one.
+
+## Creating Your Account
+
+Navigate to [evaluate.vijil.ai](https://evaluate.vijil.ai) and sign up with your work email or Google account.
+
+<Frame>
+  <img src="/images/workspace-signup.png" alt="Vijil signup form" />
+</Frame>
+
+After submitting, you'll receive a verification email. Click the link to activate your account.
+
+<Note>
+Using a `+` alias (like `you+vijil@company.com`) can help you filter Vijil notifications in your inbox.
+</Note>
+
+## The Console
+
+Once verified, you'll land on the dashboard. The left sidebar organizes the console into functional areas:
+
+<Frame>
+  <img src="/images/workspace-dashboard.png" alt="Vijil dashboard with Getting Started wizard" />
+</Frame>
+
+| Section | Purpose |
+|---------|---------|
+| **Dashboard** | Overview and Getting Started wizard |
+| **Agents** | Register agents you want to evaluate |
+| **Harnesses** | Configure test scenarios |
+| **Evaluations** | Run and monitor evaluations |
+| **Playground** | Interactive testing environment |
+| **Keys** | Model provider API keys |
+
+The **Getting Started** wizard walks you through the critical path: register an agent, create a harness, run an evaluation, and configure protection. Each step unlocks the next.
+
+## Adding Model Provider Keys
+
+Vijil needs API keys to communicate with the LLMs powering your agents. These keys are stored encrypted and never logged.
+
+1. Click **Keys** in the sidebar
+2. Click **Add new key**
+3. Select the model hub (OpenAI, Anthropic, Together, etc.)
+4. Enter a name and your API key
+5. Set the requests-per-minute limit to match your provider's rate limits
+
+<Frame>
+  <img src="/images/workspace-add-key.png" alt="Add Model Hub Key modal" />
+</Frame>
+
+<Warning>
+Vijil stores your keys in the cloud provider's key management system. However, you should still use dedicated API keys for Vijil rather than sharing keys across services. This makes rotation and access auditing cleaner.
+</Warning>
+
+### Supported Model Providers
+
+| Provider | Hub Name | Notes |
+|----------|----------|-------|
+| OpenAI | OpenAI | GPT-4, GPT-4o, o1, o3 |
+| Anthropic | Anthropic | Claude 3, Claude 4 |
+| Google | GCP | Gemini via Vertex AI |
+| AWS | Bedrock | Claude, Titan, Llama via Bedrock |
+| Meta | Together | Llama 4 via Together AI |
+| Mistral | Mistral | Mistral, Magistral |
+
+## Setting Up Your Team
+
+For collaboration, create a team workspace. Team members can share agents, run evaluations, and view reports based on their role.
+
+1. Click **Team** in the sidebar
+2. Click **Create Your Team**
+3. Enter a team name and description
+
+<Frame>
+  <img src="/images/workspace-create-team.png" alt="Create team modal" />
+</Frame>
+
+### Inviting Members
+
+After creating a team:
+
+1. Go to **Team** settings
+2. Click **Invite Member**
+3. Enter their email address
+4. Assign a role
+
+| Role | Capabilities |
+|------|--------------|
+| **Owner** | Full access including billing and team management |
+| **Admin** | Full access except billing |
+| **Member** | Run evaluations and view results |
+| **Viewer** | View results only |
+
+Invited members receive an email with instructions to join your workspace.
+
+## Enterprise SSO
+
+For organizations using identity providers, Vijil supports:
+
+- SAML 2.0
+- OIDC
+- Azure AD
+- Okta
+
+SSO configuration is managed through [Enterprise Deployment](/owner-guide/getting-started/enterprise-deployment). Contact your administrator or [sales@vijil.ai](mailto:sales@vijil.ai) to enable SSO for your organization.
+
+## Next Steps
+
+Your workspace is configured. Continue to:
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="play" href="/owner-guide/getting-started/quick-start">
+    Run your first evaluation end-to-end
+  </Card>
+  <Card title="Register an Agent" icon="robot" href="/owner-guide/register-agents/registering-agents">
+    Add your AI agent to Vijil
+  </Card>
+</CardGroup>

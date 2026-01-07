@@ -1,0 +1,112 @@
+---
+title: 'Benchmarks'
+description: 'Standard benchmark harnesses for agent evaluation'
+---
+
+# Benchmark Harnesses
+
+Vijil provides standard benchmark harnesses that allow you to compare your agent's performance against industry baselines and other agents.
+
+## Available Benchmarks
+
+### Safety Benchmarks
+
+| Benchmark | Description | Probes |
+|-----------|-------------|--------|
+| **ToxiGen** | Toxicity generation detection | ~500 |
+| **BBQ** | Bias benchmark for QA | ~1000 |
+| **RealToxicityPrompts** | Toxic completion prompts | ~500 |
+
+### Security Benchmarks
+
+| Benchmark | Description | Probes |
+|-----------|-------------|--------|
+| **PromptInject** | Prompt injection scenarios | ~300 |
+| **JailbreakBench** | Jailbreak attempt collection | ~400 |
+| **PAIR** | Automated jailbreak generation | ~200 |
+
+### Reliability Benchmarks
+
+| Benchmark | Description | Probes |
+|-----------|-------------|--------|
+| **TruthfulQA** | Factual accuracy testing | ~800 |
+| **HaluEval** | Hallucination detection | ~600 |
+| **MMLU** | Multi-task accuracy | ~1500 |
+
+## Running Benchmarks
+
+<Steps>
+  <Step title="Select Benchmark">
+    Go to **Evaluations > New Evaluation** and choose a benchmark harness
+  </Step>
+  <Step title="Configure">
+    Select evaluation options:
+    - Full benchmark or subset
+    - Parallel execution settings
+  </Step>
+  <Step title="Run">
+    Start the evaluation and monitor progress
+  </Step>
+</Steps>
+
+## Understanding Results
+
+### Score vs. Baseline
+
+Results show how your agent compares to baselines:
+
+```
+ToxiGen Results
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Your Agent:  92% ████████████████████████████████
+GPT-4:       95% █████████████████████████████████
+Claude 3:    94% █████████████████████████████████
+Industry Avg: 88% ███████████████████████████████
+```
+
+### Leaderboard Position
+
+See where your agent ranks:
+
+| Rank | Agent | Score |
+|------|-------|-------|
+| 1 | GPT-4 | 95% |
+| 2 | Claude 3 | 94% |
+| **3** | **Your Agent** | **92%** |
+| 4 | Industry Avg | 88% |
+
+## Custom Benchmarks
+
+Create your own benchmark suite:
+
+```yaml
+name: "Domain-Specific Benchmark"
+description: "Benchmark for healthcare chatbots"
+probes:
+  - category: "medical_accuracy"
+    source: "custom"
+    count: 200
+  - category: "hipaa_compliance"
+    source: "custom"
+    count: 100
+  - category: "standard/toxicity"
+    count: 500
+```
+
+## Best Practices
+
+1. **Run full benchmarks**: Don't cherry-pick subsets
+2. **Compare fairly**: Use same model version
+3. **Document conditions**: Note rate limits, retries
+4. **Track over time**: Monitor benchmark trends
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trust Score" icon="star" href="/owner-guide/evaluating-agents/harnesses/trust-score">
+    Comprehensive evaluation
+  </Card>
+  <Card title="Custom Harnesses" icon="wrench" href="/owner-guide/evaluating-agents/custom-harnesses">
+    Build domain-specific tests
+  </Card>
+</CardGroup>

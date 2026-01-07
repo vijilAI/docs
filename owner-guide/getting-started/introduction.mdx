@@ -1,0 +1,121 @@
+---
+title: 'Shipping with Trust'
+description: 'Objective evidence for agent deployment decisions—whether you need to ship fast or approve safely.'
+---
+
+## Evidence of Trustworthiness
+
+AI agents stall between development and production. Security wants proof the agent won't leak data. Compliance wants proof it follows policy. The business wants proof it actually works. Without objective evidence, these conversations become negotiations based on intuition, and agents sit in pilot programs indefinitely.
+
+This guide shows you how to generate that evidence. You'll learn to evaluate agents against specific failure modes, quantify risk in terms stakeholders understand, and make deployment decisions backed by data.
+
+<Info>
+If you're a developer integrating Vijil into your codebase, see the [Developer Guide](/developer-guide/getting-started/introduction). This guide focuses on evaluation workflows through the Vijil console.
+</Info>
+
+## Two Stakeholders, One Decision
+
+Agent deployment requires sign-off from people with different priorities. This guide serves both:
+
+<CardGroup cols={2}>
+  <Card title="Business Owner" icon="rocket">
+    **Your goal:** Deploy an agent that delivers business value.
+
+    You're accountable for an agent that will serve customers, generate content, or automate workflows. You need it in production—but you need evidence that justifies that decision.
+
+    **What you get from Vijil:**
+    - Fast evaluation cycles that don't block releases
+    - Clear pass/fail criteria you can plan against
+    - Evidence that satisfies reviewers without over-testing
+
+    **Key Tasks:**
+    - <Icon icon="square-check" /> [Run Evaluations](/owner-guide/evaluating-agents/running-evaluations) — Test efficiently
+    - <Icon icon="square-check" /> [Understand Results](/owner-guide/evaluating-agents/understanding-results) — Know when you're ready
+    - <Icon icon="square-check" /> [Deliver Trust Reports](/owner-guide/evaluating-agents/trust-reports) — Evidence for stakeholders
+  </Card>
+  <Card title="Risk Officer" icon="shield">
+    **Your goal:** Approve agents with quantified, acceptable risk.
+
+    You're accountable for security, privacy, and compliance. You need to authorize deployment—but you need evidence that the risk is understood and mitigated.
+
+    **What you get from Vijil:**
+    - Quantified risk across security, safety, and reliability
+    - Audit-ready evidence with versioned reports
+    - Compensating controls when residual risk remains
+
+    **Key Tasks:**
+    - <Icon icon="square-check" /> [Set Policies](/owner-guide/compliance/policy-management) — Testable requirements
+    - <Icon icon="square-check" /> [Review Trust Reports](/owner-guide/evaluating-agents/trust-reports) — Defensible audit artifacts
+    - <Icon icon="square-check" /> [Audit Agent Behavior](/owner-guide/protecting-agents/monitoring) — Continuous risk visibility
+  </Card>
+</CardGroup>
+
+## Balance Speed and Risk with Vijil
+
+These roles have competing pressures:
+
+| Business Owner | Risk Officer |
+|----------------|--------------|
+| Measured on delivery speed | Measured on risk prevention |
+| Asks: "Is this agent ready to ship?" | Asks: "Can I prove this agent is safe?" |
+| Frustrated by review delays | Frustrated by pressure to approve without evidence |
+
+**Vijil resolves this tension with shared evidence.** The [Trust Score](/concepts/trust-score/introduction) provides an objective metric both parties can reference. Before testing, you agree on the threshold. After testing, you compare results to that threshold. The decision becomes mechanical rather than political.
+
+This works because evaluation results are:
+- **Quantified** — A score, not an opinion
+- **Reproducible** — Same agent, same [harness](/concepts/evaluation-components/harness), comparable results
+- **Auditable** — Timestamped reports with full test parameters
+
+When Business Owners and Risk Officers align on criteria upfront, deployment decisions stop being negotiations.
+
+### What Vijil Measures
+
+Agents fail in ways that don't look like bugs. They hallucinate facts, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Vijil evaluates agents across three dimensions that capture these failure modes:
+
+| Dimension | What It Measures | Example Failures |
+|-----------|------------------|------------------|
+| **Reliability** | Does the agent do what it's supposed to do? | Hallucinations, task failures, inconsistent responses |
+| **Security** | Can the agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
+| **Safety** | Does the agent stay within acceptable boundaries? | [Policy](/concepts/glossary#policy-1) violations, harmful content, unauthorized actions |
+
+Each evaluation produces a **Trust Score**—a quantitative measure of where the agent is strong, where it's vulnerable, and how it compares to alternatives.
+
+<Note>
+For detailed breakdowns of each dimension, see [The Trust Score](/concepts/trust-score/introduction) in the Concepts guide.
+</Note>
+
+## Get to the baseline in 5 minutes
+
+Get to your first Trust Score in five steps:
+
+<Steps>
+  <Step title="Create your account">
+    Sign up at [console.vijil.ai](https://console.vijil.ai) and set up your workspace.
+  </Step>
+  <Step title="Register your agent and its environment">
+    Add your agent by providing as little information as only it's URL and description or as much information as its source code. Vijil uses the behavior and composition of the agent to test and defend it.
+  </Step>
+  <Step title="Select a harness">
+    Select the **Trust Score** harness for comprehensive testing, or build your own harness with your user personas and org policies.
+  </Step>
+  <Step title="Run an evaluation">
+    Execute the harness against your agent. Diamond runs hundreds of probes and returns a Trust Score in minutes.
+  </Step>
+  <Step title="Review your Trust Report">
+    Examine where your agent passed and failed. Each finding includes the failure mode, severity, and remediation guidance.
+  </Step>
+</Steps>
+
+Once you have these baseline evaluation results, you can [configure Dome guardrails](/owner-guide/protect-in-production/configuring-guardrails) for runtime protection and [set up observability](/owner-guide/protect-in-production/observability) for continuous visibility.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Account Setup" icon="user-plus" href="/owner-guide/getting-started/account-setup">
+    Configure your workspace and team permissions
+  </Card>
+  <Card title="First Evaluation" icon="play" href="/owner-guide/getting-started/first-evaluation">
+    Run your first evaluation and interpret the results
+  </Card>
+</CardGroup>

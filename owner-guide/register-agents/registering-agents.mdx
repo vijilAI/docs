@@ -1,0 +1,182 @@
+---
+title: 'Registering Agents'
+description: 'Add your AI agents to Vijil for evaluation and protection.'
+---
+
+Before Vijil can evaluate or protect an agent, you need to register it. Registration tells Vijil how to communicate with your agent and how much visibility you're granting for analysis.
+
+## The Agent Registry
+
+Navigate to **Agents** in the sidebar to open the Agent Registry.
+
+<Frame>
+  <img src="/images/agent-registry.png" alt="Agent Registry showing registered agents with status, access level, and Trust Score" />
+</Frame>
+
+The registry displays all agents in your workspace with key information:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Agent Name** | Identifier you assigned during registration |
+| **Owner** | Team member who registered the agent |
+| **Status** | Draft, Active, Under Review, or Archived |
+| **Access Level** | Black Box, Grey Box, or White Box |
+| **Last Evaluated** | When Diamond last ran an evaluation |
+| **Trust Score** | Current score from most recent evaluation |
+
+## Access Levels
+
+Vijil supports three access levels, each enabling progressively deeper evaluation. The access level you choose determines what Vijil can analyze and what vulnerabilities it can detect.
+
+
+| Access Level | What You Provide | What Vijil Can Test |
+|--------------|------------------|---------------------|
+| **Black Box** | API endpoint and credentials | Input/output behavior only |
+| **Grey Box** | Model config, MCP config, A2A config | Vulnerabilities traced to agent composition |
+| **White Box** | Full configuration and source code | SAST and DAST analysis for thorough audit |
+
+### Black Box
+
+Black Box registration requires minimal information—your agent's API endpoint and authentication. Vijil treats the agent as an opaque system, testing only its observable behavior.
+
+This approach works well for:
+- Third-party agents you don't control
+- Initial evaluations before deeper analysis
+- Agents where you want to test the API contract
+
+<Frame>
+  <img src="/images/register-agent-blackbox.png" alt="Register Agent modal showing Black Box configuration" />
+</Frame>
+
+**Required fields:**
+- **Agent Name** — A descriptive identifier
+- **Status** — Start with Draft for initial setup
+- **Agent URL** — Where your agent accepts requests
+- **API Key** — Authentication credentials (you can add multiple keys)
+- **Rate Limit Per Minute** — Matches your provider's limits to avoid throttling
+
+### Grey Box
+
+Grey Box expands visibility into your agent's composition. This enables Vijil to trace vulnerabilities to specific components—whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated agent behavior.
+
+<Frame>
+  <img src="/images/register-agent-greybox.png" alt="Grey Box configuration showing model and external resource settings" />
+</Frame>
+
+**Additional fields:**
+
+| Section | Fields | Purpose |
+|---------|--------|---------|
+| **Role & Instructions** | Role, System Prompt | Helps Vijil understand expected behavior |
+| **Model Configuration** | Hub, Model Name, Parameters | Identifies model-specific vulnerabilities |
+| **External Resources** | MCP Proxy/Server, Access Level | Tests tool-use attack surfaces |
+| **Delegated Agents** | A2A Card URLs | Evaluates multi-agent orchestration risks |
+
+The **Hub** dropdown supports major providers:
+
+| Hub | Models |
+|-----|--------|
+| OpenAI | GPT-4, GPT-4o, o1, o3 |
+| Anthropic | Claude 3, Claude 4 |
+| GCP | Gemini via Vertex AI |
+| Bedrock | Claude, Titan, Llama via AWS |
+| Groq | Llama, Mixtral via Groq |
+| Together | Llama 4 via Together AI |
+| Mistral | Mistral, Magistral |
+| Custom | Any OpenAI-compatible API |
+
+<Tip>
+If your agent uses MCP tools or delegates to sub-agents, Grey Box registration enables Vijil to test the full execution graph—not just the top-level API.
+</Tip>
+
+### White Box
+
+White Box provides full source code access for static analysis (SAST) combined with dynamic testing (DAST). This is the most thorough evaluation path.
+
+<Frame>
+  <img src="/images/register-agent-whitebox.png" alt="White Box configuration showing source code and GitHub repository settings" />
+</Frame>
+
+**Additional fields:**
+- **Source Code** — Paste code directly, or leave empty to pull from repository
+- **GitHub Repository** — URL, username, and access token for private repos
+
+White Box evaluation can identify vulnerabilities that Black Box testing would miss—hardcoded secrets, unsafe deserialization, SQL injection in tool implementations, and similar code-level issues.
+
+## Registering an Agent
+
+1. Click **+ Register Agent** to open the registration modal
+2. Choose **Manual** for direct entry or **Import** to load from a file
+3. Fill in the Black Box fields (required for all agents)
+4. Expand **Grey Box** if you want compositional analysis
+5. Expand **White Box** if you want source code analysis
+6. Click **Register Agent**
+
+Your agent appears in the registry with status **Draft**. Change to **Active** when ready for evaluation.
+
+## Managing Agents
+
+Click the **More Actions** menu (three dots) on any agent row to access management options.
+
+<Frame>
+  <img src="/images/agent-actions-menu.png" alt="Agent actions menu showing Edit, Clone, Export JSON, Archive, and Delete options" />
+</Frame>
+
+| Action | What It Does |
+|--------|--------------|
+| **Edit** | Modify agent configuration |
+| **Clone** | Create a copy with a new name |
+| **Export JSON** | Download configuration for backup or migration |
+| **Archive** | Remove from active list while preserving history |
+| **Delete** | Permanently remove agent and all associated data |
+
+### Editing an Agent
+
+Select **Edit** to open the agent configuration modal with current values populated.
+
+<Frame>
+  <img src="/images/edit-agent-modal.png" alt="Edit Agent modal showing populated configuration fields" />
+</Frame>
+
+Make your changes and click **Save Changes**.
+
+<Warning>
+Changing an agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
+</Warning>
+
+## Agent Status
+
+Agents progress through lifecycle states:
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | Configuration in progress, not ready for evaluation |
+| **Active** | Ready for evaluation and protection |
+| **Under Review** | Currently being evaluated |
+| **Archived** | Preserved for reference but inactive |
+
+Set status to **Active** before running evaluations or configuring Dome protection.
+
+## Integration Guides
+
+For provider-specific configuration details, see the [Cloud Providers guide](/developer-guide/evaluate/cloud-providers) in the Developer Guide.
+
+<CardGroup cols={2}>
+  <Card title="Cloud Providers" icon="cloud" href="/developer-guide/evaluate/cloud-providers">
+    OpenAI, Anthropic, Bedrock, Vertex, and more
+  </Card>
+  <Card title="Custom Agents" icon="code" href="/developer-guide/frameworks/custom-agents">
+    OpenAI-compatible and custom endpoints
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Run an Evaluation" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Test your registered agent with Diamond
+  </Card>
+  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Protect your agent with Dome
+  </Card>
+</CardGroup>

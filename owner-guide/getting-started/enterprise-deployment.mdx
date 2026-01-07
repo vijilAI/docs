@@ -1,0 +1,141 @@
+---
+title: 'Deploying Vijil'
+description: 'Choose the right deployment model for your security, compliance, and operational requirements.'
+---
+
+## Deployment Models
+
+Vijil offers three deployment options. Your choice depends on where your agents run, where your data must stay, and how much infrastructure control you need.
+
+| Model | Where Vijil Runs | Best For |
+|-------|------------------|----------|
+| **SaaS** | Vijil cloud | Teams that want to start immediately without infrastructure overhead |
+| **VPC** | Your cloud, Vijil-managed | Organizations with data residency requirements but limited ops capacity |
+| **Self-Hosted** | Your infrastructure, self-managed | Enterprises requiring full control, air-gapped environments, or custom integrations |
+
+<Note>
+All deployment models provide the same evaluation and protection capabilities. The difference is where data flows and who manages the infrastructure.
+</Note>
+
+## Choosing a Model
+
+### SaaS
+
+The fastest path to production. Your agents connect to Vijil's cloud endpoints. Evaluation probes and responses transit through Vijil infrastructure.
+
+**Choose SaaS if:**
+- You can send agent traffic to external endpoints
+- You don't have strict data residency requirements
+- You want Vijil to handle scaling, updates, and availability
+
+**Get started:** [Create your account](https://console.vijil.ai) and proceed to [Account Setup](/owner-guide/getting-started/account-setup).
+
+---
+
+### VPC Deployment
+
+Vijil endpoints run inside your cloud environment, but Vijil manages them. Agent traffic stays within your network boundary. You maintain data residency while Vijil handles operations.
+
+**Choose VPC if:**
+- Regulations require data to stay within your cloud region
+- Security policy prohibits sending agent traffic to third-party endpoints
+- You want managed infrastructure without self-hosting complexity
+
+**Requirements:**
+- AWS, GCP, or Azure account with VPC/VNet
+- Ability to establish VPC peering or PrivateLink
+- DNS control for private endpoint resolution
+
+**Get started:** Contact [sales@vijil.ai](mailto:sales@vijil.ai) to configure VPC deployment for your environment.
+
+---
+
+### Self-Hosted
+
+You deploy and manage Vijil on your own infrastructure. Full control over the entire stack—compute, storage, networking, and updates.
+
+**Choose Self-Hosted if:**
+- You operate in air-gapped or highly restricted environments
+- Compliance requires you to control all infrastructure components
+- You need custom integrations with internal systems
+
+**Requirements:**
+
+| Component | Minimum Specification |
+|-----------|----------------------|
+| Kubernetes | 1.25+ |
+| PostgreSQL | 14+ |
+| Redis | 7+ |
+| Object Storage | S3-compatible |
+
+**Get started:** See the [Self-Hosted Installation Guide](/developer-guide/enterprise/self-hosted) for technical deployment steps.
+
+## Integrations
+
+Vijil connects to your existing stack across model providers, cloud infrastructure, observability, identity, and compliance platforms.
+
+<img src="/images/integrations-ecosystem.png" alt="Vijil integrations ecosystem" style={{maxWidth: '100%', margin: '1.5rem auto', display: 'block', filter: 'grayscale(100%)'}} />
+
+| Category | Integrations | Details |
+|----------|--------------|---------|
+| **Model Providers** | OpenAI, Anthropic, AWS Bedrock, Google Vertex, Azure OpenAI | [Registering Agents](/owner-guide/register-agents/registering-agents) |
+| **Cloud Infrastructure** | AWS, GCP, Azure | Deployment models above |
+| **Identity Providers** | Okta, Azure AD, SAML 2.0, OIDC | SSO configuration below |
+| **Observability** | Datadog, Dynatrace, Arize | [Observability](/owner-guide/protect-in-production/observability) |
+
+## Enterprise Capabilities
+
+All enterprise deployments include:
+
+### SSO Integration
+
+Integrate with your identity provider:
+- SAML 2.0
+- OIDC
+- Azure AD
+- Okta
+
+### Role-Based Access Control
+
+Control who can do what:
+
+| Role | Capabilities |
+|------|--------------|
+| **Admin** | Manage users, agents, evaluations, and Dome configuration |
+| **Analyst** | Run evaluations and view reports |
+| **Viewer** | View reports only |
+
+Custom roles available for self-hosted deployments.
+
+### Audit Logging
+
+Every action is logged for compliance:
+- User authentication and authorization events
+- Agent registration and configuration changes
+- Evaluation runs and results access
+- Dome guardrail triggers and policy changes
+- API calls with request/response metadata
+
+Logs can be exported to your SIEM or log aggregation platform.
+
+## Compliance Certifications
+
+| Certification | Status |
+|---------------|--------|
+| SOC 2 Type II | Available |
+| HIPAA | Available (BAA required) |
+| GDPR | Available |
+| FedRAMP | In progress |
+
+Contact [sales@vijil.ai](mailto:sales@vijil.ai) for compliance documentation or to request a security questionnaire.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Account Setup" icon="user-plus" href="/owner-guide/getting-started/account-setup">
+    Configure your workspace (SaaS)
+  </Card>
+  <Card title="Self-Hosted Guide" icon="server" href="/developer-guide/enterprise/self-hosted">
+    Technical deployment steps
+  </Card>
+</CardGroup>

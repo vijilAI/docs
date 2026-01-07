@@ -1,0 +1,151 @@
+---
+title: 'Evaluate & Protect a Chatbot'
+description: 'End-to-end tutorial for evaluating and protecting a customer support chatbot'
+---
+
+# Evaluate & Protect a Chatbot
+
+This tutorial walks through the complete workflow of evaluating and protecting a customer support chatbot using Vijil.
+
+## Overview
+
+You'll learn to:
+1. Register a chatbot agent
+2. Run a Trust Score evaluation
+3. Analyze the results
+4. Set up Dome protection
+5. Monitor in production
+
+**Time**: ~30 minutes
+
+## Prerequisites
+
+- Vijil account
+- A chatbot (or use our demo agent)
+- API key for your chatbot
+
+## Part 1: Register Your Agent
+
+<Steps>
+  <Step title="Add Agent">
+    Navigate to **Agents > Add Agent**
+
+    ```yaml
+    Name: Customer Support Bot
+    Provider: OpenAI
+    Model: gpt-4o
+    System Prompt: |
+      You are a helpful customer support agent for Acme Corp.
+      Help customers with product questions, orders, and returns.
+      Never share internal information or customer data.
+    ```
+  </Step>
+  <Step title="Add API Key">
+    Enter your OpenAI API key securely
+  </Step>
+  <Step title="Save">
+    Click **Create Agent**
+  </Step>
+</Steps>
+
+## Part 2: Run Evaluation
+
+<Steps>
+  <Step title="Start Evaluation">
+    Go to **Evaluations > New Evaluation**
+
+    - Select your chatbot
+    - Choose **Trust Score** harness
+    - Click **Start**
+  </Step>
+  <Step title="Wait for Results">
+    Evaluation takes ~30-40 minutes
+
+    Monitor progress in real-time
+  </Step>
+</Steps>
+
+## Part 3: Analyze Results
+
+### Review Trust Score
+
+```
+Trust Score: 78/100
+═══════════════════════════════════════
+Reliability: 85 ████████████████████████░░░░
+Safety:      82 █████████████████████████░░░
+Security:    67 ██████████████████████░░░░░░
+```
+
+### Identify Issues
+
+Common findings for chatbots:
+
+| Issue | Severity | Finding |
+|-------|----------|---------|
+| Prompt injection | High | Bot followed injected instructions |
+| PII disclosure | Medium | Bot revealed customer emails |
+| Topic drift | Low | Bot discussed unrelated topics |
+
+## Part 4: Set Up Protection
+
+Based on findings, configure Dome:
+
+<Steps>
+  <Step title="Create Config">
+    Go to **Dome > New Configuration**
+
+    Name: "Support Bot Production"
+  </Step>
+  <Step title="Enable Guards">
+    Enable based on evaluation findings:
+
+    ```yaml
+    guards:
+      prompt_injection:
+        enabled: true
+        action: block
+      pii:
+        enabled: true
+        action: redact
+      topic_restriction:
+        enabled: true
+        allowed_topics: ["products", "orders", "returns"]
+    ```
+  </Step>
+  <Step title="Test">
+    Test with sample prompts before deploying
+  </Step>
+  <Step title="Deploy">
+    Activate the configuration
+  </Step>
+</Steps>
+
+## Part 5: Monitor
+
+Set up monitoring:
+
+1. **Alerts**: Critical detections → Email notification
+2. **Dashboard**: Daily detection summary
+3. **Reports**: Weekly compliance report
+
+## Results
+
+After implementation:
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Trust Score | 78 | 92 |
+| Prompt injection blocked | 0% | 100% |
+| PII protected | 0% | 100% |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="OWASP Testing" icon="shield" href="/owner-guide/tutorials/owasp-compliance">
+    Deep security evaluation
+  </Card>
+  <Card title="RAG Evaluation" icon="database" href="/owner-guide/tutorials/rag-evaluation">
+    Test RAG pipelines
+  </Card>
+</CardGroup>

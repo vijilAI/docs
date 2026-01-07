@@ -1,0 +1,263 @@
+---
+title: 'Quick Start'
+description: 'Register an agent, run an evaluation, and configure protection.'
+---
+
+## What You'll Accomplish
+
+This guide walks you through the core Vijil workflow:
+
+1. **Register** your agent in the Agent Registry
+2. **Register** your target environment with personas and policies
+2. **Create** a custom harness with generated test cases
+3. **Evaluate** your agent 
+4. **Review** the results and Trust Score
+5. **Defend** it with Dome guardrails
+6. **Observe** agent security and safety in production
+
+By the end, you'll have a Trust Score for your agent and a trusted agent ready for production.
+
+## Step 1: Register Your Agent
+
+Navigate to **Agents** in the sidebar to open the Agent Registry.
+
+<Frame>
+  <img src="/images/quickstart-agent-registry.png" alt="Agent Registry showing registered agents with status and Trust Score" />
+</Frame>
+
+Click **+ Register Agent** to open the registration modal.
+
+<Frame>
+  <img src="/images/quickstart-register-agent-new.png" alt="Register Agent modal with Black Box, Grey Box, and White Box options" />
+</Frame>
+
+Vijil supports three access levels, each enabling progressively deeper evaluation:
+
+| Access Level | What You Provide | What Vijil Can Test |
+|--------------|------------------|---------------------|
+| **Black Box** | Description, API endpoint, credentials | Input/output behavior only |
+| **Grey Box** | Model config, MCP config, A2A config | Vulnerabilities traced to agent composition |
+| **White Box** | Full configuration and source code | SAST and DAST analysis for thorough audit |
+
+For most agents, start with **Black Box**:
+
+1. Enter a **Name** for your agent
+2. Add your **Agent Description**
+3. Set **Status** to Draft for evaluation
+4. Provide the **Agent URL** (where it's running)
+5. Add your **Access Key** and set the **Rate Limit**
+6. Click **Register Agent**
+
+<Tip>
+If your agent delegates to sub-agents or uses MCP tools, expand **Grey Box** to register those connections. This enables Vijil to test the full execution graph.
+</Tip>
+
+## Step 2: Create a Custom Harness
+
+While the Trust Score harness provides a comprehensive baseline evaluation, custom harnesses let you test your agent against specific personas and organizational policies.
+
+Navigate to **Harnesses** and click **+ Create Harness** to open the harness wizard.
+
+<Frame>
+  <img src="/images/quickstart-create-harness-new.png" alt="Create Harness wizard showing the four-step configuration flow" />
+</Frame>
+
+The wizard walks you through four steps:
+
+1. **Basic Info** — Name and describe your harness
+2. **Select Agent** — Choose which agent this harness evaluates
+3. **Select Personas** — Choose user profiles that will interact with your agent
+4. **Select Policies** — Choose organizational rules your agent must follow
+
+### Choose Personas
+
+Personas define *who* interacts with your agent during evaluation. Vijil generates realistic test cases from each persona's perspective.
+
+| Persona Type | What It Tests |
+|--------------|---------------|
+| **Regular users** | Normal usage patterns, edge cases |
+| **Security researchers** | Adversarial prompts, jailbreak attempts |
+| **Domain experts** | Technical accuracy, specialized knowledge |
+
+Select 2-3 personas that represent your actual user base and potential threat actors.
+
+### Choose Policies
+
+Policies define *what rules* your agent must follow. These can be:
+
+- **Operational policies** — Business rules, response guidelines
+- **Compliance frameworks** — GDPR, HIPAA, SOC 2 requirements
+- **Safety policies** — Content restrictions, escalation procedures
+
+Once configured, click **Create** to save your harness. Vijil generates test cases based on your personas and policies:
+
+### Review Your Harness
+
+After creation, the harness detail page shows your configuration:
+
+<Frame>
+  <img src="/images/quickstart-custom-harness.png" alt="Custom harness detail showing agent, personas, and policies" />
+</Frame>
+<Frame>
+  <img src="/images/quickstart-harness-testcases.png" alt="Generated test cases showing persona conversations and Trust Coverage scores" />
+</Frame>
+
+
+Set status to **Active** when ready to use in evaluations.
+
+## Step 3: Run an Evaluation
+
+Navigate to **Evaluations** to open Diamond Evaluations.
+
+<Frame>
+  <img src="/images/quickstart-evaluations.png" alt="Diamond Evaluations page showing agent selection and Trust Score dimensions" />
+</Frame>
+
+The evaluation page presents two panels:
+
+**Select Agent** — Choose which registered agent to evaluate.
+
+**Select Harness** — Choose what to test. The **Trust Score** harness evaluates three dimensions:
+
+| Dimension | What It Measures |
+|-----------|------------------|
+| **Reliability** | Correctness, consistency, robustness |
+| **Security** | Confidentiality, integrity, availability |
+| **Safety** | Containment, compliance, transparency |
+
+Toggle individual dimensions on or off based on your needs. For a comprehensive evaluation, leave all three enabled.
+
+Select **Custom** to use a harness you've configured with specific personas and policies.
+
+Once you've selected an agent and harness, click **Run Evaluation**.
+
+### Monitor Progress
+
+While the evaluation runs, the status updates in real-time in the Evaluation Results table. Depending on the rate limit, evaluations can take 5-30 minutes.
+
+
+## Step 4: Review Results
+
+When the evaluation completes, click the **view** icon in the Actions column to open the Trust Report.
+
+<Frame>
+  <img src="/images/quickstart-evaluation-report.png" alt="Trust Report showing agent evaluation results with Trust Score" />
+</Frame>
+
+The report provides:
+
+- **Trust Score** — A 0-1 score (threshold: 0.70 for passing)
+- **Pass/Fail Status** — Clear deployment recommendation
+- **Per-Harness Breakdown** — Scores for each evaluated dimension
+- **Agent Specification** — Configuration used during evaluation
+- **Deployment Recommendation** — Action items based on findings
+
+### Interpreting the Score
+
+| Score | Interpretation | Next Step |
+|-------|----------------|-----------|
+| ≥ 0.70 | Passed | Deploy with standard monitoring |
+| 0.50 - 0.69 | Marginal | Deploy with Dome guardrails |
+| < 0.50 | Failed | Remediate before production |
+
+A passing score means your agent handled the probes within acceptable bounds. A failing score identifies specific failure modes to address.
+
+<Warning>
+The Trust Score quantifies known risks based on the harness you ran. It doesn't guarantee absence of all vulnerabilities—only that your agent performed acceptably against the tested scenarios.
+</Warning>
+
+## Step 5: Configure Dome Protection
+
+Navigate to **Guardrails** to see your registered agents and their protection status.
+
+<Frame>
+  <img src="/images/quickstart-dome-dashboard.png" alt="Dome Guardrails dashboard showing agent protection status" />
+</Frame>
+
+Agents show either **Domed** (protected) or **Unprotected**. Click **Configure Guardrails** to open the Dome configuration.
+
+<Frame>
+  <img src="/images/quickstart-dome-config.png" alt="Dome configuration showing input and output guards" />
+</Frame>
+
+Dome provides two guard pipelines:
+
+**Input Guards** — Filter and validate requests before they reach your agent. Common guards:
+- **Security Guard** — Detects prompt injection, jailbreak attempts
+- **Moderation Guard** — Blocks toxic or inappropriate content
+- **Privacy Guard** — Redacts PII from inputs
+
+**Output Guards** — Filter responses before they reach users. Common guards:
+- **Privacy Guard** — Prevents PII leakage
+- **Moderation Guard** — Catches harmful outputs
+
+### Configure a Guard
+
+1. Click **+ Add** in either Input Guards or Output Guards
+2. Select a guard type from the dropdown
+3. Configure execution settings:
+   - **Early Exit** — Stop pipeline on first detection (recommended for security)
+   - **Serial/Parallel** — Execute guards sequentially or concurrently
+
+### Test Your Configuration
+
+Use the **Execution Flow** panel to test how inputs flow through your guardrail pipeline:
+
+<Frame>
+  <img src="/images/quickstart-execution-flow.png" alt="Execution Flow showing a test prompt flowing through Security, Moderation, and Privacy guards" />
+</Frame>
+
+1. Enter a test prompt in the input field (e.g., a message containing PII)
+2. Click **Send** to see how each guard processes it
+3. Watch the flow diagram show which detectors activate
+4. Verify guards trigger as expected for your test cases
+
+The visual flow shows each guard and its underlying detectors—like `prompt-injection-mbert` for security or `privacy-presidio` for PII detection.
+
+When satisfied, click **Save Configuration**.
+
+## Step 6: Deploy and Monitor
+
+With Dome configured, integrate it into your application using the SDK:
+
+```python
+from vijil import Dome
+
+dome = Dome(
+    api_key="your-vijil-api-key",
+    agent_id="your-agent-id"
+)
+
+# Guard inputs before sending to your agent
+safe_input = dome.guard_input(user_message)
+
+# Guard outputs before returning to users
+safe_output = dome.guard_output(agent_response)
+```
+
+See the [Dome SDK documentation](/developer-guide/dome-sdk/installation) for detailed integration patterns.
+
+### Monitor in Production
+
+Return to the Guardrails dashboard to monitor your protected agents. Click **View Dashboard** to see:
+
+- Real-time detection events
+- Guard trigger rates
+- Blocked vs. allowed requests
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Define Personas" icon="users" href="/owner-guide/simulate-environment/personas">
+    Test your agent from different user perspectives
+  </Card>
+  <Card title="Set Policies" icon="file-contract" href="/owner-guide/simulate-environment/policies">
+    Define organizational rules your agent must follow
+  </Card>
+  <Card title="Build Custom Harnesses" icon="ruler" href="/owner-guide/simulate-environment/custom-harnesses">
+    Create targeted evaluation scenarios
+  </Card>
+  <Card title="Generate Trust Reports" icon="file-lines" href="/owner-guide/run-evaluations/trust-reports">
+    Create evidence for stakeholders and compliance
+  </Card>
+</CardGroup>
