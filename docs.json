@@ -8,139 +8,188 @@
   },
   "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#DE1616",
+    "light": "#FF4444",
+    "dark": "#0247A9"
   },
+  "css": "/styles.css",
+  "favicon": "/favicon.svg",
   "icons": {
     "library": "lucide"
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Vijil Docs",
+        "tab": "Concepts",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "concepts/welcome",
+              "concepts/what-is-vijil"
+            ]
+          },
+          {
+            "group": "Trust Score",
+            "pages": [
+              "concepts/trust-score/introduction",
+              "concepts/trust-score/reliability",
+              "concepts/trust-score/security",
+              "concepts/trust-score/safety"
+            ]
+          },
+          {
+            "group": "Evaluation",
+            "pages": [
+              "concepts/evaluation-components/introduction",
+              "concepts/evaluation-components/harness",
+              "concepts/evaluation-components/scenario",
+              "concepts/evaluation-components/probe",
+              "concepts/evaluation-components/detector"
+            ]
+          },
+          {
+            "group": "Defense",
+            "pages": [
+              "concepts/defense/introduction",
+              "concepts/defense/guardrail",
+              "concepts/defense/guard",
+              "concepts/defense/detector",
+              "concepts/defense/observe"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "concepts/glossary",
+              "concepts/component-reference",
+              "concepts/release-notes"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Agent Owner Guide",
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["get-started/welcome", "get-started/quickstart"]
+            "pages": [
+              "owner-guide/getting-started/introduction",
+              "owner-guide/getting-started/enterprise-deployment",
+              "owner-guide/getting-started/account-setup",
+              "owner-guide/getting-started/quick-start"
+            ]
           },
           {
-            "group": "Core Concepts",
+            "group": "Register Agents",
             "pages": [
-              "core-concepts/introduction",
+              "owner-guide/register-agents/registering-agents"
+            ]
+          },
+          {
+            "group": "Simulate Environment",
+            "pages": [
+              "owner-guide/simulate-environment/personas",
+              "owner-guide/simulate-environment/policies",
               {
-                "group": "Dimensions of Trust",
-                "icon": "ruler-dimension-line",
-                "expanded": true,
+                "group": "Specifying Harnesses",
                 "pages": [
-                  "core-concepts/dimensions/introduction",
-                  "core-concepts/dimensions/reliability",
-                  "core-concepts/dimensions/safety",
-                  "core-concepts/dimensions/security"
-                ]
-              },
-              {
-                "group": "Trust Score Components",
-                "icon": "handshake",
-                "expanded": true,
-                "pages": [
-                  "core-concepts/components/introduction",
-                  "core-concepts/components/harness",
-                  "core-concepts/components/scenario",
-                  "core-concepts/components/probe",
-                  "core-concepts/components/detector",
-                  "core-concepts/components/guard",
-                  "core-concepts/components/guardrail"
+                  "owner-guide/simulate-environment/harnesses/trust-score",
+                  "owner-guide/simulate-environment/custom-harnesses"
                 ]
               }
             ]
           },
           {
-            "group": "Manage Agents",
+            "group": "Run Evaluations",
             "pages": [
-              "manage-agents/introduction",
-              {
-                "group": "Integrations",
-                "icon": "blocks",
-                "expanded": true,
-                "pages": [
-                  "manage-agents/integrations/vertex",
-                  "manage-agents/integrations/digitalocean",
-                  "manage-agents/integrations/bedrock",
-                  "manage-agents/integrations/custom",
-                  "manage-agents/integrations/local",
-                  "manage-agents/integrations/platform"
-                ]
-              }
+              "owner-guide/run-evaluations/running-evaluations",
+              "owner-guide/run-evaluations/understanding-results"
+            ]
+          },
+          {
+            "group": "Protect in Production",
+            "pages": [
+              "owner-guide/protect-in-production/configuring-guardrails",
+              "owner-guide/protect-in-production/deploying-dome",
+              "owner-guide/protect-in-production/observability"
+            ]
+          },
+          {
+            "group": "Audit Agent Behavior",
+            "pages": [
+              "owner-guide/audit-agent-behavior/quantifying-risk",
+              "owner-guide/audit-agent-behavior/operational-readiness"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Agent Developer Guide",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "developer-guide/getting-started/introduction",
+              "developer-guide/getting-started/installation",
+              "developer-guide/getting-started/authentication",
+              "developer-guide/getting-started/quickstart"
+            ]
+          },
+          {
+            "group": "Use Frameworks",
+            "pages": [
+              "developer-guide/frameworks/langchain",
+              "developer-guide/frameworks/google-adk",
+              "developer-guide/frameworks/custom-agents"
+            ]
+          },
+          {
+            "group": "Evaluate Agents",
+            "pages": [
+              "developer-guide/evaluate/overview",
+              "developer-guide/evaluate/running-evaluations",
+              "developer-guide/evaluate/understanding-results",
+              "developer-guide/evaluate/custom-harnesses",
+              "developer-guide/evaluate/cloud-providers"
             ]
           },
           {
             "group": "Protect Agents",
-            "pages": ["protect-agents/introduction"]
-          },
-          {
-            "group": "Evaluate Agents",
-            "pages": ["evaluate-agents/introduction"]
-          },
-          {
-            "group": "Tutorials",
             "pages": [
-              "tutorials/manage-api-keys",
-              "tutorials/manage-agents",
-              {
-                "group": "Protect Agents",
-                "icon": "shield-check",
-                "pages": [
-                  "tutorials/protect-agents/setup-dome",
-                  "tutorials/protect-agents/setup-guards",
-                  "tutorials/protect-agents/configuring-guardrails",
-                  "tutorials/protect-agents/using-guardrails",
-                  "tutorials/protect-agents/domed-clients",
-                  "tutorials/protect-agents/langchain",
-                  "tutorials/protect-agents/adk",
-                  "tutorials/protect-agents/custom-detectors",
-                  "tutorials/protect-agents/observability"
-                ]
-              },
-              {
-                "group": "Evaluate Agents",
-                "icon": "glasses",
-                "pages": [
-                  "tutorials/evaluate-agents/setup-evaluate",
-                  "tutorials/evaluate-agents/evaluations",
-                  "tutorials/evaluate-agents/owasp",
-                  "tutorials/evaluate-agents/rag",
-                  "tutorials/evaluate-agents/detections",
-                  "tutorials/evaluate-agents/custom-harnesses",
-                  "tutorials/evaluate-agents/local-agent-evaluation",
-                  "tutorials/evaluate-agents/reports",
-                  "tutorials/evaluate-agents/cicd",
-                  {
-                    "group": "Enterprise Deployment of Evaluate",
-                    "expanded": true,
-                    "pages": [
-                      "tutorials/evaluate-agents/enterprise/introduction",
-                      "tutorials/evaluate-agents/enterprise/prerequisites",
-                      "tutorials/evaluate-agents/enterprise/deployment"
-                    ]
-                  }
-                ]
-              }
+              "developer-guide/protect/overview",
+              "developer-guide/protect/configuring-guardrails",
+              "developer-guide/protect/using-guardrails",
+              "developer-guide/protect/custom-detectors",
+              "developer-guide/protect/observability"
             ]
           },
           {
-            "group": "References",
+            "group": "Deploy with CI/CD",
             "pages": [
-              "references/glossary",
-              "references/release-notes",
-              {
-                "group": "Python Client",
-                "icon": "worm",
-                "pages": [
-                  "references/python-client/introduction",
-                  "references/python-client/client"
-                ]
-              }
+              "developer-guide/cicd/overview",
+              "developer-guide/cicd/github-actions",
+              "developer-guide/cicd/gitlab-ci",
+              "developer-guide/cicd/testing-strategies"
+            ]
+          },
+          {
+            "group": "Deploy On-Premises",
+            "pages": [
+              "developer-guide/enterprise/overview",
+              "developer-guide/enterprise/self-hosted",
+              "developer-guide/enterprise/prerequisites",
+              "developer-guide/enterprise/configuration"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "developer-guide/api/overview",
+              "developer-guide/api/python-client",
+              "developer-guide/api/evaluations-api",
+              "developer-guide/api/agents-api",
+              "developer-guide/api/dome-api"
             ]
           }
         ]
@@ -165,31 +214,15 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Console",
+      "href": "https://console.vijil.ai"
     }
   },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
-  },
-  "footer": {
+    "footer": {
     "socials": {
       "website": "https://vijil.ai",
       "github": "https://github.com/vijilAI/",
       "linkedin": "https://www.linkedin.com/company/vijil"
     }
-  },
-  "banner": {
-    "content": "🚀 Welcome to Vijil Documentation!",
-    "dismissible": true
   }
 }

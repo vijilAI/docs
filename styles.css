@@ -1,0 +1,17 @@
+/* Custom styles for Vijil documentation */
+
+/* Fix double bullets in Card components - use standard disc bullets */
+/* Target ul elements that are direct children or descendants of Card components */
+[class*="card"] ul,
+[class*="Card"] ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  padding-left: 20px;
+  margin-top: 12px;
+}
+
+[class*="card"] ul li,
+[class*="Card"] ul li {
+  margin-left: 0;
+  padding-left: 0;
+}

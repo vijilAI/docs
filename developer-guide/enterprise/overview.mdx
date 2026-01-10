@@ -1,0 +1,120 @@
+---
+title: 'Self-Hosting Vijil'
+description: 'Deploy Vijil in your own infrastructure for data residency, compliance, or air-gapped environments.'
+---
+
+Most teams use Vijil's cloud platform at [console.vijil.ai](https://console.vijil.ai). But some organizations need to run Vijil in their own infrastructure—for data residency requirements, regulatory compliance, or environments without internet access.
+
+This section covers self-hosted deployment. If you're evaluating whether self-hosting is right for you, start with the qualifying questions below.
+
+## Is Self-Hosting Right for You?
+
+Self-hosting adds operational complexity. Consider it when you have specific requirements that the cloud platform can't meet:
+
+| Requirement | Cloud Platform | Self-Hosted |
+|-------------|----------------|-------------|
+| Data never leaves your infrastructure | No | Yes |
+| Air-gapped / no internet connectivity | No | Yes |
+| Custom SSO/SAML integration | Limited | Full |
+| Deploy in specific cloud regions | Limited | Yes |
+| Customer-managed encryption keys | No | Yes |
+| Compliance with internal security policies | Depends | Yes |
+
+<Note>
+If your primary concern is data privacy, note that the cloud platform doesn't store your agent's responses—only evaluation metadata. Contact [contact@vijil.ai](mailto:contact@vijil.ai) to discuss your specific requirements before committing to self-hosting.
+</Note>
+
+## System Architecture
+
+Vijil consists of three main components that run in your Kubernetes cluster:
+
+<img src="/images/enterprise-architecture.svg" alt="Vijil system architecture showing Diamond, Dome, and Console components" style={{maxWidth: '700px', margin: '2rem auto', display: 'block'}} />
+
+### Components
+
+| Component | Purpose | Resource Requirements |
+|-----------|---------|----------------------|
+| **Diamond** | Evaluation engine. Sends probes to agents, analyzes responses, generates Trust Scores. | CPU-intensive during evaluations |
+| **Dome** | Runtime protection. Intercepts agent inputs/outputs and applies guardrails. | Low latency required |
+| **Console** | Web UI. Manage agents, view results, configure guardrails. | Standard web application |
+
+### Data Stores
+
+| Store | Purpose | Options |
+|-------|---------|---------|
+| **PostgreSQL** | Application data, evaluation results, configuration | Amazon Aurora, RDS, or self-managed |
+| **OpenSearch** | Search and analytics for evaluation data | Amazon OpenSearch or self-managed Elasticsearch |
+| **Object Storage** | Artifacts, configs, file uploads | S3, GCS, Azure Blob, or MinIO |
+
+### External Dependencies
+
+| Service | Purpose | Required |
+|---------|---------|----------|
+| **Auth0** | User authentication and SSO | Yes |
+| **LLM Providers** | Your agents' underlying models | Depends on your agents |
+
+## Roles and Permissions
+
+Deploying Vijil requires coordination across teams:
+
+| Role | Responsibilities |
+|------|------------------|
+| **Kubernetes Admin** | Create cluster, configure networking, manage deployments |
+| **Cloud IAM Admin** | Create service accounts, configure permissions for AWS/GCP/Azure resources |
+| **Database Admin** | Provision PostgreSQL and OpenSearch, configure backups |
+| **Security/Network** | Configure VPC, security groups, firewall rules, TLS certificates |
+| **Auth0 Admin** | Create application, configure SSO integration |
+
+<Tip>
+In smaller organizations, one platform engineer may cover multiple roles. The key is ensuring someone has permissions to provision each resource type.
+</Tip>
+
+## Deployment Options
+
+### VPC Deployment
+
+Run Vijil in your cloud provider's VPC with private networking:
+
+- **Supported**: AWS EKS, GCP GKE, Azure AKS
+- **Networking**: Private subnets, VPC peering to your agent infrastructure
+- **Data**: Customer-managed encryption keys, data stays in your account
+- **Updates**: Managed by Vijil team with your approval
+
+### Air-Gapped Deployment
+
+Fully isolated with no internet connectivity:
+
+- **Networking**: No external access required after initial setup
+- **Updates**: Manual artifact transfer for updates
+- **LLM Access**: Requires on-premises LLM or private endpoints
+- **Support**: Offline documentation, scheduled support windows
+
+## What's Involved
+
+A typical self-hosted deployment takes 2–4 weeks:
+
+1. **Prerequisites** (Week 1) — Provision infrastructure, configure networking
+2. **Deployment** (Week 2) — Install Vijil components, configure data stores
+3. **Integration** (Week 3) — Connect Auth0, test agent connectivity
+4. **Validation** (Week 4) — Run test evaluations, verify guardrail functionality
+
+<Warning>
+Self-hosted deployments require an enterprise agreement. Contact [contact@vijil.ai](mailto:contact@vijil.ai) to discuss pricing and support terms before beginning infrastructure work.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Prerequisites" icon="clipboard-check" href="/developer-guide/enterprise/prerequisites">
+    Infrastructure requirements and team checklist
+  </Card>
+  <Card title="Deployment Guide" icon="server" href="/developer-guide/enterprise/self-hosted">
+    Step-by-step installation instructions
+  </Card>
+  <Card title="Configuration" icon="gear" href="/developer-guide/enterprise/configuration">
+    Helm values and environment variables
+  </Card>
+  <Card title="Contact Sales" icon="envelope" href="mailto:contact@vijil.ai">
+    Discuss enterprise pricing and support
+  </Card>
+</CardGroup>

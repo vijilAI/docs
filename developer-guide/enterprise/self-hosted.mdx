@@ -1,0 +1,293 @@
+---
+title: 'Deployment Guide'
+description: 'Step-by-step instructions for deploying Vijil in your Kubernetes cluster.'
+---
+
+This guide walks through deploying Vijil in your own infrastructure. Before starting, ensure you've completed the [prerequisites](/developer-guide/enterprise/prerequisites) and have an enterprise agreement in place.
+
+## Deployment Overview
+
+Vijil deploys as a set of Helm charts to your Kubernetes cluster. The deployment connects to your provisioned data stores (PostgreSQL, OpenSearch, S3) and integrates with Auth0 for authentication.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Your Kubernetes Cluster                   │
+│                                                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
+│  │   Diamond   │  │    Dome     │  │   Console   │          │
+│  │  (eval)     │  │  (protect)  │  │    (UI)     │          │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘          │
+│         │                │                │                  │
+│         └────────────────┴────────────────┘                  │
+│                          │                                   │
+└──────────────────────────┼───────────────────────────────────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+   ┌────┴────┐      ┌──────┴──────┐    ┌─────┴─────┐
+   │PostgreSQL│      │ OpenSearch  │    │    S3     │
+   └──────────┘      └─────────────┘    └───────────┘
+```
+
+## AWS EKS Deployment
+
+This is the primary deployment path. GCP GKE and Azure AKS follow similar patterns.
+
+### Step 1: Configure kubectl
+
+Ensure you can access your EKS cluster:
+
+```bash
+aws eks update-kubeconfig --region <region> --name <cluster-name>
+kubectl get nodes
+```
+
+### Step 2: Create Namespace
+
+```bash
+kubectl create namespace vijil
+```
+
+### Step 3: Add Vijil Helm Repository
+
+```bash
+helm repo add vijil https://charts.vijil.ai
+helm repo update
+```
+
+### Step 4: Create Secrets
+
+Create secrets for your data store credentials:
+
+```bash
+kubectl create secret generic vijil-db-credentials \
+  --namespace vijil \
+  --from-literal=host=<aurora-endpoint> \
+  --from-literal=port=5432 \
+  --from-literal=username=<username> \
+  --from-literal=password=<password> \
+  --from-literal=database=vijil
+
+kubectl create secret generic vijil-opensearch-credentials \
+  --namespace vijil \
+  --from-literal=host=<opensearch-endpoint> \
+  --from-literal=username=<username> \
+  --from-literal=password=<password>
+
+kubectl create secret generic vijil-s3-credentials \
+  --namespace vijil \
+  --from-literal=bucket=<bucket-name> \
+  --from-literal=region=<region>
+```
+
+### Step 5: Configure Values
+
+Create a `values.yaml` file for your deployment:
+
+```yaml
+global:
+  domain: vijil.your-company.com
+
+diamond:
+  replicas: 2
+  resources:
+    requests:
+      cpu: "2"
+      memory: "4Gi"
+    limits:
+      cpu: "4"
+      memory: "8Gi"
+
+dome:
+  replicas: 3
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+console:
+  replicas: 2
+
+auth0:
+  domain: your-tenant.auth0.com
+  clientId: <client-id>
+  audience: https://api.vijil.your-company.com
+
+database:
+  existingSecret: vijil-db-credentials
+
+opensearch:
+  existingSecret: vijil-opensearch-credentials
+
+storage:
+  existingSecret: vijil-s3-credentials
+  evaluationsBucket: vijil-evaluations
+  configsBucket: vijil-configs
+  uploadsBucket: vijil-uploads
+```
+
+See [Configuration Reference](/developer-guide/enterprise/configuration) for all available options.
+
+### Step 6: Deploy
+
+```bash
+helm install vijil vijil/vijil \
+  --namespace vijil \
+  --values values.yaml
+```
+
+### Step 7: Verify Deployment
+
+Check that all pods are running:
+
+```bash
+kubectl get pods -n vijil
+```
+
+Expected output:
+```
+NAME                        READY   STATUS    RESTARTS   AGE
+diamond-7d9f8b6c4d-abcde    1/1     Running   0          2m
+diamond-7d9f8b6c4d-fghij    1/1     Running   0          2m
+dome-5c8f7a9b3e-klmno       1/1     Running   0          2m
+dome-5c8f7a9b3e-pqrst       1/1     Running   0          2m
+dome-5c8f7a9b3e-uvwxy       1/1     Running   0          2m
+console-6b7c8d9e0f-12345    1/1     Running   0          2m
+console-6b7c8d9e0f-67890    1/1     Running   0          2m
+```
+
+### Step 8: Configure Ingress
+
+Create an ingress for external access:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vijil-ingress
+  namespace: vijil
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/certificate-arn: <acm-certificate-arn>
+spec:
+  rules:
+  - host: vijil.your-company.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: console
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: diamond
+            port:
+              number: 80
+      - path: /dome
+        pathType: Prefix
+        backend:
+          service:
+            name: dome
+            port:
+              number: 80
+```
+
+### Step 9: Configure DNS
+
+Create a DNS record pointing `vijil.your-company.com` to your ingress load balancer.
+
+## Verification
+
+### Test Console Access
+
+Navigate to `https://vijil.your-company.com` and verify you can log in through Auth0.
+
+### Test Evaluation
+
+Run a test evaluation from the console or using the API:
+
+```python
+from vijil import Vijil
+
+vijil = Vijil(
+    api_key="your-api-key",
+    base_url="https://vijil.your-company.com/api"
+)
+
+# Create a test evaluation
+result = vijil.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-4o",
+    harnesses=["trust_score"]
+)
+```
+
+### Test Dome
+
+Verify Dome is responding:
+
+```bash
+curl -X POST https://vijil.your-company.com/dome/v1/guard \
+  -H "Authorization: Bearer <api-key>" \
+  -H "Content-Type: application/json" \
+  -d '{"input": "test message"}'
+```
+
+## Troubleshooting
+
+### Pods Not Starting
+
+Check pod logs:
+```bash
+kubectl logs -n vijil <pod-name>
+```
+
+Common issues:
+- Database connection failed — verify credentials and network connectivity
+- OpenSearch connection failed — check security group rules
+- S3 access denied — verify IAM role permissions
+
+### Authentication Errors
+
+- Verify Auth0 domain and client ID in values.yaml
+- Check that callback URLs are configured in Auth0
+- Ensure Auth0 application is set to "Regular Web Application"
+
+### Evaluation Failures
+
+- Verify your agents are accessible from the Vijil namespace
+- Check that egress rules allow connections to your agent endpoints
+- Review Diamond logs for specific error messages
+
+## Upgrading
+
+To upgrade to a new Vijil version:
+
+```bash
+helm repo update
+helm upgrade vijil vijil/vijil \
+  --namespace vijil \
+  --values values.yaml
+```
+
+Review the [release notes](/concepts/release-notes) before upgrading for any breaking changes.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration Reference" icon="gear" href="/developer-guide/enterprise/configuration">
+    All Helm values and environment variables
+  </Card>
+  <Card title="Prerequisites" icon="clipboard-check" href="/developer-guide/enterprise/prerequisites">
+    Infrastructure requirements checklist
+  </Card>
+</CardGroup>

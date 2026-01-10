@@ -1,0 +1,249 @@
+---
+title: 'Custom Harnesses'
+description: 'Create targeted evaluations with custom harnesses, personas, and policies.'
+---
+
+Custom harnesses let you create evaluations tailored to your agent's specific use case. Define personas (who interacts with your agent) and policies (what rules it must follow) to generate targeted test probes.
+
+## When to Use Custom Harnesses
+
+Use custom harnesses when:
+
+- Your agent serves a specific audience (e.g., enterprise customers, healthcare patients)
+- Your agent must comply with domain-specific policies
+- Standard harnesses don't cover your use case
+- You need reproducible evaluations across agent versions
+
+## Creating a Harness
+
+A harness combines personas and policies to generate evaluation scenarios:
+
+```python
+from vijil import Vijil
+
+vijil = Vijil()
+
+harness = vijil.harnesses.create(
+    name="Customer Support Compliance",
+    description="Tests support bot for policy compliance and user safety",
+    agent_id="agent-123",
+    persona_ids=["enterprise-user", "frustrated-customer"],
+    policy_ids=["privacy-policy", "brand-guidelines"]
+)
+```
+
+### Harness Parameters
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| `name` | Human-readable harness name | Yes |
+| `description` | What this harness tests | No |
+| `agent_id` | Agent to associate with | Yes |
+| `persona_ids` | List of persona IDs to include | Yes |
+| `policy_ids` | List of policy IDs to enforce | No |
+
+## Managing Personas
+
+Personas represent the types of users who interact with your agent.
+
+### Create a Persona
+
+```python
+persona = vijil.personas.create(
+    name="Enterprise Admin",
+    description="IT administrator managing company accounts",
+    traits={
+        "technical_level": "high",
+        "intent": "administrative tasks",
+        "tone": "professional"
+    }
+)
+```
+
+### List Personas
+
+```python
+personas = vijil.personas.list()
+
+for p in personas:
+    print(f"{p.get('id')}: {p.get('name')}")
+```
+
+### Persona Examples
+
+| Persona | Description | Use Case |
+|---------|-------------|----------|
+| Power User | Technically sophisticated, pushes boundaries | Security testing |
+| New User | Unfamiliar with system, needs guidance | Reliability testing |
+| Adversarial User | Attempts to misuse the system | Security/safety testing |
+| Frustrated Customer | Upset, uses strong language | Safety/moderation testing |
+
+## Managing Policies
+
+Policies define rules your agent must follow.
+
+### Create a Policy
+
+```python
+policy = vijil.policies.create(
+    name="Data Privacy Policy",
+    description="Agent must not reveal or process PII inappropriately",
+    rules=[
+        "Never ask for social security numbers",
+        "Redact credit card numbers in responses",
+        "Do not store personal health information"
+    ]
+)
+```
+
+### Policy Examples
+
+| Policy | Description | Rules |
+|--------|-------------|-------|
+| Brand Voice | Maintain consistent tone | Professional language, no slang |
+| Privacy | Protect user data | No PII collection, data minimization |
+| Compliance | Regulatory requirements | GDPR consent, HIPAA safeguards |
+| Safety | Prevent harm | No dangerous instructions, crisis escalation |
+
+## Using Custom Harnesses
+
+### Run Evaluation
+
+```python
+evaluation = vijil.evaluations.create(
+    agent_id="agent-123",
+    harness=f"custom:{harness.get('id')}"
+)
+```
+
+### Combine with Standard Harnesses
+
+```python
+evaluation = vijil.evaluations.create(
+    agent_id="agent-123",
+    harnesses=[
+        "security_Small",           # Standard security harness
+        f"custom:{harness.get('id')}"  # Your custom harness
+    ]
+)
+```
+
+## Managing Harnesses
+
+### List Harnesses
+
+```python
+harnesses = vijil.harnesses.list()
+
+for h in harnesses:
+    print(f"{h.get('id')}: {h.get('name')} ({h.get('status')})")
+```
+
+### Update a Harness
+
+```python
+updated = vijil.harnesses.update(
+    harness.get("id"),
+    persona_ids=["enterprise-user", "frustrated-customer", "new-customer"],
+    policy_ids=["privacy-policy", "brand-guidelines", "compliance-policy"]
+)
+```
+
+### Delete a Harness
+
+```python
+vijil.harnesses.delete(harness.get("id"))
+```
+
+## Example: Healthcare Agent
+
+Create a comprehensive harness for a healthcare assistant:
+
+```python
+# Create personas
+patient = vijil.personas.create(
+    name="Patient",
+    description="Person seeking health information",
+    traits={"medical_knowledge": "low", "anxiety_level": "variable"}
+)
+
+caregiver = vijil.personas.create(
+    name="Family Caregiver",
+    description="Person caring for a family member",
+    traits={"medical_knowledge": "moderate", "seeking": "guidance"}
+)
+
+# Create policies
+hipaa = vijil.policies.create(
+    name="HIPAA Compliance",
+    rules=[
+        "Never store or transmit PHI without consent",
+        "Refer to healthcare providers for diagnosis",
+        "Maintain audit trail of health-related queries"
+    ]
+)
+
+safety = vijil.policies.create(
+    name="Medical Safety",
+    rules=[
+        "Always recommend professional consultation for symptoms",
+        "Never provide dosage recommendations",
+        "Escalate crisis situations immediately"
+    ]
+)
+
+# Create harness
+healthcare_harness = vijil.harnesses.create(
+    name="Healthcare Assistant Compliance",
+    description="Tests healthcare bot for HIPAA and safety compliance",
+    agent_id="healthcare-agent-id",
+    persona_ids=[patient.get("id"), caregiver.get("id")],
+    policy_ids=[hipaa.get("id"), safety.get("id")]
+)
+
+# Run evaluation
+evaluation = vijil.evaluations.create(
+    agent_id="healthcare-agent-id",
+    harness=f"custom:{healthcare_harness.get('id')}"
+)
+```
+
+## Best Practices
+
+### Persona Design
+
+- Create diverse personas representing your actual user base
+- Include edge cases (frustrated users, technical experts, beginners)
+- Consider adversarial personas for security testing
+- Update personas as you learn from production usage
+
+### Policy Design
+
+- Keep policies specific and testable
+- Map policies to regulatory requirements where applicable
+- Include both prohibitions and requirements
+- Version policies alongside your agent
+
+### Harness Management
+
+- Name harnesses descriptively (e.g., "Q1-2024 Compliance Check")
+- Document what each harness tests
+- Create separate harnesses for different evaluation goals
+- Archive old harnesses rather than deleting for audit trail
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Execute custom harness evaluations
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Analyze custom harness results
+  </Card>
+  <Card title="Personas" icon="users" href="/owner-guide/simulate-environment/personas">
+    Learn more about personas
+  </Card>
+  <Card title="Policies" icon="scroll" href="/owner-guide/simulate-environment/policies">
+    Learn more about policies
+  </Card>
+</CardGroup>
