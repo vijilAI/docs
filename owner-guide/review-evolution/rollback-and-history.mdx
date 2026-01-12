@@ -1,0 +1,296 @@
+---
+title: "Rollback & History"
+description: "Revert to any previous version and understand the complete evolution history of your agent."
+---
+
+## When to Rollback
+
+Rollback when a deployed change causes problems:
+
+| Symptom | Possible Cause | Action |
+|---------|----------------|--------|
+| Increased error rate | Incompatible configuration | Rollback immediately |
+| User complaints spike | Behavior regression | Investigate, then rollback |
+| Trust Score dropped | Unintended side effect | Rollback, analyze |
+| Compliance violation | Policy conflict | Rollback, review change |
+| Performance degradation | Resource constraints | Rollback, optimize |
+
+The key advantage of genome versioning: **rollback is instant and safe**.
+
+## How Rollback Works
+
+Rollback doesn't delete history—it creates a new version that matches a previous state:
+
+```
+v3 (stable)
+    │
+    └── v4 (problematic deployment)
+            │
+            └── v5 (rollback to v3 state)
+```
+
+After rollback:
+- v4 still exists in history (for audit)
+- v5 is the current version
+- v5's content matches v3
+- v5's lineage shows it came from v4
+
+This preserves the complete history while restoring safe behavior.
+
+## Performing a Rollback
+
+### Step 1: Identify the Target Version
+
+Find the last known good version:
+
+```
+Version History: customer-service-agent
+─────────────────────────────────────────
+v5  Jan 15, 2:30pm  (current - issues reported)
+v4  Jan 15, 9:00am
+v3  Jan 10, 4:00pm  ← Last stable (pre-issue)
+v2  Jan 5, 11:00am
+v1  Jan 1, 10:00am  (initial)
+```
+
+### Step 2: Compare Versions
+
+Before rolling back, understand what will change:
+
+```diff
+Rollback: v5 → v3
+
+LLM Genes:
+- temperature: 0.65
++ temperature: 0.9
+
+Instruction Genes:
+- output_format: "Be conversational and friendly. Always cite sources."
++ output_format: "Be conversational and friendly"
+```
+
+This shows what the rollback will revert.
+
+### Step 3: Execute Rollback
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Rollback: customer-service-agent                            │
+│ Current: v5 → Target: v3                                    │
+├─────────────────────────────────────────────────────────────┤
+│ This will:                                                   │
+│ • Create new version v6 with v3's configuration             │
+│ • Deploy v6 to production                                    │
+│ • Preserve v4 and v5 in history                             │
+├─────────────────────────────────────────────────────────────┤
+│ Reason for rollback: ________________________               │
+│                                                              │
+│ [Cancel]  [Rollback]                                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 4: Verify
+
+After rollback:
+- Confirm the agent is using v6
+- Verify behavior matches expectations
+- Check that issues are resolved
+- Monitor for any new problems
+
+## Rollback Documentation
+
+Every rollback is recorded:
+
+```json
+{
+  "rollback_id": "rollback-123",
+  "genome_id": "abc-123",
+  "from_version": 5,
+  "to_version": 6,
+  "target_version": 3,
+  "reason": "User complaints about incorrect information increased 300%",
+  "rolled_back_by": "jane@company.com",
+  "rolled_back_at": "2024-01-15T15:45:00Z"
+}
+```
+
+This provides:
+- Audit trail of who rolled back and why
+- Connection between the rollback and the original issue
+- Evidence for post-incident review
+
+## Viewing History
+
+### Full Version History
+
+See every version of a genome:
+
+```
+customer-service-agent History
+════════════════════════════════════════════════════════════
+
+v6  Jan 15, 3:45pm  Rollback to v3
+    └─ Reason: User complaints about incorrect information
+    └─ Fitness: 82.3
+
+v5  Jan 15, 2:30pm  Darwin mutation
+    └─ Changes: temperature 0.9→0.65, output_format modified
+    └─ Fitness: 78.1 (degraded)
+
+v4  Jan 15, 9:00am  Darwin mutation
+    └─ Changes: max_tokens 2048→4096
+    └─ Fitness: 82.3
+
+v3  Jan 10, 4:00pm  Manual adjustment
+    └─ Changes: system_prompt updated
+    └─ Fitness: 82.3
+
+v2  Jan 5, 11:00am  Darwin mutation
+    └─ Changes: temperature 1.0→0.9
+    └─ Fitness: 80.1
+
+v1  Jan 1, 10:00am  Initial extraction
+    └─ Fitness: 75.0
+```
+
+### Ancestry View
+
+Trace how a version was derived:
+
+```
+v6 (current)
+├── Parent: v5
+├── Rollback target: v3
+│
+v5
+├── Parent: v4
+├── Darwin mutation
+│
+v4
+├── Parent: v3
+├── Darwin mutation
+│
+v3
+├── Parent: v2
+├── Manual adjustment
+│
+v2
+├── Parent: v1
+├── Darwin mutation
+│
+v1
+└── Initial (no parent)
+```
+
+### Fitness Trajectory
+
+Visualize Trust Score over time:
+
+```
+Trust Score
+    │
+ 88 ┤                              ┌─ v6 (after rollback)
+ 86 ┤
+ 84 ┤         ┌── v3 ──┬── v4 ────┘
+ 82 ┤         │        │
+ 80 ┤    ┌─ v2        │
+ 78 ┤    │            └── v5 (problem)
+ 76 ┤    │
+ 74 ┤── v1
+    └────┴────┴────┴────┴────┴────► Time
+       Jan 1  Jan 5 Jan 10 Jan 15
+```
+
+This shows how evolution progressed and where the regression occurred.
+
+## Partial Rollback
+
+Sometimes you want to rollback specific genes, not the entire genome:
+
+### Scenario
+v5 changed both temperature and output_format. Temperature change was bad, but output_format change was good.
+
+### Solution
+Instead of full rollback, create a new version that:
+- Reverts temperature to v3's value
+- Keeps output_format from v5
+
+```diff
+v6 (partial rollback)
+
+LLM Genes:
+- temperature: 0.65  (from v5)
++ temperature: 0.9   (from v3) ← reverted
+
+Instruction Genes:
+  output_format: "Be conversational and friendly. Always cite sources."
+  (kept from v5) ← preserved
+```
+
+This requires manual version creation rather than automatic rollback.
+
+## Preventing Future Issues
+
+After a rollback, analyze what went wrong:
+
+### Post-Incident Questions
+
+1. **Why did Darwin propose this change?**
+   - Was the rationale sound?
+   - Were the signals misleading?
+
+2. **Why didn't validation catch it?**
+   - Was staging testing adequate?
+   - Were the right scenarios tested?
+
+3. **How can we prevent recurrence?**
+   - Adjust mutability constraints?
+   - Add validation scenarios?
+   - Require longer soak times?
+
+### Adjusting Constraints
+
+If a gene shouldn't change as freely:
+
+```json
+// Before
+"temperature": { "mutability": 0.9 }
+
+// After (more restricted)
+"temperature": { "mutability": 0.5 }
+```
+
+Or add hard constraints:
+
+```json
+"temperature": {
+  "mutability": 0.7,
+  "constraints": {
+    "min_value": 0.3,
+    "max_value": 0.8
+  }
+}
+```
+
+## History Retention
+
+Genome history is retained indefinitely by default:
+
+| Retention | Use Case |
+|-----------|----------|
+| **All versions** | Full audit trail, unlimited rollback |
+| **N versions** | Storage optimization, retain last N |
+| **Time-based** | Retain versions from last 90 days |
+
+Configure retention policies based on compliance requirements.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Understanding Changes" icon="magnifying-glass" href="/owner-guide/review-evolution/understanding-changes">
+    Review proposed changes
+  </Card>
+  <Card title="Lineage Concept" icon="code-branch" href="/concepts/evolution/lineage">
+    Deep dive into version tracking
+  </Card>
+</CardGroup>

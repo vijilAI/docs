@@ -1,0 +1,283 @@
+---
+title: "Gene"
+description: "The atomic unit of agent configuration—typed, constrained, and individually evolvable."
+---
+
+## What is a Gene?
+
+A **gene** is the smallest unit of agent configuration that can be independently modified. Each gene represents a single property that influences agent behavior—a temperature setting, a system prompt, a tool configuration.
+
+Genes are the building blocks of genomes. When Darwin optimizes an agent, it does so by mutating individual genes within their defined constraints.
+
+## Gene Structure
+
+Every gene has the following properties:
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `name` | Identifier for the gene | `temperature` |
+| `value` | Current value | `0.7` |
+| `gene_type` | Data type classification | `numeric` |
+| `mutability` | How freely it can change (0.0–1.0) | `0.8` |
+| `constraints` | Valid value boundaries | `min: 0.0, max: 2.0` |
+| `embedding_strategy` | How to encode for similarity | `structured` |
+
+## Gene Types
+
+Genes are classified by their data type, which determines how they're validated, mutated, and embedded:
+
+### Text Genes
+
+Free-form text content—prompts, instructions, examples.
+
+```json
+{
+  "name": "system_prompt",
+  "value": "You are a helpful customer service assistant...",
+  "gene_type": "text",
+  "mutability": 0.5,
+  "constraints": {
+    "max_length": 10000
+  },
+  "embedding_strategy": "text"
+}
+```
+
+Text genes use semantic embeddings, so similar prompts cluster together in vector space.
+
+### Numeric Genes
+
+Numerical parameters—temperatures, token limits, thresholds.
+
+```json
+{
+  "name": "temperature",
+  "value": 0.7,
+  "gene_type": "numeric",
+  "mutability": 0.9,
+  "constraints": {
+    "min_value": 0.0,
+    "max_value": 2.0,
+    "step": 0.1
+  },
+  "embedding_strategy": "structured"
+}
+```
+
+Numeric genes are normalized to [0, 1] for embedding based on their constraints.
+
+### Boolean Genes
+
+Binary flags—enabled/disabled features.
+
+```json
+{
+  "name": "memory_enabled",
+  "value": true,
+  "gene_type": "boolean",
+  "mutability": 0.3,
+  "constraints": null,
+  "embedding_strategy": "structured"
+}
+```
+
+Boolean genes encode as 0.0 or 1.0 in embeddings.
+
+### Enum Genes
+
+Selection from predefined options—model choices, modes.
+
+```json
+{
+  "name": "model",
+  "value": "gpt-4o",
+  "gene_type": "enum",
+  "mutability": 0.2,
+  "constraints": {
+    "allowed_values": ["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet", "claude-3-5-haiku"]
+  },
+  "embedding_strategy": "structured"
+}
+```
+
+Enum genes encode by position in the allowed values list.
+
+### List Genes
+
+Collections of items—tools, examples, allowed domains.
+
+```json
+{
+  "name": "available_tools",
+  "value": ["web_search", "calculator", "code_interpreter"],
+  "gene_type": "list",
+  "mutability": 0.4,
+  "constraints": {
+    "allowed_values": ["web_search", "calculator", "code_interpreter", "file_reader"],
+    "min_length": 1,
+    "max_length": 10
+  },
+  "embedding_strategy": "structured"
+}
+```
+
+List genes encode length and presence features.
+
+### Object Genes
+
+Structured configurations—tool settings, complex parameters.
+
+```json
+{
+  "name": "search_config",
+  "value": {
+    "max_results": 5,
+    "safe_search": true,
+    "domains": ["wikipedia.org", "docs.python.org"]
+  },
+  "gene_type": "object",
+  "mutability": 0.6,
+  "constraints": null,
+  "embedding_strategy": "structured"
+}
+```
+
+## Mutability
+
+**Mutability** is a weight from 0.0 to 1.0 that controls how freely a gene can change during evolution:
+
+| Mutability | Meaning | Use Case |
+|------------|---------|----------|
+| **0.0** | Immutable | Compliance-mandated settings, security constraints |
+| **0.1–0.3** | Rarely changed | Core model selection, fundamental architecture |
+| **0.4–0.6** | Moderately flexible | Capability flags, tool selection |
+| **0.7–0.9** | Highly flexible | Inference parameters, prompt wording |
+| **1.0** | Fully mutable | Experimental settings, optimization targets |
+
+<Warning>
+Setting mutability to 0.0 prevents Darwin from ever changing that gene. Use this for settings that must remain fixed for compliance, security, or business reasons.
+</Warning>
+
+### Why Mutability Matters
+
+Not all configuration should be equally flexible:
+
+- **Temperature** can usually vary freely—it's a tuning parameter
+- **Model selection** should change rarely—it affects cost, capability, and compliance
+- **Compliance disclaimers** in prompts should never change—they're legally required
+
+Mutability encodes this knowledge into the genome structure, so Darwin respects your constraints automatically.
+
+## Constraints
+
+**Constraints** define the valid boundaries for a gene's value:
+
+| Constraint | Applies To | Description |
+|------------|------------|-------------|
+| `min_value` | Numeric | Minimum allowed value |
+| `max_value` | Numeric | Maximum allowed value |
+| `step` | Numeric | Granularity of changes |
+| `min_length` | Text, List | Minimum length/count |
+| `max_length` | Text, List | Maximum length/count |
+| `allowed_values` | Enum, List | Set of valid options |
+| `pattern` | Text | Regex pattern to match |
+
+Constraints serve two purposes:
+1. **Validation** — Reject invalid mutations before they're applied
+2. **Embedding** — Normalize values for meaningful similarity comparison
+
+## Embedding Strategy
+
+Each gene specifies how it should be encoded into the genome embedding:
+
+| Strategy | Used For | How It Works |
+|----------|----------|--------------|
+| **text** | Prompts, instructions | Sentence transformer produces semantic vectors |
+| **structured** | Numbers, booleans, enums | Normalized encoding based on type and constraints |
+
+Text genes capture *meaning*—two prompts that say the same thing differently will be similar. Structured genes capture *position*—a temperature of 0.7 is closer to 0.8 than to 0.1.
+
+The combined embedding allows similarity search across both dimensions.
+
+## Gene Groups
+
+Genes are organized into **gene groups** for logical structure:
+
+| Group | Contains | Typical Mutability |
+|-------|----------|-------------------|
+| **LLM Genes** | Model, temperature, tokens, penalties | Medium to high |
+| **Instruction Genes** | System prompt, examples, format | Low to medium |
+| **Capability Genes** | Feature flags, modes | Low |
+| **Tool Genes** | Available tools, tool configs | Low to medium |
+| **Delegation Genes** | Sub-agents, routing | Low |
+
+Groups make genomes navigable and help focus optimization on relevant areas.
+
+## Mutations
+
+When a gene mutates, the change is recorded:
+
+```json
+{
+  "gene_name": "temperature",
+  "old_value": 0.9,
+  "new_value": 0.7,
+  "mutation_type": "guided",
+  "rationale": "Reduced temperature to decrease hallucination rate observed in production"
+}
+```
+
+Every mutation includes:
+- What changed
+- The before and after values
+- How the change was triggered (manual, random, guided)
+- Why the change was made (when available)
+
+This creates the audit trail that justifies every modification.
+
+## Example: Complete Gene Set
+
+Here's a representative sample of genes from a customer service agent:
+
+```json
+{
+  "llm_genes": {
+    "model": { "value": "gpt-4o", "mutability": 0.2 },
+    "temperature": { "value": 0.7, "mutability": 0.9 },
+    "max_tokens": { "value": 2048, "mutability": 0.7 }
+  },
+  "instruction_genes": {
+    "system_prompt": { "value": "You are a helpful...", "mutability": 0.4 },
+    "compliance_notice": { "value": "This is not financial advice...", "mutability": 0.0 }
+  },
+  "capability_genes": {
+    "memory_enabled": { "value": true, "mutability": 0.3 },
+    "tool_use_enabled": { "value": true, "mutability": 0.1 }
+  },
+  "tool_genes": {
+    "available_tools": { "value": ["knowledge_base", "ticket_system"], "mutability": 0.4 }
+  },
+  "delegation_genes": {
+    "escalation_agent": { "value": "human_handoff", "mutability": 0.1 }
+  }
+}
+```
+
+Notice how mutability varies:
+- Temperature is highly mutable (0.9)—fine to tune
+- Compliance notice is immutable (0.0)—legally required
+- Model is rarely changed (0.2)—affects cost and capability
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Genome" icon="dna" href="/concepts/evolution/genome">
+    See how genes combine into complete genomes
+  </Card>
+  <Card title="Lineage" icon="code-branch" href="/concepts/evolution/lineage">
+    Track how genes change over time
+  </Card>
+  <Card title="Developer Guide" icon="code" href="/developer-guide/evolve/genome-structure">
+    Work with genes in code
+  </Card>
+</CardGroup>

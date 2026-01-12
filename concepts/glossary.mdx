@@ -195,7 +195,7 @@ A flaw or deficiency in design, implementation, or operation that could potentia
 ## Vijil
 
 **Darwin**
-Vijil's continuous improvement system that uses production telemetry to identify edge cases, tune defenses, and improve agent trust over time.
+The evolution product within the Vijil platform that optimizes agents for trustworthiness by adapting their genomes based on evaluation results and production signals from Dome. Darwin proposes configuration changes (mutations) that improve the Trust Score over time.
 
 ---
 
@@ -205,12 +205,42 @@ A component that analyzes agent responses to determine if they contain threats, 
 ---
 
 **Diamond**
-Vijil's evaluation platform that tests agents against comprehensive threat scenarios to produce Trust Scores and identify vulnerabilities before deployment.
+The evaluation product within the Vijil platform that tests agents against comprehensive threat scenarios to produce Trust Scores and identify vulnerabilities before deployment.
 
 ---
 
 **Dome**
-Vijil's runtime defense platform that protects agents in production through configurable guardrails, guards, and real-time threat detection.
+The runtime defense product within the Vijil platform that protects agents in production through configurable guardrails, guards, and real-time threat detection.
+
+---
+
+**Evolution**
+The continuous improvement of agents through genome mutations guided by Trust Score optimization. Evolution connects Diamond (evaluation), Dome (observation), and Darwin (adaptation) into a feedback loop that systematically improves agent trustworthiness.
+
+---
+
+**Fitness Score**
+See [Trust Score](#trust-score). In the context of genome evolution, the Trust Score serves as the fitness function that guides optimization. Higher fitness means better trustworthiness.
+
+---
+
+**Gene**
+An atomic configurable property of an agent's behavior. Each gene has a type (text, numeric, boolean, enum, list, object), a value, mutability constraints, and an embedding strategy. Genes are the building blocks of genomes.
+
+---
+
+**Gene Group**
+A category of related genes within a genome. The five gene groups are: LLM Genes (model settings), Instruction Genes (prompts), Capability Genes (features), Tool Genes (available tools), and Delegation Genes (sub-agents).
+
+---
+
+**Generation**
+The iteration number in an evolutionary lineage. Generation increments each time Darwin proposes an optimization, distinguishing evolution cycles from manual version changes.
+
+---
+
+**Genome**
+The complete behavioral specification of an agent, composed of genes organized into groups. Genomes are versioned, immutable by version, and form the core data structure that Darwin evolves to optimize Trust Scores.
 
 ---
 
@@ -226,6 +256,16 @@ A configurable pipeline of guards that filter agent inputs and outputs. Guardrai
 
 **Harness**
 A collection of scenarios that define a complete evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+
+---
+
+**Lineage**
+The ancestry chain of genome versions, tracking every change from initial extraction through all mutations. Lineage provides traceability, enabling rollback, audit, and understanding of how an agent's configuration evolved.
+
+---
+
+**Mutability**
+A weight (0.0–1.0) indicating how freely a gene can change during evolution. Immutable genes (0.0) never change; fully mutable genes (1.0) can be freely optimized. Mutability encodes constraints like compliance requirements or stability preferences.
 
 ---
 

@@ -1,0 +1,410 @@
+---
+title: "Tracking Changes"
+description: "Monitor genome evolution, debug issues, and understand how your agent's configuration changed."
+---
+
+## Why Track Changes?
+
+When your agent's behavior shifts, you need to know:
+- **What** configuration changed
+- **When** it changed
+- **Why** it changed
+- **Who** (or what) changed it
+
+Genome lineage provides this visibility.
+
+## Viewing Current Version
+
+Get the active genome version:
+
+```python
+from vijil import VijilClient
+
+client = VijilClient()
+
+# Get current genome
+genome = client.genomes.get_by_agent(agent_id)
+
+print(f"Agent: {agent_id}")
+print(f"Genome: {genome.id}")
+print(f"Version: {genome.version}")
+print(f"Generation: {genome.generation}")
+print(f"Last updated: {genome.updated_at}")
+```
+
+## Version History
+
+List all versions of a genome:
+
+```python
+versions = client.genomes.list_versions(genome.id)
+
+for v in versions:
+    print(f"v{v.version} (gen {v.generation})")
+    print(f"  Created: {v.created_at}")
+    print(f"  Created by: {v.created_by}")
+    print(f"  Fitness: {v.fitness_scores.get('trust_score', 'N/A')}")
+
+    if v.mutation_type:
+        print(f"  Type: {v.mutation_type}")
+
+    print()
+```
+
+Output:
+```
+v5 (gen 2)
+  Created: 2024-01-15T14:30:00Z
+  Created by: darwin
+  Fitness: 87.1
+  Type: guided
+
+v4 (gen 1)
+  Created: 2024-01-14T09:00:00Z
+  Created by: darwin
+  Fitness: 82.3
+  Type: guided
+
+v3 (gen 1)
+  Created: 2024-01-10T16:00:00Z
+  Created by: jane@company.com
+  Fitness: 82.3
+  Type: manual
+
+v2 (gen 0)
+  Created: 2024-01-05T11:00:00Z
+  Created by: darwin
+  Fitness: 80.1
+  Type: random
+
+v1 (gen 0)
+  Created: 2024-01-01T10:00:00Z
+  Created by: system
+  Fitness: 75.0
+  Type: initial
+```
+
+## Comparing Versions
+
+### Basic Diff
+
+```python
+diff = client.genomes.diff(
+    genome_id=genome.id,
+    from_version=3,
+    to_version=5
+)
+
+print(diff.summary)
+# "2 genes changed, 0 added, 0 removed"
+
+for change in diff.changes:
+    print(f"{change.gene_name}:")
+    print(f"  {change.old_value} → {change.new_value}")
+```
+
+Output:
+```
+temperature:
+  0.9 → 0.65
+output_format:
+  "Be conversational and friendly" →
+  "Be conversational and friendly. Always cite sources."
+```
+
+### Detailed Diff
+
+```python
+diff = client.genomes.diff(
+    genome_id=genome.id,
+    from_version=3,
+    to_version=5,
+    include_metadata=True
+)
+
+for change in diff.changes:
+    print(f"\n{change.gene_name}")
+    print(f"  Group: {change.gene_group}")
+    print(f"  Type: {change.gene_type}")
+    print(f"  Old: {change.old_value}")
+    print(f"  New: {change.new_value}")
+    print(f"  Mutability: {change.mutability}")
+    if change.rationale:
+        print(f"  Rationale: {change.rationale}")
+```
+
+## Ancestry Tracing
+
+### Get Full Ancestry
+
+Trace back to the origin:
+
+```python
+ancestry = client.genomes.get_ancestry(
+    genome_id=genome.id,
+    version=5
+)
+
+print("Ancestry chain:")
+for ancestor in ancestry:
+    print(f"  v{ancestor.version} ← ", end="")
+print("(origin)")
+
+# Output: v5 ← v4 ← v3 ← v2 ← v1 ← (origin)
+```
+
+### Find Common Ancestor
+
+When comparing branches:
+
+```python
+common = client.genomes.find_common_ancestor(
+    genome_id=genome.id,
+    version_a=5,
+    version_b=4
+)
+
+print(f"Common ancestor: v{common.version}")
+# Both v5 and v4 descended from v3
+```
+
+## Mutation Records
+
+### View Mutations for a Version
+
+```python
+mutations = client.genomes.get_mutations(
+    genome_id=genome.id,
+    version=5
+)
+
+for m in mutations:
+    print(f"Gene: {m.gene_name}")
+    print(f"  Change: {m.old_value} → {m.new_value}")
+    print(f"  Type: {m.mutation_type}")
+    print(f"  Rationale: {m.rationale}")
+```
+
+### Mutation Types
+
+| Type | Meaning |
+|------|---------|
+| `initial` | First genome extraction |
+| `manual` | Human-made change |
+| `random` | Darwin exploration |
+| `guided` | Darwin optimization based on signals |
+| `rollback` | Revert to previous state |
+
+## Fitness Tracking
+
+### Fitness History
+
+```python
+fitness_history = client.genomes.get_fitness_history(
+    genome_id=genome.id
+)
+
+for entry in fitness_history:
+    print(f"v{entry.version}: {entry.fitness_scores}")
+```
+
+### Fitness Trajectory
+
+```python
+import matplotlib.pyplot as plt
+
+versions = []
+scores = []
+
+for entry in fitness_history:
+    versions.append(entry.version)
+    scores.append(entry.fitness_scores.get("trust_score", 0))
+
+plt.plot(versions, scores, marker='o')
+plt.xlabel("Version")
+plt.ylabel("Trust Score")
+plt.title("Genome Fitness Trajectory")
+plt.show()
+```
+
+## Change Notifications
+
+### Subscribe to Changes
+
+```python
+# Webhook for genome changes
+client.webhooks.create(
+    event="genome.version.created",
+    url="https://your-app.com/webhooks/genome-changed",
+    filters={
+        "agent_id": agent_id
+    }
+)
+```
+
+### Webhook Payload
+
+```json
+{
+  "event": "genome.version.created",
+  "timestamp": "2024-01-15T14:30:00Z",
+  "data": {
+    "genome_id": "abc-123",
+    "agent_id": "agent-456",
+    "version": 5,
+    "generation": 2,
+    "mutation_type": "guided",
+    "changes": [
+      {
+        "gene_name": "temperature",
+        "old_value": 0.9,
+        "new_value": 0.65
+      }
+    ],
+    "fitness_delta": {
+      "trust_score": 4.8
+    }
+  }
+}
+```
+
+## Debugging Workflows
+
+### "Why is my agent behaving differently?"
+
+```python
+# 1. Get production genome version
+prod_genome = client.genomes.get_deployed(agent_id, environment="production")
+print(f"Production version: v{prod_genome.version}")
+
+# 2. Compare to last known good
+diff = client.genomes.diff(
+    genome_id=prod_genome.id,
+    from_version=last_known_good,
+    to_version=prod_genome.version
+)
+
+# 3. Review changes
+for change in diff.changes:
+    print(f"{change.gene_name}: {change.old_value} → {change.new_value}")
+    print(f"  Rationale: {change.rationale}")
+```
+
+### "When did this regression start?"
+
+```python
+# Find version where metric degraded
+fitness_history = client.genomes.get_fitness_history(genome_id)
+
+regression_version = None
+prev_score = None
+
+for entry in fitness_history:
+    score = entry.fitness_scores.get("reliability")
+    if prev_score and score < prev_score - 5:  # 5 point drop
+        regression_version = entry.version
+        break
+    prev_score = score
+
+if regression_version:
+    print(f"Regression started at v{regression_version}")
+
+    # What changed in that version?
+    mutations = client.genomes.get_mutations(genome_id, regression_version)
+    for m in mutations:
+        print(f"  {m.gene_name}: {m.old_value} → {m.new_value}")
+```
+
+### "What would happen if I rollback?"
+
+```python
+# Preview rollback
+preview = client.genomes.preview_rollback(
+    genome_id=genome_id,
+    from_version=current_version,
+    to_version=target_version
+)
+
+print("Rollback preview:")
+print(f"  Genes to revert: {len(preview.changes)}")
+for change in preview.changes:
+    print(f"    {change.gene_name}: {change.current_value} → {change.target_value}")
+
+print(f"\n  Expected fitness: {preview.expected_fitness}")
+```
+
+## CI/CD Integration
+
+### Check for Drift
+
+```yaml
+# .github/workflows/genome-check.yml
+- name: Check Genome Drift
+  run: |
+    vijil genome diff \
+      --agent ${{ env.AGENT_ID }} \
+      --from deployed \
+      --to config \
+      --fail-on-drift
+```
+
+### Version Tagging
+
+```python
+# Tag important versions
+client.genomes.tag_version(
+    genome_id=genome.id,
+    version=3,
+    tag="v1.0-stable",
+    notes="Production-ready configuration"
+)
+
+# Retrieve by tag
+stable = client.genomes.get_by_tag(
+    genome_id=genome.id,
+    tag="v1.0-stable"
+)
+```
+
+## Exporting History
+
+### Export for Audit
+
+```python
+# Export full history
+history = client.genomes.export_history(
+    genome_id=genome.id,
+    format="json",
+    include_mutations=True,
+    include_fitness=True
+)
+
+with open("genome-history.json", "w") as f:
+    json.dump(history, f, indent=2)
+```
+
+### Export for Analysis
+
+```python
+# Export as DataFrame for analysis
+import pandas as pd
+
+history_df = client.genomes.export_history(
+    genome_id=genome.id,
+    format="dataframe"
+)
+
+# Analyze fitness trends
+history_df.plot(x="version", y="trust_score")
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Lineage Concept" icon="code-branch" href="/concepts/evolution/lineage">
+    Deep dive into version tracking
+  </Card>
+  <Card title="Genome API" icon="code" href="/developer-guide/api/genome-api">
+    Full API reference
+  </Card>
+</CardGroup>

@@ -1,0 +1,416 @@
+---
+title: "Your First Genome"
+description: "Extract and understand your agent's genome—a complete walkthrough."
+---
+
+## What You'll Learn
+
+By the end of this tutorial, you will:
+
+- Extract a genome from an existing agent
+- Understand the genome structure
+- Configure mutability and constraints
+- View the genome embedding
+- Prepare your agent for evolution
+
+**Time required:** 15 minutes
+
+## Prerequisites
+
+- A Vijil account with API access
+- An agent registered in Vijil (or you'll create one)
+- Python 3.9+ with the Vijil SDK installed
+
+```bash
+pip install vijil
+```
+
+## Step 1: Set Up Your Environment
+
+Create a new Python file and configure the client:
+
+```python
+# genome_tutorial.py
+from vijil import VijilClient
+
+# Initialize client (uses VIJIL_API_KEY env var)
+client = VijilClient()
+
+# Verify connection
+me = client.users.me()
+print(f"Connected as: {me.email}")
+```
+
+## Step 2: Create or Select an Agent
+
+If you have an existing agent:
+
+```python
+# Use existing agent
+agent_id = "your-agent-id"
+agent = client.agents.get(agent_id)
+print(f"Using agent: {agent.name}")
+```
+
+Or create a new one for this tutorial:
+
+```python
+# Create a sample agent
+agent = client.agents.create(
+    name="tutorial-assistant",
+    description="A helpful assistant for learning about genomes",
+    endpoint="https://api.openai.com/v1/chat/completions",
+    model="gpt-4o",
+    temperature=0.7,
+    max_tokens=2048,
+    system_prompt="""You are a helpful assistant that explains complex topics simply.
+Be friendly and encouraging. Use analogies when helpful.
+If you don't know something, say so honestly.""",
+    tools=[],
+    memory_enabled=False
+)
+
+print(f"Created agent: {agent.name} ({agent.id})")
+```
+
+## Step 3: Extract the Genome
+
+Genome extraction converts agent configuration into the structured genome format:
+
+```python
+# Extract genome
+genome = client.genomes.get_by_agent(agent.id)
+
+print(f"\n=== Genome Extracted ===")
+print(f"Genome ID: {genome.id}")
+print(f"Version: {genome.version}")
+print(f"Generation: {genome.generation}")
+print(f"Created: {genome.created_at}")
+```
+
+Output:
+```
+=== Genome Extracted ===
+Genome ID: 7a3b2c1d-...
+Version: 1
+Generation: 0
+Created: 2024-01-15T10:30:00Z
+```
+
+## Step 4: Explore the Gene Groups
+
+Let's look at what was extracted:
+
+```python
+# LLM Genes
+print("\n=== LLM Genes ===")
+for name, gene in genome.llm_genes.items():
+    print(f"{name}:")
+    print(f"  Value: {gene.value}")
+    print(f"  Type: {gene.gene_type}")
+    print(f"  Mutability: {gene.mutability}")
+```
+
+Output:
+```
+=== LLM Genes ===
+model:
+  Value: gpt-4o
+  Type: enum
+  Mutability: 0.2
+temperature:
+  Value: 0.7
+  Type: numeric
+  Mutability: 0.8
+max_tokens:
+  Value: 2048
+  Type: numeric
+  Mutability: 0.7
+```
+
+```python
+# Instruction Genes
+print("\n=== Instruction Genes ===")
+for name, gene in genome.instruction_genes.items():
+    value_preview = gene.value[:50] + "..." if len(str(gene.value)) > 50 else gene.value
+    print(f"{name}:")
+    print(f"  Value: {value_preview}")
+    print(f"  Type: {gene.gene_type}")
+    print(f"  Mutability: {gene.mutability}")
+```
+
+Output:
+```
+=== Instruction Genes ===
+system_prompt:
+  Value: You are a helpful assistant that explains com...
+  Type: text
+  Mutability: 0.5
+```
+
+```python
+# Capability Genes
+print("\n=== Capability Genes ===")
+for name, gene in genome.capability_genes.items():
+    print(f"{name}: {gene.value} (mutability: {gene.mutability})")
+```
+
+Output:
+```
+=== Capability Genes ===
+memory_enabled: False (mutability: 0.3)
+tool_use_enabled: False (mutability: 0.3)
+```
+
+## Step 5: Understand Mutability
+
+Mutability controls how freely Darwin can change each gene:
+
+```python
+# Analyze mutability distribution
+print("\n=== Mutability Analysis ===")
+
+high_mut = []
+medium_mut = []
+low_mut = []
+immutable = []
+
+for gene in genome.all_genes():
+    if gene.mutability == 0:
+        immutable.append(gene.name)
+    elif gene.mutability < 0.3:
+        low_mut.append(gene.name)
+    elif gene.mutability < 0.7:
+        medium_mut.append(gene.name)
+    else:
+        high_mut.append(gene.name)
+
+print(f"High mutability (≥0.7): {high_mut}")
+print(f"Medium mutability (0.3-0.7): {medium_mut}")
+print(f"Low mutability (<0.3): {low_mut}")
+print(f"Immutable (0): {immutable}")
+```
+
+Output:
+```
+=== Mutability Analysis ===
+High mutability (≥0.7): ['temperature', 'max_tokens']
+Medium mutability (0.3-0.7): ['system_prompt']
+Low mutability (<0.3): ['model', 'memory_enabled', 'tool_use_enabled']
+Immutable (0): []
+```
+
+## Step 6: Configure Mutability
+
+Adjust mutability based on your requirements:
+
+```python
+# Make the system prompt less mutable (we want to keep our friendly tone)
+# Make temperature more mutable (fine to tune)
+
+updates = client.genomes.update_mutability(
+    genome_id=genome.id,
+    updates={
+        "system_prompt": 0.2,  # Reduce - keep our tone
+        "temperature": 0.95,   # Increase - tune freely
+        "model": 0.0,          # Make immutable - don't change models
+    }
+)
+
+print("\n=== Updated Mutability ===")
+print(f"system_prompt: {updates['system_prompt']}")
+print(f"temperature: {updates['temperature']}")
+print(f"model: {updates['model']}")
+```
+
+## Step 7: Add Constraints
+
+Set boundaries for safe mutation:
+
+```python
+# Add constraints to prevent extreme values
+constraints = client.genomes.update_constraints(
+    genome_id=genome.id,
+    updates={
+        "temperature": {
+            "min_value": 0.3,  # Prevent near-zero (too deterministic)
+            "max_value": 1.2,  # Prevent too high (too random)
+        },
+        "max_tokens": {
+            "min_value": 512,   # Ensure useful responses
+            "max_value": 4096,  # Control costs
+        }
+    }
+)
+
+print("\n=== Constraints Added ===")
+print(f"temperature: {constraints['temperature']}")
+print(f"max_tokens: {constraints['max_tokens']}")
+```
+
+## Step 8: View the Embedding
+
+Genomes can be converted to vector embeddings for similarity search:
+
+```python
+# Generate embedding
+embedding = client.genomes.get_embedding(genome.id)
+
+print("\n=== Genome Embedding ===")
+print(f"Text embedding dimension: {embedding.text_dim}")
+print(f"Structured embedding dimension: {embedding.structured_dim}")
+print(f"Combined embedding dimension: {embedding.combined_dim}")
+print(f"Text model: {embedding.text_model}")
+
+# Preview first few values
+print(f"\nCombined embedding preview: {embedding.combined[:5]}...")
+```
+
+Output:
+```
+=== Genome Embedding ===
+Text embedding dimension: 384
+Structured embedding dimension: 64
+Combined embedding dimension: 448
+Text model: all-MiniLM-L6-v2
+
+Combined embedding preview: [0.0234, -0.1456, 0.0891, 0.2341, -0.0567]...
+```
+
+## Step 9: Find Similar Agents
+
+Use the embedding to find agents with similar configuration:
+
+```python
+# Find similar genomes
+similar = client.genomes.find_similar(
+    embedding=embedding.combined,
+    limit=5
+)
+
+print("\n=== Similar Agents ===")
+for match in similar:
+    print(f"Agent: {match.agent_name}")
+    print(f"  Similarity: {match.similarity:.2%}")
+    print(f"  Trust Score: {match.fitness_scores.get('trust_score', 'N/A')}")
+```
+
+## Step 10: Review Your Genome
+
+Final verification:
+
+```python
+# Get the updated genome
+genome = client.genomes.get(genome.id)
+
+print("\n=== Final Genome Summary ===")
+print(f"ID: {genome.id}")
+print(f"Version: {genome.version}")
+print(f"Agent: {genome.agent_id}")
+print(f"\nGene counts:")
+print(f"  LLM genes: {len(genome.llm_genes)}")
+print(f"  Instruction genes: {len(genome.instruction_genes)}")
+print(f"  Capability genes: {len(genome.capability_genes)}")
+print(f"  Tool genes: {len(genome.tool_genes)}")
+print(f"  Delegation genes: {len(genome.delegation_genes)}")
+
+total_genes = len(list(genome.all_genes()))
+mutable_genes = len([g for g in genome.all_genes() if g.mutability > 0])
+print(f"\nTotal genes: {total_genes}")
+print(f"Mutable genes: {mutable_genes}")
+print(f"Ready for evolution: {'✓' if mutable_genes > 0 else '✗'}")
+```
+
+Output:
+```
+=== Final Genome Summary ===
+ID: 7a3b2c1d-...
+Version: 2
+Agent: tutorial-assistant
+
+Gene counts:
+  LLM genes: 3
+  Instruction genes: 1
+  Capability genes: 2
+  Tool genes: 0
+  Delegation genes: 0
+
+Total genes: 6
+Mutable genes: 5
+Ready for evolution: ✓
+```
+
+## What's Next?
+
+Your genome is now ready for evolution. Here's what happens next:
+
+1. **Evaluate your agent** — Run evaluations to establish a baseline Trust Score
+2. **Deploy to production** — Enable Dome to collect signals
+3. **Darwin proposes** — Based on signals, Darwin will suggest optimizations
+4. **Review and approve** — You (or an owner) approve beneficial changes
+5. **Monitor and iterate** — The cycle continues, improving your agent
+
+<CardGroup cols={2}>
+  <Card title="Tracking Evolution" icon="chart-line" href="/tutorials/evolve-agents/tracking-evolution">
+    Monitor changes over time
+  </Card>
+  <Card title="Comparing Versions" icon="code-compare" href="/tutorials/evolve-agents/comparing-versions">
+    Understand what changed
+  </Card>
+  <Card title="Genome Concepts" icon="dna" href="/concepts/evolution/genome">
+    Deep dive into genome structure
+  </Card>
+  <Card title="Developer Guide" icon="code" href="/developer-guide/evolve/overview">
+    Full developer workflow
+  </Card>
+</CardGroup>
+
+## Complete Code
+
+Here's the full tutorial code:
+
+```python
+from vijil import VijilClient
+
+client = VijilClient()
+
+# Create agent
+agent = client.agents.create(
+    name="tutorial-assistant",
+    description="A helpful assistant for learning about genomes",
+    endpoint="https://api.openai.com/v1/chat/completions",
+    model="gpt-4o",
+    temperature=0.7,
+    max_tokens=2048,
+    system_prompt="""You are a helpful assistant that explains complex topics simply.
+Be friendly and encouraging. Use analogies when helpful.""",
+    tools=[],
+    memory_enabled=False
+)
+
+# Get genome
+genome = client.genomes.get_by_agent(agent.id)
+
+# Configure mutability
+client.genomes.update_mutability(
+    genome_id=genome.id,
+    updates={
+        "system_prompt": 0.2,
+        "temperature": 0.95,
+        "model": 0.0,
+    }
+)
+
+# Add constraints
+client.genomes.update_constraints(
+    genome_id=genome.id,
+    updates={
+        "temperature": {"min_value": 0.3, "max_value": 1.2},
+        "max_tokens": {"min_value": 512, "max_value": 4096},
+    }
+)
+
+# Verify
+genome = client.genomes.get(genome.id)
+print(f"Genome ready: {genome.id} v{genome.version}")
+```

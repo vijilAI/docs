@@ -1,0 +1,111 @@
+---
+title: "How Evolution Works"
+description: "Continuous improvement of agents through genome optimization, guided by Trust Score."
+---
+
+## From Testing to Improvement
+
+Evaluation tells you where your agent is vulnerable. Defense protects it in production. But what comes next? How do you systematically improve an agent based on what you've learned?
+
+**Evolution** closes the loop. Darwin uses evaluation results and production signals to optimize your agent's configuration over time. The goal: maximize the Trust Score—reliability, security, and safety—through controlled, traceable changes.
+
+## The Vijil Loop
+
+Evolution connects Vijil's three products into a continuous improvement cycle:
+
+| Product | Role in Evolution |
+|----------|-------------------|
+| **Diamond** | Evaluates agents, produces Trust Scores that serve as fitness signals |
+| **Dome** | Observes production behavior, captures environment signals (errors, edge cases, anomalies) |
+| **Darwin** | Analyzes signals, proposes genome mutations, tracks lineage |
+
+The cycle works like this:
+
+1. **Evaluate** — Diamond tests your agent, producing a Trust Score
+2. **Deploy** — Your agent runs in production, protected by Dome
+3. **Observe** — Dome captures traces, metrics, and anomalies
+4. **Adapt** — Darwin proposes configuration changes based on signals
+5. **Review** — You approve or reject proposed changes
+6. **Repeat** — The improved agent is re-evaluated, and the cycle continues
+
+Each iteration produces a measurably more trustworthy agent.
+
+## Why Evolution Matters
+
+Agents drift. The prompts that worked in testing fail on real user inputs. Edge cases emerge that no one anticipated. Adversaries probe for weaknesses. Static configuration can't keep up with dynamic environments.
+
+Evolution addresses this through:
+
+| Challenge | How Evolution Helps |
+|-----------|---------------------|
+| **Configuration complexity** | Systematically explores the parameter space |
+| **Environment drift** | Adapts to new patterns observed in production |
+| **Unknown unknowns** | Discovers improvements through guided experimentation |
+| **Audit requirements** | Maintains complete history of every change |
+
+## What Gets Evolved
+
+Darwin operates on **genomes**—structured representations of everything that shapes an agent's behavior. A genome contains:
+
+- **LLM settings** — Model, temperature, token limits
+- **Instructions** — System prompts, few-shot examples
+- **Capabilities** — Memory, tool use, code execution settings
+- **Tools** — Available tools and their configurations
+- **Delegation** — Sub-agents and their routing rules
+
+Each of these is a **gene**—an atomic property that can be tuned. Some genes are fully mutable (like temperature), others are constrained (like allowed tools), and some are immutable (like compliance-mandated instructions).
+
+<Note>
+The genome captures behavior-shaping configuration only. Agent identity (name, description) and policies (access rules, compliance requirements) remain separate—they define *what* the agent is and *what* it's allowed to do, not *how* it behaves.
+</Note>
+
+## Trust Score as Fitness
+
+In evolutionary systems, a **fitness function** determines which configurations survive and propagate. For Darwin, that function is the **Trust Score**.
+
+This means evolution optimizes for trustworthiness:
+- Higher reliability → fewer hallucinations, more consistent behavior
+- Higher security → better resistance to adversarial attacks
+- Higher safety → fewer policy violations, appropriate boundaries
+
+The Trust Score is objective, reproducible, and auditable—exactly what you need for automated optimization with human oversight.
+
+## Human-in-the-Loop
+
+Darwin proposes; you decide. Every mutation requires explicit approval before deployment.
+
+| Role | Permissions |
+|------|-------------|
+| **Agent Developer** | Can create genomes, submit changes for review |
+| **Agent Owner** | Can approve or reject changes, authorize deployment |
+
+This separation ensures that automated optimization never bypasses human judgment. You maintain control while Darwin handles the exploration.
+
+## The Burden of Trust
+
+When Vijil proposes changes to your agent, you need to understand exactly what changed and why. This is the **burden of trust**—Vijil must justify every modification.
+
+Darwin provides:
+- **Transparency** — Exact diff between genome versions
+- **Justification** — The signals that triggered the change
+- **Evidence** — Evaluation results showing improvement
+- **Reversibility** — One-click rollback to any previous version
+
+If a change doesn't improve the Trust Score, or if production behavior regresses, you can revert instantly.
+
+## Getting Started
+
+<CardGroup cols={2}>
+  <Card title="Genome" icon="dna" href="/concepts/evolution/genome">
+    The data structure that captures agent behavior
+  </Card>
+  <Card title="Gene" icon="circle-dot" href="/concepts/evolution/gene">
+    Atomic properties and their constraints
+  </Card>
+  <Card title="Lineage" icon="code-branch" href="/concepts/evolution/lineage">
+    Version history and ancestry tracking
+  </Card>
+  <Card title="First Genome Tutorial" icon="rocket" href="/tutorials/evolve-agents/first-genome">
+    Extract and understand your agent's genome
+  </Card>
+</CardGroup>

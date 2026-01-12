@@ -1,0 +1,208 @@
+---
+title: "Understanding Changes"
+description: "Review what Darwin changed and why—the evidence you need to make informed approval decisions."
+---
+
+## The Core Question
+
+When Darwin proposes a change to your agent, you need to answer one question: **Should I approve this?**
+
+To answer that question, you need to understand:
+- What exactly changed
+- Why Darwin made this change
+- What evidence supports the change
+- What happens if you approve (or don't)
+
+This guide shows you how to find and interpret that information.
+
+## What Changes Look Like
+
+Darwin proposes changes at the **gene** level—individual configuration parameters within the agent's genome. A typical change might be:
+
+```diff
+Genome: customer-service-agent
+Version: 3 → 4 (proposed)
+
+LLM Genes:
+- temperature: 0.9
++ temperature: 0.65
+
+Instruction Genes:
+  system_prompt: (unchanged)
+- output_format: "Be conversational and friendly"
++ output_format: "Be conversational and friendly. Always cite sources."
+```
+
+Each change shows:
+- **Which gene** changed (temperature, output_format)
+- **The before value** (what it was)
+- **The after value** (what Darwin proposes)
+- **What stayed the same** (unchanged genes)
+
+## Why Darwin Makes Changes
+
+Every proposed change includes a **rationale**—the signals that triggered Darwin to propose this mutation:
+
+| Signal Source | Example Rationale |
+|---------------|-------------------|
+| **Evaluation results** | "Hallucination rate 23% exceeded threshold in Trust Score evaluation" |
+| **Production traces** | "47 user complaints about incorrect information in past 7 days" |
+| **Anomaly detection** | "Response latency increased 340% after Tuesday deployment" |
+| **Comparison** | "Similar agents achieve 15% higher reliability with lower temperature" |
+
+The rationale connects the change to observable problems. If the rationale doesn't make sense, that's a signal to investigate before approving.
+
+<Note>
+As Darwin matures, rationales will become more detailed. Early versions may show simpler explanations like "Optimization for Trust Score improvement."
+</Note>
+
+## The Evidence Chain
+
+Before approving, verify the evidence chain:
+
+### 1. The Problem Exists
+
+Check the signals Darwin references:
+- Review the evaluation report that showed the issue
+- Check Dome traces for the production problems mentioned
+- Verify the metrics Darwin cites are accurate
+
+### 2. The Change Addresses It
+
+Understand how the proposed change fixes the problem:
+
+| Problem | Common Fix | Why It Works |
+|---------|------------|--------------|
+| High hallucination rate | Lower temperature | Reduces randomness, more deterministic responses |
+| Missing citations | Updated output format | Explicitly instructs citation behavior |
+| Slow responses | Reduced max_tokens | Less generation time per response |
+| Security vulnerabilities | Restricted tools | Smaller attack surface |
+
+If the connection between problem and fix isn't clear, ask before approving.
+
+### 3. The Change Was Validated
+
+Check if Darwin has evidence the change works:
+- Was the proposed genome evaluated?
+- What were the fitness scores before and after?
+- Are there test results showing improvement?
+
+## Reading the Approval Screen
+
+When reviewing a proposed change, you'll see:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Proposed Change: customer-service-agent                     │
+│ Version: 3 → 4                                              │
+│ Generation: 2 → 3                                           │
+├─────────────────────────────────────────────────────────────┤
+│ CHANGES                                                      │
+│ ├─ temperature: 0.9 → 0.65                                  │
+│ └─ output_format: (modified, click to expand)               │
+├─────────────────────────────────────────────────────────────┤
+│ RATIONALE                                                    │
+│ Evaluation run eval-789 detected 23% hallucination rate.    │
+│ Temperature reduction expected to improve reliability.       │
+├─────────────────────────────────────────────────────────────┤
+│ FITNESS IMPACT (projected)                                   │
+│ Trust Score:  82.3 → 87.1 (+4.8)                           │
+│ Reliability:  74.0 → 85.2 (+11.2)                          │
+│ Security:     88.0 → 88.0 (±0)                             │
+│ Safety:       85.0 → 88.0 (+3.0)                           │
+├─────────────────────────────────────────────────────────────┤
+│ [Approve]  [Reject]  [Request More Info]                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Key elements:
+- **Version numbers** show this creates a new version
+- **Generation** shows this is a Darwin-proposed evolution (not manual)
+- **Changes** are explicit and expandable
+- **Rationale** explains why
+- **Fitness impact** shows projected improvement
+
+## Questions to Ask
+
+Before approving, consider:
+
+| Question | If Yes | If No |
+|----------|--------|-------|
+| Do I understand what changed? | Proceed | Click to expand, review details |
+| Does the rationale make sense? | Proceed | Request more info |
+| Is the fitness improvement significant? | Proceed | Consider if worth the change |
+| Could this break something? | Test in staging first | Approve |
+| Does this comply with our policies? | Approve | Reject |
+
+## Approval Decisions
+
+You have three options:
+
+### Approve
+The change will be applied. A new genome version is created and can be deployed.
+
+**When to approve:**
+- The change is well-justified
+- Evidence supports improvement
+- No policy violations
+- Risk is acceptable
+
+### Reject
+The change is declined. The current version remains active.
+
+**When to reject:**
+- Rationale doesn't make sense
+- Change violates policy
+- Risk is too high
+- You need manual review of the underlying issue
+
+### Request More Info
+Darwin will provide additional context.
+
+**When to request:**
+- Rationale is unclear
+- You want to see specific traces or metrics
+- You need more evidence before deciding
+
+## Batch vs. Individual Review
+
+Changes can be reviewed individually or in batches:
+
+| Approach | Best For |
+|----------|----------|
+| **Individual** | High-risk agents, significant changes, compliance-critical |
+| **Batch** | Low-risk agents, minor tuning, high trust in Darwin |
+
+For batch review, you can set **auto-approve thresholds**:
+- Auto-approve if Trust Score improvement > X
+- Auto-approve if only numeric genes changed
+- Always require approval for instruction changes
+
+<Warning>
+Auto-approval should only be enabled after you've built confidence in Darwin's recommendations through individual review.
+</Warning>
+
+## After Approval
+
+Once approved:
+
+1. **New version created** — Genome v(N+1) is now available
+2. **Deployment decision** — Approve deploys to production (or staging first)
+3. **Observation begins** — Dome tracks the new version's production behavior
+4. **Rollback available** — Previous version remains accessible
+
+Monitor the deployed change through Dome observability. If issues emerge, you can rollback instantly.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Approving Deployments" icon="rocket" href="/owner-guide/review-evolution/approving-deployments">
+    Deploy approved changes safely
+  </Card>
+  <Card title="Rollback & History" icon="clock-rotate-left" href="/owner-guide/review-evolution/rollback-and-history">
+    Revert changes and view history
+  </Card>
+  <Card title="Trust Score" icon="chart-line" href="/concepts/trust-score/introduction">
+    Understand the fitness metrics
+  </Card>
+</CardGroup>

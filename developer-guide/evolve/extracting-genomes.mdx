@@ -1,0 +1,379 @@
+---
+title: "Extracting Genomes"
+description: "Create genomes from existing agent configurations—automatic and manual approaches."
+---
+
+## Why Extract?
+
+Before Darwin can optimize your agent, it needs a genome—a structured representation of the agent's configuration. Extraction converts your existing setup into the genome format.
+
+## Automatic Extraction
+
+When you register an agent with Vijil, genome extraction happens automatically:
+
+```python
+from vijil import VijilClient
+
+client = VijilClient()
+
+# Register agent - genome is extracted automatically
+agent = client.agents.create(
+    name="customer-service",
+    endpoint="https://api.example.com/agent",
+    model="gpt-4o",
+    temperature=0.7,
+    system_prompt="You are a helpful customer service assistant...",
+    tools=["knowledge_base", "ticket_system"],
+    # ... other config
+)
+
+# Genome is already created
+genome = client.genomes.get_by_agent(agent.id)
+print(f"Genome: {genome.id}")
+print(f"Version: {genome.version}")
+print(f"Genes extracted: {len(list(genome.all_genes()))}")
+```
+
+### What Gets Extracted
+
+| Agent Config | Genome Location | Gene Type |
+|--------------|-----------------|-----------|
+| `model` | LLM Genes | enum |
+| `temperature` | LLM Genes | numeric |
+| `max_tokens` | LLM Genes | numeric |
+| `top_p` | LLM Genes | numeric |
+| `system_prompt` | Instruction Genes | text |
+| `output_format` | Instruction Genes | text |
+| `memory_enabled` | Capability Genes | boolean |
+| `tools` | Tool Genes | list |
+| `tool_configs` | Tool Genes | object |
+| `delegate_agents` | Delegation Genes | list |
+
+### Default Mutability
+
+Automatic extraction assigns default mutability based on gene type:
+
+| Gene Category | Default Mutability |
+|---------------|-------------------|
+| Inference parameters | 0.8 |
+| Prompts | 0.5 |
+| Capability flags | 0.3 |
+| Tool configuration | 0.4 |
+| Model selection | 0.2 |
+
+You should review and adjust these defaults based on your requirements.
+
+## Manual Extraction
+
+For more control, extract manually:
+
+```python
+# Create agent without automatic genome
+agent = client.agents.create(
+    name="customer-service",
+    endpoint="https://api.example.com/agent",
+    auto_extract_genome=False,  # Disable automatic extraction
+    # ... config
+)
+
+# Extract manually with custom settings
+genome = client.genomes.extract_from_agent(
+    agent_id=agent.id,
+    mutability_overrides={
+        "temperature": 0.9,
+        "system_prompt": 0.3,
+        "model": 0.0,  # Make model immutable
+    },
+    constraint_overrides={
+        "temperature": {"min_value": 0.3, "max_value": 1.0},
+        "max_tokens": {"min_value": 1024, "max_value": 8192},
+    }
+)
+```
+
+## Extraction from Configuration Files
+
+If your agent configuration is in a file:
+
+### From YAML
+
+```yaml
+# agent-config.yaml
+name: customer-service
+model: gpt-4o
+temperature: 0.7
+max_tokens: 4096
+system_prompt: |
+  You are a helpful customer service assistant for Acme Corp.
+  Be friendly, professional, and accurate.
+tools:
+  - knowledge_base
+  - ticket_system
+capabilities:
+  memory: true
+  code_execution: false
+```
+
+```python
+import yaml
+
+with open("agent-config.yaml") as f:
+    config = yaml.safe_load(f)
+
+genome = client.genomes.extract_from_config(
+    agent_id=agent.id,
+    config=config
+)
+```
+
+### From JSON
+
+```json
+{
+  "name": "customer-service",
+  "model": "gpt-4o",
+  "temperature": 0.7,
+  "system_prompt": "You are a helpful assistant...",
+  "tools": ["knowledge_base", "ticket_system"]
+}
+```
+
+```python
+import json
+
+with open("agent-config.json") as f:
+    config = json.load(f)
+
+genome = client.genomes.extract_from_config(
+    agent_id=agent.id,
+    config=config
+)
+```
+
+## Extraction from Framework Agents
+
+### LangChain
+
+```python
+from langchain.agents import create_openai_functions_agent
+
+# Your existing LangChain agent
+langchain_agent = create_openai_functions_agent(
+    llm=ChatOpenAI(model="gpt-4o", temperature=0.7),
+    tools=[search_tool, calculator_tool],
+    prompt=hub.pull("hwchase17/openai-functions-agent")
+)
+
+# Extract genome
+genome = client.genomes.extract_from_langchain(
+    agent_id=vijil_agent.id,
+    langchain_agent=langchain_agent
+)
+```
+
+### Google ADK
+
+```python
+from google.adk import Agent
+
+# Your existing ADK agent
+adk_agent = Agent(
+    model="gemini-pro",
+    system_instruction="You are a helpful assistant..."
+)
+
+# Extract genome
+genome = client.genomes.extract_from_adk(
+    agent_id=vijil_agent.id,
+    adk_agent=adk_agent
+)
+```
+
+### Custom Agents
+
+For custom agent implementations, provide a config dict:
+
+```python
+# Your custom agent's configuration
+my_agent_config = {
+    "model": my_agent.model_name,
+    "temperature": my_agent.inference_params["temperature"],
+    "max_tokens": my_agent.inference_params["max_tokens"],
+    "system_prompt": my_agent.system_message,
+    "tools": [t.name for t in my_agent.tools],
+    "memory_enabled": my_agent.has_memory,
+}
+
+genome = client.genomes.extract_from_config(
+    agent_id=vijil_agent.id,
+    config=my_agent_config
+)
+```
+
+## Post-Extraction Setup
+
+After extraction, configure the genome for evolution:
+
+### 1. Review Gene Classification
+
+Check that genes are in the right groups:
+
+```python
+print("LLM Genes:")
+for gene in genome.llm_genes.values():
+    print(f"  {gene.name}: {gene.value} (type: {gene.gene_type})")
+
+print("\nInstruction Genes:")
+for gene in genome.instruction_genes.values():
+    print(f"  {gene.name}: {gene.value[:50]}...")
+```
+
+### 2. Set Mutability
+
+Adjust mutability for your use case:
+
+```python
+# Make compliance-critical genes immutable
+genome = client.genomes.update_mutability(
+    genome_id=genome.id,
+    updates={
+        "system_prompt": 0.0,  # Don't modify system prompt
+        "temperature": 0.9,    # Freely optimize
+        "model": 0.1,          # Rarely change
+    }
+)
+```
+
+### 3. Add Constraints
+
+Set bounds for safe mutation:
+
+```python
+genome = client.genomes.update_constraints(
+    genome_id=genome.id,
+    updates={
+        "temperature": {
+            "min_value": 0.2,  # Prevent near-zero
+            "max_value": 1.2,  # Cap randomness
+        },
+        "max_tokens": {
+            "min_value": 512,   # Ensure useful responses
+            "max_value": 8192,  # Control costs
+        },
+    }
+)
+```
+
+### 4. Verify Extraction
+
+Run validation:
+
+```python
+validation = client.genomes.validate(genome.id)
+
+if validation.errors:
+    print("Extraction issues:")
+    for error in validation.errors:
+        print(f"  - {error}")
+else:
+    print("Genome extracted successfully!")
+    print(f"  Total genes: {validation.gene_count}")
+    print(f"  Mutable genes: {validation.mutable_count}")
+    print(f"  Immutable genes: {validation.immutable_count}")
+```
+
+## Re-Extraction
+
+If your agent configuration changes outside of Darwin:
+
+```python
+# Re-extract to capture changes
+new_genome = client.genomes.re_extract(
+    agent_id=agent.id,
+    preserve_mutability=True,  # Keep existing mutability settings
+    preserve_constraints=True  # Keep existing constraints
+)
+
+# Compare to previous
+diff = client.genomes.diff(
+    from_version=old_genome.version,
+    to_version=new_genome.version
+)
+print(diff)
+```
+
+## Extraction Troubleshooting
+
+### Missing Genes
+
+If expected genes aren't extracted:
+
+```python
+# Check extraction mapping
+mapping = client.genomes.get_extraction_mapping(agent_id)
+print(mapping)
+
+# Manually add missing gene
+genome = client.genomes.add_gene(
+    genome_id=genome.id,
+    group="llm_genes",
+    gene=Gene(
+        name="stop_sequences",
+        value=["END", "STOP"],
+        gene_type="list",
+        mutability=0.5
+    )
+)
+```
+
+### Wrong Gene Type
+
+If a gene has the wrong type:
+
+```python
+# Update gene type
+genome = client.genomes.update_gene_type(
+    genome_id=genome.id,
+    gene_name="response_format",
+    new_type="enum",
+    constraints=GeneConstraints(
+        allowed_values=["json", "text", "markdown"]
+    )
+)
+```
+
+### Nested Configuration
+
+For deeply nested config:
+
+```python
+# Flatten nested config
+nested_config = {
+    "llm": {
+        "model": "gpt-4o",
+        "params": {
+            "temperature": 0.7,
+            "max_tokens": 4096
+        }
+    }
+}
+
+flat_config = {
+    "model": nested_config["llm"]["model"],
+    "temperature": nested_config["llm"]["params"]["temperature"],
+    "max_tokens": nested_config["llm"]["params"]["max_tokens"],
+}
+
+genome = client.genomes.extract_from_config(agent_id, flat_config)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Genome Structure" icon="dna" href="/developer-guide/evolve/genome-structure">
+    Understand the extracted structure
+  </Card>
+  <Card title="Tracking Changes" icon="code-compare" href="/developer-guide/evolve/tracking-changes">
+    Monitor genome evolution
+  </Card>
+</CardGroup>
