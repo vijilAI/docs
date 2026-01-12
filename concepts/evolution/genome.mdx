@@ -1,0 +1,194 @@
+---
+title: "Genome"
+description: "The complete behavioral specification of an agent—structured, versioned, and evolvable."
+---
+
+## What is a Genome?
+
+A **genome** is the complete behavioral specification of an agent. It captures every configuration parameter that shapes how the agent thinks, responds, and acts—organized into a structure that Darwin can analyze, compare, and optimize.
+
+Think of the genome as your agent's behavioral DNA. Just as biological DNA encodes the instructions for building an organism, an agent genome encodes the instructions for how the agent behaves. And just as DNA evolves through mutation and selection, agent genomes evolve through configuration changes guided by Trust Score.
+
+## Why Genomes Exist
+
+Without genomes, agent configuration is scattered:
+- LLM settings in one place
+- System prompts in another
+- Tool configurations elsewhere
+- No unified view of "what makes this agent behave this way"
+
+Genomes solve this by providing:
+
+| Need | How Genomes Help |
+|------|------------------|
+| **Unified representation** | All behavior-shaping config in one structure |
+| **Version control** | Every change creates a new version with full history |
+| **Comparison** | Diff any two versions to see exactly what changed |
+| **Optimization** | Structured format that Darwin can analyze and mutate |
+| **Similarity search** | Embeddings enable finding agents with similar behavior |
+
+## Genome Composition
+
+A genome is composed of **gene groups**—categories of related configuration parameters. Each group contains individual **genes**.
+
+```
+Genome
+├── LLM Genes
+│   ├── model
+│   ├── temperature
+│   ├── max_tokens
+│   └── ...
+├── Instruction Genes
+│   ├── system_prompt
+│   ├── few_shot_examples
+│   └── output_format
+├── Capability Genes
+│   ├── memory_enabled
+│   ├── tool_use_enabled
+│   └── code_execution
+├── Tool Genes
+│   ├── available_tools
+│   └── tool_configs
+└── Delegation Genes
+    ├── delegate_agents
+    └── routing_rules
+```
+
+### Gene Groups
+
+| Group | What It Contains | Examples |
+|-------|------------------|----------|
+| **LLM Genes** | Model selection and inference parameters | `model: gpt-4o`, `temperature: 0.7` |
+| **Instruction Genes** | Prompts and behavioral directives | System prompt, output format instructions |
+| **Capability Genes** | Feature flags and capability settings | Memory enabled, code execution allowed |
+| **Tool Genes** | Available tools and their configurations | API connectors, search tools, calculators |
+| **Delegation Genes** | Sub-agent composition and routing | Specialist agents, handoff rules |
+
+<Note>
+**What's NOT in the genome:**
+- **Identity** — Agent name, description, metadata (defines *what* the agent is)
+- **Policy** — Access rules, compliance requirements (defines *what* it's allowed to do)
+
+These remain separate because they don't shape behavior—they shape identity and permissions.
+</Note>
+
+## Genome Identity
+
+Every genome has a unique identity:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier (UUID) |
+| `agent_id` | The agent this genome belongs to |
+| `version` | Version number (increments with each mutation) |
+| `generation` | Evolution iteration (tracks optimization cycles) |
+| `parent_id` | ID of the genome this was derived from |
+| `parent_version` | Version of the parent genome |
+
+The combination of `id` and `version` uniquely identifies any genome state. The `parent_id` and `parent_version` create the lineage chain.
+
+## Versioning
+
+Genomes are **immutable by version**. When a gene changes, a new version is created:
+
+```
+Genome v1 (temperature: 0.9)
+    │
+    └──► Genome v2 (temperature: 0.7)  ← mutation: reduce temperature
+            │
+            └──► Genome v3 (temperature: 0.7, max_tokens: 4096)  ← mutation: increase tokens
+```
+
+This means:
+- You can always retrieve any historical version
+- Changes are never destructive
+- Rollback is instant—just reference an earlier version
+- Audit trails are automatic
+
+## Fitness Scores
+
+Each genome version can have **fitness scores**—metrics from evaluation that indicate how well this configuration performs:
+
+```json
+{
+  "fitness_scores": {
+    "trust_score": 87.5,
+    "reliability": 92.0,
+    "security": 81.0,
+    "safety": 89.5
+  }
+}
+```
+
+Fitness scores are the Trust Score dimensions. Darwin uses these to determine which mutations improve the agent and which don't.
+
+## Embeddings
+
+Genomes can be converted to **vector embeddings**—numerical representations that capture behavioral similarity:
+
+- **Text embedding** — Captures semantic meaning of prompts and instructions
+- **Structured embedding** — Encodes numeric, boolean, and categorical genes
+- **Combined embedding** — Unified vector for similarity search
+
+Embeddings enable:
+- Finding agents with similar behavior
+- Clustering agents by configuration patterns
+- Detecting configuration drift
+- Recommending optimizations based on similar successful agents
+
+## How Genomes Work
+
+### Extraction
+
+When you register an agent, Vijil extracts its genome:
+
+1. Agent configuration is analyzed
+2. Parameters are classified into gene groups
+3. Mutability weights are assigned based on type
+4. Initial genome version (v1, generation 0) is created
+
+### Mutation
+
+When Darwin proposes a change:
+
+1. Current genome is loaded
+2. Mutation is validated against gene constraints
+3. New version is created with updated genes
+4. Generation counter may increment (if from Darwin)
+5. Change awaits approval
+
+### Application
+
+When a genome is approved for deployment:
+
+1. Genome is converted back to agent configuration
+2. Agent is updated with new parameters
+3. Deployment is recorded in lineage
+4. Observability begins tracking the new version
+
+## When to Use Genomes
+
+| Scenario | Genome Usage |
+|----------|--------------|
+| **Initial setup** | Automatically extracted when agent is registered |
+| **Manual tuning** | Create new version with your changes, track history |
+| **Automated optimization** | Darwin proposes mutations, you approve |
+| **Incident investigation** | Compare current version to last known good |
+| **Compliance audit** | Review complete history of configuration changes |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Gene" icon="circle-dot" href="/concepts/evolution/gene">
+    Understand atomic properties and constraints
+  </Card>
+  <Card title="Lineage" icon="code-branch" href="/concepts/evolution/lineage">
+    Track version history and ancestry
+  </Card>
+  <Card title="Extract a Genome" icon="download" href="/tutorials/evolve-agents/first-genome">
+    Tutorial: Get your first genome
+  </Card>
+  <Card title="Genome API" icon="code" href="/developer-guide/api/genome-api">
+    API reference for genome operations
+  </Card>
+</CardGroup>

@@ -1,0 +1,754 @@
+---
+title: "Genome API"
+description: "Complete API reference for genome operations—CRUD, versioning, lineage, and embeddings."
+---
+
+## Overview
+
+The Genome API provides programmatic access to genome operations:
+
+- **CRUD** — Create, read, update, delete genomes
+- **Versioning** — Create versions, compare, rollback
+- **Lineage** — Track ancestry, mutations, fitness history
+- **Embeddings** — Generate and query genome embeddings
+- **Agent Integration** — Extract genomes, apply to agents
+
+Base URL: `https://api.vijil.ai/v1`
+
+Authentication: Bearer token in `Authorization` header
+
+## Genomes
+
+### Get Genome by ID
+
+Retrieve a specific genome, optionally at a specific version.
+
+```
+GET /genomes/{genome_id}
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `version` | integer | No | Specific version (default: latest) |
+
+**Response**
+
+```json
+{
+  "id": "7a3b2c1d-e5f6-4a8b-9c0d-1e2f3a4b5c6d",
+  "team_id": "team-123",
+  "agent_id": "agent-456",
+  "version": 3,
+  "generation": 1,
+  "parent_id": "7a3b2c1d-e5f6-4a8b-9c0d-1e2f3a4b5c6d",
+  "parent_version": 2,
+  "llm_genes": {
+    "model": {
+      "name": "model",
+      "value": "gpt-4o",
+      "gene_type": "enum",
+      "mutability": 0.2,
+      "constraints": {
+        "allowed_values": ["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"]
+      },
+      "embedding_strategy": "structured"
+    },
+    "temperature": {
+      "name": "temperature",
+      "value": 0.7,
+      "gene_type": "numeric",
+      "mutability": 0.9,
+      "constraints": {
+        "min_value": 0.0,
+        "max_value": 2.0
+      },
+      "embedding_strategy": "structured"
+    }
+  },
+  "instruction_genes": { ... },
+  "capability_genes": { ... },
+  "tool_genes": { ... },
+  "delegation_genes": { ... },
+  "fitness_scores": {
+    "trust_score": 87.5,
+    "reliability": 92.0,
+    "security": 81.0,
+    "safety": 89.5
+  },
+  "created_at": "2024-01-15T10:30:00Z",
+  "created_by": "user-789"
+}
+```
+
+**Python SDK**
+
+```python
+genome = client.genomes.get(genome_id, version=3)
+```
+
+---
+
+### Get Genome by Agent
+
+Retrieve the genome for a specific agent.
+
+```
+GET /genomes/by-agent/{agent_id}
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `version` | integer | No | Specific version (default: latest) |
+
+**Python SDK**
+
+```python
+genome = client.genomes.get_by_agent(agent_id)
+```
+
+---
+
+### List Genomes
+
+List genomes with filtering and pagination.
+
+```
+GET /genomes
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `agent_id` | string | No | Filter by agent |
+| `min_generation` | integer | No | Minimum generation |
+| `max_generation` | integer | No | Maximum generation |
+| `limit` | integer | No | Results per page (default: 50) |
+| `offset` | integer | No | Pagination offset |
+
+**Response**
+
+```json
+{
+  "items": [ ... ],
+  "total": 42,
+  "limit": 50,
+  "offset": 0
+}
+```
+
+**Python SDK**
+
+```python
+genomes = client.genomes.list(agent_id=agent_id, limit=20)
+```
+
+---
+
+### Create Genome
+
+Create a new genome from a configuration.
+
+```
+POST /genomes
+```
+
+**Request Body**
+
+```json
+{
+  "agent_id": "agent-456",
+  "llm_genes": {
+    "model": {
+      "value": "gpt-4o",
+      "mutability": 0.2
+    },
+    "temperature": {
+      "value": 0.7,
+      "mutability": 0.9,
+      "constraints": {
+        "min_value": 0.0,
+        "max_value": 2.0
+      }
+    }
+  },
+  "instruction_genes": {
+    "system_prompt": {
+      "value": "You are a helpful assistant.",
+      "mutability": 0.5
+    }
+  }
+}
+```
+
+**Python SDK**
+
+```python
+genome = client.genomes.create(
+    agent_id=agent_id,
+    llm_genes={...},
+    instruction_genes={...}
+)
+```
+
+---
+
+### Delete Genome
+
+Delete a genome and all its versions.
+
+```
+DELETE /genomes/{genome_id}
+```
+
+**Python SDK**
+
+```python
+client.genomes.delete(genome_id)
+```
+
+---
+
+## Versions
+
+### Create Version
+
+Create a new version with mutations applied.
+
+```
+POST /genomes/{genome_id}/versions
+```
+
+**Request Body**
+
+```json
+{
+  "mutations": [
+    {
+      "gene_name": "temperature",
+      "new_value": 0.65,
+      "rationale": "Reduce hallucination rate"
+    }
+  ],
+  "mutation_type": "manual",
+  "parent_version": 2
+}
+```
+
+**Mutation Types**
+
+| Type | Description |
+|------|-------------|
+| `manual` | Human-initiated change |
+| `random` | Darwin exploration |
+| `guided` | Darwin optimization |
+| `rollback` | Revert to previous |
+
+**Python SDK**
+
+```python
+new_version = client.genomes.create_version(
+    genome_id=genome_id,
+    mutations=[
+        {"gene_name": "temperature", "new_value": 0.65}
+    ],
+    mutation_type="manual"
+)
+```
+
+---
+
+### List Versions
+
+List all versions of a genome.
+
+```
+GET /genomes/{genome_id}/versions
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `limit` | integer | No | Results per page |
+| `offset` | integer | No | Pagination offset |
+
+**Python SDK**
+
+```python
+versions = client.genomes.list_versions(genome_id)
+```
+
+---
+
+### Compare Versions (Diff)
+
+Get the differences between two versions.
+
+```
+GET /genomes/{genome_id}/diff
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `from_version` | integer | Yes | Starting version |
+| `to_version` | integer | Yes | Ending version |
+
+**Response**
+
+```json
+{
+  "from_version": 2,
+  "to_version": 4,
+  "changes": [
+    {
+      "gene_name": "temperature",
+      "gene_group": "llm_genes",
+      "old_value": 0.9,
+      "new_value": 0.65,
+      "mutation_type": "guided",
+      "rationale": "High hallucination rate detected"
+    }
+  ],
+  "summary": "1 gene changed"
+}
+```
+
+**Python SDK**
+
+```python
+diff = client.genomes.diff(
+    genome_id=genome_id,
+    from_version=2,
+    to_version=4
+)
+```
+
+---
+
+## Lineage
+
+### Get Ancestry
+
+Trace ancestry back to root.
+
+```
+GET /genomes/{genome_id}/versions/{version}/ancestry
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `max_depth` | integer | No | Maximum ancestors to return |
+
+**Response**
+
+```json
+{
+  "ancestry": [
+    {"version": 3, "parent_version": 2, "generation": 1},
+    {"version": 2, "parent_version": 1, "generation": 0},
+    {"version": 1, "parent_version": null, "generation": 0}
+  ]
+}
+```
+
+**Python SDK**
+
+```python
+ancestry = client.genomes.get_ancestry(genome_id, version=4)
+```
+
+---
+
+### Get Descendants
+
+Get all versions derived from a specific version.
+
+```
+GET /genomes/{genome_id}/versions/{version}/descendants
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `max_depth` | integer | No | Maximum depth (default: 10) |
+
+**Python SDK**
+
+```python
+descendants = client.genomes.get_descendants(genome_id, version=2)
+```
+
+---
+
+### Get Mutations
+
+Get mutations applied to create a version.
+
+```
+GET /genomes/{genome_id}/versions/{version}/mutations
+```
+
+**Response**
+
+```json
+{
+  "mutations": [
+    {
+      "gene_name": "temperature",
+      "old_value": 0.9,
+      "new_value": 0.65,
+      "mutation_type": "guided",
+      "rationale": "Evaluation detected 23% hallucination rate",
+      "created_at": "2024-01-15T14:30:00Z"
+    }
+  ]
+}
+```
+
+**Python SDK**
+
+```python
+mutations = client.genomes.get_mutations(genome_id, version=4)
+```
+
+---
+
+## Fitness
+
+### Update Fitness Scores
+
+Record fitness scores for a genome version.
+
+```
+PATCH /genomes/{genome_id}/versions/{version}/fitness
+```
+
+**Request Body**
+
+```json
+{
+  "fitness_scores": {
+    "trust_score": 87.5,
+    "reliability": 92.0,
+    "security": 81.0,
+    "safety": 89.5
+  },
+  "evaluation_id": "eval-123"
+}
+```
+
+**Python SDK**
+
+```python
+client.genomes.update_fitness(
+    genome_id=genome_id,
+    version=4,
+    fitness_scores={
+        "trust_score": 87.5,
+        "reliability": 92.0
+    }
+)
+```
+
+---
+
+### Get Fitness History
+
+Get fitness scores across all versions.
+
+```
+GET /genomes/{genome_id}/fitness-history
+```
+
+**Response**
+
+```json
+{
+  "history": [
+    {"version": 1, "fitness_scores": {"trust_score": 75.0}},
+    {"version": 2, "fitness_scores": {"trust_score": 80.1}},
+    {"version": 3, "fitness_scores": {"trust_score": 82.3}},
+    {"version": 4, "fitness_scores": {"trust_score": 87.5}}
+  ]
+}
+```
+
+**Python SDK**
+
+```python
+history = client.genomes.get_fitness_history(genome_id)
+```
+
+---
+
+## Embeddings
+
+### Get Embedding
+
+Get the vector embedding for a genome version.
+
+```
+GET /genomes/{genome_id}/versions/{version}/embedding
+```
+
+**Response**
+
+```json
+{
+  "genome_id": "7a3b2c1d-...",
+  "genome_version": 3,
+  "text_embedding": [0.0234, -0.1456, ...],
+  "structured_embedding": [0.7, 0.5, ...],
+  "combined_embedding": [0.0234, -0.1456, ..., 0.7, 0.5, ...],
+  "text_model": "all-MiniLM-L6-v2",
+  "text_dim": 384,
+  "structured_dim": 64,
+  "combined_dim": 448
+}
+```
+
+**Python SDK**
+
+```python
+embedding = client.genomes.get_embedding(genome_id, version=3)
+```
+
+---
+
+### Find Similar Genomes
+
+Search for genomes with similar embeddings.
+
+```
+POST /genomes/similar
+```
+
+**Request Body**
+
+```json
+{
+  "embedding": [0.0234, -0.1456, ...],
+  "limit": 10,
+  "exclude_genome_id": "7a3b2c1d-..."
+}
+```
+
+**Response**
+
+```json
+{
+  "results": [
+    {
+      "genome_id": "abc-123",
+      "version": 2,
+      "agent_id": "agent-789",
+      "agent_name": "similar-assistant",
+      "similarity": 0.92,
+      "fitness_scores": {"trust_score": 89.0}
+    }
+  ]
+}
+```
+
+**Python SDK**
+
+```python
+similar = client.genomes.find_similar(
+    embedding=embedding.combined,
+    limit=10
+)
+```
+
+---
+
+## Agent Integration
+
+### Extract from Agent
+
+Create a genome from an existing agent's configuration.
+
+```
+POST /genomes/extract
+```
+
+**Request Body**
+
+```json
+{
+  "agent_id": "agent-456",
+  "mutability_overrides": {
+    "temperature": 0.9,
+    "model": 0.0
+  },
+  "constraint_overrides": {
+    "temperature": {
+      "min_value": 0.3,
+      "max_value": 1.2
+    }
+  }
+}
+```
+
+**Python SDK**
+
+```python
+genome = client.genomes.extract_from_agent(
+    agent_id=agent_id,
+    mutability_overrides={"temperature": 0.9}
+)
+```
+
+---
+
+### Apply to Agent
+
+Update an agent's configuration from a genome.
+
+```
+POST /genomes/{genome_id}/apply
+```
+
+**Request Body**
+
+```json
+{
+  "agent_id": "agent-456",
+  "version": 4
+}
+```
+
+**Python SDK**
+
+```python
+client.genomes.apply_to_agent(
+    genome_id=genome_id,
+    agent_id=agent_id,
+    version=4
+)
+```
+
+---
+
+## Configuration
+
+### Update Mutability
+
+Update mutability weights for genes.
+
+```
+PATCH /genomes/{genome_id}/mutability
+```
+
+**Request Body**
+
+```json
+{
+  "updates": {
+    "temperature": 0.95,
+    "system_prompt": 0.2,
+    "model": 0.0
+  }
+}
+```
+
+**Python SDK**
+
+```python
+client.genomes.update_mutability(
+    genome_id=genome_id,
+    updates={"temperature": 0.95}
+)
+```
+
+---
+
+### Update Constraints
+
+Update constraints for genes.
+
+```
+PATCH /genomes/{genome_id}/constraints
+```
+
+**Request Body**
+
+```json
+{
+  "updates": {
+    "temperature": {
+      "min_value": 0.3,
+      "max_value": 1.2
+    },
+    "max_tokens": {
+      "min_value": 512,
+      "max_value": 8192
+    }
+  }
+}
+```
+
+**Python SDK**
+
+```python
+client.genomes.update_constraints(
+    genome_id=genome_id,
+    updates={
+        "temperature": {"min_value": 0.3, "max_value": 1.2}
+    }
+)
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `400` | Invalid request (bad parameters, constraint violation) |
+| `401` | Unauthorized (invalid or missing token) |
+| `403` | Forbidden (insufficient permissions) |
+| `404` | Genome or version not found |
+| `409` | Conflict (version already exists) |
+| `422` | Validation error (invalid mutation) |
+
+**Error Response Format**
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Mutation violates constraint: temperature must be ≤ 2.0",
+    "details": {
+      "gene_name": "temperature",
+      "proposed_value": 2.5,
+      "constraint": "max_value: 2.0"
+    }
+  }
+}
+```
+
+## Rate Limits
+
+| Endpoint | Rate Limit |
+|----------|------------|
+| Read operations | 1000/minute |
+| Write operations | 100/minute |
+| Embedding search | 50/minute |
+
+Rate limit headers are included in responses:
+
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 998
+X-RateLimit-Reset: 1705312800
+```

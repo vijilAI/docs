@@ -1,0 +1,282 @@
+---
+title: "Lineage"
+description: "Complete version history and ancestry tracking—every change traceable, every state recoverable."
+---
+
+## What is Lineage?
+
+**Lineage** is the complete ancestry chain of a genome—the history of every version, every mutation, and every evaluation that led to the current configuration. It answers the question: "How did this agent get here?"
+
+Lineage provides traceability. When you need to understand why an agent behaves a certain way, audit its configuration history, or recover a previous state, lineage gives you the complete picture.
+
+## Why Lineage Matters
+
+Agent configuration changes over time. Without lineage, you face:
+
+| Problem | Consequence |
+|---------|-------------|
+| "What changed?" | Can't identify what caused a behavior shift |
+| "When did this break?" | Can't pinpoint when a regression was introduced |
+| "Can we roll back?" | No safe way to recover a known-good state |
+| "Who approved this?" | No audit trail for compliance |
+| "Why this value?" | Lost context on configuration decisions |
+
+Lineage solves all of these by maintaining an immutable, queryable history.
+
+## Lineage Structure
+
+Every genome version records its ancestry:
+
+```
+Genome (id: abc-123)
+│
+├── v1 (generation: 0) ← Initial extraction
+│   └── parent: none
+│
+├── v2 (generation: 0) ← Manual adjustment
+│   └── parent: v1
+│
+├── v3 (generation: 1) ← Darwin mutation
+│   └── parent: v2
+│
+├── v4 (generation: 1) ← Darwin mutation (branched)
+│   └── parent: v2
+│
+└── v5 (generation: 2) ← Darwin mutation
+    └── parent: v3
+```
+
+Key fields:
+
+| Field | Description |
+|-------|-------------|
+| `version` | Sequential version number |
+| `generation` | Evolution iteration (increments when Darwin proposes) |
+| `parent_id` | Genome ID of the parent |
+| `parent_version` | Version number of the parent |
+| `created_at` | Timestamp of creation |
+| `created_by` | User or service that created this version |
+
+## Version vs. Generation
+
+These are related but distinct concepts:
+
+| Concept | Increments When | Purpose |
+|---------|-----------------|---------|
+| **Version** | Any change creates a new version | Tracks every modification |
+| **Generation** | Darwin proposes an optimization | Tracks evolution cycles |
+
+A genome might go through versions 1→2→3→4→5 while generations progress 0→0→1→1→2. Manual edits increment version but not generation; Darwin mutations increment both.
+
+## Ancestry Chain
+
+Given any genome version, you can trace back to its origin:
+
+```
+Current: v5 (temperature: 0.6)
+    ↑
+Parent: v3 (temperature: 0.7)
+    ↑
+Parent: v2 (temperature: 0.9)
+    ↑
+Parent: v1 (temperature: 0.9) ← Initial
+```
+
+The ancestry chain shows:
+- The sequence of configurations that led here
+- Which changes were made at each step
+- When each change occurred
+- Who (or what) made each change
+
+## Descendants
+
+You can also look forward—see all versions derived from a given state:
+
+```
+v2 (temperature: 0.9)
+├── v3 (temperature: 0.7) ← reduced temperature path
+│   └── v5 (temperature: 0.6)
+│
+└── v4 (max_tokens: 4096) ← increased tokens path
+```
+
+This reveals when evolution branched and explored different optimization paths.
+
+## Mutation Records
+
+Each version transition records what changed:
+
+```json
+{
+  "from_version": 2,
+  "to_version": 3,
+  "mutations": [
+    {
+      "gene_name": "temperature",
+      "old_value": 0.9,
+      "new_value": 0.7,
+      "mutation_type": "guided",
+      "rationale": "High hallucination rate (23%) detected in production traces"
+    }
+  ],
+  "triggered_by": "darwin",
+  "evaluation_id": "eval-789",
+  "fitness_delta": {
+    "trust_score": +4.2,
+    "reliability": +8.1,
+    "security": 0,
+    "safety": +1.5
+  }
+}
+```
+
+Mutation records capture:
+- Exactly what changed
+- Why it changed (rationale from signals)
+- What triggered the change (manual, Darwin, etc.)
+- The fitness impact (if evaluated)
+
+## Diff View
+
+Compare any two versions to see differences:
+
+```diff
+Genome: abc-123
+Version: 2 → 5
+
+LLM Genes:
+- temperature: 0.9
++ temperature: 0.6
+
+- max_tokens: 2048
++ max_tokens: 4096
+
+Instruction Genes:
+  system_prompt: (unchanged)
+
+Capability Genes:
+- memory_enabled: false
++ memory_enabled: true
+```
+
+Diffs work across any version gap—not just adjacent versions.
+
+## Fitness Trajectory
+
+Track how Trust Score evolved across versions:
+
+| Version | Generation | Trust Score | Reliability | Security | Safety |
+|---------|------------|-------------|-------------|----------|--------|
+| v1 | 0 | 72.0 | 68 | 74 | 74 |
+| v2 | 0 | 72.0 | 68 | 74 | 74 |
+| v3 | 1 | 79.5 | 82 | 74 | 83 |
+| v5 | 2 | 84.2 | 88 | 76 | 89 |
+
+This shows whether evolution is working—each generation should trend upward.
+
+## Rollback
+
+If a deployment doesn't perform as expected, rollback to any previous version:
+
+1. **Identify target** — Find the last known good version
+2. **Compare** — Diff current vs. target to understand what changes will revert
+3. **Rollback** — Create a new version that matches the target state
+4. **Deploy** — Apply the rolled-back genome
+
+Rollback creates a new version (preserving history) rather than deleting versions:
+
+```
+v5 (problematic deployment)
+    │
+    └── v6 (rollback to v3 state)
+```
+
+This maintains audit integrity—you can always see that v5 existed and was rolled back.
+
+## Audit Trail
+
+For compliance, lineage provides:
+
+| Audit Need | Lineage Provides |
+|------------|------------------|
+| **Change history** | Complete record of every modification |
+| **Authorization** | Who approved each deployment |
+| **Justification** | Why each change was made |
+| **Impact** | Fitness scores before and after |
+| **Reversibility** | Proof that bad changes can be undone |
+
+Export lineage reports for audit documentation.
+
+## Branching and Merging
+
+Evolution can explore multiple paths:
+
+```
+v2 (baseline)
+├── v3-a (temperature experiment)
+├── v3-b (tool configuration experiment)
+└── v3-c (prompt variation experiment)
+```
+
+When one path proves superior, it continues; others are abandoned (but preserved in history).
+
+<Note>
+Currently, genomes don't support merging—each version has exactly one parent. If multiple experiments succeed, you choose one path to continue. Future versions may support genome merging.
+</Note>
+
+## Querying Lineage
+
+Common lineage queries:
+
+| Query | Use Case |
+|-------|----------|
+| Get ancestry | Trace how current state was reached |
+| Get descendants | See what branches from a version |
+| List versions | See all versions of a genome |
+| Compare versions | Diff any two versions |
+| Find by generation | Get all versions from an evolution cycle |
+| Find by date range | See what changed in a time period |
+
+## Example: Incident Investigation
+
+A customer reports their agent started giving incorrect information last Tuesday.
+
+**Step 1: Find the timeline**
+```
+v4 deployed: Monday 9am
+v5 deployed: Tuesday 2pm  ← around when issues started
+v6 deployed: Wednesday 8am (emergency rollback)
+```
+
+**Step 2: Diff v4 → v5**
+```diff
+- temperature: 0.5
++ temperature: 0.95
+```
+
+**Step 3: Review mutation record**
+```
+Darwin mutation: Increased temperature to improve response variety
+Triggered by: Low diversity score in evaluation
+```
+
+**Step 4: Root cause**
+Temperature increase led to hallucinations. The diversity score improved but reliability dropped.
+
+**Step 5: Resolution**
+- Adjust mutability constraints on temperature
+- Add reliability as a hard constraint for future evolution
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Review Changes" icon="magnifying-glass" href="/owner-guide/review-evolution/understanding-changes">
+    Owner guide to reviewing proposed changes
+  </Card>
+  <Card title="Rollback Tutorial" icon="rotate-left" href="/tutorials/evolve-agents/comparing-versions">
+    Learn to compare versions and rollback
+  </Card>
+  <Card title="Lineage API" icon="code" href="/developer-guide/api/genome-api">
+    API reference for lineage operations
+  </Card>
+</CardGroup>

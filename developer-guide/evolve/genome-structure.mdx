@@ -1,0 +1,468 @@
+---
+title: "Genome Structure"
+description: "Understanding genes, gene groups, types, constraints, and mutability in depth."
+---
+
+## Genome Anatomy
+
+A genome is a hierarchical structure:
+
+```
+Genome
+├── Metadata (id, version, generation, timestamps)
+├── Ancestry (parent_id, parent_version)
+├── Fitness Scores (trust_score, reliability, security, safety)
+└── Gene Groups
+    ├── LLM Genes
+    ├── Instruction Genes
+    ├── Capability Genes
+    ├── Tool Genes
+    └── Delegation Genes
+```
+
+Each gene group contains individual genes—the atomic units of configuration.
+
+## Gene Groups in Detail
+
+### LLM Genes
+
+Configuration for the underlying language model:
+
+```python
+llm_genes = {
+    "model": Gene(
+        name="model",
+        value="gpt-4o",
+        gene_type="enum",
+        mutability=0.2,
+        constraints=GeneConstraints(
+            allowed_values=["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"]
+        ),
+        embedding_strategy="structured"
+    ),
+    "temperature": Gene(
+        name="temperature",
+        value=0.7,
+        gene_type="numeric",
+        mutability=0.9,
+        constraints=GeneConstraints(
+            min_value=0.0,
+            max_value=2.0,
+            step=0.1
+        )
+    ),
+    "max_tokens": Gene(
+        name="max_tokens",
+        value=4096,
+        gene_type="numeric",
+        mutability=0.7,
+        constraints=GeneConstraints(
+            min_value=256,
+            max_value=128000
+        )
+    ),
+    "top_p": Gene(
+        name="top_p",
+        value=1.0,
+        gene_type="numeric",
+        mutability=0.8,
+        constraints=GeneConstraints(
+            min_value=0.0,
+            max_value=1.0
+        )
+    ),
+    "frequency_penalty": Gene(
+        name="frequency_penalty",
+        value=0.0,
+        gene_type="numeric",
+        mutability=0.6,
+        constraints=GeneConstraints(
+            min_value=-2.0,
+            max_value=2.0
+        )
+    ),
+    "presence_penalty": Gene(
+        name="presence_penalty",
+        value=0.0,
+        gene_type="numeric",
+        mutability=0.6,
+        constraints=GeneConstraints(
+            min_value=-2.0,
+            max_value=2.0
+        )
+    )
+}
+```
+
+### Instruction Genes
+
+Prompts and behavioral directives:
+
+```python
+instruction_genes = {
+    "system_prompt": Gene(
+        name="system_prompt",
+        value="You are a helpful customer service assistant for Acme Corp...",
+        gene_type="text",
+        mutability=0.4,
+        constraints=GeneConstraints(
+            max_length=10000
+        ),
+        embedding_strategy="text"  # Semantic embedding
+    ),
+    "output_format": Gene(
+        name="output_format",
+        value="Respond in a friendly, professional tone. Use bullet points for lists.",
+        gene_type="text",
+        mutability=0.6,
+        constraints=GeneConstraints(
+            max_length=2000
+        ),
+        embedding_strategy="text"
+    ),
+    "few_shot_examples": Gene(
+        name="few_shot_examples",
+        value=[
+            {"user": "How do I reset my password?", "assistant": "..."},
+            {"user": "What's your return policy?", "assistant": "..."}
+        ],
+        gene_type="list",
+        mutability=0.5,
+        constraints=GeneConstraints(
+            max_length=10
+        )
+    ),
+    "compliance_notice": Gene(
+        name="compliance_notice",
+        value="This information is for general guidance only and does not constitute financial advice.",
+        gene_type="text",
+        mutability=0.0,  # IMMUTABLE - legally required
+        constraints=None
+    )
+}
+```
+
+### Capability Genes
+
+Feature flags and behavioral modes:
+
+```python
+capability_genes = {
+    "memory_enabled": Gene(
+        name="memory_enabled",
+        value=True,
+        gene_type="boolean",
+        mutability=0.3
+    ),
+    "tool_use_enabled": Gene(
+        name="tool_use_enabled",
+        value=True,
+        gene_type="boolean",
+        mutability=0.2
+    ),
+    "code_execution_enabled": Gene(
+        name="code_execution_enabled",
+        value=False,
+        gene_type="boolean",
+        mutability=0.1  # Rarely change - security sensitive
+    ),
+    "response_mode": Gene(
+        name="response_mode",
+        value="conversational",
+        gene_type="enum",
+        mutability=0.5,
+        constraints=GeneConstraints(
+            allowed_values=["conversational", "formal", "concise", "detailed"]
+        )
+    )
+}
+```
+
+### Tool Genes
+
+Available tools and their configurations:
+
+```python
+tool_genes = {
+    "available_tools": Gene(
+        name="available_tools",
+        value=["knowledge_base", "ticket_system", "calculator"],
+        gene_type="list",
+        mutability=0.4,
+        constraints=GeneConstraints(
+            allowed_values=[
+                "knowledge_base", "ticket_system", "calculator",
+                "web_search", "email_sender", "calendar"
+            ],
+            min_length=1,
+            max_length=10
+        )
+    ),
+    "tool_configs": Gene(
+        name="tool_configs",
+        value={
+            "knowledge_base": {"max_results": 5, "threshold": 0.7},
+            "ticket_system": {"auto_create": False}
+        },
+        gene_type="object",
+        mutability=0.5
+    )
+}
+```
+
+### Delegation Genes
+
+Sub-agent composition and routing:
+
+```python
+delegation_genes = {
+    "delegate_agents": Gene(
+        name="delegate_agents",
+        value=["billing-specialist", "technical-support"],
+        gene_type="list",
+        mutability=0.3,
+        constraints=GeneConstraints(
+            max_length=5
+        )
+    ),
+    "routing_rules": Gene(
+        name="routing_rules",
+        value={
+            "billing_questions": "billing-specialist",
+            "technical_issues": "technical-support",
+            "default": "self"
+        },
+        gene_type="object",
+        mutability=0.4
+    ),
+    "escalation_threshold": Gene(
+        name="escalation_threshold",
+        value=0.8,
+        gene_type="numeric",
+        mutability=0.6,
+        constraints=GeneConstraints(
+            min_value=0.0,
+            max_value=1.0
+        )
+    )
+}
+```
+
+## Gene Types
+
+| Type | Python Type | Embedding | Example |
+|------|-------------|-----------|---------|
+| `text` | `str` | Semantic vector | System prompts |
+| `numeric` | `int` or `float` | Normalized [0,1] | Temperature |
+| `boolean` | `bool` | 0.0 or 1.0 | Feature flags |
+| `enum` | `str` | Position encoding | Model selection |
+| `list` | `list` | Length + presence | Tool lists |
+| `object` | `dict` | Key count | Nested configs |
+
+## Constraints
+
+Constraints define valid boundaries:
+
+```python
+class GeneConstraints:
+    # For numeric genes
+    min_value: float | None
+    max_value: float | None
+    step: float | None  # Granularity
+
+    # For text and list genes
+    min_length: int | None
+    max_length: int | None
+
+    # For enum and list genes
+    allowed_values: list | None
+
+    # For text genes
+    pattern: str | None  # Regex
+```
+
+### Constraint Examples
+
+```python
+# Numeric with bounds and step
+GeneConstraints(min_value=0.0, max_value=1.0, step=0.1)
+# Valid: 0.0, 0.1, 0.2, ... 1.0
+# Invalid: 0.15, 1.5, -0.1
+
+# Enum with allowed values
+GeneConstraints(allowed_values=["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"])
+# Valid: "gpt-4o"
+# Invalid: "gpt-3.5-turbo"
+
+# List with bounds and allowed items
+GeneConstraints(
+    allowed_values=["tool_a", "tool_b", "tool_c"],
+    min_length=1,
+    max_length=3
+)
+# Valid: ["tool_a"], ["tool_a", "tool_b"]
+# Invalid: [], ["tool_a", "tool_d"]
+
+# Text with pattern
+GeneConstraints(
+    max_length=1000,
+    pattern=r"^You are a .+ assistant"
+)
+# Valid: "You are a helpful assistant"
+# Invalid: "Hi there!"
+```
+
+## Mutability
+
+Mutability is a float from 0.0 to 1.0:
+
+```python
+# Fully mutable - Darwin can change freely
+Gene(name="temperature", mutability=1.0)
+
+# Highly mutable - prefer to change this
+Gene(name="temperature", mutability=0.9)
+
+# Moderately mutable - change if needed
+Gene(name="max_tokens", mutability=0.5)
+
+# Rarely mutable - only change with strong signal
+Gene(name="model", mutability=0.2)
+
+# Immutable - never change
+Gene(name="compliance_notice", mutability=0.0)
+```
+
+### Mutability Guidelines
+
+| Gene Category | Typical Mutability | Rationale |
+|---------------|-------------------|-----------|
+| Inference params (temp, top_p) | 0.7–1.0 | Safe to tune |
+| Token limits | 0.5–0.7 | Affects cost/quality |
+| Model selection | 0.1–0.3 | Major capability change |
+| Prompts | 0.3–0.5 | Behavior-defining |
+| Compliance text | 0.0 | Legally required |
+| Security settings | 0.0–0.2 | Risk-sensitive |
+| Tool availability | 0.2–0.4 | Capability scope |
+
+## Embedding Strategy
+
+Each gene specifies how it contributes to the genome embedding:
+
+### Text Strategy
+
+For prompts and instructions:
+
+```python
+Gene(
+    name="system_prompt",
+    embedding_strategy="text"
+)
+```
+
+Uses sentence transformer to create semantic embeddings. Similar prompts (even with different wording) cluster together.
+
+### Structured Strategy
+
+For numeric, boolean, enum values:
+
+```python
+Gene(
+    name="temperature",
+    embedding_strategy="structured"
+)
+```
+
+Uses normalized encoding:
+- Numeric: scaled to [0,1] using constraints
+- Boolean: 0.0 or 1.0
+- Enum: position / (total - 1)
+- List: [length / max_length, presence]
+
+## Working with Genomes in Code
+
+### Creating a Genome Programmatically
+
+```python
+from vijil.genome import Genome, Gene, GeneConstraints, GeneType
+
+genome = Genome(
+    agent_id=agent.id,
+    team_id=team.id,
+    llm_genes={
+        "model": Gene(
+            name="model",
+            value="gpt-4o",
+            gene_type=GeneType.ENUM,
+            mutability=0.2,
+            constraints=GeneConstraints(
+                allowed_values=["gpt-4o", "gpt-4o-mini"]
+            )
+        ),
+        "temperature": Gene(
+            name="temperature",
+            value=0.7,
+            gene_type=GeneType.NUMERIC,
+            mutability=0.9,
+            constraints=GeneConstraints(
+                min_value=0.0,
+                max_value=2.0
+            )
+        )
+    },
+    instruction_genes={
+        "system_prompt": Gene(
+            name="system_prompt",
+            value="You are a helpful assistant.",
+            gene_type=GeneType.TEXT,
+            mutability=0.4
+        )
+    },
+    # ... other gene groups
+)
+```
+
+### Accessing Genes
+
+```python
+# Get a specific gene
+temp = genome.llm_genes.temperature
+print(f"Temperature: {temp.value}, mutability: {temp.mutability}")
+
+# Get all text genes (for embedding)
+text_genes = genome.get_text_genes()
+
+# Get all structured genes
+structured_genes = genome.get_structured_genes()
+
+# Get mutable genes only
+mutable = [g for g in genome.all_genes() if g.mutability > 0]
+```
+
+### Validating Mutations
+
+```python
+# Check if a mutation is valid
+mutation = GeneMutation(
+    gene_name="temperature",
+    old_value=0.7,
+    new_value=1.5
+)
+
+is_valid = genome.validate_mutation(mutation)
+# Returns True if:
+# - Gene exists
+# - Gene is mutable (mutability > 0)
+# - New value satisfies constraints
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Extracting Genomes" icon="download" href="/developer-guide/evolve/extracting-genomes">
+    Create genomes from existing agents
+  </Card>
+  <Card title="Tracking Changes" icon="code-compare" href="/developer-guide/evolve/tracking-changes">
+    Monitor genome evolution
+  </Card>
+</CardGroup>

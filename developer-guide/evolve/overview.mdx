@@ -1,0 +1,314 @@
+---
+title: "Evolution Overview"
+description: "Integrate genome-based evolution into your agent development workflow."
+---
+
+## What Evolution Means for Developers
+
+As an agent developer, evolution changes how you think about configuration:
+
+| Traditional Approach | Evolution Approach |
+|---------------------|-------------------|
+| Configuration is static | Configuration evolves based on data |
+| Changes require manual tuning | Changes are proposed by Darwin |
+| History is in git commits | History is in genome lineage |
+| Rollback requires redeployment | Rollback is a version switch |
+
+Your role shifts from "manually tune everything" to "set constraints, review proposals, understand changes."
+
+## The Developer's Evolution Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    DEVELOPMENT CYCLE                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   1. CREATE AGENT                                           │
+│      └─► Agent configuration                                │
+│              │                                               │
+│   2. EXTRACT GENOME                                         │
+│      └─► Genome v1 created                                  │
+│              │                                               │
+│   3. SET CONSTRAINTS                                        │
+│      └─► Define mutability, bounds                          │
+│              │                                               │
+│   4. DEPLOY & OBSERVE                                       │
+│      └─► Dome collects signals                              │
+│              │                                               │
+│   5. DARWIN PROPOSES                                        │
+│      └─► Mutation suggested                                 │
+│              │                                               │
+│   6. REVIEW & SUBMIT                                        │
+│      └─► Developer verifies, submits for approval           │
+│              │                                               │
+│   7. OWNER APPROVES                                         │
+│      └─► New version deployed                               │
+│              │                                               │
+│       └──────────► (cycle continues)                        │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Key Developer Tasks
+
+### 1. Extract Genomes
+
+When you register an agent, extract its genome:
+
+```python
+from vijil import VijilClient
+
+client = VijilClient()
+
+# Register agent and extract genome
+agent = client.agents.create(
+    name="customer-service",
+    endpoint="https://api.example.com/agent",
+    # ... other config
+)
+
+# Genome is automatically extracted
+genome = client.genomes.get_by_agent(agent.id)
+print(f"Genome created: {genome.id} v{genome.version}")
+```
+
+### 2. Configure Mutability
+
+Set which genes can change and how much:
+
+```python
+# Update gene mutability
+genome = client.genomes.update(
+    genome_id=genome.id,
+    mutations=[
+        {
+            "gene_name": "temperature",
+            "mutability": 0.9,  # Highly mutable
+            "constraints": {"min_value": 0.1, "max_value": 1.5}
+        },
+        {
+            "gene_name": "system_prompt",
+            "mutability": 0.3,  # Rarely change
+        },
+        {
+            "gene_name": "compliance_notice",
+            "mutability": 0.0,  # Never change
+        }
+    ]
+)
+```
+
+### 3. Track Changes
+
+Monitor what Darwin proposes:
+
+```python
+# List pending proposals
+proposals = client.genomes.list_proposals(
+    agent_id=agent.id,
+    status="pending"
+)
+
+for proposal in proposals:
+    print(f"Proposal: {proposal.id}")
+    for mutation in proposal.mutations:
+        print(f"  {mutation.gene_name}: {mutation.old_value} → {mutation.new_value}")
+        print(f"  Rationale: {mutation.rationale}")
+```
+
+### 4. Submit for Approval
+
+After reviewing, submit for owner approval:
+
+```python
+# Submit proposal for approval
+client.genomes.submit_for_approval(
+    proposal_id=proposal.id,
+    developer_notes="Verified temperature change improves reliability without affecting response quality."
+)
+```
+
+### 5. Debug Issues
+
+When something goes wrong, trace the lineage:
+
+```python
+# Get lineage for debugging
+lineage = client.genomes.get_lineage(
+    genome_id=genome.id,
+    version=current_version
+)
+
+for version in lineage:
+    print(f"v{version.version} (gen {version.generation})")
+    print(f"  Created: {version.created_at}")
+    print(f"  Fitness: {version.fitness_scores}")
+    if version.mutations:
+        for m in version.mutations:
+            print(f"  Changed: {m.gene_name}")
+```
+
+## Permissions Model
+
+As a developer, you can:
+
+| Action | Allowed |
+|--------|---------|
+| Extract genomes | ✓ |
+| View genome versions | ✓ |
+| Update mutability constraints | ✓ |
+| Create manual versions | ✓ |
+| Submit for approval | ✓ |
+| **Approve deployments** | ✗ (owner only) |
+| **Rollback production** | ✗ (owner only) |
+
+This separation ensures changes are reviewed before reaching production.
+
+## Integration Points
+
+### CI/CD Integration
+
+Run genome validation in your pipeline:
+
+```yaml
+# .github/workflows/agent-ci.yml
+- name: Validate Genome
+  run: |
+    vijil genome validate \
+      --agent ${{ env.AGENT_ID }} \
+      --config agent-config.yaml
+
+- name: Check Drift
+  run: |
+    vijil genome diff \
+      --agent ${{ env.AGENT_ID }} \
+      --baseline production
+```
+
+### Local Development
+
+Test genome changes locally:
+
+```python
+# Load genome
+genome = client.genomes.get(genome_id, version=latest)
+
+# Create local variant
+test_genome = genome.copy()
+test_genome.llm_genes.temperature.value = 0.5
+
+# Run local evaluation
+results = client.evaluate(
+    agent=local_agent,
+    genome=test_genome,
+    harness="reliability"
+)
+```
+
+### Observability Integration
+
+Connect genome versions to traces:
+
+```python
+# In your agent code
+import vijil
+
+# Tag traces with genome version
+vijil.set_context(
+    genome_id=genome.id,
+    genome_version=genome.version
+)
+
+# Now all traces include genome context
+```
+
+This enables correlating production issues with specific genome versions.
+
+## Best Practices
+
+### 1. Set Meaningful Mutability
+
+Don't leave everything at default (1.0). Think about what should change:
+
+```python
+# Good: Intentional mutability
+{
+    "temperature": 0.9,      # Tune freely
+    "model": 0.2,            # Rarely change
+    "compliance_text": 0.0,  # Never change
+}
+
+# Bad: Default everything
+{
+    "temperature": 1.0,
+    "model": 1.0,
+    "compliance_text": 1.0,  # 🚨 Dangerous!
+}
+```
+
+### 2. Add Constraints
+
+Bounds prevent extreme mutations:
+
+```python
+{
+    "temperature": {
+        "mutability": 0.9,
+        "constraints": {
+            "min_value": 0.1,  # Prevent zero
+            "max_value": 1.2   # Cap randomness
+        }
+    }
+}
+```
+
+### 3. Document Gene Purpose
+
+Help Darwin (and future developers) understand intent:
+
+```python
+{
+    "temperature": {
+        "description": "Controls response randomness. Lower = more consistent, higher = more creative.",
+        "rationale": "Set to 0.7 based on initial testing showing good balance."
+    }
+}
+```
+
+### 4. Review Before Submitting
+
+Always understand what changed before submitting:
+
+```python
+# Don't just auto-submit
+for proposal in proposals:
+    diff = client.genomes.diff(
+        genome_id=proposal.genome_id,
+        from_version=proposal.parent_version,
+        to_version=proposal.proposed_version
+    )
+
+    # Review diff
+    print(diff)
+
+    # Then submit if it makes sense
+    if looks_good(diff):
+        client.genomes.submit_for_approval(proposal.id)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Genome Structure" icon="dna" href="/developer-guide/evolve/genome-structure">
+    Deep dive into genes and groups
+  </Card>
+  <Card title="Extracting Genomes" icon="download" href="/developer-guide/evolve/extracting-genomes">
+    Create genomes from agent configs
+  </Card>
+  <Card title="Tracking Changes" icon="code-compare" href="/developer-guide/evolve/tracking-changes">
+    Monitor and debug genome evolution
+  </Card>
+  <Card title="Genome API" icon="code" href="/developer-guide/api/genome-api">
+    Full API reference
+  </Card>
+</CardGroup>

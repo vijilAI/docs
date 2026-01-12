@@ -59,6 +59,15 @@
             ]
           },
           {
+            "group": "Evolution",
+            "pages": [
+              "concepts/evolution/introduction",
+              "concepts/evolution/genome",
+              "concepts/evolution/gene",
+              "concepts/evolution/lineage"
+            ]
+          },
+          {
             "group": "Reference",
             "pages": [
               "concepts/glossary",
@@ -116,6 +125,14 @@
             ]
           },
           {
+            "group": "Review Evolution",
+            "pages": [
+              "owner-guide/review-evolution/understanding-changes",
+              "owner-guide/review-evolution/approving-deployments",
+              "owner-guide/review-evolution/rollback-and-history"
+            ]
+          },
+          {
             "group": "Audit Agent Behavior",
             "pages": [
               "owner-guide/audit-agent-behavior/quantifying-risk",
@@ -165,6 +182,15 @@
             ]
           },
           {
+            "group": "Evolve Agents",
+            "pages": [
+              "developer-guide/evolve/overview",
+              "developer-guide/evolve/genome-structure",
+              "developer-guide/evolve/extracting-genomes",
+              "developer-guide/evolve/tracking-changes"
+            ]
+          },
+          {
             "group": "Deploy with CI/CD",
             "pages": [
               "developer-guide/cicd/overview",
@@ -189,7 +215,8 @@
               "developer-guide/api/python-client",
               "developer-guide/api/evaluations-api",
               "developer-guide/api/agents-api",
-              "developer-guide/api/dome-api"
+              "developer-guide/api/dome-api",
+              "developer-guide/api/genome-api"
             ]
           }
         ]
