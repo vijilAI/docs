@@ -8,10 +8,11 @@
   },
   "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#DE1616",
+    "light": "#FF4444",
+    "dark": "#0247A9"
   },
+  "css": "/styles.css",
   "icons": {
     "library": "lucide"
   },
@@ -166,7 +167,7 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://app.vijil.ai"
     }
   },
   "contextual": {
