@@ -312,21 +312,25 @@ info = await get_agent_info("http://localhost:9000")
 
 ### Evaluation Errors
 
+Evaluation errors use the same structured format as validation errors:
+
 ```json
 {
   "evaluation_id": "eval-xyz",
   "status": "failed",
-  "error": "Cannot reach target agent at http://localhost:9000"
+  "error_code": "AGENT_UNREACHABLE",
+  "message": "Cannot reach target agent at http://localhost:9000: Health check failed"
 }
 ```
 
-Common errors:
+Common error codes:
 
-| Error | Cause |
-|-------|-------|
-| `Cannot reach target agent` | Target URL unreachable or not an A2A agent |
-| `Harness not found` | Invalid harness_id or missing resources |
-| `LLM authentication failed` | Invalid or missing API key |
+| Error Code | Cause |
+|------------|-------|
+| `AGENT_UNREACHABLE` | Target URL unreachable or health check failed |
+| `HARNESS_NOT_FOUND` | Invalid harness_id or missing resources |
+| `EVALUATION_ERROR` | Evaluation execution failed |
+| `VALIDATION_ERROR` | Invalid input parameters |
 
 ### A2A Protocol Errors
 
