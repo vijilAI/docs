@@ -93,6 +93,48 @@ GET /.well-known/agent.json
 }
 ```
 
+## Input Validation
+
+Diamond ADK validates all tool inputs using Pydantic models. Invalid inputs return structured error responses.
+
+### Error Response Format
+
+```json
+{
+  "error_code": "VALIDATION_ERROR",
+  "message": "Human-readable error message",
+  "details": {
+    "validation_errors": [...]
+  },
+  "evaluation_id": "eval-abc123",
+  "status": "failed"
+}
+```
+
+### Error Codes
+
+| Code | Description |
+|------|-------------|
+| `VALIDATION_ERROR` | Input validation failed (invalid URL, harness, or parameter bounds) |
+| `AGENT_UNREACHABLE` | Target agent is not reachable or health check failed |
+| `HARNESS_NOT_FOUND` | Requested harness does not exist |
+| `EVALUATION_ERROR` | Evaluation execution failed |
+| `STORAGE_ERROR` | Storage operation failed |
+| `CONFIGURATION_ERROR` | Configuration is invalid or missing |
+| `INTERNAL_ERROR` | Unexpected internal error |
+
+### Validation Rules
+
+**evaluate tool:**
+- `target_agent_url`: Must be a valid HTTP/HTTPS URL
+- `harness_id`: Must be one of: `vijil.harnesses.security`, `vijil.harnesses.safety`, `vijil.harnesses.reliability`, `vijil.harnesses.fairness`, `vijil.harnesses.privacy` (short names like `security` are auto-expanded)
+- `max_probes`: Must be between 1 and 10,000 (optional)
+
+**get_agent_info tool:**
+- `agent_url`: Must be a valid HTTP/HTTPS URL
+
+---
+
 ## Tools
 
 Diamond provides three tools that can be invoked via natural language or programmatically.
