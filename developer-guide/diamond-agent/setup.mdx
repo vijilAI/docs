@@ -45,6 +45,10 @@ Core Diamond dependencies (always installed):
 | `DIAMOND_HOST` | `0.0.0.0` | Server bind address |
 | `DIAMOND_RESOURCE_DIR` | `resources` | Path to harness resources |
 | `DIAMOND_MAX_PROBES` | `100` | Default max probes per evaluation |
+| `DIAMOND_STORAGE_PROVIDER` | `filesystem` | Storage backend: `filesystem`, `aws`, `gcp`, `digitalocean` |
+| `DIAMOND_STORAGE_BUCKET` | - | S3/GCS bucket name (required for cloud storage) |
+| `DIAMOND_STORAGE_PATH` | `~/.diamond/storage` | Base path for filesystem storage |
+| `DIAMOND_STORAGE_REGION` | - | AWS/DigitalOcean region (required for aws/digitalocean) |
 
 ### Command Line Options
 
@@ -161,7 +165,7 @@ asyncio.run(main())
 
 ```python
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 @dataclass
 class DiamondConfig:
@@ -181,10 +185,96 @@ class DiamondConfig:
     agent_timeout: float = 300.0      # Target agent request timeout
     detection_timeout: float = 60.0   # Detector request timeout
 
+    # Storage Configuration
+    storage_provider: Literal["filesystem", "aws", "gcp", "digitalocean"] = "filesystem"
+    storage_bucket: Optional[str] = None   # Required for cloud storage
+    storage_path: Optional[str] = None     # Base path for filesystem
+    storage_region: Optional[str] = None   # Required for AWS/DigitalOcean
+
     @classmethod
     def from_env(cls) -> "DiamondConfig":
         """Create config from environment variables."""
         ...
+```
+
+## Result Storage
+
+Diamond persists evaluation results to storage for later retrieval. By default, results are stored locally in `~/.diamond/storage/`.
+
+### Storage Structure
+
+```
+~/.diamond/storage/
+└── evaluations/
+    ├── eval-abc123/
+    │   └── results.json
+    ├── eval-def456/
+    │   └── results.json
+    └── ...
+```
+
+### Configuring Storage Backends
+
+<Tabs>
+  <Tab title="Filesystem (Default)">
+    No configuration needed for local development:
+    ```bash
+    # Results stored at ~/.diamond/storage/evaluations/
+    python -m diamond.adk
+    ```
+
+    Custom path:
+    ```bash
+    export DIAMOND_STORAGE_PATH=/data/diamond
+    python -m diamond.adk
+    ```
+  </Tab>
+  <Tab title="AWS S3">
+    ```bash
+    export DIAMOND_STORAGE_PROVIDER=aws
+    export DIAMOND_STORAGE_BUCKET=my-diamond-bucket
+    export DIAMOND_STORAGE_REGION=us-west-2
+    export AWS_ACCESS_KEY_ID=your-key
+    export AWS_SECRET_ACCESS_KEY=your-secret
+    python -m diamond.adk
+    ```
+
+    <Note>
+    AWS credentials can also be provided via IAM roles (IRSA in EKS) or `~/.aws/credentials`.
+    </Note>
+  </Tab>
+  <Tab title="Google Cloud Storage">
+    ```bash
+    export DIAMOND_STORAGE_PROVIDER=gcp
+    export DIAMOND_STORAGE_BUCKET=my-diamond-bucket
+    export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+    python -m diamond.adk
+    ```
+  </Tab>
+  <Tab title="DigitalOcean Spaces">
+    ```bash
+    export DIAMOND_STORAGE_PROVIDER=digitalocean
+    export DIAMOND_STORAGE_BUCKET=my-space
+    export DIAMOND_STORAGE_REGION=nyc3
+    export DO_ACCESS_KEY_ID=your-key
+    export DO_SECRET_ACCESS_KEY=your-secret
+    python -m diamond.adk
+    ```
+  </Tab>
+</Tabs>
+
+### Retrieving Stored Results
+
+```python
+from diamond.adk.tools import get_evaluation_result, list_evaluations
+
+# List all stored evaluations
+evaluation_ids = await list_evaluations()
+print(evaluation_ids)  # ['eval-abc123', 'eval-def456', ...]
+
+# Retrieve a specific result
+result = await get_evaluation_result("eval-abc123")
+print(result["trust_score"])  # 85.0
 ```
 
 ## Resource Directory Structure

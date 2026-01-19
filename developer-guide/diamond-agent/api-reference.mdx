@@ -132,9 +132,14 @@ Run a trust evaluation against a target A2A agent.
   "trust_score": 85.0,
   "probes_executed": 10,
   "probes_passed": 8,
-  "probes_failed": 2
+  "probes_failed": 2,
+  "storage_path": "evaluations/eval-a1b2c3d4/results.json"
 }
 ```
+
+<Note>
+The `storage_path` field is only included when storage is configured and the result was successfully saved.
+</Note>
 
 #### Python Usage
 
@@ -316,6 +321,10 @@ config = DiamondConfig(
     server_port=8080,               # Server port
     agent_timeout=300.0,            # Target agent timeout (seconds)
     detection_timeout=60.0,         # Detector timeout (seconds)
+    storage_provider="filesystem",  # "filesystem", "aws", "gcp", "digitalocean"
+    storage_bucket=None,            # S3/GCS bucket name
+    storage_path=None,              # Base path for filesystem storage
+    storage_region=None,            # AWS/DO region
 )
 ```
 
@@ -342,12 +351,19 @@ app: Starlette = create_a2a_app(config)
 ### diamond.adk.tools
 
 ```python
-from diamond.adk.tools import evaluate, list_probes, get_agent_info, set_config
+from diamond.adk.tools import (
+    evaluate,
+    list_probes,
+    get_agent_info,
+    set_config,
+    get_evaluation_result,
+    list_evaluations,
+)
 ```
 
 #### set_config(config)
 
-Set global configuration for tools.
+Set global configuration for tools. Initializes storage client based on config.
 
 ```python
 set_config(DiamondConfig())
@@ -356,6 +372,37 @@ set_config(DiamondConfig())
 <Note>
 Must be called before using tools if not using the agent framework.
 </Note>
+
+#### get_evaluation_result(evaluation_id, bucket_name)
+
+Retrieve a stored evaluation result.
+
+<ParamField path="evaluation_id" type="string" required>
+  Unique evaluation identifier (e.g., `eval-abc123`)
+</ParamField>
+
+<ParamField path="bucket_name" type="string" default="evaluations">
+  Storage bucket/directory name
+</ParamField>
+
+```python
+result = await get_evaluation_result("eval-abc123")
+if result:
+    print(f"Trust score: {result['trust_score']}%")
+```
+
+#### list_evaluations(bucket_name)
+
+List all stored evaluation IDs.
+
+<ParamField path="bucket_name" type="string" default="evaluations">
+  Storage bucket/directory name
+</ParamField>
+
+```python
+evaluation_ids = await list_evaluations()
+# Returns: ['eval-abc123', 'eval-def456', ...]
+```
 
 ## Rate Limits
 
