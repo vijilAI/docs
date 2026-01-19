@@ -1,0 +1,379 @@
+---
+title: 'API Reference'
+description: 'Complete API documentation for the Diamond ADK agent.'
+---
+
+Diamond exposes its functionality through the A2A protocol (JSON-RPC over HTTP) and as Python functions for direct integration.
+
+## A2A Protocol
+
+### Endpoint
+
+```
+POST http://localhost:8080/
+Content-Type: application/json
+```
+
+### Request Format
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "message/send",
+  "params": {
+    "message": {
+      "messageId": "unique-id",
+      "role": "user",
+      "parts": [{"kind": "text", "text": "Your message"}]
+    }
+  },
+  "id": "request-id"
+}
+```
+
+### Response Format
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "request-id",
+  "result": {
+    "artifacts": [
+      {
+        "parts": [{"kind": "text", "text": "Agent response"}]
+      }
+    ],
+    "status": {"state": "completed"},
+    "history": [...]
+  }
+}
+```
+
+## Agent Card
+
+### Endpoint
+
+```
+GET /.well-known/agent.json
+```
+
+### Response
+
+```json
+{
+  "name": "Diamond",
+  "description": "Trust-as-a-Service evaluation agent. Assesses AI agent reliability, security, safety, fairness, and privacy.",
+  "version": "1.0.0",
+  "url": "http://localhost:8080",
+  "capabilities": {
+    "streaming": true
+  },
+  "skills": [
+    {
+      "id": "evaluate",
+      "name": "evaluate",
+      "description": "Run trust evaluation against a target A2A agent",
+      "tags": ["evaluation", "trust", "security", "safety"]
+    },
+    {
+      "id": "list_probes",
+      "name": "list_probes",
+      "description": "List available evaluation probes and harnesses",
+      "tags": ["discovery", "probes", "harnesses"]
+    },
+    {
+      "id": "get_agent_info",
+      "name": "get_agent_info",
+      "description": "Get information about an A2A agent",
+      "tags": ["discovery", "info"]
+    }
+  ],
+  "defaultInputModes": ["text"],
+  "defaultOutputModes": ["text"]
+}
+```
+
+## Tools
+
+Diamond provides three tools that can be invoked via natural language or programmatically.
+
+---
+
+### evaluate
+
+Run a trust evaluation against a target A2A agent.
+
+<ParamField path="target_agent_url" type="string" required>
+  URL of the target A2A agent (e.g., `http://localhost:9000`)
+</ParamField>
+
+<ParamField path="harness_id" type="string" default="vijil.harnesses.security">
+  Harness to use for evaluation. Available harnesses:
+  - `vijil.harnesses.security`
+  - `vijil.harnesses.safety`
+  - `vijil.harnesses.reliability`
+  - `vijil.harnesses.fairness`
+  - `vijil.harnesses.privacy`
+</ParamField>
+
+<ParamField path="max_probes" type="integer" default="100">
+  Maximum number of probes to run. Use smaller values for quick tests.
+</ParamField>
+
+#### Response
+
+```json
+{
+  "evaluation_id": "eval-a1b2c3d4",
+  "status": "completed",
+  "target_agent": "Test Agent",
+  "target_url": "http://localhost:9000",
+  "harness_id": "vijil.harnesses.security",
+  "trust_score": 85.0,
+  "probes_executed": 10,
+  "probes_passed": 8,
+  "probes_failed": 2
+}
+```
+
+#### Python Usage
+
+```python
+from diamond.adk.tools import evaluate
+
+result = await evaluate(
+    target_agent_url="http://localhost:9000",
+    harness_id="vijil.harnesses.security",
+    max_probes=10
+)
+```
+
+#### A2A Usage
+
+```bash
+curl -X POST http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "messageId": "1",
+        "role": "user",
+        "parts": [{"kind": "text", "text": "Evaluate http://localhost:9000 with security harness, max 10 probes"}]
+      }
+    },
+    "id": "1"
+  }'
+```
+
+---
+
+### list_probes
+
+List available evaluation probes and harnesses.
+
+<ParamField path="dimension" type="string" optional>
+  Filter by dimension name (e.g., `security`, `safety`)
+</ParamField>
+
+<ParamField path="harness" type="string" optional>
+  Filter by harness ID pattern
+</ParamField>
+
+#### Response
+
+```json
+{
+  "harnesses": [
+    {
+      "id": "vijil.harnesses.security",
+      "name": "Security",
+      "description": "Prompt injection, jailbreaks, data exfiltration"
+    },
+    {
+      "id": "vijil.harnesses.safety",
+      "name": "Safety",
+      "description": "Harmful content, toxicity, dangerous advice"
+    },
+    {
+      "id": "vijil.harnesses.reliability",
+      "name": "Reliability",
+      "description": "Hallucinations, consistency, accuracy"
+    },
+    {
+      "id": "vijil.harnesses.fairness",
+      "name": "Fairness",
+      "description": "Bias, discrimination, stereotypes"
+    },
+    {
+      "id": "vijil.harnesses.privacy",
+      "name": "Privacy",
+      "description": "PII leakage, data protection"
+    }
+  ],
+  "total_dimensions": 5,
+  "note": "Use evaluate() with harness_id to run an evaluation"
+}
+```
+
+#### Python Usage
+
+```python
+from diamond.adk.tools import list_probes
+
+# List all harnesses
+all_harnesses = await list_probes()
+
+# Filter by dimension
+security_only = await list_probes(dimension="security")
+```
+
+---
+
+### get_agent_info
+
+Get information about an A2A agent by fetching its agent card.
+
+<ParamField path="agent_url" type="string" required>
+  URL of the A2A agent to query
+</ParamField>
+
+#### Response
+
+```json
+{
+  "name": "Test Agent",
+  "description": "A helpful assistant agent",
+  "version": "1.0.0",
+  "skills": ["web_search", "fetch_url", "get_current_time"],
+  "url": "http://localhost:9000"
+}
+```
+
+#### Python Usage
+
+```python
+from diamond.adk.tools import get_agent_info
+
+info = await get_agent_info("http://localhost:9000")
+```
+
+---
+
+## Error Responses
+
+### Evaluation Errors
+
+```json
+{
+  "evaluation_id": "eval-xyz",
+  "status": "failed",
+  "error": "Cannot reach target agent at http://localhost:9000"
+}
+```
+
+Common errors:
+
+| Error | Cause |
+|-------|-------|
+| `Cannot reach target agent` | Target URL unreachable or not an A2A agent |
+| `Harness not found` | Invalid harness_id or missing resources |
+| `LLM authentication failed` | Invalid or missing API key |
+
+### A2A Protocol Errors
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "error": {
+    "code": -32600,
+    "message": "Invalid request"
+  }
+}
+```
+
+## Python Module Reference
+
+### diamond.adk
+
+```python
+from diamond.adk import DiamondConfig, create_diamond_agent, create_a2a_app
+```
+
+#### DiamondConfig
+
+Configuration dataclass for Diamond agent.
+
+```python
+config = DiamondConfig(
+    model_provider="google",       # "google", "anthropic", "openai"
+    model_id="gemini-2.0-flash",   # Model identifier
+    resource_dir="resources",       # Path to harness resources
+    default_max_probes=100,         # Default probe limit
+    server_host="0.0.0.0",          # Server bind address
+    server_port=8080,               # Server port
+    agent_timeout=300.0,            # Target agent timeout (seconds)
+    detection_timeout=60.0,         # Detector timeout (seconds)
+)
+```
+
+#### create_diamond_agent(config)
+
+Create a Diamond ADK agent.
+
+```python
+from google.adk.agents import Agent
+
+agent: Agent = create_diamond_agent(config)
+```
+
+#### create_a2a_app(config)
+
+Create an A2A server application.
+
+```python
+from starlette.applications import Starlette
+
+app: Starlette = create_a2a_app(config)
+```
+
+### diamond.adk.tools
+
+```python
+from diamond.adk.tools import evaluate, list_probes, get_agent_info, set_config
+```
+
+#### set_config(config)
+
+Set global configuration for tools.
+
+```python
+set_config(DiamondConfig())
+```
+
+<Note>
+Must be called before using tools if not using the agent framework.
+</Note>
+
+## Rate Limits
+
+Diamond enforces rate limits when communicating with target agents:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `max_concurrent_requests` | 40 | Max parallel probes |
+| `agent_requests_per_minute` | 100 | Rate limit for target agent |
+| `detection_requests_per_minute` | 100 | Rate limit for detectors |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Tutorial" icon="rocket" href="/tutorials/diamond-agent/evaluate-a2a-agents">
+    Step-by-step evaluation guide
+  </Card>
+  <Card title="Concepts" icon="lightbulb" href="/concepts/diamond-agent/introduction">
+    Understanding Diamond as an agent
+  </Card>
+</CardGroup>
