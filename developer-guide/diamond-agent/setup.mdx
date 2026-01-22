@@ -343,6 +343,72 @@ curl -s http://localhost:8080/.well-known/agent.json | jq '.name'
 # Output: "Diamond"
 ```
 
+## Production Integration via Vijil Console
+
+For production use, you can evaluate A2A agents through Vijil Console instead of running Diamond ADK locally. This provides:
+
+- Centralized evaluation management
+- Team-based access control
+- Persistent result storage
+- Integration with CI/CD pipelines
+
+### Registering an A2A Agent
+
+When registering an agent in Vijil Console, set the `hub` field to `"a2a"` to enable A2A protocol communication:
+
+<Tabs>
+  <Tab title="Console UI">
+    1. Navigate to **Agents** → **Register Agent**
+    2. Set **Hub** to `A2A Protocol`
+    3. Enter the agent's A2A endpoint URL (e.g., `http://my-agent:9000`)
+    4. Save the agent configuration
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST https://api.vijil.ai/agents \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_name": "My A2A Agent",
+        "hub": "a2a",
+        "agent_url": "http://my-agent:9000",
+        "model_name": "my-model"
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Hub-Based Provider Routing
+
+Diamond automatically selects the appropriate communication protocol based on the agent's `hub` setting:
+
+| Hub Value | Provider | Protocol |
+|-----------|----------|----------|
+| `a2a` | A2AAgentProvider | A2A JSON-RPC |
+| `openai` (default) | ChatCompletionsAgentProvider | OpenAI-compatible |
+| `groq` | ChatCompletionsAgentProvider | OpenAI-compatible |
+| `anthropic` | ChatCompletionsAgentProvider | OpenAI-compatible |
+
+### Running A2A Evaluations
+
+Once registered, evaluate the A2A agent like any other:
+
+```bash
+curl -X POST https://api.vijil.ai/evaluations \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "your-agent-uuid",
+    "harness_names": ["security", "safety"]
+  }'
+```
+
+Diamond will automatically use the A2A protocol to communicate with your agent.
+
+<Note>
+A2A agents must expose an agent card at `/.well-known/agent.json` and accept JSON-RPC messages at `POST /`.
+</Note>
+
 ## Next Steps
 
 <CardGroup cols={2}>

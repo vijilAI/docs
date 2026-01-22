@@ -41,6 +41,40 @@ Diamond as an agent is built on [Google ADK](https://google.github.io/adk-docs/)
 └─────────────────────┘
 ```
 
+## Two Ways to Evaluate A2A Agents
+
+Diamond supports evaluating A2A-compatible agents through two paths:
+
+### 1. Diamond ADK (Local/Standalone)
+
+Run Diamond as an A2A agent locally. Other agents invoke Diamond via A2A protocol:
+
+```
+Orchestrator Agent → [A2A] → Diamond ADK → [A2A] → Target Agent
+```
+
+Best for:
+- Local development and testing
+- Multi-agent orchestration
+- Conversational evaluation
+
+### 2. Vijil Console (Production)
+
+Register an A2A agent in Vijil Console, then run evaluations via the web UI or API. Diamond automatically uses the A2A protocol when the agent's `hub` field is set to `"a2a"`:
+
+```
+Vijil Console → K8s Job → Diamond → [A2A] → Target Agent
+```
+
+Best for:
+- Production evaluations at scale
+- Integration with CI/CD pipelines
+- Centralized evaluation management
+
+<Note>
+To evaluate an A2A agent via Vijil Console, register the agent with `hub: "a2a"` in the agent configuration. Diamond will automatically use the A2A protocol instead of OpenAI-compatible APIs.
+</Note>
+
 The agent uses an LLM to:
 1. **Understand intent** - Parse natural language requests about evaluation
 2. **Select tools** - Choose between `evaluate`, `list_probes`, `get_agent_info`

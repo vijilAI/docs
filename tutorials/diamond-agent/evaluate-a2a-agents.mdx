@@ -3,13 +3,27 @@ title: 'Evaluate A2A Agents'
 description: 'Use Diamond as an agent to evaluate other A2A-compatible agents locally.'
 ---
 
-This tutorial shows you how to run Diamond as an A2A agent and use it to evaluate another agent running locally. By the end, you'll have:
+This tutorial shows you how to evaluate A2A-compatible agents using Diamond. You have two options:
 
-1. Diamond running as an A2A server
-2. A target agent to evaluate
-3. Trust scores for the target agent
+1. **Local (Diamond ADK)** - Run Diamond as an A2A agent locally
+2. **Production (Vijil Console)** - Register agents and run evaluations via the Vijil platform
 
-## Prerequisites
+By the end, you'll have trust scores for your A2A agent.
+
+<Tabs>
+  <Tab title="Local (Diamond ADK)">
+    Best for development and testing.
+  </Tab>
+  <Tab title="Production (Vijil Console)">
+    Best for CI/CD integration and team collaboration.
+  </Tab>
+</Tabs>
+
+---
+
+## Option A: Local Evaluation with Diamond ADK
+
+### Prerequisites
 
 - Python 3.11+
 - A Google API key (for Gemini) or other LLM provider key
@@ -242,6 +256,94 @@ Diamond can evaluate across five dimensions:
     For other providers, check the corresponding environment variable.
   </Accordion>
 </AccordionGroup>
+
+---
+
+## Option B: Production Evaluation with Vijil Console
+
+For production use, evaluate A2A agents through Vijil Console instead of running Diamond locally.
+
+### Prerequisites
+
+- Vijil Console account
+- An A2A-compatible agent deployed and accessible
+
+### Step 1: Register Your A2A Agent
+
+<Tabs>
+  <Tab title="Console UI">
+    1. Log in to [Vijil Console](https://console.vijil.ai)
+    2. Navigate to **Agents** → **Register Agent**
+    3. Fill in:
+       - **Name**: Your agent's name
+       - **Hub**: Select `A2A Protocol`
+       - **URL**: Your agent's endpoint (e.g., `https://my-agent.example.com`)
+       - **Model**: The model your agent uses (for tracking)
+    4. Click **Register**
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST https://api.vijil.ai/agents \
+      -H "Authorization: Bearer $VIJIL_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_name": "My A2A Agent",
+        "hub": "a2a",
+        "agent_url": "https://my-agent.example.com",
+        "model_name": "my-model"
+      }'
+    ```
+
+    Save the returned `agent_id` for the next step.
+  </Tab>
+</Tabs>
+
+<Note>
+The `hub: "a2a"` setting tells Diamond to use the A2A protocol instead of OpenAI-compatible APIs when evaluating this agent.
+</Note>
+
+### Step 2: Run the Evaluation
+
+<Tabs>
+  <Tab title="Console UI">
+    1. Navigate to **Evaluations** → **New Evaluation**
+    2. Select your A2A agent
+    3. Choose harnesses (security, safety, reliability, etc.)
+    4. Click **Start Evaluation**
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST https://api.vijil.ai/evaluations \
+      -H "Authorization: Bearer $VIJIL_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_id": "your-agent-uuid",
+        "harness_names": ["security", "safety", "reliability"]
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Step 3: View Results
+
+Results are available in the Console dashboard or via API:
+
+```bash
+curl https://api.vijil.ai/evaluations/{evaluation_id}/results \
+  -H "Authorization: Bearer $VIJIL_TOKEN"
+```
+
+### Advantages of Vijil Console
+
+| Feature | Diamond ADK (Local) | Vijil Console |
+|---------|---------------------|---------------|
+| Setup | Install + configure | Zero setup |
+| Storage | Local filesystem | Cloud (persistent) |
+| Team access | Single user | Multi-user |
+| CI/CD | Manual integration | Built-in webhooks |
+| Results | Local JSON | Dashboard + API |
+
+---
 
 ## Next Steps
 
