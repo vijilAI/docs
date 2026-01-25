@@ -1,0 +1,173 @@
+---
+title: 'Diamond as an Agent'
+description: 'Run Diamond as an autonomous evaluation agent using the A2A protocol.'
+---
+
+Diamond can run as an autonomous **agent** rather than just a service API. This means Diamond can participate in agent-to-agent (A2A) communication, reason about evaluation strategies, and interact with other agents in a multi-agent ecosystem.
+
+## Why Diamond as an Agent?
+
+Traditional evaluation services are **passive**—you call an API, wait for results, return. Diamond as an agent is **active**:
+
+| Aspect | Service | Agent |
+|--------|---------|-------|
+| **Invocation** | You call it | It can be called or call others |
+| **Protocol** | REST/HTTP | A2A (Agent-to-Agent) JSON-RPC |
+| **Reasoning** | Fixed logic | LLM-powered reasoning |
+| **Interaction** | Request-response | Conversational |
+| **Discovery** | API documentation | Agent card with capabilities |
+
+## How It Works
+
+Diamond as an agent is built on [Google ADK](https://google.github.io/adk-docs/) (Agent Development Kit) and exposes itself via the [A2A protocol](https://google.github.io/A2A/):
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Diamond ADK Agent                          │
+├─────────────────────────────────────────────────────────────┤
+│  LLM (Gemini/Claude/OpenAI)                                 │
+│    ↓                                                        │
+│  Reasoning: "User wants to evaluate security..."            │
+│    ↓                                                        │
+│  Tool Selection: evaluate(target_url, harness_id)           │
+│    ↓                                                        │
+│  vijil_harness_executor (existing evaluation engine)        │
+└─────────────────────────────────────────────────────────────┘
+           ↑ A2A Protocol (JSON-RPC)
+           │
+┌──────────┴──────────┐
+│   Calling Agent     │  (or human via A2A client)
+│   or Application    │
+└─────────────────────┘
+```
+
+## Two Ways to Evaluate A2A Agents
+
+Diamond supports evaluating A2A-compatible agents through two paths:
+
+### 1. Diamond ADK (Local/Standalone)
+
+Run Diamond as an A2A agent locally. Other agents invoke Diamond via A2A protocol:
+
+```
+Orchestrator Agent → [A2A] → Diamond ADK → [A2A] → Target Agent
+```
+
+Best for:
+- Local development and testing
+- Multi-agent orchestration
+- Conversational evaluation
+
+### 2. Vijil Console (Production)
+
+Register an A2A agent in Vijil Console, then run evaluations via the web UI or API. Diamond automatically uses the A2A protocol when the agent's `hub` field is set to `"a2a"`:
+
+```
+Vijil Console → K8s Job → Diamond → [A2A] → Target Agent
+```
+
+Best for:
+- Production evaluations at scale
+- Integration with CI/CD pipelines
+- Centralized evaluation management
+
+<Note>
+To evaluate an A2A agent via Vijil Console, register the agent with `hub: "a2a"` in the agent configuration. Diamond will automatically use the A2A protocol instead of OpenAI-compatible APIs.
+</Note>
+
+The agent uses an LLM to:
+1. **Understand intent** - Parse natural language requests about evaluation
+2. **Select tools** - Choose between `evaluate`, `list_probes`, `get_agent_info`
+3. **Execute evaluations** - Run the existing vijil_harness_executor
+4. **Explain results** - Summarize trust scores and recommendations
+
+## Agent Capabilities
+
+Diamond exposes three tools through its agent card:
+
+<CardGroup cols={3}>
+  <Card title="evaluate" icon="play">
+    Run a trust evaluation against a target A2A agent. Returns trust score, probe counts, and failure details.
+  </Card>
+  <Card title="list_probes" icon="list">
+    Discover available evaluation harnesses across security, safety, reliability, fairness, and privacy dimensions.
+  </Card>
+  <Card title="get_agent_info" icon="circle-info">
+    Fetch another agent's card to understand its capabilities before evaluation.
+  </Card>
+</CardGroup>
+
+## A2A Protocol
+
+The A2A (Agent-to-Agent) protocol is Google's standard for agent interoperability. Key concepts:
+
+- **Agent Card**: JSON metadata describing an agent's capabilities, skills, and endpoint
+- **JSON-RPC**: Message format for agent communication
+- **Skills**: Named capabilities that agents advertise and can invoke
+
+Diamond publishes its agent card at `/.well-known/agent.json`:
+
+```json
+{
+  "name": "Diamond",
+  "description": "Trust-as-a-Service evaluation agent",
+  "skills": [
+    {"id": "evaluate", "name": "evaluate", "description": "Run trust evaluation"},
+    {"id": "list_probes", "name": "list_probes", "description": "List harnesses"},
+    {"id": "get_agent_info", "name": "get_agent_info", "description": "Get agent info"}
+  ],
+  "url": "http://localhost:8080"
+}
+```
+
+## Use Cases
+
+### 1. Multi-Agent Orchestration
+
+An orchestrating agent can discover Diamond's capabilities and request evaluations as part of a larger workflow:
+
+```
+Orchestrator: "Before deploying Agent-X, have Diamond evaluate it"
+    ↓
+Diamond: [Runs security evaluation]
+    ↓
+Orchestrator: "Trust score is 78%. Proceed with deployment"
+```
+
+### 2. Conversational Evaluation
+
+Instead of scripting API calls, interact naturally:
+
+```
+User: "What evaluation options do I have?"
+Diamond: "I can evaluate across 5 dimensions: Security, Safety,
+         Reliability, Fairness, and Privacy..."
+
+User: "Run a quick security check on the agent at localhost:9000"
+Diamond: "Running security evaluation... The agent scored 85% on
+         security. It passed prompt injection tests but showed
+         some weakness in jailbreak resistance."
+```
+
+### 3. Agent-to-Agent Trust Verification
+
+Before an agent collaborates with another agent, it can ask Diamond to verify trustworthiness:
+
+```
+Agent-A: "I need to share data with Agent-B. Is it trustworthy?"
+Diamond: [Evaluates Agent-B]
+Diamond: "Agent-B has a trust score of 92%. It passed all privacy
+         checks and has strong security controls."
+Agent-A: [Proceeds with data sharing]
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Tutorial: Evaluate A2A Agents" icon="rocket" href="/tutorials/diamond-agent/evaluate-a2a-agents">
+    Step-by-step guide to evaluating agents with Diamond
+  </Card>
+  <Card title="Developer Guide" icon="code" href="/developer-guide/diamond-agent/setup">
+    Setup, configuration, and API reference
+  </Card>
+</CardGroup>
