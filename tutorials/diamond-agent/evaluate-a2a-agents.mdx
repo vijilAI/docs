@@ -1,0 +1,357 @@
+---
+title: 'Evaluate A2A Agents'
+description: 'Use Diamond as an agent to evaluate other A2A-compatible agents locally.'
+---
+
+This tutorial shows you how to evaluate A2A-compatible agents using Diamond. You have two options:
+
+1. **Local (Diamond ADK)** - Run Diamond as an A2A agent locally
+2. **Production (Vijil Console)** - Register agents and run evaluations via the Vijil platform
+
+By the end, you'll have trust scores for your A2A agent.
+
+<Tabs>
+  <Tab title="Local (Diamond ADK)">
+    Best for development and testing.
+  </Tab>
+  <Tab title="Production (Vijil Console)">
+    Best for CI/CD integration and team collaboration.
+  </Tab>
+</Tabs>
+
+---
+
+## Option A: Local Evaluation with Diamond ADK
+
+### Prerequisites
+
+- Python 3.11+
+- A Google API key (for Gemini) or other LLM provider key
+- An A2A-compatible target agent to evaluate
+
+## Step 1: Install Diamond with ADK Support
+
+```bash
+# Clone vijil-diamond
+git clone https://github.com/vijilAI/vijil-diamond.git
+cd vijil-diamond
+
+# Install with ADK support
+pip install -e ".[adk]"
+```
+
+## Step 2: Configure Your LLM Provider
+
+Diamond uses an LLM for agent reasoning. Set your API key:
+
+<Tabs>
+  <Tab title="Google Gemini">
+    ```bash
+    export GOOGLE_API_KEY="your-gemini-api-key"
+    ```
+  </Tab>
+  <Tab title="OpenAI">
+    ```bash
+    export OPENAI_API_KEY="your-openai-api-key"
+    ```
+
+    Then start Diamond with `--model gpt-4o`
+  </Tab>
+  <Tab title="Anthropic">
+    ```bash
+    export ANTHROPIC_API_KEY="your-anthropic-api-key"
+    ```
+
+    Then start Diamond with `--model claude-3-sonnet`
+  </Tab>
+</Tabs>
+
+## Step 3: Start the Diamond Agent
+
+```bash
+python -m diamond.adk --port 8080
+```
+
+You should see:
+
+```
+============================================================
+Diamond Evaluation Agent - Trust-as-a-Service
+============================================================
+Model: gemini-2.0-flash
+A2A Server: http://localhost:8080
+Agent Card: http://localhost:8080/.well-known/agent.json
+============================================================
+```
+
+Verify it's running:
+
+```bash
+curl http://localhost:8080/.well-known/agent.json | jq
+```
+
+## Step 4: Start a Target Agent
+
+You need an A2A-compatible agent to evaluate. Here's a simple example using Google ADK:
+
+```python
+# target_agent.py
+from google.adk.agents import Agent
+from google.adk.a2a.utils.agent_to_a2a import to_a2a
+
+agent = Agent(
+    name="test-agent",
+    model="gemini-2.0-flash",
+    instruction="You are a helpful travel assistant.",
+)
+
+app = to_a2a(agent, port=9000)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=9000)
+```
+
+Run it:
+
+```bash
+python target_agent.py
+```
+
+## Step 5: Evaluate the Target Agent
+
+Now use Diamond to evaluate the target. You can interact via curl or any A2A client.
+
+### Option A: Direct A2A Request
+
+```bash
+curl -X POST http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "messageId": "eval-1",
+        "role": "user",
+        "parts": [{"kind": "text", "text": "Evaluate the agent at http://localhost:9000 using the security harness with max 10 probes"}]
+      }
+    },
+    "id": "req-1"
+  }'
+```
+
+### Option B: Python A2A Client
+
+```python
+import httpx
+import json
+
+async def evaluate_agent():
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "http://localhost:8080/",
+            json={
+                "jsonrpc": "2.0",
+                "method": "message/send",
+                "params": {
+                    "message": {
+                        "messageId": "eval-1",
+                        "role": "user",
+                        "parts": [{
+                            "kind": "text",
+                            "text": "Evaluate http://localhost:9000 for security"
+                        }]
+                    }
+                },
+                "id": "req-1"
+            }
+        )
+        result = response.json()
+
+        # Extract the agent's response
+        artifacts = result.get("result", {}).get("artifacts", [])
+        for artifact in artifacts:
+            for part in artifact.get("parts", []):
+                if part.get("kind") == "text":
+                    print(part.get("text"))
+
+import asyncio
+asyncio.run(evaluate_agent())
+```
+
+## Step 6: Understand the Results
+
+Diamond will return a conversational response with the evaluation results:
+
+```
+I've completed the security evaluation for the agent at http://localhost:9000.
+
+**Results:**
+- Trust Score: 85.0%
+- Probes Executed: 10
+- Passed: 8
+- Failed: 2
+
+The agent showed strong resistance to prompt injection attacks but had
+some weaknesses in jailbreak scenarios. I recommend reviewing the
+failed probes for specific vulnerabilities.
+```
+
+## Available Commands
+
+You can ask Diamond various questions:
+
+| Request | What Happens |
+|---------|-------------|
+| "List available harnesses" | Shows security, safety, reliability, fairness, privacy |
+| "Get info about agent at URL" | Fetches and displays the target's agent card |
+| "Evaluate URL with security harness" | Runs security evaluation |
+| "Run a quick safety check on URL" | Runs safety evaluation with few probes |
+
+## Evaluation Dimensions
+
+Diamond can evaluate across five dimensions:
+
+<CardGroup cols={2}>
+  <Card title="Security" icon="lock">
+    Prompt injection, jailbreaks, data exfiltration
+  </Card>
+  <Card title="Safety" icon="shield">
+    Harmful content, toxicity, dangerous advice
+  </Card>
+  <Card title="Reliability" icon="circle-check">
+    Hallucinations, consistency, accuracy
+  </Card>
+  <Card title="Fairness" icon="scale-balanced">
+    Bias, discrimination, stereotypes
+  </Card>
+  <Card title="Privacy" icon="eye-slash">
+    PII leakage, data protection
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Diamond can't reach the target agent">
+    Verify the target is running:
+    ```bash
+    curl http://localhost:9000/.well-known/agent.json
+    ```
+
+    Ensure both agents are on the same network or use proper hostnames.
+  </Accordion>
+
+  <Accordion title="Evaluation fails with 'harness not found'">
+    The evaluation harness resources need to be downloaded. Ensure you have the `resources/` directory populated with harness configurations.
+  </Accordion>
+
+  <Accordion title="LLM authentication errors">
+    Verify your API key is set correctly:
+    ```bash
+    echo $GOOGLE_API_KEY
+    ```
+
+    For other providers, check the corresponding environment variable.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Option B: Production Evaluation with Vijil Console
+
+For production use, evaluate A2A agents through Vijil Console instead of running Diamond locally.
+
+### Prerequisites
+
+- Vijil Console account
+- An A2A-compatible agent deployed and accessible
+
+### Step 1: Register Your A2A Agent
+
+<Tabs>
+  <Tab title="Console UI">
+    1. Log in to [Vijil Console](https://console.vijil.ai)
+    2. Navigate to **Agents** → **Register Agent**
+    3. Fill in:
+       - **Name**: Your agent's name
+       - **Hub**: Select `A2A Protocol`
+       - **URL**: Your agent's endpoint (e.g., `https://my-agent.example.com`)
+       - **Model**: The model your agent uses (for tracking)
+    4. Click **Register**
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST https://api.vijil.ai/agents \
+      -H "Authorization: Bearer $VIJIL_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_name": "My A2A Agent",
+        "hub": "a2a",
+        "agent_url": "https://my-agent.example.com",
+        "model_name": "my-model"
+      }'
+    ```
+
+    Save the returned `agent_id` for the next step.
+  </Tab>
+</Tabs>
+
+<Note>
+The `hub: "a2a"` setting tells Diamond to use the A2A protocol instead of OpenAI-compatible APIs when evaluating this agent.
+</Note>
+
+### Step 2: Run the Evaluation
+
+<Tabs>
+  <Tab title="Console UI">
+    1. Navigate to **Evaluations** → **New Evaluation**
+    2. Select your A2A agent
+    3. Choose harnesses (security, safety, reliability, etc.)
+    4. Click **Start Evaluation**
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST https://api.vijil.ai/evaluations \
+      -H "Authorization: Bearer $VIJIL_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_id": "your-agent-uuid",
+        "harness_names": ["security", "safety", "reliability"]
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Step 3: View Results
+
+Results are available in the Console dashboard or via API:
+
+```bash
+curl https://api.vijil.ai/evaluations/{evaluation_id}/results \
+  -H "Authorization: Bearer $VIJIL_TOKEN"
+```
+
+### Advantages of Vijil Console
+
+| Feature | Diamond ADK (Local) | Vijil Console |
+|---------|---------------------|---------------|
+| Setup | Install + configure | Zero setup |
+| Storage | Local filesystem | Cloud (persistent) |
+| Team access | Single user | Multi-user |
+| CI/CD | Manual integration | Built-in webhooks |
+| Results | Local JSON | Dashboard + API |
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Developer Guide" icon="code" href="/developer-guide/diamond-agent/setup">
+    Advanced configuration and programmatic usage
+  </Card>
+  <Card title="API Reference" icon="book" href="/developer-guide/diamond-agent/api-reference">
+    Complete API documentation
+  </Card>
+</CardGroup>

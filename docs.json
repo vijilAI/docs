@@ -83,10 +83,25 @@
             "pages": ["evaluate-agents/introduction"]
           },
           {
+            "group": "Diamond Agent",
+            "pages": [
+              "concepts/diamond-agent/introduction",
+              "developer-guide/diamond-agent/setup",
+              "developer-guide/diamond-agent/api-reference"
+            ]
+          },
+          {
             "group": "Tutorials",
             "pages": [
               "tutorials/manage-api-keys",
               "tutorials/manage-agents",
+              {
+                "group": "Diamond Agent",
+                "icon": "gem",
+                "pages": [
+                  "tutorials/diamond-agent/evaluate-a2a-agents"
+                ]
+              },
               {
                 "group": "Protect Agents",
                 "icon": "shield-check",
