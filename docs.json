@@ -95,11 +95,26 @@
                   "tutorials/protect-agents/setup-guards",
                   "tutorials/protect-agents/configuring-guardrails",
                   "tutorials/protect-agents/using-guardrails",
+                  {
+                    "group": "Methods",
+                    "expanded": true,
+                    "pages": [
+                      "tutorials/protect-agents/integrity",
+                      "tutorials/protect-agents/moderation",
+                      "tutorials/protect-agents/privacy",
+                      "tutorials/protect-agents/security"
+                    ]
+                  },
                   "tutorials/protect-agents/domed-clients",
                   "tutorials/protect-agents/langchain",
                   "tutorials/protect-agents/adk",
                   "tutorials/protect-agents/custom-detectors",
-                  "tutorials/protect-agents/observability"
+                  "tutorials/protect-agents/observability",
+                  {
+                    "group": "Enterprise Deployment of Dome",
+                    "expanded": true,
+                    "pages": ["tutorials/protect-agents/dome-enterprise"]
+                  }
                 ]
               },
               {
@@ -115,6 +130,10 @@
                   "tutorials/evaluate-agents/local-agent-evaluation",
                   "tutorials/evaluate-agents/reports",
                   "tutorials/evaluate-agents/cicd",
+                  {
+                    "group": "Examples",
+                    "pages": ["tutorials/evaluate-agents/examples/playground"]
+                  },
                   {
                     "group": "Enterprise Deployment of Evaluate",
                     "expanded": true,
