@@ -1,0 +1,34 @@
+---
+title: "Configure Dome from The Web Platform"
+description: "Learn how to configure Dome from the web platform"
+---
+
+## Using the Vijil Web Interface
+
+While on the [Vijil Web Interface](https://evaluate.vijil.ai/dashboard), click on **Agents** (robot icon) on the left side bar. This opens a page displaying your agents.  
+For a given Agent, click on the **kebab menu** (three dots) on the right near the icons for **Actions**. This opens a dropdown menu.  
+
+Click on **Configure Dome** to open the Dome configuration page for that agent. The Dome configuration page has 5 sections: **Configuration Editor**, **Guards**, **Configuration**, **Detection Methods**, and **Execution Flow**.
+
+The Configuration Editor holds the dictionary for default Dome configurations which you can customize from the other sections to fit your requirements and policies.  
+
+To save your changes, click the **Save Configuration** button. You can export your Agent's Dome configuration from this editor by clicking the **download** icon.  
+
+To import a Dome Configuration, click the **upload** icon and hit the **Apply Editor Changes** button so that the changes in the editor are reflected in the other sections of the configuration page.
+
+![Configuration Editor | 60%](/images/dome-configuration-editor-web.png)
+
+## Configure Guardrails
+
+The **Guards** section allows you to add, remove, and select to view or edit Guardrails.  Follow these steps to set up your Guardrails.
+1. Add or select a Guardrail.
+2. Configure it from the **Configuration** section by naming it, specifying its type and execution mode, and toggling early-exit (terminate execution as soon as one Detector is a hit).
+3. Configure Detectors from the **Detection Methods** section by clicking the plus (**+**) icon in the top right part of the Detection Methods section and choose specific Detectors from Dome's library.
+
+![Guards Configuration and Detectors | 60%](/images/dome-guards-configuration-detection-web.png)
+
+The Execution Flow section shows the flow of information through the Guardrails to the Detectors. Click on a Guard to test it.
+
+![The Execution Flow | 20%](/images/input-guard-execution-flow-test.png)
+
+Now that you are done with Configuring Guards and Detectors, get back to the Configuration Editor section and hit Save Configuration. You copy and paste the Dome configuration into your agent setup to start protecting it with Vijil Dome.
