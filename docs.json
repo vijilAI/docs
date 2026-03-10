@@ -105,6 +105,7 @@
                   "tutorials/protect-agents/setup-dome",
                   "tutorials/protect-agents/setup-guards",
                   "tutorials/protect-agents/configuring-guardrails",
+                  "tutorials/protect-agents/configure-dome-on-platform",
                   "tutorials/protect-agents/using-guardrails",
                   "tutorials/protect-agents/domed-clients",
                   "tutorials/protect-agents/langchain",
