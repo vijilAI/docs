@@ -1,0 +1,42 @@
+---
+title: "Azure"
+description: "Register and evaluate Azure-hosted agents on Vijil"
+---
+
+You can register agents on Vijil that use Azure-hosted LLM deployments exposed through Azure OpenAI or Azure AI model endpoints.
+
+## Prerequisites
+
+- You have an Azure subscription with access to Azure OpenAI or Azure AI model deployments.
+- You have an API key or other credentials configured to call your Azure deployment endpoint.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
+## Store Azure Credentials in Vijil
+
+1. In Vijil, go to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**.
+2. From the **Model Hub** dropdown, select **Azure**.
+3. Enter your Azure API key and any required configuration fields (for example endpoint URL and deployment name) in the Azure hub configuration.
+4. Save the key configuration.
+
+Once saved, this key can be reused across multiple Azure-based agents.
+
+## Register an Agent on Vijil
+
+With an Azure API key configured, you can register an agent that uses Azure:
+
+![Setting up an Azure-based Agent in Vjil](/images/azure.png)
+
+1. Press **Register Agent**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **Azure** as the **Hub**.
+4. Enter an exposed Azure AI model endpoint.
+4. Enter a model or deployment name that corresponds to your Azure deployment. See your Azure portal configuration for the list of available deployments.
+5. Select an existing Azure API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.

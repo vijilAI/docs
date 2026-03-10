@@ -1,0 +1,41 @@
+---
+title: "NVIDIA NIM"
+description: "Register and evaluate NVIDIA NIM-based agents on Vijil"
+---
+
+You can register agents on Vijil that use NVIDIA NIM models such as `nvidia/llama3-chatqa-1.5-8b`, `nvidia/llama3-chatqa-1.5-70b`, and `nvidia/nemotron-4-340b-instruct`.
+
+## Prerequisites
+
+- You have an NVIDIA NIM or NVIDIA API account with an active key.
+- Your account has access to the NIM models you plan to use.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
+## Store NVIDIA credentials in Vijil
+
+1. In Vijil, go to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**.
+2. From the **Model Hub** dropdown, select **NVIDIA**.
+3. Enter your NVIDIA API key and any optional rate limit overrides you want for this key.
+4. Save the key configuration.
+
+Once saved, this key can be reused across multiple NVIDIA-based agents.
+
+## Register an Agent on Vijil
+
+With a NVIDIA API key configured, you can register an agent that uses NVIDIA NIM:
+
+![Setting up an NVIDIA-based Agent in Vjil](/images/nvidia.png)
+
+1. Press **Register [Agent](/tutorials/manage-agents/)**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **NVIDIA** as the **Hub**.
+4. Enter a model name (for example `nvidia/llama3-chatqa-1.5-8b`). See the NVIDIA NIM documentation for the list of available models.
+5. Select an existing NVIDIA API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.
