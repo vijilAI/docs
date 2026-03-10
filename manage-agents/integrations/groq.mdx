@@ -1,0 +1,41 @@
+---
+title: "Groq"
+description: "Register and evaluate Groq-based agents on Vijil"
+---
+
+You can register agents on Vijil that use Groq-hosted models such as `llama-3.1-8b-instant`, `llama-3.3-70b-versatile`, `openai/gpt-oss-120b`, and `openai/gpt-oss-20b`.
+
+## Prerequisites
+
+- You have a Groq account with an active API key.
+- Your Groq account has access to the models you plan to use.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
+## Store Groq Credentials in Vijil
+
+1. In Vijil, go to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**.
+2. From the **Model Hub** dropdown, select **Groq**.
+3. Enter your Groq API key and any optional rate limit overrides you want for this key.
+4. Save the key configuration.
+
+Once saved, this key can be reused across multiple Groq-based agents.
+
+## Register an Agent on Vijil
+
+With a Groq API key configured, you can register an agent that uses Groq:
+
+![Setting up a Groq-based Agent in Vjil](/images/groq.png)
+
+1. Press **Register Agent**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **Groq** as the **Hub**.
+4. Enter a model name (for example `llama-3.1-8b-instant` or `openai/gpt-oss-120b`). See the Groq documentation for the list of available models.
+5. Select an existing Groq API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.

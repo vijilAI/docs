@@ -64,11 +64,20 @@
                 "icon": "blocks",
                 "expanded": true,
                 "pages": [
-                  "manage-agents/integrations/vertex",
-                  "manage-agents/integrations/digitalocean",
+                  "manage-agents/integrations/agentforce",
+                  "manage-agents/integrations/anthropic",
                   "manage-agents/integrations/bedrock",
+                  "manage-agents/integrations/azure",
+                  "manage-agents/integrations/digitalocean",
+                  "manage-agents/integrations/fireworks",
+                  "manage-agents/integrations/vertex",
+                  "manage-agents/integrations/groq",
+                  "manage-agents/integrations/mistral",
+                  "manage-agents/integrations/nvidia",
+                  "manage-agents/integrations/openai",
+                  "manage-agents/integrations/openrouter",
+                  "manage-agents/integrations/together",
                   "manage-agents/integrations/custom",
-                  "manage-agents/integrations/local",
                   "manage-agents/integrations/platform"
                 ]
               }
@@ -172,16 +181,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {
