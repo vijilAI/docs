@@ -1,16 +1,48 @@
 ---
 title: "Custom Harnesses"
-description: ""
+description: "Create a custom Harness to evaluate your agent against your own policies and use case"
 ---
 While Vijil has a variety of pre-configured [Harnesses](/core-concepts/components/harness) that you can select from, you can also create your own Harnesses in order to obtain a trust score specific to your organization and agent.
 
 ## View Custom Harnesses
 
-You can view previously created custom Harnesses by navigating to **Harnesses** in the left sidebar.
+You can view previously created custom Harnesses by navigating to [Harnesses](https://evaluate.vijil.ai/harnesses) in the left sidebar.
 
 To view the prompts in a custom Harness, click on its row in the **Harnesses** table.
 
-## Python Client
+## Create a Custom Harness
+
+1. In the left sidebar, navigate to [Harnesses](https://evaluate.vijil.ai/harnesses) and click **Create Harness**.
+2. Enter a Harness name and a description.
+![Harness metadata](/images/harness_meta.png)
+
+<Tabs>
+    <Tab title="Select Prompts">
+        1. Select an existing prompt, or create a new one by pressing **Add Prompt**.
+        ![Prompt selection](/images/select_prompts.png)
+        2. Press Create.
+    </Tab>
+    <Tab title="Generate Prompts">
+        1. Specify one more existing [Agents](/manage-agents/integrations/platform). If you do not have an existing Agent, press **Register Agent**.
+        ![Specify an Agent](/images/specify_agent.png)
+        2. Specify up to 3 **Personas**.
+       ![Specify a Persona](/images/specify_personas.png) 
+        <Info>
+            Personas define structured user archetypes used to condition evaluations and analyze model behavior across demographic and contextual variations.
+        </Info>
+        3. Specify one or more Policy Requirements. You can choose existing, or upload your own.
+        ![Specify Policy Requirements](/images/policy_requirements.png) 
+        <Info>
+            Specify regulatory or security frameworks to align [Evaluations](/tutorials/evaluate-agents/evaluations) with compliance and policy constraints.
+        </Info>
+        4. Specify optional dimensionality tests (Reliability, Security, and Safety)
+        ![Specify Additional Tests](/images/specify_additional_tests.png)
+        5. Press Create.
+    </Tab>
+</Tabs>
+
+
+## Create a Custom Harness using Python
 
 The following example assumes that you have already initialized a Vijil [client](/get-started/quickstart) named `client`.
 
