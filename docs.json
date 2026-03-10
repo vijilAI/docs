@@ -76,7 +76,9 @@
           },
           {
             "group": "Protect Agents",
-            "pages": ["protect-agents/introduction"]
+            "pages": [
+              "protect-agents/introduction",
+               "protect-agents/detection-methods"]
           },
           {
             "group": "Evaluate Agents",
