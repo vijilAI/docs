@@ -196,5 +196,11 @@
   },
   "fonts": {
     "family": "Nunito"
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff"
+    },
+    "decoration": "windows"
   }
 }
