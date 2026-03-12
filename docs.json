@@ -110,7 +110,8 @@
                   "tutorials/protect-agents/langchain",
                   "tutorials/protect-agents/adk",
                   "tutorials/protect-agents/custom-detectors",
-                  "tutorials/protect-agents/observability"
+                  "tutorials/protect-agents/observability",
+                  "tutorials/protect-agents/dome-containerized-deployment"
                 ]
               },
               {
