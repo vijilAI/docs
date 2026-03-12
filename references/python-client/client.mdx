@@ -161,8 +161,8 @@ parameters:
 - `category` (any): The category of the harness. Options are "AGENT_POLICY", "KNOWLEDGE_BASE", "FUNCTION_ROUTE", "PERSONA"
 - `policy_file_path` (any): The path to the policy document (pdf or txt). Applicable to an agent policy harness. Defaults to "".
 - `kb_bucket` (any): The bucket name for the knowledge base. Must be specified if you want to include a knowledge base harness. Defaults to "".
-- `input_schema` (any): The input schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to {}.
-- `output_schema` (any): The output schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to {}.
+- `input_schema` (any): The input schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to &#123;&#125;.
+- `output_schema` (any): The output schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to &#123;&#125;.
 - `function_route` (any): The function route to be used for harness creation. Applicable to a tool-calling agent. Defaults to "".
 - `persona_ids` (any): The persona IDs to be used for harness creation. Applicable to a persona harness. Defaults to [].
 
@@ -174,6 +174,42 @@ Get the status of a harness. Returns the status of the custom harness as `dict`.
 parameters:
 
 - `harness_id` (any): The ID of the harness.
+
+
+## Scenarios
+
+Class for handling scenarios API requests.
+
+parameters:
+
+- `client` (VijilClient): The VijilClient instance.
+
+
+### list
+
+List all scenarios. Returns list of dicts where each dict contains the metadata for a scenario or a pandas dataframe if format is "dataframe" as `List(dict) or pandas.DataFrame`.
+
+parameters:
+
+- `format` (str, optional): Format of the returned list. Current supported values are 'dataframe', 'list'. Defaults to "dataframe".
+
+
+## Probes
+
+Class for handling scenarios API requests.
+
+parameters:
+
+- `client` (VijilClient): The VijilClient instance.
+
+
+### list
+
+List all probes. Returns list of dicts where each dict contains the metadata for a probe, or a pandas dataframe if format is "dataframe" as `List(dict) or pandas.DataFrame`.
+
+parameters:
+
+- `format` (str, optional): Format of the returned list. Current supported values are 'dataframe', 'list'. Defaults to "dataframe".
 
 
 ## AnalysisReports
@@ -217,7 +253,7 @@ parameters:
 
 - `report_content` (any): The content of the report.
 - `save_file` (any): The file path to save the report.
-- `format` (any): The format of the report ('html' or 'pdf').
+- `format` (any): The format of the report ('html', 'pdf', 'md').
 
 
 ### generate
@@ -254,6 +290,7 @@ List all valuations. Will return only 10 evaluations unless specified. Returns l
 parameters:
 
 - `limit` (int, optional): The number of evaluations to return, defaults to 10.
+- `agent_id` (Optional[str], optional): The agent configuration ID to filter evaluations by, defaults to None.
 
 
 ### list_harnesses_for_type
@@ -288,9 +325,10 @@ parameters:
 - `name` (str, optional): The name of the evaluation. If not specified, model hub will be concatenated with model name.
 - `api_key_name` (str, optional): The name of the model hub API key you want to use. If not specified, will use the first key we find for the specified model_hub.
 - `model_url` (str, optional): The URL of the model you want to use. Only required for custom model hub. Defaults to None
-- `model_params` (dict, optional): A dictionary specifying inference parameters like temperature and top_p. If none are specified, model hub defaults will be used. Defaults to {}
-- `harness_params` (dict, optional): Set optional parameters like is_lite, defaults to {}
+- `model_params` (dict, optional): A dictionary specifying inference parameters like temperature and top_p. If none are specified, model hub defaults will be used. Defaults to &#123;&#125;
+- `harness_params` (dict, optional): Set optional parameters like is_lite, defaults to &#123;&#125;
 - `harnesses` (List[str], optional): A list of harnesses you want to include in the evaluation, defaults to []
+- `timeout` (float, optional): The timeout in seconds for API calls during evaluation. Defaults to None
 
 
 ### get_status
@@ -419,7 +457,7 @@ Returns a list of dicts with keys: harness, name, description.
 
 parameters:
 
-- `full` (bool, optional): If True, returns all harness info. If False, returns only harness, name, description. Defaults to False.
+- `evaluation_id` (str): The unique ID of the evaluation
 
 
 ### report
@@ -462,11 +500,16 @@ Refresh the API proxy dictionary cache.
 
 ### list_detectors
 
-Lists all available detectors. Returns the list of available detectors as `list`.
+Lists all available detectors from the API. Returns the list of available detector ids as `list`.
+
+parameters:
+
+- `version` (Optional[str], optional): The version of the detector metadata to get. Defaults to the latest version.
+
 
 ### create
 
-Create a new detection. Returns the response from the api. if the detection creation was successful, this is a dictionary with the following format: `{'id': your_guid, 'status': 'created'}` as `dict`.
+Create a new detection. Returns the response from the api. if the detection creation was successful, this is a dictionary with the following format: &#123;'id': your_guid, 'status': 'created'&#125; as `dict`.
 
 parameters:
 
