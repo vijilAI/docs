@@ -200,7 +200,6 @@
   "background": {
     "color": {
       "light": "#ffffff"
-    },
-    "decoration": "gradient"
+    }
   }
 }
