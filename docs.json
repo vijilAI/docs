@@ -8,9 +8,9 @@
   },
   "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0247A9",
+    "light": "#5684C6",
+    "dark": "#012455"
   },
   "icons": {
     "library": "lucide"
@@ -193,5 +193,14 @@
   "banner": {
     "content": "🚀 Welcome to Vijil Documentation!",
     "dismissible": true
+  },
+  "fonts": {
+    "family": "Nunito"
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff"
+    },
+    "decoration": "gradient"
   }
 }
