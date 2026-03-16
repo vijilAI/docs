@@ -42,8 +42,33 @@ Authenticate with your API key:
 export VIJIL_API_KEY=<your-key>
 ```
 
+<<<<<<< HEAD
 Then kick off an evaluation:
 ```python
+=======
+Alternatively, you can store the key in a `.env` file and load it into your Python environment using a library such as [python-dotenv](https://pypi.org/project/python-dotenv/).
+
+This user token expires after 24 hours. If you plan to use the API over long periods of time, you should use [machine-to-machine secrets](/tutorials/evaluate-agents/cicd) to regularly refresh the token.
+
+
+## Vijil Dome
+
+Vijil Dome is an [open-source library](https://github.com/vijilAI/vijil-dome) that provides input and output Guardrails for your AI agents. You can install it from PyPI:
+
+```bash
+pip install vijil-dome
+```
+
+After installation, you can quickly test Dome with a [sample input](/owner-guide/protect-in-production/configuring-guardrails).
+
+## Running Evaluations
+
+Once the Python client installed, you can instantiate a client class and store an API key for the
+provider your agent is hosted on.
+
+<CodeGroup>
+```python icon="python" title="Python"
+>>>>>>> upstream/docs-restructure-wip
 from vijil import Vijil
 
 client = Vijil()

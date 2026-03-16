@@ -1,0 +1,472 @@
+---
+title: 'GitHub Actions'
+description: 'Integrate Vijil evaluations into GitHub Actions workflows.'
+---
+
+Run Vijil evaluations automatically in your GitHub Actions workflows. This guide provides complete, copy-paste-ready workflow configurations.
+
+## Prerequisites
+
+1. Store M2M credentials as repository secrets (see [CI/CD Overview](/developer-guide/cicd/overview)):
+   - `M2M_CLIENT_ID`
+   - `M2M_CLIENT_SECRET`
+   - `M2M_CLIENT_TOKEN`
+
+2. Store your agent ID:
+   - `VIJIL_AGENT_ID`
+
+## Basic Workflow
+
+Evaluate on pull requests:
+
+```yaml
+# .github/workflows/vijil-evaluation.yml
+name: Vijil Evaluation
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install vijil requests
+
+      - name: Run evaluation
+        env:
+          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
+          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
+          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
+        run: |
+          python << 'EOF'
+          import os
+          import sys
+          import time
+          import requests
+          from vijil import Vijil
+
+          # Get access token
+          response = requests.post(
+              "https://api.vijil.ai/v1/auth/token",
+              json={
+                  "client_id": os.environ["M2M_CLIENT_ID"],
+                  "client_secret": os.environ["M2M_CLIENT_SECRET"],
+                  "client_token": os.environ["M2M_CLIENT_TOKEN"]
+              }
+          )
+          response.raise_for_status()
+          token = response.json()["access_token"]
+
+          # Run evaluation
+          vijil = Vijil(api_key=token)
+          evaluation = vijil.evaluations.create(
+              agent_id=os.environ["VIJIL_AGENT_ID"],
+              harnesses=["trust_score"]
+          )
+
+          # Wait for completion
+          from vijil.local_agents.constants import TERMINAL_STATUSES
+          while True:
+              status = vijil.evaluations.get_status(evaluation.get("id"))
+              if status.get("status") in TERMINAL_STATUSES:
+                  break
+              print(f"Progress: {status.get('progress', 0)}%")
+              time.sleep(30)
+
+          # Check results
+          results = vijil.evaluations.get_results(evaluation.get("id"))
+          trust_score = results.get("trust_score", 0) * 100
+
+          print(f"Trust Score: {trust_score:.1f}")
+
+          if trust_score < 75:
+              print("::error::Trust Score below threshold")
+              sys.exit(1)
+          EOF
+```
+
+## Quick Evaluation on Push
+
+Fast feedback on every commit:
+
+```yaml
+# .github/workflows/vijil-quick.yml
+name: Vijil Quick Check
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  quick-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install vijil requests
+
+      - name: Quick evaluation
+        env:
+          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
+          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
+          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
+        run: |
+          python << 'EOF'
+          import os
+          import sys
+          import time
+          import requests
+          from vijil import Vijil
+
+          # Authenticate
+          response = requests.post(
+              "https://api.vijil.ai/v1/auth/token",
+              json={
+                  "client_id": os.environ["M2M_CLIENT_ID"],
+                  "client_secret": os.environ["M2M_CLIENT_SECRET"],
+                  "client_token": os.environ["M2M_CLIENT_TOKEN"]
+              }
+          )
+          token = response.json()["access_token"]
+
+          # Run quick evaluation
+          vijil = Vijil(api_key=token)
+          evaluation = vijil.evaluations.create(
+              agent_id=os.environ["VIJIL_AGENT_ID"],
+              harnesses=["security_Small"]  # Fast ~5 min evaluation
+          )
+
+          # Wait
+          from vijil.local_agents.constants import TERMINAL_STATUSES
+          while True:
+              status = vijil.evaluations.get_status(evaluation.get("id"))
+              if status.get("status") in TERMINAL_STATUSES:
+                  break
+              time.sleep(15)
+
+          # Report (warn only, don't block)
+          results = vijil.evaluations.get_results(evaluation.get("id"))
+          score = results.get("security_score", 0) * 100
+
+          if score < 70:
+              print(f"::warning::Security Score {score:.1f} below 70")
+          else:
+              print(f"Security Score: {score:.1f} - OK")
+          EOF
+```
+
+## PR Status Check with Summary
+
+Post evaluation summary to PR:
+
+```yaml
+# .github/workflows/vijil-pr-check.yml
+name: Vijil PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install vijil requests
+
+      - name: Run evaluation
+        id: eval
+        env:
+          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
+          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
+          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
+        run: |
+          python << 'EOF'
+          import os
+          import sys
+          import time
+          import requests
+          from vijil import Vijil
+
+          # Authenticate
+          response = requests.post(
+              "https://api.vijil.ai/v1/auth/token",
+              json={
+                  "client_id": os.environ["M2M_CLIENT_ID"],
+                  "client_secret": os.environ["M2M_CLIENT_SECRET"],
+                  "client_token": os.environ["M2M_CLIENT_TOKEN"]
+              }
+          )
+          token = response.json()["access_token"]
+
+          # Run evaluation
+          vijil = Vijil(api_key=token)
+          evaluation = vijil.evaluations.create(
+              agent_id=os.environ["VIJIL_AGENT_ID"],
+              harnesses=["trust_score"]
+          )
+
+          # Wait
+          from vijil.local_agents.constants import TERMINAL_STATUSES
+          while True:
+              status = vijil.evaluations.get_status(evaluation.get("id"))
+              if status.get("status") in TERMINAL_STATUSES:
+                  break
+              print(f"Progress: {status.get('progress', 0)}%")
+              time.sleep(30)
+
+          # Get results
+          results = vijil.evaluations.get_results(evaluation.get("id"))
+          trust = results.get("trust_score", 0) * 100
+          reliability = results.get("reliability_score", 0) * 100
+          security = results.get("security_score", 0) * 100
+          safety = results.get("safety_score", 0) * 100
+
+          # Write outputs
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"trust_score={trust:.1f}\n")
+              f.write(f"reliability={reliability:.1f}\n")
+              f.write(f"security={security:.1f}\n")
+              f.write(f"safety={safety:.1f}\n")
+              f.write(f"passed={'true' if trust >= 75 else 'false'}\n")
+
+          if trust < 75:
+              sys.exit(1)
+          EOF
+
+      - name: Post PR comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const passed = '${{ steps.eval.outputs.passed }}' === 'true';
+            const emoji = passed ? '✅' : '❌';
+            const status = passed ? 'PASSED' : 'FAILED';
+
+            const body = `## ${emoji} Vijil Evaluation ${status}
+
+            | Metric | Score | Threshold |
+            |--------|-------|-----------|
+            | **Trust Score** | ${{ steps.eval.outputs.trust_score }} | 75 |
+            | Reliability | ${{ steps.eval.outputs.reliability }} | - |
+            | Security | ${{ steps.eval.outputs.security }} | - |
+            | Safety | ${{ steps.eval.outputs.safety }} | - |
+
+            ${passed ? 'Agent meets trustworthiness requirements.' : '⚠️ Agent does not meet minimum Trust Score threshold.'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+```
+
+## Deployment Gate
+
+Block deployment on evaluation failure:
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy with Evaluation Gate
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.eval.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install vijil requests
+
+      - name: Run evaluation
+        id: eval
+        env:
+          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
+          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
+          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
+        run: |
+          # ... (same evaluation script as above)
+          echo "passed=true" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: evaluate
+    if: needs.evaluate.outputs.passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying agent to production..."
+          # Your deployment commands here
+```
+
+## Scheduled Regression Testing
+
+Run evaluations periodically:
+
+```yaml
+# .github/workflows/vijil-scheduled.yml
+name: Scheduled Trust Score Check
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install vijil requests
+
+      - name: Run evaluation
+        env:
+          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
+          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
+          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
+        run: |
+          # ... evaluation script ...
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Vijil Evaluation Failed',
+              body: 'Scheduled Trust Score evaluation failed. Please investigate.',
+              labels: ['trust-score', 'automated']
+            });
+```
+
+## Reusable Workflow
+
+Create a reusable workflow for multiple agents:
+
+```yaml
+# .github/workflows/vijil-reusable.yml
+name: Vijil Evaluation (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      agent_id:
+        required: true
+        type: string
+      harness:
+        required: false
+        type: string
+        default: 'trust_score'
+      threshold:
+        required: false
+        type: number
+        default: 75
+    secrets:
+      M2M_CLIENT_ID:
+        required: true
+      M2M_CLIENT_SECRET:
+        required: true
+      M2M_CLIENT_TOKEN:
+        required: true
+    outputs:
+      trust_score:
+        value: ${{ jobs.evaluate.outputs.trust_score }}
+      passed:
+        value: ${{ jobs.evaluate.outputs.passed }}
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    outputs:
+      trust_score: ${{ steps.eval.outputs.trust_score }}
+      passed: ${{ steps.eval.outputs.passed }}
+    steps:
+      # ... evaluation steps using inputs.agent_id, inputs.harness, etc.
+```
+
+Call from other workflows:
+
+```yaml
+# .github/workflows/test-agent.yml
+jobs:
+  evaluate:
+    uses: ./.github/workflows/vijil-reusable.yml
+    with:
+      agent_id: ${{ secrets.VIJIL_AGENT_ID }}
+      harness: security
+      threshold: 80
+    secrets:
+      M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
+      M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
+      M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CI/CD Overview" icon="circle-nodes" href="/developer-guide/cicd/overview">
+    M2M authentication setup
+  </Card>
+  <Card title="GitLab CI" icon="gitlab" href="/developer-guide/cicd/gitlab-ci">
+    GitLab pipeline setup
+  </Card>
+  <Card title="Testing Strategies" icon="flask" href="/developer-guide/cicd/testing-strategies">
+    Advanced testing patterns
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret evaluation results
+  </Card>
+</CardGroup>

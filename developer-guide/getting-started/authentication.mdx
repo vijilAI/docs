@@ -1,0 +1,111 @@
+---
+title: 'Authentication'
+description: 'Configure API keys for local development and CI/CD.'
+---
+
+Vijil uses API keys to authenticate requests. You'll need one key for local development, and potentially separate keys for CI/CD pipelines with different permission scopes.
+
+For automated pipelines that need to authenticate without user interaction, see [Machine-to-Machine Authentication](/developer-guide/cicd/overview#machine-to-machine-authentication) in the CI/CD guide.
+
+## Getting an API Key
+
+<Steps>
+  <Step title="Log In">
+    Go to [console.vijil.ai](https://console.vijil.ai) and log in
+  </Step>
+  <Step title="Navigate to Settings">
+    Go to **Settings > API Keys**
+  </Step>
+  <Step title="Create Key">
+    Click **Create API Key** and name it
+  </Step>
+  <Step title="Copy Key">
+    Copy the key immediately - it won't be shown again
+  </Step>
+</Steps>
+
+## Using the API Key
+
+### Environment Variable (Recommended)
+
+```bash
+export VIJIL_API_KEY="your-api-key"
+```
+
+```python
+from vijil import Client
+
+# Automatically reads from environment
+client = Client()
+```
+
+### Direct Initialization
+
+```python
+from vijil import Client
+
+client = Client(api_key="your-api-key")
+```
+
+<Warning>
+Never commit API keys to version control. Use environment variables or secrets management.
+</Warning>
+
+### Configuration File
+
+Create `~/.vijil/config.yaml`:
+
+```yaml
+api_key: your-api-key
+```
+
+## Key Permissions
+
+API keys inherit team permissions:
+
+| Scope | Capabilities |
+|-------|--------------|
+| **Full Access** | All operations |
+| **Read Only** | View only |
+| **Evaluations** | Run evaluations only |
+
+## Key Rotation
+
+Rotate keys regularly:
+
+1. Create new key
+2. Update your applications
+3. Revoke old key
+
+## Security Best Practices
+
+1. **Use environment variables** - Not hardcoded values
+2. **Rotate regularly** - Every 90 days recommended
+3. **Limit scope** - Use minimal permissions needed
+4. **Monitor usage** - Check for unauthorized access
+5. **Revoke unused keys** - Clean up old keys
+
+## Troubleshooting
+
+### "Invalid API Key"
+
+- Verify the key is correct
+- Check for extra whitespace
+- Ensure the key hasn't been revoked
+
+### "Insufficient Permissions"
+
+- Check key scope matches operation
+- Verify team membership
+- Contact admin for access
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="play" href="/developer-guide/getting-started/quickstart">
+    Run your first evaluation
+  </Card>
+  <Card title="API Reference" icon="book" href="/developer-guide/api/overview">
+    Full API documentation
+  </Card>
+</CardGroup>
