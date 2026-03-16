@@ -377,5 +377,25 @@
       "light": "#ffffff"
     },
     "decoration": "gradient"
+  },
+  "seo": {
+    "metatags": {
+      "twitter:card": "summary_large_image",
+      "twitter:site": "@vijil_ai",
+      "og:type": "website",
+      "og:site_name": "Vijil",
+      "og:image": "https://vijil.ai/og-image.png"
+    },
+    "indexing": "navigable"
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "thumbnails": {
+    "appearance": "dark",
+    "background": "/images/og/og-docs-default.png",
+    "fonts": {
+      "family": "Nunito"
+    }
   }
 }
