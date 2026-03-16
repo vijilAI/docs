@@ -9,8 +9,8 @@
   "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
     "primary": "#0247A9",
-    "light": "#5684C6",
-    "dark": "#012455"
+    "light": "#6EA2F2",
+    "dark": "#355FD6"
   },
   "icons": {
     "library": "lucide"
@@ -199,7 +199,7 @@
   },
   "background": {
     "color": {
-      "light": "#ffffff"
+      "light": "#f8f8f8"
     },
     "decoration": "gradient"
   }
