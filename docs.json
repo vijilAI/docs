@@ -8,15 +8,9 @@
   },
   "description": "Harden during development, validate before deployment, defend in runtime, and continuously improve agents with reinforcement learning.",
   "colors": {
-<<<<<<< HEAD
-    "primary": "#0247A9",
-    "light": "#5684C6",
-    "dark": "#012455"
-=======
     "primary": "#DE1616",
     "light": "#FF4444",
     "dark": "#0247A9"
->>>>>>> upstream/docs-restructure-wip
   },
   "css": "/styles.css",
   "favicon": "/favicon.svg",
@@ -109,31 +103,6 @@
           {
             "group": "Run Evaluations",
             "pages": [
-<<<<<<< HEAD
-              "manage-agents/introduction",
-              {
-                "group": "Integrations",
-                "icon": "blocks",
-                "expanded": true,
-                "pages": [
-                  "manage-agents/integrations/agentforce",
-                  "manage-agents/integrations/anthropic",
-                  "manage-agents/integrations/bedrock",
-                  "manage-agents/integrations/azure",
-                  "manage-agents/integrations/digitalocean",
-                  "manage-agents/integrations/fireworks",
-                  "manage-agents/integrations/vertex",
-                  "manage-agents/integrations/groq",
-                  "manage-agents/integrations/mistral",
-                  "manage-agents/integrations/nvidia",
-                  "manage-agents/integrations/openai",
-                  "manage-agents/integrations/openrouter",
-                  "manage-agents/integrations/together",
-                  "manage-agents/integrations/custom",
-                  "manage-agents/integrations/platform"
-                ]
-              }
-=======
               "owner-guide/run-evaluations/running-evaluations",
               "owner-guide/run-evaluations/understanding-results"
             ]
@@ -183,24 +152,10 @@
               "developer-guide/evaluate/understanding-results",
               "developer-guide/evaluate/custom-harnesses",
               "developer-guide/evaluate/cloud-providers"
->>>>>>> upstream/docs-restructure-wip
             ]
           },
           {
             "group": "Protect Agents",
-<<<<<<< HEAD
-            "pages": [
-              "protect-agents/introduction",
-               "protect-agents/detection-methods"]
-          },
-          {
-            "group": "Evaluate Agents",
-            "pages": ["evaluate-agents/introduction"]
-          },
-          {
-            "group": "Tutorials",
-=======
->>>>>>> upstream/docs-restructure-wip
             "pages": [
               "developer-guide/protect/overview",
               "developer-guide/protect/configuring-guardrails",
@@ -238,6 +193,12 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Legacy Docs",
+        "groups": [
+
+        ]
       }
     ],
     "global": {
@@ -263,14 +224,7 @@
       "href": "https://console.vijil.ai"
     }
   },
-<<<<<<< HEAD
-  "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
-  },
-  "footer": {
-=======
     "footer": {
->>>>>>> upstream/docs-restructure-wip
     "socials": {
       "website": "https://vijil.ai",
       "github": "https://github.com/vijilAI/",
