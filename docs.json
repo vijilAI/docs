@@ -197,7 +197,141 @@
       {
         "tab": "Legacy Docs",
         "groups": [
-
+          {
+            "group": "Get Started",
+            "pages": [
+              "legacy/get-started/welcome",
+              "legacy/get-started/quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "legacy/core-concepts/introduction",
+              {
+                "group": "Dimensions of Trust",
+                "icon": "ruler-dimension-line",
+                "expanded": true,
+                "pages": [
+                  "legacy/core-concepts/dimensions/introduction",
+                  "legacy/core-concepts/dimensions/reliability",
+                  "legacy/core-concepts/dimensions/safety",
+                  "legacy/core-concepts/dimensions/security"
+                ]
+              },
+              {
+                "group": "Trust Score Components",
+                "icon": "handshake",
+                "expanded": true,
+                "pages": [
+                  "legacy/core-concepts/components/introduction",
+                  "legacy/core-concepts/components/harness",
+                  "legacy/core-concepts/components/scenario",
+                  "legacy/core-concepts/components/probe",
+                  "legacy/core-concepts/components/detector",
+                  "legacy/core-concepts/components/guard",
+                  "legacy/core-concepts/components/guardrail"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Manage Agents",
+            "pages": [
+              "legacy/manage-agents/introduction",
+              {
+                "group": "Integrations",
+                "pages": [
+                  "legacy/manage-agents/integrations/openai",
+                  "legacy/manage-agents/integrations/anthropic",
+                  "legacy/manage-agents/integrations/mistral",
+                  "legacy/manage-agents/integrations/fireworks",
+                  "legacy/manage-agents/integrations/nvidia",
+                  "legacy/manage-agents/integrations/vertex",
+                  "legacy/manage-agents/integrations/digitalocean",
+                  "legacy/manage-agents/integrations/bedrock",
+                  "legacy/manage-agents/integrations/openrouter",
+                  "legacy/manage-agents/integrations/groq",
+                  "legacy/manage-agents/integrations/together",
+                  "legacy/manage-agents/integrations/custom"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Protect Agents",
+            "pages": [
+              "legacy/protect-agents/introduction",
+              "legacy/protect-agents/detection-methods"
+            ]
+          },
+          {
+            "group": "Evaluate Agents",
+            "pages": [
+              "legacy/evaluate-agents/introduction"
+            ]
+          },
+          {
+            "group": "Tutorials",
+            "pages": [
+              "legacy/tutorials/manage-api-keys",
+              "legacy/tutorials/manage-agents",
+              {
+                "group": "Protect Agents",
+                "icon": "shield-check",
+                "pages": [
+                  "legacy/tutorials/protect-agents/setup-dome",
+                  "legacy/tutorials/protect-agents/setup-guards",
+                  "legacy/tutorials/protect-agents/configuring-guardrails",
+                  "legacy/tutorials/protect-agents/using-guardrails",
+                  "legacy/tutorials/protect-agents/domed-clients",
+                  "legacy/tutorials/protect-agents/langchain",
+                  "legacy/tutorials/protect-agents/adk",
+                  "legacy/tutorials/protect-agents/custom-detectors",
+                  "legacy/tutorials/protect-agents/observability"
+                ]
+              },
+              {
+                "group": "Evaluate Agents",
+                "icon": "glasses",
+                "pages": [
+                  "legacy/tutorials/evaluate-agents/setup-evaluate",
+                  "legacy/tutorials/evaluate-agents/evaluations",
+                  "legacy/tutorials/evaluate-agents/owasp",
+                  "legacy/tutorials/evaluate-agents/rag",
+                  "legacy/tutorials/evaluate-agents/detections",
+                  "legacy/tutorials/evaluate-agents/custom-harnesses",
+                  "legacy/tutorials/evaluate-agents/local-agent-evaluation",
+                  "legacy/tutorials/evaluate-agents/reports",
+                  "legacy/tutorials/evaluate-agents/cicd",
+                  {
+                    "group": "Enterprise Deployment of Evaluate",
+                    "expanded": true,
+                    "pages": [
+                      "legacy/tutorials/evaluate-agents/enterprise/introduction",
+                      "legacy/tutorials/evaluate-agents/enterprise/prerequisites",
+                      "legacy/tutorials/evaluate-agents/enterprise/deployment"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "References",
+            "pages": [
+              "legacy/references/glossary",
+              "legacy/references/release-notes",
+              {
+                "group": "Python Client",
+                "icon": "worm",
+                "pages": [
+                  "legacy/references/python-client/introduction",
+                  "legacy/references/python-client/client"
+                ]
+              }
+            ]
+          }
         ]
       }
     ],
@@ -230,7 +364,6 @@
       "github": "https://github.com/vijilAI/",
       "linkedin": "https://www.linkedin.com/company/vijil"
     }
-<<<<<<< HEAD
   },
   "banner": {
     "content": "🚀 Welcome to Vijil Documentation!",
@@ -244,7 +377,5 @@
       "light": "#ffffff"
     },
     "decoration": "gradient"
-=======
->>>>>>> upstream/docs-restructure-wip
   }
 }

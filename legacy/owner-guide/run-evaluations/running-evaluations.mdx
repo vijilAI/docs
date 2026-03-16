@@ -1,0 +1,149 @@
+---
+title: 'Running Evaluations'
+description: 'Test your AI agents with Diamond to measure trustworthiness.'
+---
+
+Evaluations test your AI agent against targeted scenarios to measure its trustworthiness. Diamond, Vijil's evaluation engine, sends probes to your agent and analyzes responses to produce a Trust Score.
+
+## Diamond Evaluations
+
+Navigate to **Evaluations** in the sidebar to open Diamond Evaluations.
+
+<Frame>
+  <img src="/images/diamond-evaluations-page.png" alt="Diamond Evaluations page showing agent selection, harness configuration, and evaluation results" />
+</Frame>
+
+The page has three sections:
+
+- **Create Evaluation** — Configure and launch new evaluations
+- **Evaluation Results** — Track progress and access completed evaluations
+
+## Creating an Evaluation
+
+### Select Agent
+
+The agent table shows all registered agents in your workspace:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Agent Name** | Identifier from registration |
+| **Status** | Active or Draft |
+
+Select the agent you want to evaluate by clicking its row. Only agents with status **Active** can be evaluated.
+
+<Tip>
+Use the search box to filter agents by name, model, or hub when you have many registered agents.
+</Tip>
+
+### Select Harness
+
+Choose what to test by selecting a harness type:
+
+**Trust Score** — Vijil's standard evaluation across three dimensions:
+- **Reliability** — Correctness, consistency, robustness
+- **Security** — Confidentiality, integrity, availability
+- **Safety** — Containment, compliance, transparency
+
+Each dimension has a toggle. Enable all three for comprehensive evaluation, or select specific dimensions to focus on particular concerns.
+
+**Custom** — Your configured harnesses that combine specific personas and policies. Custom harnesses appear here when you've created them in the Harness Registry with status **Active**.
+
+### Run Evaluation
+
+Once you've selected an agent and configured your harness:
+
+1. Verify your agent selection in the left panel
+2. Confirm harness settings in the right panel
+3. Click **Run Evaluation**
+
+The evaluation starts immediately. Diamond sends probes to your agent based on the selected harness and records responses for analysis.
+
+## Monitoring Progress
+
+Running evaluations appear in the **Evaluation Results** table:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Agent Name** | Which agent is being evaluated |
+| **Created By** | Who started the evaluation |
+| **Created At** | When the evaluation began |
+| **Evaluation** | Status: PENDING, RUNNING, COMPLETED, or FAILED |
+| **Last Evaluated At** | When the evaluation finished |
+| **Actions** | View report, download results |
+
+### Evaluation Status
+
+| Status | Meaning |
+|--------|---------|
+| **PENDING** | Queued, waiting to start |
+| **RUNNING** | Actively sending probes and collecting responses |
+| **COMPLETED** | Finished successfully, results available |
+| **FAILED** | Encountered an error, check agent connectivity |
+
+Evaluations typically complete in 5-30 minutes depending on the harness size and your agent's rate limits.
+
+## Viewing Results
+
+When an evaluation completes, access the results through the **Actions** column:
+
+- **View** (eye icon) — Opens the Trust Report in a new tab
+- **Download** (download icon) — Downloads results as a file
+
+The Trust Report provides:
+- Overall Trust Score with pass/fail status
+- Per-dimension breakdown
+- Detailed findings for each probe category
+- Deployment recommendations
+
+See [Understanding Results](/owner-guide/run-evaluations/understanding-results) for detailed guidance on interpreting findings.
+
+## Evaluation Considerations
+
+### Rate Limits
+
+Diamond respects the rate limit you configured during agent registration. Higher rate limits enable faster evaluations but may exceed your provider's quotas.
+
+If evaluations fail with timeout errors:
+- Verify your agent URL is accessible
+- Check that your API credentials are valid
+- Consider reducing the rate limit in agent settings
+
+### Agent Availability
+
+Your agent must remain available throughout the evaluation. If your agent goes offline or becomes unresponsive, the evaluation may fail or produce incomplete results.
+
+For production agents behind load balancers, ensure sufficient capacity to handle evaluation traffic alongside normal usage.
+
+### Re-running Evaluations
+
+You can run multiple evaluations against the same agent. Each evaluation creates a new entry in the results table, allowing you to:
+- Track Trust Score changes over time
+- Compare results before and after agent modifications
+- Verify fixes for previously identified issues
+
+## Best Practices
+
+**Evaluate before deployment** — Run a Trust Score evaluation on every agent before it reaches production. The results provide evidence of baseline trustworthiness.
+
+**Test after changes** — Any modification to your agent—prompt updates, model changes, tool additions—can affect behavior. Re-evaluate to verify.
+
+**Use appropriate harnesses** — The Trust Score harness tests general behaviors. For domain-specific requirements, create custom harnesses with relevant personas and policies.
+
+**Monitor for regressions** — Compare Trust Scores across evaluations. A declining score indicates problems introduced by recent changes.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Understanding Results" icon="chart-line" href="/owner-guide/run-evaluations/understanding-results">
+    Interpret evaluation findings
+  </Card>
+  <Card title="Trust Score Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/trust-score">
+    Learn about the standard evaluation
+  </Card>
+  <Card title="Custom Harnesses" icon="ruler" href="/owner-guide/simulate-environment/custom-harnesses">
+    Build targeted evaluation scenarios
+  </Card>
+  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Add runtime protection with Dome
+  </Card>
+</CardGroup>

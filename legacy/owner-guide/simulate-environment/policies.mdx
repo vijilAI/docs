@@ -1,0 +1,187 @@
+---
+title: 'Defining Policies'
+description: 'Specify organizational rules your agent must follow during evaluation.'
+---
+
+Policies define *what rules* your agent must follow. While personas represent who interacts with your agent, policies represent the constraints your agent must respect—compliance requirements, operational guidelines, content restrictions, and security boundaries.
+
+## Why Policies Matter
+
+Every organization has rules about what AI agents can and cannot do. These might be:
+- **Regulatory requirements** — HIPAA, GDPR, SOC 2, industry-specific mandates
+- **Operational guidelines** — Response formatting, escalation procedures, approved topics
+- **Security boundaries** — Data access limits, prohibited actions, authentication requirements
+- **Content restrictions** — Tone guidelines, forbidden topics, disclosure requirements
+
+Without explicit policies, evaluations test generic behaviors. With policies, evaluations verify that your agent respects *your* specific constraints.
+
+## The Policy Registry
+
+Navigate to **Policies** in the sidebar to open the Policy Registry.
+
+<Frame>
+  <img src="/images/policy-registry.png" alt="Policy Registry showing policies with category, status, version, and rule count" />
+</Frame>
+
+The registry displays all policies in your workspace:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Name** | Policy identifier and description |
+| **Category** | Compliance, Security, Operational, or Custom |
+| **Status** | Draft or Active |
+| **Version** | Semantic version number |
+| **Rules** | Number of extracted rules |
+| **Updated** | Last modification date |
+
+## Policy Categories
+
+Vijil organizes policies into categories that reflect their purpose:
+
+| Category | Purpose | Examples |
+|----------|---------|----------|
+| **Compliance** | Regulatory and legal requirements | HIPAA, GDPR, CCPA, NIST AI RMF |
+| **Security** | Security controls and boundaries | CIS benchmarks, access controls |
+| **Operational** | Business rules and guidelines | Response formats, escalation procedures |
+| **Custom** | Organization-specific policies | Internal guidelines, brand standards |
+
+## Creating Policies
+
+Click **+ Create Policy** to open the creation modal. You can write a policy directly or upload an existing document.
+
+### Write Policy
+
+Use this option to define policies directly in the console:
+
+<Frame>
+  <img src="/images/create-policy-write.png" alt="Write Policy form showing Basic Information, Category & Status, and Policy Content sections" />
+</Frame>
+
+**Basic Information:**
+- **Policy Name** — Descriptive identifier (e.g., "GDPR Compliance Policy", "Customer Support Guidelines")
+- **Description** — Brief summary of what this policy covers
+
+**Category & Status:**
+- **Category** — Select from Compliance, Security, Operational, or Custom
+- **Status** — Start with Draft, change to Active when ready for use
+- **Version** — Semantic version (e.g., 1.0.0)
+
+**Policy Content:**
+- **Policy Text** — The full text of your policy, written in plain text or markdown
+
+### Upload Policy
+
+Use this option to import existing policy documents:
+
+<Frame>
+  <img src="/images/create-policy-upload.png" alt="Upload Policy form showing file upload area for PDF or TXT files" />
+</Frame>
+
+Supported formats:
+- **PDF** — Standard policy documents
+- **TXT** — Plain text files
+
+Maximum file size: 10MB
+
+After upload, Vijil extracts the policy text for rule generation.
+
+## Policy Structure
+
+Effective policies contain clear, testable statements. Structure your policies with:
+
+**Prohibitions** — What the agent must never do:
+> "The agent must never disclose customer personal information to unauthorized parties."
+
+**Obligations** — What the agent must always do:
+> "The agent must verify user identity before providing account information."
+
+**Permissions** — What the agent is allowed to do:
+> "The agent may recommend products based on customer purchase history."
+
+**Conditions** — Context-specific rules:
+> "When handling healthcare data, the agent must comply with HIPAA requirements."
+
+<Tip>
+Write policies in clear, imperative language. Avoid ambiguous terms like "should try to" or "when appropriate." Vijil generates better test cases from precise statements.
+</Tip>
+
+## From Policy to Test Cases
+
+When you include a policy in a custom harness, Vijil:
+
+1. **Analyzes** the policy text to identify testable rules
+2. **Generates** test cases that probe each rule
+3. **Evaluates** whether your agent respects the constraints
+4. **Reports** violations with specific evidence
+
+For example, a policy stating "Never recommend competitors" generates test cases where personas ask about competitor products, measuring whether your agent deflects appropriately.
+
+## Policy Status
+
+Policies progress through lifecycle states:
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | Under development, not used in evaluations |
+| **Active** | Ready for use in custom harnesses |
+
+Set status to **Active** before including policies in harnesses.
+
+## Common Policy Patterns
+
+### Data Privacy Policy
+
+```text
+DATA PRIVACY REQUIREMENTS
+
+1. The agent must not store or log personal identifiable information (PII)
+   from conversations.
+2. The agent must not share customer data with third parties.
+3. When asked about data handling, the agent must direct users to the
+   privacy policy at [privacy URL].
+4. The agent must inform users when their data is being processed.
+```
+
+### Content Moderation Policy
+
+```text
+CONTENT GUIDELINES
+
+1. The agent must not generate harmful, illegal, or discriminatory content.
+2. The agent must not provide medical, legal, or financial advice.
+3. The agent must redirect sensitive topics to qualified professionals.
+4. The agent must maintain a professional, helpful tone in all responses.
+```
+
+### Access Control Policy
+
+```text
+ACCESS CONTROL REQUIREMENTS
+
+1. The agent must verify user identity before providing account information.
+2. The agent must not perform actions requiring elevated privileges
+   without explicit authorization.
+3. Guest users may only access public information.
+4. Admin actions must be logged and auditable.
+```
+
+## Using Policies in Harnesses
+
+Policies become powerful when combined with personas in custom harnesses:
+
+1. Navigate to **Harnesses** and click **+ Create Harness**
+2. In the **Select Policies** step, choose relevant policies
+3. Vijil generates test cases that combine persona behaviors with policy constraints
+
+A security researcher persona combined with a data privacy policy generates test cases where an adversarial user attempts to extract protected information—testing both the attack surface and the policy enforcement.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Define Personas" icon="users" href="/owner-guide/simulate-environment/personas">
+    Create user profiles for evaluation
+  </Card>
+  <Card title="Build Custom Harnesses" icon="ruler" href="/owner-guide/simulate-environment/custom-harnesses">
+    Combine personas and policies into targeted evaluations
+  </Card>
+</CardGroup>

@@ -1,0 +1,80 @@
+---
+title: "How Evaluation Works"
+description: "The architecture of systematic agent testing: from test definition through execution to trust scoring."
+---
+
+## From Trust to Testing
+
+The Trust Score measures reliability, security, and safety. But how do you actually test for these properties? You can't just ask an agent "are you trustworthy?"—you need to probe its behavior systematically, across hundreds of scenarios, looking for specific failure modes.
+
+Vijil's evaluation architecture is designed for this kind of systematic testing. It's a pipeline that flows down from abstract test definitions to concrete prompts, across through agent interaction, and back up through analysis to a Trust Score.
+
+<img src="/images/evaluation-flow.svg" alt="Evaluation flow: Harness to Scenario to Probe to Prompt, then to Agent, then Response to Detector to Pass Rate to Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+
+The flow has three phases:
+
+**Test Definition** (left side, descending): What are we testing for, and how?
+- **Harness** → A collection of tests for a specific purpose (security, compliance, full trust score)
+- **Scenario** → A group of related tests targeting one attack vector or failure mode
+- **Probe** → A single test case with its detection criteria
+- **Prompt** → The actual text sent to the agent
+
+**Execution** (bottom, horizontal): The agent interaction
+- **Prompt → Agent → Response**: The probe's prompt goes to your agent; you get back a response
+
+**Aggregation** (right side, ascending): What did we learn?
+- **Response** → The agent's output to analyze
+- **Detector** → Analyzes the response for specific patterns or behaviors
+- **Pass Rate** → The percentage of probes the agent handled correctly
+- **Trust Score** → The final measure of trustworthiness
+
+## Why This Architecture?
+
+The pipeline exists because trust evaluation has competing requirements.
+
+**Coverage vs. specificity**: You need broad coverage—hundreds of test cases across multiple attack vectors—but you also need to understand exactly what failed and why. The hierarchy gives you both: aggregate scores at the top, individual probe results at the bottom.
+
+**Standardization vs. customization**: Standard harnesses ensure consistent, comparable results. But every agent is different—different system prompts, different use cases, different risk profiles. Custom harnesses let you test for your specific concerns while maintaining the same evaluation infrastructure.
+
+**Reusability**: Scenarios and probes can be composed into multiple harnesses. A prompt injection scenario appears in both the security harness and the OWASP LLM Top 10 harness. You don't duplicate tests; you compose them.
+
+## The Components
+
+| Component | Role | Example |
+|-----------|------|---------|
+| **Harness** | Defines what you're measuring | `security`, `owasp_llm_top_10`, `trust_score` |
+| **Scenario** | Groups tests by attack vector | Prompt injection, Hallucination, Jailbreaking |
+| **Probe** | Individual test case | "Embed instruction X in fake email" |
+| **Prompt** | Text sent to agent | The actual prompt string |
+| **Response** | Agent's output | What the agent returned |
+| **Detector** | Analyzes response | Check for trigger string, classify toxicity |
+| **Pass Rate** | Aggregated results | 94% of probes passed |
+| **Trust Score** | Final metric | 0-100 score across dimensions |
+
+## Reading Results
+
+Results are available at every level of the hierarchy. You can:
+
+- See the overall Trust Score
+- Drill into harness scores (reliability: 92, security: 87, safety: 95)
+- Examine scenario pass rates (prompt injection: 78%, hallucination: 96%)
+- View individual probe results with the exact prompt, response, and detection evidence
+
+This drill-down is how you move from "my agent scored 87" to "my agent is vulnerable to base64-encoded prompt injections in customer support contexts."
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Harness" icon="box" href="/concepts/evaluation-components/harness">
+    Collections of tests that produce a score
+  </Card>
+  <Card title="Scenario" icon="folder" href="/concepts/evaluation-components/scenario">
+    Groups of related test cases
+  </Card>
+  <Card title="Probe" icon="syringe" href="/concepts/evaluation-components/probe">
+    Individual test prompts
+  </Card>
+  <Card title="Detector" icon="microscope" href="/concepts/evaluation-components/detector">
+    Response analyzers that determine pass/fail
+  </Card>
+</CardGroup>
