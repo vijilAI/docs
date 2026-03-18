@@ -22,7 +22,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["get-started/welcome", "get-started/quickstart"]
+            "pages": ["get-started/welcome", "get-started/quickstart", "get-started/overview"]
           },
           {
             "group": "Core Concepts",
