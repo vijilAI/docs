@@ -1,0 +1,337 @@
+---
+title: "List of Detection Methods"
+description: "List of all built-in detection methods grouped by category"
+---
+
+## Detection Methods
+
+Vijil Dome has built-in detection methods that give Detectors their ability to identify issues. These methods are used to [Configure Guardrails](/tutorials/protect-agents/configuring-guardrails) using a TOML file or dictionary.  
+The detection methods are grouped under these five categories:
+
+- Security
+- Moderation
+- Privacy
+- Integrity
+- Generic
+
+For each method, you will look at the model or service powering it and all its configurable parameters. When Configuring Dome, parameters are passed as key-value pairs under the detection method as you can see in this example.
+
+<CodeGroup>
+```toml title="TOML" icon=""
+[prompt-injection]
+type = "security"
+methods = ["prompt-injection-mbert"]
+# Configuring a parameter
+[prompt-injection.prompt-injection-mbert]
+window_stride = 128  # More overlap for thorough detection
+```
+</CodeGroup>
+
+The corresponding dictionary config looks like this:
+
+<CodeGroup>
+```python title="Python" icon="python"
+config = {
+    "input-guards": ["prompt-injection"],
+    "prompt-injection": {
+        "type": "security",
+        "methods": ["prompt-injection-mbert"],
+        # Configuring a parameter
+        "prompt-injection-mbert": {
+            "window_stride": 128,
+        },
+    },
+}
+```
+</CodeGroup>
+
+Now that you have looked at how the parameters are configured, you can dive into the detection methods.
+
+### Security
+
+The detection methods under security give Detectors the ability to detect adversarial inputs like prompt injections, jailbreak attempts, and encoded/obfuscated payloads.
+They include the following:
+
+1. `prompt-injection-mbert`  
+This is Vijil's ModernBERT model for prompt injection detection. It supports up to 8,192 tokens natively, so sliding windows only activate for very long inputs. Its parameters include the following:
+
+    | Parameter                | Type      | Default | Description                                        |
+    | ------------------------ | --------- | ------- | -------------------------------------------------- |
+    | `score_threshold`        | `float`   | `0.5`   | Injection probability above which input is flagged |
+    | `truncation`             | `bool`    | `True`  | Truncate inputs exceeding `max_length`             |
+    | `max_length`             | `int`     | `8192`  | Maximum tokens per window                          |
+    | `window_stride`          | `int`     | `4096`  | Token step size between sliding windows            |
+
+2. `prompt-injection-deberta-finetuned-11122024`  
+This is a Vijil-finetuned DeBERTa model for prompt injection detection. Its parameters include the following:
+
+    | Parameter       | Type   | Default  | Description                               |
+    | --------------- | ------ | -------- |------------------------------------------ |
+    | `truncation`    | `bool` | `True`   | Truncate inputs exceeding `max_length`    |
+    | `max_length`    | `int`  | `512`    | Maximum tokens per window (DeBERTa limit) |
+    | `window_stride` | `int`  | `256`    | Token step size between sliding windows   |
+
+3. `prompt-injection-deberta-v3-base`  
+This is a DeBERTa v3 model for prompt injection detection. It has the following configurable parameters:
+
+    | Parameter       | Type  | Default | Description                               |
+    | --------------- | ----- | ------- | ----------------------------------------- |
+    | `truncation`    | `bool`| `True`  | Truncate inputs exceeding `max_length`    |
+    | `max_length`    | `int` | `512`   | Maximum tokens per window (DeBERTa limit) |   
+    | `window_stride` | `int` | `256`   | Token step size between sliding windows   |
+
+4. `security-promptguard`  
+This is the Meta Prompt Guard model for jailbreak and prompt injection detection. It has the following parameters:
+
+    | Parameter         | Type    | Default | Description                             |
+    |------------------ |-------- | ------- | --------------------------------------- |
+    | `score_threshold` | `float` | `0.5`   | Jailbreak probability threshold         |
+    | `truncation`      | `bool`  | `True`  | Truncate inputs exceeding `max_length`  |
+    | `max_length`      | `int`   | `512`   | Maximum tokens per window               |
+    | `window_stride`   | `int`   | `256`   | Token step size between sliding windows |
+
+5. `security-llm`  
+This is an LLM-based security classification model served via LiteLLM. Its configurable parameters include:
+
+    | Parameter         | Type  | Default         | Description                            |
+    |------------------ | ----- | --------------- | -------------------------------------- |
+    | `hub_name`        | `str` | `"openai"`      | LLM API provider                       |
+    | `model_name`      | `str` | `"gpt-4-turbo"` | Model name                             |
+    | `api_key`         | `str` | `None`          | API key (falls back to env var)        |
+    | `max_input_chars` | `int` | `None`          | Truncate input to this many characters |
+
+6. `security-embeddings`  
+This provides jailbreak detection via embedding similarity against a known-jailbreak corpus. It supports various embedding engines and models. Its parameters include:
+
+    | Parameter   | Type    | Default                  | Description               |
+    | ----------- | ------- | ------------------------ | ------------------------- |
+    | `engine`    | `str`   | `"SentenceTransformers"` | Embedding engine          |
+    | `model`     | `str`   | `"all-MiniLM-L6-v2"`     | Embedding model name      |
+    | `threshold` | `float` | `0.7`                    | Similarity threshold      |
+    | `in_mem`    | `bool`  | `True`                   | Load embeddings in memory |
+
+7. `jb-length-per-perplexity`  
+This is a perplexity-based heuristic that flags jailbreaks by their length-to-perplexity
+ratio. It has the following parameters:
+
+    | Parameter       | Type    | Default        | Description                       |
+    | --------------- | ------- | -------------- | --------------------------------- |
+    | `model_id`      | `str`   | `"gpt2-large"` | HuggingFace model for perplexity  |
+    | `batch_size`    | `int`   | `16`           | Batch size                        |
+    | `stride_length` | `int`   | `512`          | Stride for perplexity calculation |
+    | `threshold`     | `float` | `89.79`        | Length-per-perplexity threshold   |
+
+8. `jb-prefix-suffix-perplexity`  
+This is a perplexity-based heuristic that analyses the prefix and suffix of inputs
+separately. It flags jailbreaks by their prefix and suffix perplexity scores. Its parameters include the following:
+
+    | Parameter          | Type    | Default        | Description                       |
+    | ------------------ | ------- | -------------- | --------------------------------- |
+    | `model_id`         | `str`   | `"gpt2-large"` | HuggingFace model for perplexity  |
+    | `batch_size`       | `int`   | `16`           | Batch size                        |
+    | `stride_length`    | `int`   | `512`          | Stride for perplexity calculation |
+    | `prefix_threshold` | `float` | `1845.65`      | Prefix perplexity threshold       |
+    | `suffix_threshold` | `float` | `1845.65`      | Suffix perplexity threshold       |
+    | `prefix_length`    | `int`   | `20`           | Number of prefix words to analyse |
+    | `suffix_length`    | `int`   | `20`           | Number of suffix words to analyse |
+
+9. `encoding-heuristics`  
+This is a rule-based detector for encoded or obfuscated payloads (base64, ROT13, hex,
+URL encoding, Unicode tricks, etc.). It flags inputs as suspicious based on the presence of encoding patterns and their proportion in the text. Its parameters include:
+
+    | Parameter       | Type   | Default       | Description                  |
+    | --------------- | ------ | ------------- | ---------------------------- |
+    | `threshold_map` | `dict` | _(see below)_ | Per-encoding-type thresholds |
+
+    Default `threshold_map`:
+
+    | Encoding Type          | Threshold |
+    | ---------------------- | --------- |
+    | `base64`               | `0.7`     |
+    | `rot13`                | `0.7`     |
+    | `ascii_escape`         | `0.05`    |
+    | `hex_encoding`         | `0.15`    |
+    | `url_encoding`         | `0.15`    |
+    | `cyrillic_homoglyphs`  | `0.05`    |
+    | `mixed_scripts`        | `0.05`    |
+    | `zero_width`           | `0.01`    |
+    | `excessive_whitespace` | `0.4`     |
+
+
+### Moderation
+
+Detection methods under moderation enable Detectors to identify content that violates content policies, such as hate speech, violence, adult content, toxic content, and more. They include the following:
+
+1. `moderation-mbert`  
+This is Vijil's ModernBERT model for toxic content detection. Supports up to 8,192
+tokens natively. It has the following parameters:
+
+    | Parameter         | Type    | Default | Description                             |
+    | ----------------- | ------- | ------- | --------------------------------------- |
+    | `score_threshold` | `float` | `0.5`   | Toxicity probability threshold          |
+    | `truncation`      | `bool`  | `True`  | Truncate inputs exceeding `max_length`  |
+    | `max_length`      | `int`   | `8192`  | Maximum tokens per window               |
+    | `window_stride`   | `int`   | `4096`  | Token step size between sliding windows |
+
+2. `moderations-oai-api`  
+This is OpenAI's Moderation API with per-category score thresholds. It has the following parameters:
+
+    | Parameter              | Type   | Default | Description                    |
+    | ---------------------- | ------ | ------- | ------------------------------ |
+    | `score_threshold_dict` | `dict` | `None`  | Custom thresholds per category |
+
+    Supported categories include:  
+    `hate`, `hate/threatening`, `self-harm`, `sexual`,
+    `sexual/minors`, `violence`, `violence/graphic`, `harassment`,
+    `harassment/threatening`, `illegal`, `illicit`, `self-harm/intent`,
+    `self-harm/instructions`, `sexual/instructions`.  
+    This detection method requires you to set up the `OPENAI_API_KEY` environment variable.
+
+3. `moderation-deberta`  
+This is a DeBERTa model for toxicity scoring. The 208-token context window means the
+sliding window activates for most non-trivial inputs. Its parameters include the following:
+
+    | Parameter       | Type   | Default | Description                                   |
+    | --------------- | ------ | ------- | --------------------------------------------- |
+    | `truncation`    | `bool` | `True`  | Truncate inputs exceeding `max_length`        |
+    | `max_length`    | `int`  | `208`   | Maximum tokens per window                     |
+    | `window_stride` | `int`  | `104`   | Token step size between sliding windows       |
+    | `device`        | `str`  | `None`  | Torch device (auto-selects CUDA if available) |
+
+4. `moderation-perspective-api`  
+This is Google's Perspective API for toxicity and other attributes. It has the following parameters:
+
+    | Parameter         | Type   | Default             | Description                                          |
+    | ----------------- | ------ | ------------------- | ---------------------------------------------------- |
+    | `api_key`         | `str`  | `None`              | Google API key (falls back to `PERSPECTIVE_API_KEY`) |
+    | `attributes`      | `dict` | `{"TOXICITY": {}}`  | Attributes to analyse                                |
+    | `score_threshold` | `dict` | `{"TOXICITY": 0.5}` | Per-attribute thresholds                             |
+
+    The available attributes include the following:  
+     `TOXICITY`, `SEVERE_TOXICITY`, `IDENTITY_ATTACK`,
+    `INSULT`, `PROFANITY`, `THREAT`.  
+    Using this detection method requires setting up the `PERSPECTIVE_API_KEY` environment variable.
+
+5. `moderation-prompt-engineering`  
+This is an LLM-based moderation classifier served via LiteLLM. It has the following parameters:
+
+    | Parameter         | Type  | Default         | Description                                         |
+    | ----------------- | ----- | --------------- | --------------------------------------------------- |
+    | `hub_name`        | `str` | `"openai"`      | LLM API provider                                    |
+    | `model_name`      | `str` | `"gpt-4-turbo"` | Model name                                          |
+    | `api_key`         | `str` | `None`          | API key (falls back to environment variable)        |
+    | `max_input_chars` | `int` | `None`          | Truncate input to this many characters              |
+
+6. `moderation-flashtext`  
+This is a keyword ban-list detector that uses FlashText for fast matching. Its parameters include the following:
+
+    | Parameter           | Type        | Default | Description                                                     |
+    | ------------------- | ----------- | ------- | --------------------------------------------------------------- |
+    | `banlist_filepaths` | `list[str]` | `None`  | Paths to ban-list files (uses built-in default list if omitted) |
+
+### Privacy
+Detection methods under privacy enable Detectors to identify personally identifiable information (PII) and sensitive data in inputs. They include the following:
+
+1. `privacy-presidio`  
+This  detection method uses Microsoft's Presidio-based PII detection and redaction. It has the following parameters:
+
+    | Parameter          | Type        | Default     | Description                                 |
+    | ------------------ | ----------- | ----------- | ------------------------------------------- |
+    | `score_threshold`  | `float`     | `0.5`       | Confidence threshold for PII detection      |
+    | `anonymize`        | `bool`      | `True`      | Redact detected PII in the response         |
+    | `allow_list_files` | `list[str]` | `None`      | Files with values to exclude from detection |
+    | `redaction_style`  | `str`       | `"labeled"` | Redaction style: `"labeled"` or `"masked"`  |
+
+2. `detect-secrets`  
+This is a pattern-based secret and credential detection method. It detects API keys, tokens, etc. Its parameters include the following:
+
+    | Parameter | Type   | Default | Description                             |
+    | --------- | ------ | ------- | --------------------------------------- |
+    | `censor`  | `bool` | `True`  | Censor detected secrets in the response |
+
+    This method includes 25 detector plugins:  
+    ArtifactoryDetector, AWSKeyDetector,
+    AzureStorageKeyDetector, BasicAuthDetector, CloudantDetector,
+    DiscordBotTokenDetector, GitHubTokenDetector, GitLabTokenDetector,
+    IbmCloudIamDetector, IbmCosHmacDetector, IPPublicDetector, JwtTokenDetector,
+    KeywordDetector, MailchimpDetector, NpmDetector, OpenAIDetector,
+    PrivateKeyDetector, PypiTokenDetector, SendGridDetector, SlackDetector,
+    SoftlayerDetector, SquareOAuthDetector, StripeDetector,
+    TelegramBotTokenDetector, TwilioKeyDetector.
+
+### Integrity
+
+Detection methods under integrity enable Detectors to identify issues related to the integrity and authenticity of inputs or outputs (hallucinations), such as misinformation, deepfakes, manipulated media, and more. They include the following:
+
+1. `hhem-hallucination`  
+This method uses the Vectara HHEM model for hallucination detection which compares output against a
+reference context.
+
+    | Parameter                             | Type    | Default | Description                          |
+    | ------------------------------------- | ------- | ------- | ------------------------------------ |
+    | `context`                             | `str`   | `""`    | Reference context to compare against |
+    | `factual_consistency_score_threshold` | `float` | `0.5`   | Score below which output is flagged  |
+    | `trust_remote_code`                   | `bool`  | `True`  | Trust remote code from model hub     |
+
+2. `fact-check-roberta`  
+This detection method uses the RoBERTa model for detecting factual contradictions between output and context. Its parameters include the following:
+
+    | Parameter | Type  | Default | Description                        |
+    | --------- | ----- | ------- | ---------------------------------- |
+    | `context` | `str` | `""`    | Reference context to check against |
+
+3. `hallucination-llm`  
+This uses LLM-based hallucination detection with reference context. It has the following parameters:
+
+    | Parameter         | Type  | Default         | Description                                         |
+    | ----------------- | ----- | --------------- | --------------------------------------------------- |
+    | `hub_name`        | `str` | `"openai"`      | LLM API provider                                    |
+    | `model_name`      | `str` | `"gpt-4-turbo"` | Model name                                          |
+    | `api_key`         | `str` | `None`          | API key (falls back to environment  variable)       |
+    | `max_input_chars` | `int` | `None`          | Truncate input to this many characters              |
+    | `context`         | `str` | `None`          | Reference context for comparison                    |
+
+4. `fact-check-llm`  
+This  method uses an LLM for fact-checking with reference context. Its parameters include the following:
+
+    | Parameter         | Type  | Default         | Description                                         |
+    | ----------------- | ----- | --------------- | --------------------------------------------------- |
+    | `hub_name`        | `str` | `"openai"`      | LLM API provider                                    |
+    | `model_name`      | `str` | `"gpt-4-turbo"` | Model name                                          |
+    | `api_key`         | `str` | `None`          | API key (falls back to environment  variable)       |
+    | `max_input_chars` | `int` | `None`          | Truncate input to this many characters              |
+    | `context`         | `str` | `None`          | Reference context for comparison                    |
+
+### Generic
+
+Detection methods under generic are versatile and can be custokized and applied to a wide range of issues beyond the specific categories above. They include the following:
+
+1. `generic-llm`  
+This is method offers custom LLM-based detection with user-provided system prompts and trigger words. It can be used for various detection needs by tailoring the prompt and trigger words accordingly. Its parameters include the following:
+
+    | Parameter             | Type        | Default         | Description                                                 |
+    | --------------------- | ----------- | --------------- | ----------------------------------------------------------- |
+    | `sys_prompt_template` | `str`       | _(required)_    | System prompt with `$query_string` placeholder              |
+    | `trigger_word_list`   | `list[str]` | _(required)_    | Words in LLM response that indicate a hit                   |
+    | `hub_name`            | `str`       | `"openai"`      | LLM API provider                                            |
+    | `model_name`          | `str`       | `"gpt-4-turbo"` | Model name                                                  |
+    | `api_key`             | `str`       | `None`          | API key (falls back to environment variable)                |
+    | `max_input_chars`     | `int`       | `None`          | Truncate input to this many characters                      |
+
+2. `policy-gpt-oss-safeguard`  
+This is a policy-based content classifier that uses GPT-OSS-Safeguard. It classifies inputs based on user-provided policy rules and returns the violated policy reference. Its parameters include the following:
+
+    | Parameter          | Type  | Default                          | Description                                                   |
+    | ------------------ | ----- | -------------------------------- | ------------------------------------------------------------- |
+    | `policy_file`      | `str` | _(required)_                     | Path to policy file with classification rules                 |
+    | `hub_name`         | `str` | `"groq"`                         | LLM API provider                                              |
+    | `model_name`       | `str` | `"openai/gpt-oss-safeguard-20b"` | Model name                                                    |
+    | `output_format`    | `str` | `"policy_ref"`                   | `"binary"`, `"policy_ref"`, or `"with_rationale"`             |
+    | `reasoning_effort` | `str` | `"medium"`                       | `"low"`, `"medium"`, or `"high"`                              |
+    | `api_key`          | `str` | `None`                           | API key (falls back to environment variable)                  |
+    | `timeout`          | `int` | `60`                             | Request timeout in seconds                                    |
+    | `max_retries`      | `int` | `3`                              | Maximum retry attempts                                        |
+    | `max_input_chars`  | `int` | `None`                           | Truncate input to this many characters                        |
+
+
+

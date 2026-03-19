@@ -1,0 +1,151 @@
+---
+title: 'Defining Personas'
+description: 'Create user profiles that represent who interacts with your agent during evaluation.'
+---
+
+Personas define *who* interacts with your agent during evaluation. Each persona represents a distinct user type—with their own role, expertise level, and intent. Vijil uses personas to generate realistic test cases that probe how your agent responds to different kinds of users.
+
+## Why Personas Matter
+
+Traditional testing uses generic inputs. But agents fail differently depending on who's asking. A security researcher probing for vulnerabilities uses different language than a confused customer. A malicious actor trying to extract data operates differently than a curious employee testing boundaries.
+
+Personas let you simulate these interactions systematically:
+- **Benign users** test whether your agent handles normal usage correctly
+- **Curious users** reveal edge cases and boundary behaviors
+- **Adversarial users** expose security vulnerabilities
+- **Malicious actors** test resistance to deliberate attacks
+
+## The Persona Registry
+
+Navigate to **Personas** in the sidebar to open the Persona Registry.
+
+<Frame>
+  <img src="/images/persona-registry.png" alt="Persona Registry showing personas with role, intent, knowledge level, and privilege" />
+</Frame>
+
+The registry displays all personas available in your workspace:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Name** | Persona identifier and avatar |
+| **Role** | Job function or user type |
+| **Intent** | Benign, Curious, Adversarial, or Malicious |
+| **Knowledge / Skill** | Expertise levels for this persona |
+| **Privilege** | Access level: Guest, User, Power User, Admin |
+| **Language** | Primary language for generated test cases |
+
+## Intent Types
+
+Intent determines how aggressively the persona probes your agent:
+
+| Intent | Behavior | What It Tests |
+|--------|----------|---------------|
+| **Benign** | Normal usage, follows instructions | Correctness, helpfulness, edge cases |
+| **Curious** | Boundary testing, unusual requests | Policy enforcement, graceful degradation |
+| **Adversarial** | Deliberate misuse attempts | Security controls, jailbreak resistance |
+| **Malicious** | Active attacks, exploitation | Data exfiltration, prompt injection |
+
+A comprehensive evaluation includes personas across the intent spectrum. Don't skip adversarial testing—those are the scenarios that matter most in production.
+
+## Creating Personas
+
+Click **+ Create Persona** to open the creation modal. You can start from a preset or build a custom persona.
+
+### From Preset
+
+Vijil provides preset personas covering common user types and threat actors:
+
+<Frame>
+  <img src="/images/create-persona-preset.png" alt="Create from Preset showing persona cards with avatars and intent badges" />
+</Frame>
+
+**Professional personas** (Benign intent):
+- Carlos (Data Analyst), Dmitri (Legal Counsel), Elena (HR Recruiter)
+- Jamal (Customer Support Agent), Raj (Software Developer), Sam (Executive)
+- Sofia (New Employee), Marcus (Accessibility User), Mei-Lin (Non-English Speaker)
+
+**Security personas** (Adversarial intent):
+- Kwame (Security Researcher), Priya (Prompt Injection Tester), Joseph (Social Engineer)
+
+**Threat personas** (Malicious intent):
+- Fatima (Malicious Actor)
+
+Select a preset and click **Create from Preset** to add it to your registry.
+
+### Custom Persona
+
+Switch to the **Custom** tab to define a persona from scratch:
+
+<Frame>
+  <img src="/images/create-persona-custom.png" alt="Custom persona form showing Basic Information and Role Definition sections" />
+</Frame>
+
+**Basic Information:**
+- **Persona Name** — Descriptive identifier (e.g., "Frustrated Customer", "Junior Developer")
+- **Description** — Context about this persona's background and behavior
+- **Language** — Primary language for test case generation
+- **Tags** — Categories for filtering (e.g., "healthcare", "legal", "finance")
+
+**Role Definition:**
+- **Role** — Job function or user type (e.g., "attorney", "recruiter", "analyst")
+- **Role Description** — Detailed responsibilities and context
+
+**Competency & Intent:**
+- **Knowledge Level** — Beginner, Intermediate, Advanced, or Expert
+- **Skill Level** — Novice, Competent, Proficient, or Expert
+- **Intent** — Benign, Curious, Adversarial, or Malicious
+
+**Access Permissions:**
+- **Privilege Level** — Guest, User, Power User, or Admin
+- **Data Access Scope** — Own Data Only, Team Data, Department Data, or All Data
+- **Allowed Tools** — Tools this persona can access (for MCP-enabled agents)
+- **Restricted Actions** — Actions this persona should be blocked from
+
+<Note>
+Access permissions define what the persona *should* have access to—not what they actually have. Vijil uses these to generate test cases that verify your agent enforces the intended boundaries.
+</Note>
+
+## Using Personas in Harnesses
+
+Personas become powerful when combined with harnesses. When you create a custom harness, you select which personas will interact with your agent:
+
+1. Navigate to **Harnesses** and click **+ Create Harness**
+2. In the **Select Personas** step, choose 2-5 personas
+3. Vijil generates test cases from each persona's perspective
+
+For balanced coverage, include:
+- At least one benign professional persona (baseline behavior)
+- At least one curious or boundary-testing persona (edge cases)
+- At least one adversarial persona (security testing)
+
+## Persona Design Principles
+
+### Match Your User Base
+
+Create personas that reflect your actual users. If your agent serves healthcare professionals, include personas like "Nurse", "Physician", "Medical Records Clerk". If it handles financial data, include "Auditor", "Compliance Officer", "Financial Analyst".
+
+### Include Edge Cases
+
+Consider users who interact with your agent in unexpected ways:
+- **Non-native speakers** — Tests clarity and robustness to unusual phrasing
+- **Accessibility users** — Tests compatibility with assistive technologies
+- **New employees** — Tests onboarding and permission boundaries
+- **Power users** — Tests advanced features and rate limits
+
+### Don't Neglect Adversaries
+
+It's tempting to focus on happy-path personas. But production agents face determined adversaries. Include:
+- Security researchers who know prompt injection techniques
+- Social engineers who manipulate through conversation
+- Data harvesters who extract information incrementally
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Define Policies" icon="file-contract" href="/owner-guide/simulate-environment/policies">
+    Set organizational rules your agent must follow
+  </Card>
+  <Card title="Build Custom Harnesses" icon="ruler" href="/owner-guide/simulate-environment/custom-harnesses">
+    Combine personas and policies into targeted evaluations
+  </Card>
+</CardGroup>

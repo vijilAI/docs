@@ -1,0 +1,211 @@
+---
+title: 'Protection Overview'
+description: 'Guard your agent at runtime with Dome guardrails.'
+---
+
+Evaluation catches vulnerabilities you know to test for. But attackers will try things you didn't anticipate—new prompt injection techniques, novel encoding tricks, social engineering patterns that emerge after your last evaluation.
+
+Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable guardrails, and blocks attacks before they reach your agent or your users. When Diamond identifies vulnerabilities you can't immediately fix, Dome provides defense-in-depth while you remediate.
+
+## How Dome Works
+
+Dome wraps your agent with configurable guardrails:
+
+<img src="/images/defense-flow.svg" alt="Dome defense flow showing input guardrail, agent, and output guardrail" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+
+| Component | Purpose |
+|-----------|---------|
+| **Guardrail** | Pipeline of guards (input or output) |
+| **Guard** | Group of detectors of one type |
+| **Detector** | Individual detection method |
+
+## Protection Types
+
+### Security Guards
+
+Detect and block adversarial attacks:
+
+| Detector | What It Catches |
+|----------|-----------------|
+| `prompt-injection-mbert` | Injected instructions in user input |
+| `prompt-injection-deberta-v3-base` | Advanced injection attempts |
+| `encoding-heuristics` | Base64, Unicode, and encoding attacks |
+| `security-embeddings` | Semantic similarity to known attacks |
+
+### Moderation Guards
+
+Filter harmful and inappropriate content:
+
+| Detector | What It Catches |
+|----------|-----------------|
+| `moderation-flashtext` | Fast keyword-based toxicity |
+| `moderation-deberta` | Neural toxicity classification |
+| `moderations-oai-api` | OpenAI Moderation API |
+| `moderation-llamaguard` | Llama Guard safety model |
+
+### Privacy Guards
+
+Prevent exposure of sensitive data:
+
+| Detector | What It Catches |
+|----------|-----------------|
+| `privacy-presidio` | PII (names, emails, SSN, etc.) |
+| `detect-secrets` | API keys, passwords, credentials |
+
+## Quick Start
+
+Install Dome:
+
+```bash
+pip install vijil-dome
+```
+
+Protect your agent with default guards:
+
+```python
+from vijil_dome import Dome
+
+dome = Dome()
+
+def protected_chat(user_message: str) -> str:
+    # Check input
+    input_scan = dome.guard_input(user_message)
+    if not input_scan.is_safe():
+        return input_scan.guarded_response()
+
+    # Call your agent
+    response = my_agent(input_scan.guarded_response())
+
+    # Check output
+    output_scan = dome.guard_output(response)
+    return output_scan.guarded_response()
+```
+
+The default configuration includes:
+- **Input**: Prompt injection detection, encoding heuristics, moderation
+- **Output**: Moderation, PII detection
+
+## Configuration Sources
+
+### Vijil Console
+
+Pull configuration from your registered agent:
+
+```python
+dome = Dome.create_from_vijil_agent(
+    agent_id="your-agent-id",
+    api_key=os.environ["VIJIL_API_KEY"]
+)
+```
+
+### Python Dictionary
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+    "output-guards": ["privacy-guard"],
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta-v3-base"]
+    },
+    "privacy-guard": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"]
+    }
+}
+
+dome = Dome(config)
+```
+
+### TOML File
+
+```toml
+# dome-config.toml
+[guardrail]
+input-guards = ["security-guard"]
+output-guards = ["privacy-guard"]
+
+[security-guard]
+type = "security"
+methods = ["prompt-injection-deberta-v3-base"]
+
+[privacy-guard]
+type = "privacy"
+methods = ["privacy-presidio"]
+```
+
+```python
+dome = Dome("dome-config.toml")
+```
+
+## Scan Results
+
+Every guard call returns a result object:
+
+```python
+result = dome.guard_input(message)
+
+result.is_safe()           # True if no guards triggered
+result.guarded_response()  # Safe content or block message
+result.traceback()         # Detailed execution trace
+result.exec_time           # Processing time in ms
+```
+
+When content is flagged:
+- `is_safe()` returns `False`
+- `guarded_response()` returns a safe fallback message
+- The trace shows which detector flagged it and why
+
+## Framework Integrations
+
+Dome integrates with popular frameworks:
+
+| Framework | Integration |
+|-----------|-------------|
+| LangChain | `GuardrailRunnable` in LCEL chains |
+| Google ADK | `before_model_callback` / `after_model_callback` |
+| Custom | Direct `guard_input()` / `guard_output()` calls |
+
+See the [Framework Guides](/developer-guide/frameworks/langchain) for framework-specific examples.
+
+## Performance Options
+
+### Early Exit
+
+Stop processing when the first guard flags content:
+
+```python
+config = {
+    "input-early-exit": True,   # Faster rejection
+    "output-early-exit": False  # Complete logging
+}
+```
+
+### Parallel Execution
+
+Run guards simultaneously:
+
+```python
+config = {
+    "input-run-parallel": True,
+    "output-run-parallel": True
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Detailed guard configuration options
+  </Card>
+  <Card title="Using Guardrails" icon="shield" href="/developer-guide/protect/using-guardrails">
+    Runtime patterns and best practices
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build your own detection methods
+  </Card>
+  <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
+    Monitoring and tracing setup
+  </Card>
+</CardGroup>

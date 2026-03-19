@@ -1,0 +1,379 @@
+---
+title: 'Google ADK Agents'
+description: 'Evaluate and protect Google ADK agents with Vijil Diamond and Dome.'
+---
+
+Google ADK provides a structured framework for building agents with Gemini models. But structured doesn't mean safe—agents can still hallucinate, comply with malicious instructions, or expose sensitive data through tool calls.
+
+This guide shows you how to evaluate your ADK agent against adversarial scenarios before deployment, then add runtime guardrails using ADK's callback system to intercept attacks in production.
+
+## Overview
+
+Vijil integrates with [Google ADK](https://google.github.io/adk-docs/) at two points:
+
+| Stage | Product | Integration |
+|-------|---------|-------------|
+| **Development** | Diamond | `LocalAgentExecutor` wraps your agent for evaluation |
+| **Production** | Dome | `before_model_callback` / `after_model_callback` for filtering |
+
+## Part 1: Evaluate Your ADK Agent
+
+Test your agent's reliability, security, and safety before deployment. This works with single agents and multi-agent workflows.
+
+### Prerequisites
+
+- Vijil API key ([get one here](https://console.vijil.ai))
+- ngrok account for local agent tunneling (free tier works)
+- Your ADK agent
+
+```bash
+pip install vijil google-adk
+export VIJIL_API_KEY=your-api-key
+export NGROK_AUTHTOKEN=your-ngrok-token
+export GOOGLE_API_KEY=your-gemini-key
+```
+
+<Warning>
+Due to how Jupyter handles event loops, run evaluation code in a `.py` script rather than a notebook.
+</Warning>
+
+### Create a Runner for Your Agent
+
+ADK agents need a runner to execute queries. This example uses ADK's session management:
+
+```python
+from google.adk.sessions import InMemorySessionService
+from google.adk.runners import Runner
+from google.genai import types
+
+# Import your agent
+from my_agent import root_agent
+
+# Set up session management
+session_service = InMemorySessionService()
+APP_NAME = "My ADK Agent"
+USER_ID = "eval_user"
+SESSION_ID = "eval_session"
+
+session = session_service.create_session(
+    app_name=APP_NAME,
+    user_id=USER_ID,
+    session_id=SESSION_ID
+)
+
+# Create the runner
+runner = Runner(
+    agent=root_agent,
+    app_name=APP_NAME,
+    session_service=session_service
+)
+
+# Function to query your agent
+async def call_agent(query: str) -> str:
+    content = types.Content(role='user', parts=[types.Part(text=query)])
+    final_response = ""
+
+    async for event in runner.run_async(
+        user_id=USER_ID,
+        session_id=SESSION_ID,
+        new_message=content
+    ):
+        if event.is_final_response():
+            if event.content and event.content.parts:
+                final_response += event.content.parts[0].text
+            elif event.actions and event.actions.escalate:
+                final_response = f"Agent escalated: {event.error_message or 'No message'}"
+
+    return final_response or "No response"
+
+# Standalone agent function for Vijil
+async def run_agent(query: str) -> str:
+    return await call_agent(query)
+```
+
+### Create Input/Output Adapters
+
+Translate between Vijil's format and your agent's interface:
+
+```python
+from vijil.local_agents.models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatMessage,
+)
+
+def input_adapter(request: ChatCompletionRequest) -> str:
+    """Combine all messages into a single query string."""
+    # ADK agents may not support system prompts separately
+    message_str = ""
+    for message in request.messages:
+        message_str += message.get("content", "")
+    return message_str
+
+def output_adapter(agent_output: str) -> ChatCompletionResponse:
+    """Wrap the agent's response in Vijil's expected format."""
+    message = ChatMessage(
+        role="assistant",
+        content=agent_output,
+        tool_calls=None,
+        retrieval_context=None
+    )
+    choice = ChatCompletionChoice(
+        index=0,
+        message=message,
+        finish_reason="stop"
+    )
+    return ChatCompletionResponse(
+        model="adk-agent",
+        choices=[choice],
+        usage=None
+    )
+```
+
+### Run an Evaluation
+
+```python
+import os
+from vijil import Vijil
+
+vijil = Vijil(api_key=os.getenv("VIJIL_API_KEY"))
+
+local_agent = vijil.local_agents.create(
+    agent_function=run_agent,
+    input_adapter=input_adapter,
+    output_adapter=output_adapter,
+)
+
+vijil.local_agents.evaluate(
+    agent_name="my-adk-agent",
+    evaluation_name="Security Testing",
+    agent=local_agent,
+    harnesses=["security_Small"],  # Use _Small for faster iterations
+    rate_limit=30,
+    rate_limit_interval=1,
+)
+```
+
+### Multi-Agent Workflows
+
+For multi-agent ADK setups, evaluate the entire workflow through the root agent. Vijil tests the complete system without needing access to internal agent-to-agent communication.
+
+## Part 2: Protect Your ADK Agent
+
+Add Dome guardrails using ADK's callback system.
+
+### Install Dome
+
+```bash
+pip install vijil-dome
+```
+
+### Add Callbacks to Your Agent
+
+Dome provides callback generators for ADK's `before_model_callback` and `after_model_callback`:
+
+```python
+from google.adk.agents import Agent
+from vijil_dome import Dome
+from vijil_dome.integrations.adk import (
+    generate_adk_input_callback,
+    generate_adk_output_callback
+)
+
+# Required for ADK compatibility until async callbacks are supported
+import nest_asyncio
+nest_asyncio.apply()
+
+# Create Dome instance
+dome = Dome()
+
+# Generate callback functions
+guard_input = generate_adk_input_callback(
+    dome,
+    blocked_message=None,       # Optional: custom block message
+    additional_callback=None    # Optional: chain with other callbacks
+)
+
+guard_output = generate_adk_output_callback(
+    dome,
+    blocked_message=None,
+    additional_callback=None
+)
+
+# Create your protected agent
+protected_agent = Agent(
+    model="gemini-2.0-flash-001",
+    name="protected_agent",
+    description="An ADK agent protected by Vijil Dome",
+    instruction="You are a helpful assistant.",
+    before_model_callback=guard_input,
+    after_model_callback=guard_output,
+)
+```
+
+### Custom Guard Configuration
+
+Configure specific guards for your use case:
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+    "output-guards": ["privacy-guard", "moderation-guard"],
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta-v3-base", "encoding-heuristics"]
+    },
+    "privacy-guard": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"]
+    },
+    "moderation-guard": {
+        "type": "moderation",
+        "methods": ["moderation-flashtext"]
+    }
+}
+
+dome = Dome(config)
+
+guard_input = generate_adk_input_callback(dome)
+guard_output = generate_adk_output_callback(dome)
+```
+
+### Deploy to Cloud Run
+
+Deploy your protected ADK agent to Google Cloud Run:
+
+1. Add `vijil-dome` to your `requirements.txt`
+
+2. Deploy using gcloud CLI with increased resources:
+
+```bash
+gcloud run deploy my-agent \
+  --source . \
+  --cpu=4 \
+  --memory=8Gi \
+  --region=us-central1
+```
+
+<Warning>
+The default ADK container size (1 CPU, 512MB) is insufficient for Dome. Use at least 4 CPUs and 8Gi memory.
+</Warning>
+
+<Warning>
+Direct deployment via ADK CLI is not supported as there's no way to adjust container size. Use gcloud CLI instead.
+</Warning>
+
+### Known Limitations
+
+- **Async callbacks**: ADK doesn't yet support async model callbacks. Use `nest_asyncio` for compatibility.
+- **annoy package**: The `annoy` embeddings store is incompatible with ADK + Cloud Run. Use the default in-memory option for embeddings-based detectors if needed.
+
+## Complete Example
+
+```python
+import os
+from google.adk.agents import Agent
+from google.adk.sessions import InMemorySessionService
+from google.adk.runners import Runner
+from google.genai import types
+
+from vijil import Vijil
+from vijil_dome import Dome
+from vijil_dome.integrations.adk import (
+    generate_adk_input_callback,
+    generate_adk_output_callback
+)
+from vijil.local_agents.models import (
+    ChatCompletionRequest, ChatCompletionResponse,
+    ChatCompletionChoice, ChatMessage,
+)
+
+import nest_asyncio
+nest_asyncio.apply()
+
+# === STEP 1: Create your agent ===
+base_agent = Agent(
+    model="gemini-2.0-flash-001",
+    name="my_agent",
+    instruction="You are a helpful assistant."
+)
+
+# === STEP 2: Set up for evaluation ===
+session_service = InMemorySessionService()
+session = session_service.create_session(
+    app_name="test", user_id="user", session_id="session"
+)
+runner = Runner(agent=base_agent, app_name="test", session_service=session_service)
+
+async def run_agent(query: str) -> str:
+    content = types.Content(role='user', parts=[types.Part(text=query)])
+    response = ""
+    async for event in runner.run_async(user_id="user", session_id="session", new_message=content):
+        if event.is_final_response() and event.content:
+            response += event.content.parts[0].text
+    return response
+
+def input_adapter(req: ChatCompletionRequest) -> str:
+    return "".join(m.get("content", "") for m in req.messages)
+
+def output_adapter(output: str) -> ChatCompletionResponse:
+    return ChatCompletionResponse(
+        model="adk-agent",
+        choices=[ChatCompletionChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=output),
+            finish_reason="stop"
+        )]
+    )
+
+# === STEP 3: Evaluate ===
+if __name__ == "__main__":
+    vijil = Vijil(api_key=os.getenv("VIJIL_API_KEY"))
+
+    local_agent = vijil.local_agents.create(
+        agent_function=run_agent,
+        input_adapter=input_adapter,
+        output_adapter=output_adapter,
+    )
+
+    vijil.local_agents.evaluate(
+        agent_name="adk-agent",
+        evaluation_name="Trust Score Check",
+        agent=local_agent,
+        harnesses=["trust_score"],
+        rate_limit=30,
+        rate_limit_interval=1,
+    )
+
+# === STEP 4: Protect for production ===
+dome = Dome()
+guard_input = generate_adk_input_callback(dome)
+guard_output = generate_adk_output_callback(dome)
+
+protected_agent = Agent(
+    model="gemini-2.0-flash-001",
+    name="protected_agent",
+    instruction="You are a helpful assistant.",
+    before_model_callback=guard_input,
+    after_model_callback=guard_output,
+)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Detailed evaluation options and result analysis
+  </Card>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Advanced guard configuration
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build custom detection methods
+  </Card>
+  <Card title="ADK + Dome Blog" icon="newspaper" href="https://www.vijil.ai/blog/protecting-google-adk-agents-with-vijil-dome">
+    Comprehensive multi-agent walkthrough
+  </Card>
+</CardGroup>

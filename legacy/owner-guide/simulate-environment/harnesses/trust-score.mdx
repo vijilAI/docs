@@ -1,0 +1,177 @@
+---
+title: 'Trust Score Harness'
+description: 'Evaluate your agent across reliability, security, and safety dimensions.'
+---
+
+The Trust Score harness provides a comprehensive evaluation of your agent across the three dimensions of trustworthy AI: Reliability, Security, and Safety. This is Vijil's standard evaluation, designed to quantify how much you can trust your agent in production.
+
+## The Three Dimensions
+
+The Trust Score measures agent behavior across three complementary dimensions:
+
+<CardGroup cols={3}>
+  <Card title="Reliability" icon="circle-check">
+    Produces correct, consistent, and robust outputs
+  </Card>
+  <Card title="Security" icon="lock">
+    Resists attacks on confidentiality, integrity, and availability
+  </Card>
+  <Card title="Safety" icon="shield">
+    Operates transparently within acceptable boundaries
+  </Card>
+</CardGroup>
+
+Each dimension contains subcategories that probe specific behaviors:
+
+### Reliability
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Correctness** | Produces accurate and valid outputs |
+| **Consistency** | Behaves predictably across similar inputs |
+| **Robustness** | Handles edge cases and errors gracefully |
+
+### Security
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Confidentiality** | Protects sensitive data from exposure |
+| **Integrity** | Prevents unauthorized data modification |
+| **Availability** | Resists denial of service attacks |
+
+### Safety
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Containment** | Operates within defined boundaries |
+| **Compliance** | Follows policies and regulations |
+| **Transparency** | Provides clear reasoning for decisions |
+
+## Running a Trust Score Evaluation
+
+Navigate to **Evaluations** in the sidebar to open Diamond Evaluations.
+
+<Frame>
+  <img src="/images/evaluations-trust-score.png" alt="Diamond Evaluations page showing agent selection and Trust Score dimensions" />
+</Frame>
+
+The evaluation interface has two panels:
+
+**Select Agent** — Choose which registered agent to evaluate. The table shows agent name and status. Only agents with status **Active** appear in the list.
+
+**Select Harness** — Choose between **Trust Score** (standard evaluation) or **Custom** (your configured harnesses). When Trust Score is selected, you see the three dimensions with toggles.
+
+### Configuring Dimensions
+
+Each dimension has a toggle that enables or disables it for the evaluation:
+
+- **All dimensions enabled** — Comprehensive evaluation across reliability, security, and safety
+- **Selected dimensions** — Focus on specific concerns (e.g., security-only for a penetration test)
+
+The subcategories beneath each dimension show what behaviors will be tested.
+
+### Starting the Evaluation
+
+1. Select an agent from the list
+2. Ensure Trust Score is selected (default)
+3. Toggle dimensions on or off as needed
+4. Click **Run Evaluation**
+
+<Frame>
+  <img src="/images/evaluations-agent-selected.png" alt="Evaluation ready to run with agent selected and Run Evaluation button enabled" />
+</Frame>
+
+The evaluation runs asynchronously. Progress appears in the **Evaluation Results** table below.
+
+## Evaluation Results
+
+The results table shows all evaluations in your workspace:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Agent Name** | Which agent was evaluated |
+| **Created By** | Who started the evaluation |
+| **Created At** | When the evaluation began |
+| **Evaluation** | Status: PENDING, RUNNING, COMPLETED, or FAILED |
+| **Last Evaluated At** | When the evaluation finished |
+| **Actions** | View report, download results |
+
+Click the **view** icon to open the Trust Report for a completed evaluation.
+
+## Understanding the Trust Report
+
+The Trust Report provides a complete record of the evaluation with actionable findings.
+
+<Frame>
+  <img src="/images/trust-report.png" alt="Trust Report showing agent name, pass/fail status, and Trust Score" />
+</Frame>
+
+### Report Sections
+
+**Executive Summary** — High-level overview stating whether the agent passed or failed, with the overall Trust Score.
+
+**Agent Specification** — Configuration details including agent URL, model, rate limits, and which harnesses were evaluated.
+
+**Evaluation Results** — The Trust Score with pass/fail status and per-harness breakdown showing scores for each dimension.
+
+**Detailed Analysis** — Specific findings for each harness, identifying which probes passed or failed and why.
+
+**Conclusion** — Deployment recommendation based on the results.
+
+### Interpreting the Score
+
+The Trust Score ranges from 0 to 1:
+
+| Score | Status | Interpretation |
+|-------|--------|----------------|
+| ≥ 0.70 | **PASSED** | Agent meets trustworthiness threshold |
+| < 0.70 | **FAILED** | Agent requires remediation before deployment |
+
+A passing score indicates the agent handled probes within acceptable bounds. A failing score identifies specific failure modes to address before production deployment.
+
+<Warning>
+The Trust Score quantifies known risks based on the probes executed. It does not guarantee absence of all vulnerabilities—only that your agent performed acceptably against the tested scenarios.
+</Warning>
+
+### Deployment Recommendations
+
+The report concludes with a deployment recommendation:
+
+**For passing agents:**
+- Deploy with standard monitoring
+- Consider enabling Dome guardrails for additional runtime protection
+- Schedule periodic re-evaluation to catch regressions
+
+**For failing agents:**
+- Review the detailed analysis for specific failure modes
+- Address identified weaknesses in agent configuration or training
+- Re-evaluate after implementing fixes
+
+## Best Practices
+
+**Run before deployment** — Evaluate every agent before it reaches production. The Trust Score provides evidence that your agent meets baseline trustworthiness requirements.
+
+**Test all dimensions** — Unless you have specific reasons to exclude a dimension, run the full evaluation. Security vulnerabilities can exist even in agents that seem reliable.
+
+**Re-evaluate after changes** — Any modification to your agent—prompt updates, model changes, tool additions—can affect behavior. Re-run the Trust Score to verify.
+
+**Track scores over time** — Compare Trust Scores across evaluations to identify trends. Regressions indicate problems introduced by recent changes.
+
+**Combine with custom harnesses** — The Trust Score tests general behaviors. Custom harnesses test your specific policies and user scenarios. Use both for comprehensive coverage.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Build Custom Harnesses" icon="ruler" href="/owner-guide/simulate-environment/custom-harnesses">
+    Test against your specific policies and personas
+  </Card>
+  <Card title="Understanding Results" icon="chart-line" href="/owner-guide/run-evaluations/understanding-results">
+    Deep dive into evaluation findings
+  </Card>
+  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Add runtime protection with Dome
+  </Card>
+  <Card title="Running Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Launch and monitor evaluations
+  </Card>
+</CardGroup>

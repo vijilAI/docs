@@ -1,0 +1,376 @@
+---
+title: 'Custom Detectors'
+description: 'Build custom detection methods for Dome guardrails.'
+---
+
+Dome allows you to create custom detectors to implement domain-specific detection logic. This guide covers creating, registering, and using custom detectors.
+
+## Creating a Custom Detector
+
+Custom detectors extend the `DetectionMethod` class and implement the `detect` method:
+
+```python
+from vijil_dome.detectors import (
+    DetectionCategory,
+    DetectionResult,
+    DetectionMethod,
+    register_method,
+)
+
+# Define a unique name for your detector
+CUSTOM_DETECTOR_NAME = "custom-length-detector"
+
+# Register with a category
+@register_method(DetectionCategory.Security, CUSTOM_DETECTOR_NAME)
+class CustomLengthDetector(DetectionMethod):
+    def __init__(self, min_length=10, max_length=1000):
+        super().__init__()
+        self.min_length = min_length
+        self.max_length = max_length
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        # Your detection logic
+        flagged = len(query_string) < self.min_length or len(query_string) > self.max_length
+
+        # Return (flagged: bool, metadata: dict)
+        return flagged, {
+            "type": type(self).__name__,
+            "length": len(query_string),
+            "query_string": query_string,
+            "response_string": self.blocked_response_string if flagged else query_string,
+        }
+```
+
+## Detection Categories
+
+Register your detector with one of these categories:
+
+| Category | Use Case |
+|----------|----------|
+| `DetectionCategory.Security` | Adversarial attacks, injections |
+| `DetectionCategory.Moderation` | Harmful content, toxicity |
+| `DetectionCategory.Privacy` | PII, secrets, sensitive data |
+| `DetectionCategory.Integrity` | Data quality, format validation |
+| `DetectionCategory.Generic` | Anything else |
+
+The category determines which guard types can use your detector.
+
+## Detection Result Format
+
+The `detect` method must return a tuple of `(flagged: bool, metadata: dict)`:
+
+```python
+async def detect(self, query_string: str) -> DetectionResult:
+    flagged = should_flag(query_string)
+
+    metadata = {
+        "type": type(self).__name__,           # Detector class name
+        "query_string": query_string,          # Original input
+        "response_string": safe_response,      # Output to use
+        "confidence": 0.95,                    # Optional: confidence score
+        "reason": "Detected pattern X",        # Optional: explanation
+        # Add any other metadata you need
+    }
+
+    return flagged, metadata
+```
+
+<Note>
+Always include `query_string` and `response_string` in metadata for proper guardrail operation.
+</Note>
+
+## Using Custom Detectors
+
+### Define Before Instantiation
+
+Custom detectors must be defined before creating the Dome instance:
+
+```python
+from vijil_dome.detectors import (
+    DetectionCategory, DetectionResult, DetectionMethod, register_method
+)
+from vijil_dome import Dome
+
+# Define your detector FIRST
+@register_method(DetectionCategory.Security, "custom-length-detector")
+class CustomLengthDetector(DetectionMethod):
+    def __init__(self, min_length=10, max_length=1000):
+        super().__init__()
+        self.min_length = min_length
+        self.max_length = max_length
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        flagged = len(query_string) < self.min_length or len(query_string) > self.max_length
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": self.blocked_response_string if flagged else query_string,
+        }
+
+# THEN create Dome with your detector
+config = {
+    "input-guards": ["length-guard"],
+    "length-guard": {
+        "type": "security",
+        "methods": ["custom-length-detector"],
+        "custom-length-detector": {
+            "min_length": 5,
+            "max_length": 500
+        }
+    }
+}
+
+dome = Dome(config)
+```
+
+### Import from Separate File
+
+For cleaner organization, define detectors in a separate module:
+
+```python
+# custom_detectors.py
+from vijil_dome.detectors import (
+    DetectionCategory, DetectionResult, DetectionMethod, register_method
+)
+
+@register_method(DetectionCategory.Moderation, "custom-keyword-detector")
+class CustomKeywordDetector(DetectionMethod):
+    def __init__(self, keywords=None):
+        super().__init__()
+        self.keywords = keywords or ["forbidden", "blocked"]
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        query_lower = query_string.lower()
+        flagged = any(kw in query_lower for kw in self.keywords)
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": self.blocked_response_string if flagged else query_string,
+        }
+```
+
+```python
+# main.py
+import custom_detectors  # Import to register detectors
+from vijil_dome import Dome
+
+config = {
+    "input-guards": ["keyword-guard"],
+    "keyword-guard": {
+        "type": "moderation",
+        "methods": ["custom-keyword-detector"],
+        "custom-keyword-detector": {
+            "keywords": ["spam", "advertisement", "promotion"]
+        }
+    }
+}
+
+dome = Dome(config)
+```
+
+<Warning>
+Import your custom detector module before creating the Dome instance. The `@register_method` decorator must run before the config is parsed.
+</Warning>
+
+## Example Detectors
+
+### Rate Limiter
+
+Track request frequency per user:
+
+```python
+import time
+from collections import defaultdict
+
+@register_method(DetectionCategory.Security, "rate-limiter")
+class RateLimiterDetector(DetectionMethod):
+    # Class-level storage (shared across instances)
+    request_times = defaultdict(list)
+
+    def __init__(self, max_requests=10, window_seconds=60, user_id_extractor=None):
+        super().__init__()
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.user_id_extractor = user_id_extractor or (lambda x: "default")
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        user_id = self.user_id_extractor(query_string)
+        now = time.time()
+
+        # Clean old requests
+        self.request_times[user_id] = [
+            t for t in self.request_times[user_id]
+            if now - t < self.window_seconds
+        ]
+
+        # Check rate
+        flagged = len(self.request_times[user_id]) >= self.max_requests
+
+        if not flagged:
+            self.request_times[user_id].append(now)
+
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": "Rate limit exceeded. Please wait." if flagged else query_string,
+            "request_count": len(self.request_times[user_id]),
+        }
+```
+
+### Regex Pattern Detector
+
+Block content matching patterns:
+
+```python
+import re
+
+@register_method(DetectionCategory.Security, "regex-detector")
+class RegexDetector(DetectionMethod):
+    def __init__(self, patterns=None):
+        super().__init__()
+        self.patterns = [re.compile(p, re.IGNORECASE) for p in (patterns or [])]
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        matches = []
+        for pattern in self.patterns:
+            if pattern.search(query_string):
+                matches.append(pattern.pattern)
+
+        flagged = len(matches) > 0
+
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": self.blocked_response_string if flagged else query_string,
+            "matched_patterns": matches,
+        }
+```
+
+### External API Detector
+
+Call an external service for detection:
+
+```python
+import httpx
+
+@register_method(DetectionCategory.Moderation, "external-api-detector")
+class ExternalAPIDetector(DetectionMethod):
+    def __init__(self, api_url=None, api_key=None, threshold=0.5):
+        super().__init__()
+        self.api_url = api_url
+        self.api_key = api_key
+        self.threshold = threshold
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                self.api_url,
+                json={"text": query_string},
+                headers={"Authorization": f"Bearer {self.api_key}"}
+            )
+            result = response.json()
+
+        score = result.get("score", 0)
+        flagged = score >= self.threshold
+
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": self.blocked_response_string if flagged else query_string,
+            "api_score": score,
+            "api_response": result,
+        }
+```
+
+### Semantic Similarity Detector
+
+Block content similar to known bad examples:
+
+```python
+from sentence_transformers import SentenceTransformer, util
+
+@register_method(DetectionCategory.Security, "semantic-blocklist")
+class SemanticBlocklistDetector(DetectionMethod):
+    def __init__(self, blocklist=None, threshold=0.8, model_name="all-MiniLM-L6-v2"):
+        super().__init__()
+        self.blocklist = blocklist or []
+        self.threshold = threshold
+        self.model = SentenceTransformer(model_name)
+        self.blocklist_embeddings = self.model.encode(self.blocklist) if self.blocklist else []
+
+    async def detect(self, query_string: str) -> DetectionResult:
+        if not self.blocklist:
+            return False, {"type": type(self).__name__, "query_string": query_string, "response_string": query_string}
+
+        query_embedding = self.model.encode(query_string)
+        similarities = util.cos_sim(query_embedding, self.blocklist_embeddings)[0]
+
+        max_similarity = float(similarities.max())
+        flagged = max_similarity >= self.threshold
+
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": self.blocked_response_string if flagged else query_string,
+            "max_similarity": max_similarity,
+        }
+```
+
+## Testing Custom Detectors
+
+Test your detector before deployment:
+
+```python
+import asyncio
+from vijil_dome import Dome
+
+# Define detector
+@register_method(DetectionCategory.Security, "test-detector")
+class TestDetector(DetectionMethod):
+    async def detect(self, query_string: str) -> DetectionResult:
+        flagged = "test" in query_string.lower()
+        return flagged, {
+            "type": type(self).__name__,
+            "query_string": query_string,
+            "response_string": "Blocked" if flagged else query_string,
+        }
+
+# Test it
+async def test():
+    dome = Dome({
+        "input-guards": ["test-guard"],
+        "test-guard": {
+            "type": "security",
+            "methods": ["test-detector"]
+        }
+    })
+
+    # Should be blocked
+    result = await dome.async_guard_input("This is a test message")
+    assert not result.is_safe()
+
+    # Should pass
+    result = await dome.async_guard_input("Hello world")
+    assert result.is_safe()
+
+    print("All tests passed!")
+
+asyncio.run(test())
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Use custom detectors in configurations
+  </Card>
+  <Card title="Using Guardrails" icon="shield" href="/developer-guide/protect/using-guardrails">
+    Runtime integration patterns
+  </Card>
+  <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
+    Monitor custom detector performance
+  </Card>
+  <Card title="Protection Overview" icon="book" href="/developer-guide/protect/overview">
+    Built-in detectors reference
+  </Card>
+</CardGroup>
