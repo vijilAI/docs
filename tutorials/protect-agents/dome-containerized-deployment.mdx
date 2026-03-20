@@ -11,7 +11,7 @@ To get started, ensure you have the following prerequisites installed on your sy
 
 ## Pull and Run the Docker Image
 
-Pull the prebuilt [Dome container image](ghcr.io/vijilai/vijil-dome-marketplace) from GitHub Container Registry:
+Pull the prebuilt Dome container image from GitHub Container Registry:
 
 <CodeGroup>
 ```bash title="Terminal" icon="terminal"
@@ -76,7 +76,7 @@ curl -XPATCH "localhost:80/config" \
   }'
 ```
 </CodeGroup>
-This endpoint updates the default Dome configuration to include specific input and output [Guards](/core-concepts/components/guard), as well as [the methods used for each Guard](/tutorials/protect-agents/detection-methods).
+This endpoint updates the default Dome configuration to include specific input and output [Guards](/core-concepts/components/guard), as well as [the methods used for each Guard](/protect-agents/detection-methods).
 
 Here is a Python snippet showing how to send the above request in your code:
 <CodeGroup>
@@ -115,7 +115,7 @@ print(response.json())
 
 ### Check Inputs
 
-To check and Guard against inputs to agents, send a `GET` request to the `/async_input_detection` endpoint with the input prompt. For example:
+To check and [Guard](/core-concepts/components/guard) against inputs to agents, send a `GET` request to the `/async_input_detection` endpoint with the input prompt. For example:
 
 <CodeGroup>
 ```bash title="Terminal" icon="terminal"
@@ -359,7 +359,7 @@ This will enable the Bedrock Guardrails API in Dome, allowing it to accept reque
 
 ### Test the Bedrock Guardrails API
 
-The `/guardrails/apply` endpoint evaluates content using Dome Guardrails and returns results in a structure compatible with the `ApplyGuardrail` API from [Amazon Bedrock](https://aws.amazon.com/bedrock/).
+The `/guardrails/apply` endpoint evaluates content using [Dome Guardrails](/core-concepts/components/guardrail) and returns results in a structure compatible with the `ApplyGuardrail` API from [Amazon Bedrock](https://aws.amazon.com/bedrock/).
 The endpoint accepts content items and routes them through either input Guards or output Guards, depending on the specified source.
 
 To test the Bedrock Guardrails API, send a `POST` request to the `/guardrails/apply` endpoint with the prompt or agent output. For example:
@@ -413,7 +413,7 @@ The response follows the top-level structure used by the ApplyGuardrail API in [
 
 Each item in the request's content array produces a corresponding entry in the assessments list.
 
-Dome groups Guards into Bedrock policy categories based on the Guard type.
+Dome groups [Guards](/core-concepts/components/guard) into Bedrock policy categories based on the Guard type.
 
 | Dome Guard Type | Bedrock Policy Key          | Example Guards                       |
 | --------------- | --------------------------- | ------------------------------------ |
