@@ -6,12 +6,12 @@ description: "Dome can be deployed as a containerized service for easy integrati
 ## Setup
 
 To get started, ensure you have the following prerequisites installed on your system:
-- Python 3.12
-- Docker
+- [Python 3.12](https://www.python.org/downloads/release/python-3120/)
+- [Docker](https://docs.docker.com/get-started/get-docker/)
 
 ## Pull and Run the Docker Image
 
-Pull the prebuilt Dome container image from GitHub Container Registry:
+Pull the prebuilt [Dome container image](ghcr.io/vijilai/vijil-dome-marketplace) from GitHub Container Registry:
 
 <CodeGroup>
 ```bash title="Terminal" icon="terminal"
@@ -27,7 +27,7 @@ DOME_API_KEY=<your-dome-api-key>
 ```
 </CodeGroup>
 
-The `DOME_API_KEY` is an authentication key for validating incoming API requests. If you enable Guardrails that make external API calls such as OpenAI moderation or detectors hosted on Groq or any other AI inference service, include the corresponding API keys here as well.
+The `DOME_API_KEY` is an authentication key for validating incoming API requests. If you enable [Guardrails](/core-concepts/components/guardrail) that make external API calls such as OpenAI moderation or detectors hosted on Groq or any other AI inference service, include the corresponding API keys here as well.
 
 Run the container:
 
@@ -48,7 +48,7 @@ You can test the Dome application locally by sending requests to the different A
 
 ### Add/Update Dome Config
 
-To add or update the Dome configuration, send a `PATCH` request to the `/config` endpoint with the desired configuration settings in the request body. For example:
+To add or update the [Dome configuration](/tutorials/protect-agents/configuring-guardrails), send a `PATCH` request to the `/config` endpoint with the desired configuration settings in the request body. For example:
 <CodeGroup>
 ```bash title="Terminal" icon="terminal"
 curl -XPATCH "localhost:80/config" \
@@ -76,7 +76,7 @@ curl -XPATCH "localhost:80/config" \
   }'
 ```
 </CodeGroup>
-This endpoint updates the default Dome configuration to include specific input and output Guards, as well as the methods used for each Guard.
+This endpoint updates the default Dome configuration to include specific input and output [Guards](/core-concepts/components/guard), as well as [the methods used for each Guard](/tutorials/protect-agents/detection-methods).
 
 Here is a Python snippet showing how to send the above request in your code:
 <CodeGroup>
@@ -345,7 +345,7 @@ The response is shown here:
 
 ## Bedrock Guardrails API
 
-Dome exposes an AWS Bedrock Guardrails-compatible `ApplyGuardrail` endpoint, allowing existing Bedrock integrations to use Dome as a drop-in replacement.
+Dome exposes an [AWS Bedrock Guardrails-compatible](https://aws.amazon.com/bedrock/guardrails/) `ApplyGuardrail` endpoint, allowing existing Bedrock integrations to use Dome as a drop-in replacement.
 
 ### Setup
 
@@ -359,7 +359,7 @@ This will enable the Bedrock Guardrails API in Dome, allowing it to accept reque
 
 ### Test the Bedrock Guardrails API
 
-The `/guardrails/apply` endpoint evaluates content using Dome Guardrails and returns results in a structure compatible with the `ApplyGuardrail` API from Amazon Bedrock.  
+The `/guardrails/apply` endpoint evaluates content using Dome Guardrails and returns results in a structure compatible with the `ApplyGuardrail` API from [Amazon Bedrock](https://aws.amazon.com/bedrock/).
 The endpoint accepts content items and routes them through either input Guards or output Guards, depending on the specified source.
 
 To test the Bedrock Guardrails API, send a `POST` request to the `/guardrails/apply` endpoint with the prompt or agent output. For example:
@@ -405,7 +405,7 @@ Same pattern applies for checking agent outputs, just change `source` to `OUTPUT
 
 ### The Response
 
-The response follows the top-level structure used by the ApplyGuardrail API in Amazon Bedrock, including:
+The response follows the top-level structure used by the ApplyGuardrail API in [Amazon Bedrock](https://aws.amazon.com/bedrock/), including:
 - `usage`
 - `action`
 - `output`
@@ -507,7 +507,7 @@ Below is an example response where the first message is safe and the second trig
 
 ## Observability and OpenTelemetry Instrumentation
 
-The Dome container is well set up for instrumentation to emit telemetry data that is metrics, traces, and logs using OpenTelemetry (OTEL). This allows you to monitor Dome's behavior and performance from any compatible observability backend.
+The Dome container is well set up for instrumentation to emit telemetry data that is metrics, traces, and logs using [OpenTelemetry (OTEL)](https://opentelemetry.io/). This allows you to monitor Dome's behavior and performance from any compatible observability backend.
 
 To enable instrumentation, add the following variables to your `.env` file:
 
@@ -546,7 +546,7 @@ docker run -p 80:80 --env-file .env ghcr.io/vijilai/vijil-dome-marketplace:lates
 
 ### Sending Telemetry to Vijil Console or Evaluate
 
-If you want telemetry to appear inside the Vijil Console or an enterprise Vijil Evaluate deployment, also add the following to your `.env` file:
+If you want telemetry to appear inside the [Vijil Console](#) or an enterprise [Vijil Evaluate](http://evaluate.vijil.ai/) deployment, also add the following to your `.env` file:
 
 <CodeGroup>
 ```bash title=".env"
