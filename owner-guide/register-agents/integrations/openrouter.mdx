@@ -1,0 +1,42 @@
+---
+title: "OpenRouter (Legacy)"
+description: "Legacy OpenRouter integration docs copied from the integrations-section branch."
+---
+
+You can register agents on Vijil that use OpenRouter models such as `microsoft/phi-4`, `google/gemini-2.5-flash-preview`, and `x-ai/grok-3-beta`.
+
+## Prerequisites
+
+- You have an OpenRouter account with an active API key.
+- Your OpenRouter account has access to the models you plan to use.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/owner-guide/register-agents/registering-agents)**.
+
+## Store OpenRouter Credentials in Vijil
+
+1. In Vijil, go to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**.
+2. From the **Model Hub** dropdown, select **OpenRouter**.
+3. Enter your OpenRouter API key and any optional rate limit overrides you want for this key.
+4. Save the key configuration.
+
+Once saved, this key can be reused across multiple OpenRouter-based agents.
+
+## Register an Agent on Vijil
+
+With an OpenRouter API key configured, you can register an agent that uses OpenRouter:
+
+![Setting up an OpenRouter-based Agent in Vjil](/images/owner-guide/register-agents/integrations/openrouter.png)
+
+1. Press **Register [Agent](/owner-guide/register-agents/registering-agents)**.
+2. Enter an [Agent](/owner-guide/register-agents/registering-agents) name.
+3. Select **OpenRouter** as the **Hub**.
+4. Enter a model name (for example `microsoft/phi-4` or `x-ai/grok-3-beta`). See the OpenRouter documentation or dashboard for the list of available models.
+5. Select an existing OpenRouter API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.
+

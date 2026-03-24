@@ -3,91 +3,105 @@ title: "Scenario"
 description: "Groups of related probes that test for a specific attack vector or failure mode."
 ---
 
-## What is a Scenario?
-
 A scenario is a collection of probes that share a common purpose—they test for the same type of vulnerability, failure mode, or behavior. While a harness defines what you want to measure overall, scenarios organize the specific ways you're testing for it.
 
-Consider the security harness. "Security" is a broad concept encompassing many attack vectors: prompt injection, jailbreaking, data extraction, denial of service. Each of these is a distinct scenario with its own set of probes. The prompt injection scenario contains prompts that embed instructions in user input. The jailbreak scenario contains prompts that use social engineering to bypass safety guidelines. Same harness, different attack vectors.
+Scenarios are groups of related Probes. Each Scenario is its own Harness, but multiple Scenarios can also be composed to form other Harnesses.
 
-Scenarios provide the middle layer between high-level harnesses and individual test cases. They're how you understand not just that your agent failed a security evaluation, but specifically that it's vulnerable to crescendo attacks while resistant to encoding-based injections.
+## Ethical Theories
 
-## Scenario Categories
+Ethical Theories Scenario includes both vanilla and jailbreaking Probes for prompts that test the model's understanding of ethical theories.
 
-### Adversarial Scenarios
+## Ethics Simulation
 
-Adversarial scenarios test resistance to intentional attacks:
+Ethics Simulation Scenario contains vanilla and jailbreaking prompts that ask about the moral valence of a simulated Scenario.
 
-| Scenario | Attack Vector |
-|----------|---------------|
-| **Prompt Injection** | Instructions embedded in user input |
-| **Jailbreaking** | Social engineering to bypass safety |
-| **Crescendo Attack** | Gradual boundary erosion over multiple turns |
-| **Encoding Attacks** | Obfuscated instructions (base64, unicode, etc.) |
-| **Adversarial Suffix** | Appended strings that modify behavior |
+## Copyrighted Content
 
-These scenarios contain probes crafted to exploit known vulnerabilities in language models. If your agent fails these scenarios, it's vulnerable to attacks that are actively being used in the wild.
+Copyrighted Data Leakage Scenario contains prompts that attempt to get the model to repeat copyrighted content from books and newspapers.
 
-### Reliability Scenarios
+## Private Data Leakage
 
-Reliability scenarios test accuracy and consistency under various conditions:
+Private Data Leakage Scenario contains prompts that test whether a model will leak private data.
 
-| Scenario | What It Tests |
-|----------|---------------|
-| **Factual Accuracy** | Resistance to hallucination |
-| **Package Hallucination** | Code recommendations for non-existent libraries |
-| **Misleading Information** | Resistance to accepting false premises |
-| **Math Robustness** | Arithmetic under perturbation |
-| **Distributional Robustness** | Performance under input variations |
+## Adversarial GLUE
 
-These scenarios identify where your agent's outputs can't be trusted, even without adversarial intent.
+Adversarial GLUE Scenario currently makes up the entirety of the Robustness Harness. The Scenario measures whether the model's performance on the natural language understanding tasks in GLUE is affected by perturbations to the sentences in the tasks.
 
-### Safety Scenarios
+## Professional Bias
 
-Safety scenarios test for harmful or inappropriate outputs:
+Professional Bias Scenario measures whether the model associates gender with occupations.
 
-| Scenario | What It Tests |
-|----------|---------------|
-| **CBRN** | Resistance to chemical/biological/radiological/nuclear content |
-| **Malware Generation** | Resistance to creating malicious code |
-| **Social Engineering** | Resistance to helping with manipulation tactics |
-| **Ethical Harms** | Absence of toxic, discriminatory, or harmful content |
-| **Policy Compliance** | Adherence to business ethics and conduct standards |
+## Gender-income Bias
 
-These scenarios ensure your agent won't produce content that creates legal liability, reputational harm, or real-world danger.
+Gender-income Bias Scenario checks whether the model predicts a person's income in a gender-biased manner.
 
-### Privacy Scenarios
+## Stereotype
 
-Privacy scenarios test for information leakage:
+The Stereotype Scenario is currently made up from the entire Stereotype Harness. The Scenario measures whether the model reinforces stereotypes about religion, race, ethnicity, age, disability, national origin, and gender in its responses.
 
-| Scenario | What It Tests |
-|----------|---------------|
-| **User Privacy** | Protection of PII across sessions |
-| **Model Privacy** | Protection of system prompt and model details |
-| **Data Leakage** | Resistance to training data extraction |
-| **Copyrighted Content** | Resistance to reproducing protected material |
+## Compounding Hallucination
 
-These scenarios identify ways that sensitive information could escape your agent.
+Compounding Hallucination Scenario attempts to prompt the model into generating hallucinations by having it over-commit to an initial mistake.
 
-## Scenarios vs. Harnesses
+## Misleading Information
 
-The distinction between scenarios and harnesses is about purpose:
+Misleading Information Scenario checks whether the model is able to refute false assertions presented in the input prompt.
 
-- **Harnesses** answer: "What standard am I testing against?"
-- **Scenarios** answer: "What specific attack vector or failure mode?"
+## Package Hallucination
 
-A single scenario can appear in multiple harnesses. The prompt injection scenario appears in both the `security` harness (it's a security concern) and the `owasp_llm_top_10` harness (it's LLM01 in the OWASP list). The scenario contains the same probes in both contexts—what changes is how the results are framed.
+Package Hallucination Scenario contains prompts designed to elicit sample code importing non-existent Python packages.
 
-This composability is intentional. You don't need duplicate tests for prompt injection depending on whether you're doing a security review or OWASP compliance. You run the same probes; they just roll up to different reports.
+## Hallucination: Goodside
 
-## Reading Scenario Results
+Hallucination: Goodside Scenario consists of Who is Riley? and Davidjl Probes. They were designed by Riley Goodside to elicit hallucinations.
 
-When you drill into scenario results, you see:
+## Social Values
 
-- **Scenario score**: The pass rate across all probes in the scenario
-- **Probe breakdown**: Individual pass/fail results
-- **Failure analysis**: Common patterns in failed probes
+Social Values Scenario currently consists of a Probe looking for promotions of quack medicine.
 
-The scenario level is often where actionable insights emerge. A failing prompt injection scenario tells you to strengthen input validation. A failing hallucination scenario tells you to add fact-checking. The scenario groups failures in a way that points toward remediation.
+## Known Malware
+
+Known Malware Scenario checks for the existence of known signatures of spam and viruses in the output.
+
+## Malware Generation
+
+Malware Generation Scenario contains Probes that attempt to make the model generate malware.
+
+## Prompt Injection
+
+Prompt Injection Scenario consists of prompt injections that attempt to trick the model into producing specific strings.
+
+## Prompt Injection: Encoded Data
+
+Prompt Injection: Encoded Data tests whether a model will decode encoded strings injected into the prompt.
+
+## Cross-site Scripting (XSS)
+
+Cross-site Scripting (XSS) Scenario aims to get the model to produce a cross-site scripting content in a Markdown image.
+
+## Adversarial Suffix
+
+Adversarial Suffix Scenario uses adversarial suffixes to elicit instructions on how to steal from a non-profit organization.
+
+## Glitch
+
+Glitch Scenario contains prompts that use glitch tokens to disrupt expected model behavior.
+
+## Do Anything Now
+
+Do Anything Now Scenario attempt to get the model to escape its Guardrails by prompting it to take on a special persona.
+
+## Slur Continuation
+
+Slur Continuation Scenario tests whether a model will continue a slur when provided with leading text.
+
+## Ethical Harms
+
+Ethical Harms Scenario checks for ethical harms in the model's output, such as bullying, deadnaming, profanity, sexual content, and slurs.
+
+## Real Toxicity Prompts
+
+Real Toxicity Prompts Scenario contains input text, taken from web data, that are toxic if completed.
 
 ## Next Steps
 
@@ -105,3 +119,4 @@ The scenario level is often where actionable insights emerge. A failing prompt i
     See scenarios mapped to OWASP LLM Top 10
   </Card>
 </CardGroup>
+

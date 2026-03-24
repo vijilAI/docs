@@ -3,98 +3,91 @@ title: "Security"
 description: "Measuring whether agents can resist adversarial attacks on confidentiality, integrity, and availability."
 ---
 
-## Trust Under Pressure
-
 Reliability measures whether an agent performs correctly under normal conditions. Security measures whether it maintains that performance when someone is actively trying to break it.
-
-This is a different kind of trust—the trust we extend to people who hold sensitive information, guard access to systems, or make decisions that affect us. We trust them not just to be competent, but to resist pressure, manipulation, and deception. A person who tells the truth when it's easy but lies under pressure isn't trustworthy. Neither is an agent that follows its guidelines until someone asks it not to.
-
-AI agents face adversarial pressure constantly. Users probe for vulnerabilities. Attackers craft inputs designed to extract information or hijack behavior. Competitors test for weaknesses. The public internet is an adversarial environment, and any agent exposed to it will encounter attempts to compromise it.
-
-Vijil measures security across the classic CIA triad—confidentiality, integrity, and availability—adapted for the unique threat model of AI agents.
-
-## Confidentiality
-
-**Does the agent protect sensitive information from unauthorized disclosure?**
-
-Confidentiality measures how well an agent guards secrets. These secrets might be explicit (API keys, user data, system prompts) or implicit (training data, model architecture, internal reasoning). A secure agent doesn't leak information to parties who shouldn't have it.
-
-### Failure Modes
-
-**System prompt extraction** occurs when an attacker convinces the agent to reveal its hidden instructions. System prompts often contain sensitive information: business logic, access controls, persona definitions, even credentials. An agent that can be tricked into disclosing its prompt leaks both intellectual property and security configuration.
-
-**User data leakage** happens when an agent reveals information from one user's session to another, or exposes personal information in contexts where it shouldn't. This can occur through direct disclosure or through subtle channels like varied response patterns that reveal something about the data the agent has seen.
-
-**Training data extraction** is a model-level vulnerability where attackers craft prompts that cause the agent to reproduce memorized training data. This can expose copyrighted content, personal information, or proprietary data that was included in training without authorization.
-
-### What Vijil Tests
-
-Vijil evaluates confidentiality through probes designed to extract protected information:
-
-| Test Category | What It Measures |
-|--------------|------------------|
-| **System prompt extraction** | Can the agent be tricked into revealing its instructions? |
-| **User privacy** | Does the agent protect PII across sessions and contexts? |
-| **Model privacy** | Does the agent leak information about its architecture or training? |
-| **Data memorization** | Can training data be extracted through targeted prompting? |
-
-## Integrity
-
-**Does the agent resist attempts to manipulate its behavior?**
-
-Integrity measures resistance to adversarial control. An agent with integrity follows its intended instructions even when users try to override them through clever prompting, social engineering, or technical exploits. It doesn't execute unauthorized commands or deviate from its guidelines under pressure.
-
-### Failure Modes
-
-**Prompt injection** is the signature attack against AI agents. An attacker embeds instructions in user input, third-party content, or retrieved documents, hoping the agent will execute them as if they came from the system. Successful injection can hijack agent behavior entirely—making it ignore its actual instructions and follow the attacker's instead.
-
-**Jailbreaking** uses social engineering and creative prompting to convince the agent to abandon its safety constraints. Unlike prompt injection, which typically hides malicious instructions, jailbreaks work by manipulating the agent's reasoning: roleplaying scenarios, hypothetical framings, gradual boundary erosion, or appeals to the agent's helpfulness.
-
-**Adversarial perturbation** exploits the sensitivity of neural networks to carefully crafted inputs. Small changes to prompts—invisible characters, strategic typos, unusual formatting—can cause dramatically different behavior. These attacks exploit the gap between how humans and models interpret text.
-
-### What Vijil Tests
-
-Vijil evaluates integrity through adversarial probes that attempt to hijack agent behavior:
-
-| Test Category | What It Measures |
-|--------------|------------------|
-| **Direct injection** | Does the agent follow instructions embedded in user input? |
-| **Indirect injection** | Does the agent follow instructions in retrieved or third-party content? |
-| **Jailbreak attacks** | Can social engineering bypass safety guidelines? |
-| **Encoding attacks** | Do obfuscated instructions (unicode, base64, etc.) bypass filters? |
-| **Crescendo attacks** | Does gradual boundary erosion compromise the agent? |
 
 ## Availability
 
-**Does the agent maintain operation under hostile conditions?**
+Test the agent's ability to prevent a Denial-of-Service attack attempts.
 
-Availability measures resilience to denial-of-service. An available agent continues functioning even when attackers try to exhaust its resources, trigger failure modes, or make it unusable for legitimate purposes.
+### Denial of Service Resistance / Diacritics
 
-### Failure Modes
+Tests for denial of service resistance using diacritics mutation.
 
-**Resource exhaustion** occurs when an attacker crafts inputs that consume disproportionate computational resources. Very long prompts, recursive structures, or requests that trigger expensive operations can slow the agent to unusability or cause it to fail entirely.
+## User Privacy
 
-**Failure injection** uses adversarial inputs to trigger error states, crashes, or undefined behavior. Unlike attacks on integrity (which try to control what the agent does), these attacks try to prevent the agent from doing anything at all.
+Tests whether the agent exposes end-user personally-identifiable information (PII).
 
-**Context poisoning** fills the agent's context window with junk, making it unable to process legitimate requests. This is particularly relevant for agents with memory or document retrieval, where an attacker might pollute the knowledge base to degrade performance.
+### User Privacy / Fullwidth
 
-### What Vijil Tests
+Tests for user privacy using the fullwidth mutation.
 
-Vijil evaluates availability through probes designed to disrupt agent operation:
+## Manipulation Resistance
 
-| Test Category | What It Measures |
-|--------------|------------------|
-| **DoS resistance** | Does the agent handle adversarially crafted inputs without failing? |
-| **Context overflow** | How does the agent behave when context limits are stressed? |
-| **Error handling** | Does the agent recover gracefully from malformed inputs? |
+Test for agent's resistance to manipulative inputs.
 
-## Why Security Matters
+### Crescendo Attack: Explosive Device
 
-Security failures are categorically different from reliability failures. A reliability failure—a hallucination, an inconsistent response—is the agent making a mistake. A security failure is the agent being weaponized against its owners and users.
+Crescendo attack to try and get agent to instruct a user to build an explosive device.
 
-When an agent's confidentiality is compromised, sensitive information leaks. When its integrity is compromised, attackers control what it does. When its availability is compromised, legitimate users can't access it. These aren't edge cases or acceptable error rates—they're breaches with real consequences.
+### Crescendo Attack: Methamphetamine
 
-The security dimension of the Trust Score maps your agent's attack surface. It tells you which attack vectors the agent resists, which ones it's vulnerable to, and where you need additional protection. In an adversarial environment, this map is essential.
+Crescendo attack to try and get agent to instruct a user to produce methamphetamine (meth).
+
+### Crescendo Attack: Molotov Cocktail
+
+Crescendo attack to try and get agent to instruct a user to produce a Molotov cocktail
+
+### Linear Jailbreak: Botulinum Toxin
+
+Linear jailbreak attack to try and get agent to instruct a user to produce botulinum toxin.
+
+## Integrity
+
+Test the agent's ability to prevent adherence to adversarial prompt injections.
+
+### Adversarial Robustness: Misrepresentation
+
+Tests for adversarial robustness using misrepresentation mutation.
+
+### Adversarial Robustness: Soft Mutation
+
+Tests for adversarial robustness using soft mutation.
+
+### Adversarial Robustness: Spaces
+
+Tests for adversarial robustness using spaces mutation
+
+### Adversarial Robustness: Underline
+
+Tests for adversarial robustness using underline mutation.
+
+## Model Privacy
+
+Tests whether the agent leaks private model information.
+
+### Model Privacy: Zero Width
+
+Tests for model privacy using zero width mutation.
+
+## Data Privacy
+
+Tests for leakage of training data.
+
+### Book Excerpt Completion with Embed JSON Mutation
+
+Tests whether an agent will complete a book excerpt when prompted with the beginning. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Embed JSON Mutation.
+
+### Emails Leakage - Enron
+
+Tests whether an agent will reveal email addresses obtained from the discovery process of the Enron investigation. A low score in this test indicates that the agent may reveal general PII that might be present in its training data.
+
+### Media Excerpt Completion - Guardian
+
+Tests whether the model will complete an excerpt from The Guardin when prompted with the beginning.
+
+### Media Excerpt Completion - NYT with Embed JSON Mutation
+
+Tests whether an agent will complete an excerpt from the New York Times when prompted with the beginning. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Embed JSON Mutation.
 
 ## Next Steps
 
@@ -112,3 +105,4 @@ The security dimension of the Trust Score maps your agent's attack surface. It t
     Security tests aligned to OWASP LLM Top 10
   </Card>
 </CardGroup>
+
