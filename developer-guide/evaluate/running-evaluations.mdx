@@ -3,250 +3,243 @@ title: 'Running Evaluations'
 description: 'Execute and monitor agent evaluations programmatically.'
 ---
 
-Run evaluations using the Python client to test your agent's trustworthiness. This guide covers creating, monitoring, and managing evaluations.
+[Vijil Evaluate](https://vijil.ai/evaluate) is a quality assurance framework that automates the testing of LLM applications. An **Evaluation** in Vijil is an automated test run where you select one or more AI agents and a test [Harness](/concepts/components/harness) (covering [Security](/concepts/dimensions/security), [Reliability](/concepts/dimensions/reliability), and [Safety](/concepts/dimensions/safety)) to systematically assess the quality, safety, and reliability of LLM applications.
+## Prerequisites
 
-## Creating an Evaluation
+Before setting up an Evaluation, you must have:
 
-### Cloud-Hosted Agents
+- A [Vijil Evaluate](https://vijil.ai/evaluate) account
+- Set up an [Agent](https://docs.vijil.ai/tutorials/manage-agents)
 
-For agents deployed on supported platforms:
+## Setting up via Dashboard
 
-```python
-from vijil import Vijil
+1. Navigate to the [Evaluations](https://evaluate.vijil.ai/evaluations) section in the Vijil Evaluate.
+2. From the **Create Evaluation > Select Agents** section, choose one or more [Agents](https://docs.vijil.ai/tutorials/manage-agents) you have previously created. If you do not have an Agent, press [Register Agent](https://docs.vijil.ai/tutorials/manage-agents).
+3. In the **Select Harness** section, you can configure:
+    - **Trust Scores** - Choose between Security, Reliability, and Safety, or select all.
+    - **Custom** - Select your custom [Harness](/concepts/components/harness).
+    - **Benchmarks** - Select specific benchmarks from the Trust Scores.
+    - **Garak** - Select Garak scenarios.
+4. Under **Run Configuration**, you will see your selected Agent(s). By pressing on the dropdown <Icon icon="chevron-down" /> icon, you can configure:
+    - **Temperature** - Controls the randomness of the model's output. A higher value (e.g., 1.0) produces more varied and creative responses, while a lower value (e.g., 0.1) makes responses more deterministic and focused.
+    - **Top P** - A nucleus sampling parameter that limits token selection to the smallest set of tokens whose cumulative probability meets the specified threshold. Lower values restrict output to higher-probability tokens, while higher values allow more diversity.
+    - **Max Completion Tokens** - Sets the maximum number of tokens the model can generate in a single response. Use this to control response length and manage resource consumption.
+    - **Requests Timeout** - Specifies the maximum amount of time (in seconds) to wait for a response from the Agent before the request is considered failed and terminated.
+5. Enter an Evaluation name in the `Enter a name...` field.
+6. Press Create.
 
-vijil = Vijil()
+<Info>
+    Evaluations can take a few minutes to complete. To view details of a pending Evaluation, select it from the **List Evaluations** section. 
+</Info>
 
-evaluation = vijil.evaluations.create(
+## Setting up via API
+
+
+To run evaluation jobs through the Vijil Evalute API and interact with the results, you need to install the client library that provides the necessary functionalities. You can do so through downloading the library from PyPI.
+
+```bash title="Shell"
+pip install -U vijil
+```
+
+To ensure you are using the latest version of the package, we recommend using the `-U` or `--upgrade` option.
+
+
+You need a Vijil API key to authenticate remotely through the client library. You can obtain the API key by logging into your
+Vijil account, going to the profile page on the dashboard, then copying the value in the **Token** field.
+
+
+After your obtain an API key, you can export it in the environment you intend to use the client inside.
+
+```bash title="Shell"
+export VIJIL_API_KEY = <eyj-xxxx>
+```
+
+Alternatively, you can store the key in a `.env` file and load it into your Python environment using a library such as [python-dotenv](https://pypi.org/project/python-dotenv/).
+
+This user token expires after 24 hours. If you plan to use the API over long periods of time, you should use [machine-to-machine secrets](/developer-guide/evaluate/cicd) to regularly refresh the token.
+
+Evaluations the way Vijil measures how trustworthy your agent is. In this section you will learn how to create, view, summarize, export, cancel, and delete evaluations in.
+
+## Web Interface
+
+In the left sidebar, click on **Evaluations** (clipboard icon) to view all evaluations. On this page, you can view previous evaluations, rerun them, delete them, or pause/restart an ongoing evaluation.
+
+### Create an Evaluation
+
+1. On the Evaluations page, click **Create Evaluation**.
+2. Select the agent to evaluate. If the agent you want is not yet in the list, click **Add Agent**.
+3. Select the Harnesses you want to run. See [Harnesses](/concepts/components/harness) for more information.
+4. Once you have selected an agent, you can configure some of it's runtime parameters like temperature and maximum completion tokens in the **Run Configuration** section.
+5. Optionally, enter a name for your evaluation, then click **Create**.
+
+## Python Client
+
+You can create, view, summarize, export, cancel, and delete evaluations with the Vijil Python client.
+
+Before doing any of this, you will need to [instantiate](/owner-guide/getting-started/quick-start) your Vijil client. In this topic we will assume you have instantiated a Vijil client called `client`.
+
+### Create an Evaluation
+
+You can use the `evaluations.create` method to create an evaluation:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.create(
     model_hub="openai",
-    model_name="gpt-4o",
-    harnesses=["trust_score"],
-    model_params={"temperature": 0}
+    model_name="gpt-4o-mini",
+    model_params={"temperature": 0},
+    harnesses=["security"],
+    harness_params={"is_lite": False}
 )
-
-print(f"Evaluation started: {evaluation.get('id')}")
+# If successful, returns dictionary with the following format:
+# {'id': YOUR_GUID, 'status': 'CREATED'}
 ```
+</CodeGroup>
 
-### Local Agents
+The relevant parameters are as follows:
 
-For agents running locally (see [Custom Agents](/developer-guide/frameworks/custom-agents) for full setup):
+- `model_hub`: The model hub your model is on. Currently Vijil supports `openai`, `octo`, and `together` as model hubs. Make sure you have an API key [stored](/owner-guide/getting-started/account-setup) for the hub you want to use.
+- `model_name`: The name of the model you want to use on the hub. You can get this from the relevant hub's documentation.
+- `model_params`: Inference parameters like temperature and top_p.
+- `harnesses`: [Harnesses](/concepts/components/harness) determine which Probes you want to run, which determines what makes up your trust score.
+- `harness_params`: `is_lite` determines whether you are running a "light" version of the Harness, which will be cheaper and faster. Set this to `False` if you want to run the full Harness.
 
-```python
-local_agent = vijil.local_agents.create(
-    agent_function=my_agent,
-    input_adapter=input_adapter,
-    output_adapter=output_adapter,
-)
 
-vijil.local_agents.evaluate(
-    agent_name="my-agent",
-    evaluation_name="Pre-deployment check",
-    agent=local_agent,
-    harnesses=["trust_score"],
-    rate_limit=30,
-    rate_limit_interval=1,
-)
-```
-
-## Evaluation Parameters
-
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| `model_hub` | Cloud provider (openai, anthropic, bedrock, vertex, etc.) | Yes |
-| `model_name` | Model identifier | Yes |
-| `harnesses` | List of harnesses to run | Yes |
-| `model_params` | Model configuration (temperature, etc.) | No |
-| `api_key_name` | Stored API key name (for custom endpoints) | Sometimes |
-| `model_url` | Custom endpoint URL | Sometimes |
-
-## Available Harnesses
-
-| Harness | Description | Typical Duration |
-|---------|-------------|------------------|
-| `trust_score` | Comprehensive evaluation | 30-60 min |
-| `security` | Security vulnerabilities | 15-30 min |
-| `reliability` | Hallucination and consistency | 15-30 min |
-| `safety` | Harmful content and ethics | 15-30 min |
-| `owasp-llm-top-10` | OWASP LLM security risks | 20-40 min |
-
-Add `_Small` suffix for faster iterations (e.g., `security_Small`).
-
-## Monitoring Progress
-
-### Get Status
-
-```python
-status = vijil.evaluations.get_status(evaluation.get("id"))
-
-print(f"Status: {status.get('status')}")
-print(f"Progress: {status.get('progress')}%")
-print(f"Probes completed: {status.get('completed')}/{status.get('total')}")
-```
-
-### Status Values
-
-| Status | Meaning |
-|--------|---------|
-| `pending` | Waiting to start |
-| `running` | Actively processing probes |
-| `completed` | Finished successfully |
-| `failed` | Terminated with error |
-| `cancelled` | Stopped by user |
-
-### Wait for Completion
-
-```python
-from vijil.local_agents.constants import TERMINAL_STATUSES
-import time
-
-while True:
-    status = vijil.evaluations.get_status(evaluation.get("id"))
-    if status.get("status") in TERMINAL_STATUSES:
-        break
-    print(f"Progress: {status.get('progress')}%")
-    time.sleep(10)
-
-print(f"Evaluation completed with status: {status.get('status')}")
-```
-
-## Retrieving Results
-
-### Get Full Results
-
-```python
-results = vijil.evaluations.get_results(evaluation.get("id"))
-
-# Trust Score (0.0 - 1.0)
-print(f"Trust Score: {results.get('trust_score')}")
-
-# Dimension scores
-print(f"Reliability: {results.get('reliability_score')}")
-print(f"Security: {results.get('security_score')}")
-print(f"Safety: {results.get('safety_score')}")
-```
-
-### Access Failures
-
-```python
-failures = results.get("failures", [])
-
-for failure in failures:
-    print(f"""
-    Probe: {failure.get('probe_id')}
-    Category: {failure.get('category')}
-    Severity: {failure.get('severity')}
-    Reason: {failure.get('reason')}
-    """)
-```
-
-### Filter by Severity
-
-```python
-# Get critical and high severity failures
-critical_failures = [
-    f for f in failures
-    if f.get("severity") in ["critical", "high"]
-]
-
-print(f"Critical/High failures: {len(critical_failures)}")
-```
-
-## Managing Evaluations
+## View, Describe, and Summarize Evaluations
 
 ### List Evaluations
 
-```python
-evaluations = vijil.evaluations.list(limit=10)
+List all evaluations with the `evaluations.list` method:
 
-for e in evaluations:
-    print(f"{e.get('id')}: {e.get('status')} - Score: {e.get('trust_score')}")
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.list(limit=20)
 ```
+</CodeGroup>
+
+If you do not specify `limit`, it will return only the 10 most recent evaluations.
+
+If you do not know an evaluation ID, the `list` method lets you find out the ID, which you need in order to get more details about that evaluation.
+
+### Get Evaluation Status
+
+You can view the status of an evaluation with the `evaluations.get_status` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.get_status(evaluation_id='96f925f6-a7a7-05dd-5f2a-665734d181ee')
+```
+</CodeGroup>
+
+### Summarize a Completed Evaluation
+
+Get summary scores for a completed evaluation, including scores at the overall, Harness, Scenario, and Probe levels, with the `evaluations.summarize` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.summarize(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54')
+```
+</CodeGroup>
+
+### Get Prompt-level Details
+
+Get prompt-level details for a completed evaluation with the `evaluations.describe` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe', limit=1000)
+```
+</CodeGroup>
+
+This returns all prompts and Detector scores for each Probe. By default, it will return only 1000 results, but you can change this with the `limit` argument.
+
+By default, the output is a pandas dataframe, but if you prefer a list of dictionaries, specify `list` as the `format`.
+
+### Get a Hits-Only List
+
+If you want a list of only the prompts/responses that led to hits (responses deemed undesirable), you can use the `hits_only` argument. By default, all prompts and responses will be returned.
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.describe(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='dataframe', hits_only=True)
+```
+</CodeGroup>
+
+### Export Evaluations
+
+You can export both the [summary](#summarize-a-completed-evaluation)- and [prompt-level](#get-prompt-level-details) evaluation results.
+
+### Export Summary
+
+Export the summary of an evaluation with the `evaluations.export_summary` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.export_summary(evaluation_id='96f925f6-a7a7-05dd-5f2a-665734d181ee', format='pdf', output_dir='./output')
+```
+</CodeGroup>
+
+The format can be either `pdf` or `html`. `output_dir` defaults to the current directory unless otherwise specified.
+
+### Export Prompt-level Details
+
+Export the prompt-level details of an evaluation with the `evaluations.export_report` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.export_report('33a886cd-2183-4a61-9ede-241cbbb10ec6', format='parquet', output_dir='./output')
+```
+</CodeGroup>
+
+The format can be `csv`, `parquet`, `json` or `jsonl`. `output_dir` defaults to the current directory unless otherwise specified.
+
+See the [glossary](/references/glossary) to understand what the Probe or Detector modules in the report do.
+
+### Export Hits Only
+
+To export only the prompts/responses that led to hits (responses deemed undesirable), you can use the `hits_only` argument. By default, all prompts and responses will be returned.
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.export_report(evaluation_id='22df0c08-4fcd-4e3d-9285-3a5e66c93f54', format='csv', hits_only=True)
+```
+</CodeGroup>
+
+## Cancel or Delete Evaluations
+
+You can cancel an in-progress evaluation or delete evaluations to unclutter your dashboard.
 
 ### Cancel an Evaluation
 
-```python
-vijil.evaluations.cancel(evaluation.get("id"))
+Cancel an in-progress evaluation with the `evaluations.cancel` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.cancel(evaluation_id='ecc4139a-bb07-4e04-8f0f-b402c1e5cb65')
+# {'type': 'CANCEL_EVALUATION',
+#  'id': 'dc3d4e6c-041d-41a6-8115-674cf2496718',
+#  'created_at': 1721163830.4333143,
+#  'created_by': '',
+#  'data': {'evaluation_id': 'ecc4139a-bb07-4e04-8f0f-b402c1e5cb65'},
+#  'metadata': None}
 ```
+</CodeGroup>
 
 ### Delete an Evaluation
 
-```python
-vijil.evaluations.delete(evaluation.get("id"))
+Delete an evaluation with the `evaluations.delete` method:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.delete(evaluation_id='bb8ad49b-4d49-462f-8abb-cbdbc0b1998d')
+# {'type': 'DELETE_EVALUATION',
+#  'id': 'a67e1b5e-83fb-4aa5-9cbb-bd057fb4db4f',
+#  'created_at': 1721163723.7307427,
+#  'created_by': '',
+#  'data': {'evaluation_id': 'bb8ad49b-4d49-462f-8abb-cbdbc0b1998d'},
+#  'metadata': None}
 ```
-
-## Export Results
-
-### To JSON
-
-```python
-import json
-
-results = vijil.evaluations.get_results(evaluation.get("id"))
-
-with open("results.json", "w") as f:
-    json.dump(results, f, indent=2)
-```
-
-### To CSV
-
-```python
-import csv
-
-failures = results.get("failures", [])
-
-with open("failures.csv", "w", newline="") as f:
-    writer = csv.DictWriter(f, fieldnames=["probe_id", "category", "severity", "reason"])
-    writer.writeheader()
-    for failure in failures:
-        writer.writerow({
-            "probe_id": failure.get("probe_id"),
-            "category": failure.get("category"),
-            "severity": failure.get("severity"),
-            "reason": failure.get("reason")
-        })
-```
-
-## Compare Evaluations
-
-Track improvement across agent versions:
-
-```python
-results_v1 = vijil.evaluations.get_results("eval-v1-id")
-results_v2 = vijil.evaluations.get_results("eval-v2-id")
-
-score_change = results_v2.get("trust_score") - results_v1.get("trust_score")
-print(f"Trust Score change: {score_change:+.2f}")
-
-# Compare failure counts
-v1_failures = len(results_v1.get("failures", []))
-v2_failures = len(results_v2.get("failures", []))
-print(f"Failures: {v1_failures} → {v2_failures} ({v2_failures - v1_failures:+d})")
-```
-
-## Error Handling
-
-```python
-from vijil.exceptions import VijilError
-
-try:
-    evaluation = vijil.evaluations.create(
-        model_hub="openai",
-        model_name="gpt-4o",
-        harnesses=["trust_score"]
-    )
-except VijilError as e:
-    print(f"Error: {e.message}")
-    if hasattr(e, "retry_after"):
-        print(f"Retry after: {e.retry_after}s")
-```
-
-Common errors:
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Agent not found | Invalid agent_id | Verify agent exists |
-| Rate limited | Too many requests | Wait and retry |
-| Invalid API key | Missing or incorrect key | Check stored credentials |
-| Harness not found | Invalid harness name | Use valid harness ID |
+</CodeGroup>
 
 ## Next Steps
 
