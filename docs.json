@@ -399,5 +399,8 @@
     "fonts": {
       "family": "Nunito"
     }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs"
   }
 }
