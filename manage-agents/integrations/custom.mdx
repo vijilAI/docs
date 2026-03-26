@@ -4,7 +4,13 @@ description: ""
 ---
 If your agent is accessible using an OpenAI-style chat completion API that takes in a base URL and a model name, Vijil can help you evaluate it.
 
-To do so, first store the API key by going to **Keys > Add new key** in the Evaluate platform. From the Model Hub dropdown, select *Custom* as your chosen hub, and add your API key.
+## Prerequisites
+
+- You have a running endpoint that exposes an OpenAI-compatible chat completion API.
+- You have an API key or other credentials required to call that endpoint.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
+To do so, first store the API key by going to **[Keys](https://evaluate.vijil.ai/keys) > Add new key** in the Evaluate platform. From the Model Hub dropdown, select *Custom* as your chosen hub, and add your API key.
 
 You can also [add an API key](/tutorials/evaluate-agents/setup-evaluate#authentication-using-api-keys) using the Python client.
 
@@ -30,3 +36,22 @@ client.evaluations.create(
 <Note>
     **NOTE**: You may need to store multiple API keys that are tied to different custom agent endpoints. Given that, you have made `api_key_name` an additional mandatory parameter to be supplied for evaluating custom endpoints.
 </Note>
+
+## Register an agent on Vijil
+
+Once your custom endpoint credentials are stored as an API key, you can register an agent that uses this hub from the Vijil UI:
+
+1. Press **Register [Agent](/tutorials/manage-agents/)**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **Custom** as the **Hub**.
+4. Enter a model name that your endpoint understands (for example `my-custom-model`). See your service’s documentation for the list of supported models.
+5. Select an existing Custom API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+### Enterprise-only fields (optional)
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.
+

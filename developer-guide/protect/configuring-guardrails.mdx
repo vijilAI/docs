@@ -1,0 +1,372 @@
+---
+title: 'Configuring Guardrails'
+description: 'Detailed configuration options for Dome guards and detectors.'
+---
+
+Dome's configuration system lets you precisely control which guards run, how they execute, and what detectors they use. This guide covers all configuration options.
+
+## Configuration Hierarchy
+
+Dome organizes protection in three levels:
+
+```
+Guardrail (input/output)
+    └── Guard (security, moderation, privacy)
+            └── Detector (specific detection method)
+```
+
+Each level has its own configuration options that can be customized.
+
+## Guardrail Configuration
+
+### Basic Structure
+
+```python
+config = {
+    # List of guards for each guardrail
+    "input-guards": ["security-guard", "moderation-guard"],
+    "output-guards": ["privacy-guard", "moderation-guard"],
+
+    # Guardrail-level execution settings
+    "input-early-exit": True,
+    "input-run-parallel": False,
+    "output-early-exit": True,
+    "output-run-parallel": False,
+
+    # Guard definitions (see below)
+    "security-guard": { ... },
+    "moderation-guard": { ... },
+    "privacy-guard": { ... }
+}
+```
+
+### Guardrail Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `input-guards` | List | [] | Guards to run on input |
+| `output-guards` | List | [] | Guards to run on output |
+| `input-early-exit` | Boolean | True | Stop on first input flag |
+| `input-run-parallel` | Boolean | False | Run input guards in parallel |
+| `output-early-exit` | Boolean | True | Stop on first output flag |
+| `output-run-parallel` | Boolean | False | Run output guards in parallel |
+
+### Execution Modes
+
+**Early Exit (default)**: Stops processing when the first guard flags content. Faster for rejecting clearly malicious input.
+
+```python
+config = {
+    "input-early-exit": True,  # Stop at first flag
+    "input-guards": ["security-guard", "moderation-guard"]
+}
+# If security-guard flags, moderation-guard won't run
+```
+
+**Complete Execution**: Runs all guards regardless of flags. Useful for comprehensive logging.
+
+```python
+config = {
+    "input-early-exit": False,  # Run all guards
+    "input-guards": ["security-guard", "moderation-guard"]
+}
+# Both guards always run, all flags recorded
+```
+
+**Parallel Execution**: Runs guards simultaneously for lower latency.
+
+```python
+config = {
+    "input-run-parallel": True,
+    "input-early-exit": False  # Often paired with parallel
+}
+```
+
+## Guard Configuration
+
+### Structure
+
+Each guard groups detectors of the same type:
+
+```python
+config = {
+    "input-guards": ["my-security-guard"],
+
+    "my-security-guard": {
+        "type": "security",                    # Required: guard type
+        "methods": ["prompt-injection-mbert"], # Required: detectors
+        "early-exit": True,                    # Optional
+        "run-parallel": False,                 # Optional
+        "blocked-response": "Request blocked"  # Optional
+    }
+}
+```
+
+### Guard Types
+
+| Type | Use Case | Available Detectors |
+|------|----------|---------------------|
+| `security` | Adversarial attacks | Prompt injection, encoding detection |
+| `moderation` | Harmful content | Toxicity, profanity, hate speech |
+| `privacy` | Sensitive data | PII detection, secrets |
+| `integrity` | Data quality | Format validation (experimental) |
+| `generic` | Custom logic | User-defined detectors |
+
+### Guard Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `type` | String | Required | Guard category |
+| `methods` | List | Required | Detectors to use |
+| `early-exit` | Boolean | True | Stop on first detector flag |
+| `run-parallel` | Boolean | False | Run detectors in parallel |
+| `blocked-response` | String | Default | Custom block message |
+
+## Detector Configuration
+
+### Available Detectors
+
+**Security Detectors:**
+
+| Detector | Description | Options |
+|----------|-------------|---------|
+| `prompt-injection-mbert` | Multilingual BERT model | `threshold` |
+| `prompt-injection-deberta-v3-base` | DeBERTa v3 model | `threshold` |
+| `encoding-heuristics` | Base64, Unicode tricks | None |
+| `security-embeddings` | Semantic similarity | `threshold`, `top_k` |
+| `security-llm` | LLM-based detection | `model_name` |
+
+**Moderation Detectors:**
+
+| Detector | Description | Options |
+|----------|-------------|---------|
+| `moderation-flashtext` | Fast keyword matching | `wordlist` |
+| `moderation-deberta` | Neural toxicity classifier | `threshold` |
+| `moderations-oai-api` | OpenAI Moderation API | None |
+| `moderation-llamaguard` | Llama Guard model | `threshold` |
+
+**Privacy Detectors:**
+
+| Detector | Description | Options |
+|----------|-------------|---------|
+| `privacy-presidio` | PII entity recognition | `entities`, `threshold` |
+| `detect-secrets` | Credential detection | None |
+
+### Detector-Level Configuration
+
+Configure individual detectors within a guard:
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-mbert", "security-llm"],
+
+        # Detector-specific settings
+        "prompt-injection-mbert": {
+            "threshold": 0.8  # Confidence threshold
+        },
+        "security-llm": {
+            "model_name": "gpt-4o"  # Model to use
+        }
+    }
+}
+```
+
+### Common Detector Options
+
+**Threshold**: Confidence score required to flag (0.0-1.0)
+
+```python
+"prompt-injection-mbert": {
+    "threshold": 0.9  # Higher = fewer false positives
+}
+```
+
+**Model Selection**: For LLM-based detectors
+
+```python
+"security-llm": {
+    "model_name": "gpt-4o-mini"  # Faster, cheaper
+}
+```
+
+## TOML Configuration
+
+Store configuration in a file for easier management:
+
+```toml
+# dome-config.toml
+[guardrail]
+input-guards = ["security-guard", "moderation-guard"]
+output-guards = ["privacy-guard"]
+input-early-exit = true
+input-run-parallel = false
+
+[security-guard]
+type = "security"
+methods = ["prompt-injection-deberta-v3-base", "encoding-heuristics"]
+early-exit = true
+
+[security-guard.prompt-injection-deberta-v3-base]
+threshold = 0.85
+
+[moderation-guard]
+type = "moderation"
+methods = ["moderation-flashtext", "moderation-deberta"]
+
+[privacy-guard]
+type = "privacy"
+methods = ["privacy-presidio"]
+
+[privacy-guard.privacy-presidio]
+entities = ["PERSON", "EMAIL", "PHONE_NUMBER", "CREDIT_CARD"]
+```
+
+Load from file:
+
+```python
+from vijil_dome import Dome
+
+dome = Dome("dome-config.toml")
+```
+
+<Note>
+Use lowercase `true` and `false` for booleans in TOML files.
+</Note>
+
+## Configuration Examples
+
+### Minimal Security
+
+Fast, low-latency protection:
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+    "input-early-exit": True,
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-mbert"]
+    }
+}
+```
+
+### Comprehensive Protection
+
+Full coverage for sensitive applications:
+
+```python
+config = {
+    "input-guards": ["security-guard", "moderation-guard"],
+    "output-guards": ["privacy-guard", "moderation-guard"],
+    "input-early-exit": False,
+    "output-early-exit": False,
+
+    "security-guard": {
+        "type": "security",
+        "methods": [
+            "prompt-injection-deberta-v3-base",
+            "encoding-heuristics",
+            "security-embeddings"
+        ],
+        "run-parallel": True
+    },
+    "moderation-guard": {
+        "type": "moderation",
+        "methods": ["moderation-deberta", "moderations-oai-api"],
+        "run-parallel": True
+    },
+    "privacy-guard": {
+        "type": "privacy",
+        "methods": ["privacy-presidio", "detect-secrets"]
+    }
+}
+```
+
+### Privacy-Focused
+
+For healthcare, finance, or regulated industries:
+
+```python
+config = {
+    "input-guards": ["security-guard"],
+    "output-guards": ["privacy-guard"],
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta-v3-base"]
+    },
+    "privacy-guard": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"],
+        "privacy-presidio": {
+            "entities": [
+                "PERSON", "EMAIL", "PHONE_NUMBER",
+                "CREDIT_CARD", "US_SSN", "MEDICAL_LICENSE"
+            ],
+            "threshold": 0.7
+        }
+    }
+}
+```
+
+### Low-Latency Production
+
+Optimized for speed:
+
+```python
+config = {
+    "input-guards": ["fast-security"],
+    "output-guards": ["fast-moderation"],
+    "input-early-exit": True,
+    "output-early-exit": True,
+
+    "fast-security": {
+        "type": "security",
+        "methods": ["prompt-injection-mbert"],  # Fastest model
+        "early-exit": True
+    },
+    "fast-moderation": {
+        "type": "moderation",
+        "methods": ["moderation-flashtext"],  # Keyword-based, very fast
+        "early-exit": True
+    }
+}
+```
+
+## Loading Configuration from Console
+
+Pull configuration from your Vijil Console setup:
+
+```python
+import os
+from vijil_dome import Dome
+
+dome = Dome.create_from_vijil_agent(
+    agent_id="your-agent-id",
+    api_key=os.environ["VIJIL_API_KEY"]
+)
+```
+
+This keeps your code and configuration in sync across environments.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Using Guardrails" icon="shield" href="/developer-guide/protect/using-guardrails">
+    Runtime integration patterns
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build your own detectors
+  </Card>
+  <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
+    Monitoring and tracing
+  </Card>
+  <Card title="Framework Guides" icon="code" href="/developer-guide/frameworks/langchain">
+    Framework-specific integration
+  </Card>
+</CardGroup>

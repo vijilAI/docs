@@ -1,0 +1,266 @@
+---
+title: 'Running Evaluations'
+description: 'Execute and monitor agent evaluations programmatically.'
+---
+
+Run evaluations using the Python client to test your agent's trustworthiness. This guide covers creating, monitoring, and managing evaluations.
+
+## Creating an Evaluation
+
+### Cloud-Hosted Agents
+
+For agents deployed on supported platforms:
+
+```python
+from vijil import Vijil
+
+vijil = Vijil()
+
+evaluation = vijil.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-4o",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+
+print(f"Evaluation started: {evaluation.get('id')}")
+```
+
+### Local Agents
+
+For agents running locally (see [Custom Agents](/developer-guide/frameworks/custom-agents) for full setup):
+
+```python
+local_agent = vijil.local_agents.create(
+    agent_function=my_agent,
+    input_adapter=input_adapter,
+    output_adapter=output_adapter,
+)
+
+vijil.local_agents.evaluate(
+    agent_name="my-agent",
+    evaluation_name="Pre-deployment check",
+    agent=local_agent,
+    harnesses=["trust_score"],
+    rate_limit=30,
+    rate_limit_interval=1,
+)
+```
+
+## Evaluation Parameters
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| `model_hub` | Cloud provider (openai, anthropic, bedrock, vertex, etc.) | Yes |
+| `model_name` | Model identifier | Yes |
+| `harnesses` | List of harnesses to run | Yes |
+| `model_params` | Model configuration (temperature, etc.) | No |
+| `api_key_name` | Stored API key name (for custom endpoints) | Sometimes |
+| `model_url` | Custom endpoint URL | Sometimes |
+
+## Available Harnesses
+
+| Harness | Description | Typical Duration |
+|---------|-------------|------------------|
+| `trust_score` | Comprehensive evaluation | 30-60 min |
+| `security` | Security vulnerabilities | 15-30 min |
+| `reliability` | Hallucination and consistency | 15-30 min |
+| `safety` | Harmful content and ethics | 15-30 min |
+| `owasp-llm-top-10` | OWASP LLM security risks | 20-40 min |
+
+Add `_Small` suffix for faster iterations (e.g., `security_Small`).
+
+## Monitoring Progress
+
+### Get Status
+
+```python
+status = vijil.evaluations.get_status(evaluation.get("id"))
+
+print(f"Status: {status.get('status')}")
+print(f"Progress: {status.get('progress')}%")
+print(f"Probes completed: {status.get('completed')}/{status.get('total')}")
+```
+
+### Status Values
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | Waiting to start |
+| `running` | Actively processing probes |
+| `completed` | Finished successfully |
+| `failed` | Terminated with error |
+| `cancelled` | Stopped by user |
+
+### Wait for Completion
+
+```python
+from vijil.local_agents.constants import TERMINAL_STATUSES
+import time
+
+while True:
+    status = vijil.evaluations.get_status(evaluation.get("id"))
+    if status.get("status") in TERMINAL_STATUSES:
+        break
+    print(f"Progress: {status.get('progress')}%")
+    time.sleep(10)
+
+print(f"Evaluation completed with status: {status.get('status')}")
+```
+
+## Retrieving Results
+
+### Get Full Results
+
+```python
+results = vijil.evaluations.get_results(evaluation.get("id"))
+
+# Trust Score (0.0 - 1.0)
+print(f"Trust Score: {results.get('trust_score')}")
+
+# Dimension scores
+print(f"Reliability: {results.get('reliability_score')}")
+print(f"Security: {results.get('security_score')}")
+print(f"Safety: {results.get('safety_score')}")
+```
+
+### Access Failures
+
+```python
+failures = results.get("failures", [])
+
+for failure in failures:
+    print(f"""
+    Probe: {failure.get('probe_id')}
+    Category: {failure.get('category')}
+    Severity: {failure.get('severity')}
+    Reason: {failure.get('reason')}
+    """)
+```
+
+### Filter by Severity
+
+```python
+# Get critical and high severity failures
+critical_failures = [
+    f for f in failures
+    if f.get("severity") in ["critical", "high"]
+]
+
+print(f"Critical/High failures: {len(critical_failures)}")
+```
+
+## Managing Evaluations
+
+### List Evaluations
+
+```python
+evaluations = vijil.evaluations.list(limit=10)
+
+for e in evaluations:
+    print(f"{e.get('id')}: {e.get('status')} - Score: {e.get('trust_score')}")
+```
+
+### Cancel an Evaluation
+
+```python
+vijil.evaluations.cancel(evaluation.get("id"))
+```
+
+### Delete an Evaluation
+
+```python
+vijil.evaluations.delete(evaluation.get("id"))
+```
+
+## Export Results
+
+### To JSON
+
+```python
+import json
+
+results = vijil.evaluations.get_results(evaluation.get("id"))
+
+with open("results.json", "w") as f:
+    json.dump(results, f, indent=2)
+```
+
+### To CSV
+
+```python
+import csv
+
+failures = results.get("failures", [])
+
+with open("failures.csv", "w", newline="") as f:
+    writer = csv.DictWriter(f, fieldnames=["probe_id", "category", "severity", "reason"])
+    writer.writeheader()
+    for failure in failures:
+        writer.writerow({
+            "probe_id": failure.get("probe_id"),
+            "category": failure.get("category"),
+            "severity": failure.get("severity"),
+            "reason": failure.get("reason")
+        })
+```
+
+## Compare Evaluations
+
+Track improvement across agent versions:
+
+```python
+results_v1 = vijil.evaluations.get_results("eval-v1-id")
+results_v2 = vijil.evaluations.get_results("eval-v2-id")
+
+score_change = results_v2.get("trust_score") - results_v1.get("trust_score")
+print(f"Trust Score change: {score_change:+.2f}")
+
+# Compare failure counts
+v1_failures = len(results_v1.get("failures", []))
+v2_failures = len(results_v2.get("failures", []))
+print(f"Failures: {v1_failures} → {v2_failures} ({v2_failures - v1_failures:+d})")
+```
+
+## Error Handling
+
+```python
+from vijil.exceptions import VijilError
+
+try:
+    evaluation = vijil.evaluations.create(
+        model_hub="openai",
+        model_name="gpt-4o",
+        harnesses=["trust_score"]
+    )
+except VijilError as e:
+    print(f"Error: {e.message}")
+    if hasattr(e, "retry_after"):
+        print(f"Retry after: {e.retry_after}s")
+```
+
+Common errors:
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| Agent not found | Invalid agent_id | Verify agent exists |
+| Rate limited | Too many requests | Wait and retry |
+| Invalid API key | Missing or incorrect key | Check stored credentials |
+| Harness not found | Invalid harness name | Use valid harness ID |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Deep dive into scores and failures
+  </Card>
+  <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
+    Create targeted evaluations
+  </Card>
+  <Card title="CI/CD Integration" icon="rotate" href="/developer-guide/cicd/overview">
+    Automate evaluations in pipelines
+  </Card>
+  <Card title="Cloud Providers" icon="cloud" href="/developer-guide/evaluate/cloud-providers">
+    Configure provider integrations
+  </Card>
+</CardGroup>

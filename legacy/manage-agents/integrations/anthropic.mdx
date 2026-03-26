@@ -1,0 +1,42 @@
+---
+title: "Anthropic (Legacy)"
+description: "Legacy Anthropic integration docs copied from the integrations-section branch."
+---
+
+You can register agents on Vijil that use Anthropic Claude models such as `claude-3-7-sonnet-latest`, `claude-3-5-sonnet-latest`, and `claude-3-5-haiku-latest`.
+
+## Prerequisites
+
+- You have an Anthropic account with an active API key.
+- Your Anthropic account has access to the Claude models you plan to use.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
+## Store Anthropic Credentials in Vijil
+
+1. In Vijil, go to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**.
+2. From the **Model Hub** dropdown, select **Anthropic**.
+3. Enter your Anthropic API key and any optional rate limit overrides you want for this key.
+4. Save the key configuration.
+
+Once saved, this key can be reused across multiple Anthropic-based agents.
+
+## Register an Agent on Vijil
+
+With an Anthropic API key configured, you can register an agent that uses Anthropic Claude:
+
+![Setting up an Anthropic-based Agent in Vjil](/images/legacy/anthropic.png)
+
+1. Press **Register Agent**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **Anthropic** as the **Hub**.
+4. Enter a model name (for example `claude-3-7-sonnet-latest` or `claude-3-5-haiku-latest`). See the Anthropic documentation for [the list of available models](https://platform.claude.com/docs/en/about-claude/models/overview).
+5. Select an existing Anthropic API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.
+

@@ -1,0 +1,194 @@
+---
+title: "Console Overview"
+description: "A high-level introduction to the Vijil Console: what it is, how it's organized, and how to get oriented quickly."
+---
+
+The Vijil Console is the central management interface for securing, configuring, and evaluating AI agents. It gives teams a single place to register agents, define how they should behave, protect their inputs and outputs with guardrails, and run structured security evaluations, all without touching the underlying model infrastructure directly.
+
+<Note>
+  This guide is an internal onboarding resource covering high-level concepts and
+  navigation rather than step-by-step guidance.
+</Note>
+
+## What the Console Does
+
+At its core, the Console serves two purposes:
+
+1. **Protection**: Wrapping AI agents with Dome Guardrails that scan what goes in and what comes out, so agents behave safely and within defined boundaries.
+2. **Evaluation**: Running structured security and reliability assessments against agents to understand how well they perform across dimensions the three Vijil Dimensions of trust: reliability, safety, and security.
+
+Everything else in the Console that is Personas, Policies, Harnesses exist in service of these two goals.
+
+## Who It's For
+
+The Console is used by teams that build, deploy, or oversee AI agents. This includes:
+
+- **AI/ML engineers**: Registering and configuring agents
+- **Security and compliance teams**: Defining policies and reviewing evaluation results
+- **Team leads and reviewers**: Monitoring agent behavior and protection status
+
+You don't need to understand the model layer to use the Console effectively, but familiarity with what an AI agent does in your system will help you configure it meaningfully.
+
+## Core Concepts for Navigating the Console
+
+Before navigating the Console, it helps to understand these key concepts. Everything in the UI maps back to these.
+
+### Agents
+
+An **Agent** is any AI model you want to manage through the Console. Agents are registered manually or imported via JSON. Once registered, an agent can be protected with guardrails, assigned personas and policies, and included in evaluations.
+
+Each agent has a name, an associated model, a hub (e.g. `groq`, `custom`), and a status. The agent is the central entity everything else connects to.
+
+### Guardrails
+
+**Guardrails** are the protection layer. They are configured sets of Guards that scan data flowing to and from an agent. The Console uses **Dome Guardrails**, which support two types:
+
+| Type              | Purpose                            |
+| ----------------- | ---------------------------------- |
+| Input Guardrails  | Scan inputs sent to a model        |
+| Output Guardrails | Scan outputs returned from a model |
+
+An agent that has Dome Guardrails applied is shown as **Domed** in the interface. One without protection shows as **Unprotected**.
+
+### Personas
+
+A **Persona** defines the role and behavioral profile of an agent. It includes a name, language, role description, knowledge level, skill level, and intent. Personas can be created from scratch or built from presets.
+
+Personas are attached to Harnesses when running evaluations, allowing you to test how an agent responds under a specific user role or interaction context.
+
+### Policies
+
+A **Policy** is a document that defines rules governing how an agent should behave, for example, a content moderation policy that specifies what kinds of outputs are acceptable. Policies are created by writing or uploading a policy document, then adding individual rules to them.
+
+Each rule within a policy has an assertion, a category, a type, a severity level, and a status. Policies can be attached to Harnesses and used during evaluations to check compliance.
+
+### Harnesses
+
+A **Harness** ties an agent, optional personas, and optional policies together into a reusable test configuration. When you want to run an evaluation, you run it against a Harness rather than a bare agent. This makes evaluations repeatable and comparable across runs.
+
+A Harness also records its workflow status (e.g. `SUCCEEDED`) and the full context of what was configured when it was created.
+
+## Navigating the Interface
+
+The Console has a left sidebar with six main sections. Here is what each one does:
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="bot">
+    Register, view, clone, and export AI agents. The starting point for bringing
+    any agent into the Console.
+  </Card>
+  <Card title="Personas" icon="circle-user">
+    Create and manage behavioral profiles that define how an agent should be
+    tested or interacted with.
+  </Card>
+  <Card title="Policies" icon="shield-check">
+    Write or upload governance documents and attach rules to them for compliance
+    evaluation.
+  </Card>
+  <Card title="Harnesses" icon="flask-conical">
+    Assemble agents, personas, and policies into named, reusable test
+    configurations.
+  </Card>
+  <Card title="Guardrails" icon="lock">
+    View all registered agents, their protection status, and configure or
+    monitor Dome Guardrails.
+  </Card>
+  <Card title="Evaluations" icon="chart-bar">
+    Run Diamond Evaluations against agents and harnesses, and review historical
+    results.
+  </Card>
+</CardGroup>
+
+There is also a **Teams** section for managing user access and team membership.
+
+## The Dashboard
+
+When you first log in, the dashboard opens on the **Dome Guardrails** view. You will see a table of all registered agents, each showing:
+
+- **Agent Name**: The display name
+- **Status**: Whether the agent is active or not
+- **Defend**: Whether the agent is `Domed` (protected) or `Unprotected`
+- **Configure (gear icon)**: Opens the guardrail configuration for that agent
+- **Monitor (chart icon)**: Opens the monitoring/observability view for that agent
+
+This gives you an immediate security posture snapshot across all your agents.
+
+## Running an Evaluation
+
+Evaluations in the Console are called **Diamond Evaluations**. They assess an agent across three trust dimensions, each broken into subcategories:
+
+<CardGroup cols={3}>
+  <Card title="SECURITY" icon="shield">
+    **Confidentiality**: Protects sensitive data from exposure
+
+    **Integrity**: Prevents unauthorized data modification
+
+    **Availability**: Resists denial of service attacks
+
+  </Card>
+  <Card title="SAFETY" icon="circle-check">
+    **Containment**: Operates within defined boundaries
+
+    **Compliance**: Follows policies and regulations
+
+    **Transparency**: Provides clear reasoning for decisions
+
+  </Card>
+  <Card title="RELIABILITY" icon="repeat">  
+  
+    **Correctness**: Produces accurate and valid outputs
+
+    **Consistency**: Behaves predictably across similar inputs
+
+    **Robustness**: Handles edge cases and errors gracefully
+
+  </Card>
+</CardGroup>
+
+To run an evaluation:
+
+<Steps>
+  <Step title="Select an Agent">
+    Choose the agent you want to evaluate from the list. You can search by name,
+    model, or hub.
+  </Step>
+  <Step title="Select a Harness">
+    Pick the harness configuration that defines the test context - which
+    personas and policies apply.
+  </Step>
+  <Step title="Choose a Trust Score Type">
+    Select **Custom** to evaluate on a custom Harness.
+  </Step>
+  <Step title="Run the Evaluation">
+    Click **Run Evaluation**. The evaluation moves to **Active Evaluations**
+    while running, then to **Evaluation Results** when complete.
+  </Step>
+</Steps>
+
+Evaluation results show the agent name, who created the run, timestamps, and final status. Each completed result links to a detailed results view.
+
+## Key Workflows at a Glance
+
+| Goal                                   | Where to Go                      |
+| -------------------------------------- | -------------------------------- |
+| Register a new agent                   | Agents → Create / Import         |
+| Apply guardrail protection to an agent | Guardrails → Configure           |
+| Monitor an agent's security activity   | Guardrails → Monitor             |
+| Define agent behavior for testing      | Personas → Create                |
+| Create a governance rule set           | Policies → Create → Add Rules    |
+| Set up a reusable test configuration   | Harnesses → Create Harness       |
+| Run a security evaluation              | Evaluations → Create Evaluation  |
+| Review past evaluation results         | Evaluations → Evaluation Results |
+
+---
+
+## Things Worth Knowing
+
+<Warning>
+  Agents shown as **Unprotected** in the Guardrails view have no Dome Guardrails
+  applied. Their inputs and outputs are not being scanned. This is the default
+  state for newly registered agents.
+</Warning>
+
+- A Harness does not require personas or policies, both are optional. A minimal harness is just an agent.
+- Policies need rules to be meaningful. A policy with zero rules will not flag anything during evaluation.

@@ -1,0 +1,204 @@
+---
+title: 'API Overview'
+description: 'Vijil API design, authentication, and error handling.'
+---
+
+The Vijil API provides programmatic access to Diamond (evaluation) and Dome (protection) functionality. This guide covers authentication, common patterns, and error handling.
+
+## Base URL
+
+```
+https://api.vijil.ai/v1
+```
+
+## Authentication
+
+All requests require an API key in the `Authorization` header:
+
+```bash
+curl -X GET "https://api.vijil.ai/v1/agents" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Getting an API Key
+
+1. Log in to [console.vijil.ai](https://console.vijil.ai)
+2. Navigate to **Settings > API Keys**
+3. Click **Create API Key**
+4. Copy the key (shown once)
+
+### Python Client
+
+```python
+from vijil import Vijil
+
+vijil = Vijil(api_key="your-api-key")
+# Or set VIJIL_API_KEY environment variable
+vijil = Vijil()
+```
+
+### M2M Authentication (CI/CD)
+
+For automated pipelines, use machine-to-machine credentials. See [CI/CD Overview](/developer-guide/cicd/overview).
+
+## Rate Limits
+
+| Tier | Requests/min | Evaluations/day |
+|------|--------------|-----------------|
+| Free | 60 | 10 |
+| Pro | 300 | 100 |
+| Enterprise | Custom | Custom |
+
+Rate limit headers in responses:
+- `X-RateLimit-Limit`: Max requests per window
+- `X-RateLimit-Remaining`: Remaining requests
+- `X-RateLimit-Reset`: Unix timestamp when limit resets
+
+## Response Format
+
+All responses are JSON with consistent structure:
+
+**Success:**
+```json
+{
+  "data": { ... },
+  "meta": {
+    "request_id": "req_abc123"
+  }
+}
+```
+
+**List Response:**
+```json
+{
+  "data": [ ... ],
+  "total": 42,
+  "meta": {
+    "request_id": "req_abc123"
+  }
+}
+```
+
+## Error Handling
+
+### Error Response Format
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The request body is invalid",
+    "details": { ... }
+  },
+  "meta": {
+    "request_id": "req_abc123"
+  }
+}
+```
+
+### Common Error Codes
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 400 | `invalid_request` | Malformed request |
+| 401 | `invalid_api_key` | Invalid or missing API key |
+| 403 | `insufficient_permissions` | Key lacks required permissions |
+| 404 | `not_found` | Resource doesn't exist |
+| 429 | `rate_limit_exceeded` | Too many requests |
+| 500 | `internal_error` | Server error |
+
+### Python Error Handling
+
+```python
+from vijil.exceptions import VijilError
+
+try:
+    result = vijil.evaluations.create(...)
+except VijilError as e:
+    print(f"Error: {e.message}")
+    print(f"Code: {e.code}")
+    if hasattr(e, "retry_after"):
+        print(f"Retry after: {e.retry_after}s")
+```
+
+## Pagination
+
+List endpoints support pagination:
+
+```python
+# First page
+results = vijil.evaluations.list(limit=10)
+
+# With offset
+results = vijil.evaluations.list(limit=10, offset=20)
+```
+
+## API Clients
+
+### Python Client
+
+The official Python client provides typed methods for all API endpoints:
+
+```python
+from vijil import Vijil
+
+vijil = Vijil()
+
+# Evaluations
+vijil.evaluations.create(...)
+vijil.evaluations.get_status(...)
+vijil.evaluations.get_results(...)
+
+# Agents
+vijil.agents.create(...)
+vijil.agents.list(...)
+
+# Harnesses
+vijil.harnesses.list(...)
+vijil.harnesses.create(...)
+
+# API Keys
+vijil.api_keys.create(...)
+vijil.api_keys.list(...)
+
+# Local Agents
+vijil.local_agents.create(...)
+vijil.local_agents.evaluate(...)
+
+# Dome Configs
+vijil.dome_configs.get_config(...)
+vijil.dome_configs.update_dome_config(...)
+```
+
+### REST API
+
+Use any HTTP client:
+
+```bash
+# List agents
+curl -X GET "https://api.vijil.ai/v1/agents" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+
+# Create evaluation
+curl -X POST "https://api.vijil.ai/v1/evaluations" \
+  -H "Authorization: Bearer $VIJIL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id": "...", "harnesses": ["trust_score"]}'
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Python Client" icon="python" href="/developer-guide/api/python-client">
+    Python SDK reference
+  </Card>
+  <Card title="Evaluations API" icon="chart-bar" href="/developer-guide/api/evaluations-api">
+    Evaluation endpoints
+  </Card>
+  <Card title="Agents API" icon="robot" href="/developer-guide/api/agents-api">
+    Agent management
+  </Card>
+  <Card title="Dome API" icon="shield" href="/developer-guide/api/dome-api">
+    Dome configuration
+  </Card>
+</CardGroup>

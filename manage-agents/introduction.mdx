@@ -8,16 +8,27 @@ Vijil Evaluate is integrated with a number of leading LLM providers.
 To evaluate serverless LLM endpoints hosted on any of these, follow directions in the [quickstart tutorial](/get-started/quickstart), but with different values for
 the model hub and model name.
 
-| Provider | `model_hub` | `model_name` |
-|---|---|---|
-| OpenAI | `openai` | [List of Models](https://platform.openai.com/docs/models) |
-| Together AI | `together` | [List of Models](https://docs.together.ai/docs/serverless-models) |
-| Mistral AI | `mistral` | [List of Models](https://docs.mistral.ai/getting-started/models/models_overview) |
-| Fireworks AI | `fireworks` | [List of Models](https://fireworks.ai/models?infrastructure=serverless) |
-| NVIDIA NIM | `nvidia` | [List of Models](https://docs.api.nvidia.com/nim/reference/llm-apis) |
+| Provider | Model Hub | Out-of-the-box model examples | Default rate limit* |
+|---|---|---|---|
+| [OpenAI](/manage-agents/integrations/openai) | `openai` | `gpt-4.1`, `gpt-4.5-preview`, `gpt-4o`, `gpt-4o-mini`, `o1`, `o1-mini`, `o3-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo` | 500 requests / 60s |
+| [Anthropic](/manage-agents/integrations/anthropic) | `anthropic` | `claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`, `claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest` | 500 requests / 60s |
+| [Together AI](/manage-agents/integrations/together) | `together` | `deepseek-ai/DeepSeek-R1`, `meta-llama/Llama-3.3-70B-Instruct-Turbo`, `Qwen/QwQ-32B-Preview`, `google/gemma-2-27b-it`, `mistralai/Mixtral-8x22B-Instruct-v0.1` | 600 requests / 60s |
+| [Mistral AI](/manage-agents/integrations/mistral) | `mistral` | `mistral-large-latest`, `mistral-saba-latest`, `ministral-3b-latest`, `ministral-8b-latest`, `mistral-small-latest`, `open-mixtral-8x22b` | 300 requests / 60s |
+| [Fireworks AI](/manage-agents/integrations/fireworks) | `fireworks` | `llama-v3p2-1b-instruct`, `llama-v3p2-3b-instruct`, `llama-v3p2-11b-vision-instruct`, `llama-v3p2-90b-vision-instruct`, `mixtral-8x22b-instruct`, `qwen2p5-72b-instruct`, `deepseek-r1` | 600 requests / 60s |
+| [NVIDIA NIM](/manage-agents/integrations/nvidia) | `nvidia` | `nvidia/llama3-chatqa-1.5-8b`, `nvidia/llama3-chatqa-1.5-70b`, `nvidia/nemotron-4-340b-instruct` | 60 requests / 60s |
+| [Google Cloud Vertex AI](/manage-agents/integrations/vertex) | `vertex` | `google/gemini-2.5-pro`, `google/gemini-2.0-flash-001`, `google/gemini-1.5-flash-001`, `google/gemini-1.5-pro-001`, `google/gemini-1.0-pro-002` | 60 requests / 60s |
+| [AWS Bedrock](/manage-agents/integrations/bedrock) | `bedrock` | `us.amazon.nova-lite-v1:0`, `us.amazon.nova-micro-v1:0`, `us.amazon.nova-pro-v1:0`, `us.anthropic.claude-3-7-sonnet-20250219-v1:0`, `anthropic.claude-3-5-sonnet-20241022-v2:0`, `meta.llama3-1-70b-instruct-v1:0`, `meta.llama3-1-405b-instruct-v1:0`, `mistral.mistral-large-2407-v1:0` | 60 requests / 60s |
+| [AWS Bedrock Agents](/manage-agents/integrations/bedrock) | `bedrockAgents` | Bedrock-hosted agents configured by `agent_id` / `agent_alias_id` | 30 requests / 60s |
+| [Google Cloud (Agentforce)](/manage-agents/integrations/agentforce) | `agentforce` | Agentforce-hosted agents (via Agentforce configuration) | 30 requests / 60s |
+| [Azure](/manage-agents/integrations/azure) | `azure` | Azure-hosted deployments (models configured in your Azure account) | 60 requests / 60s |
+| [DigitalOcean](/manage-agents/integrations/digitalocean) | `digitalocean` | DigitalOcean-hosted deployments (models configured in your DO account) | 30 requests / 60s |
+| [OpenRouter](/manage-agents/integrations/openrouter) | `openrouter` | `microsoft/phi-4`, `google/gemini-2.5-flash-preview`, `x-ai/grok-3-beta` | 60 requests / 60s |
+| [Groq](/manage-agents/integrations/groq) | `groq` | `llama-3.1-8b-instant`, `llama-3.3-70b-versatile`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b` | 30 requests / 60s |
 
 
 Vijil also supports a number of other cloud services, giving you the flexibility of evaluating agents accessible through custom endpoints.
+
+*Default rate limits are the initial Vijil-side quotas (in requests per 60 seconds) and can be further constrained by your provider account and per–API key configuration in Vijil.
 
 <Card
     title="Google Vertex AI"
