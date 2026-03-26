@@ -17,6 +17,11 @@
   "icons": {
     "library": "lucide"
   },
+  "redirects": [
+    { "source": "/get-started/welcome", "destination": "/concepts/what-is-vijil" },
+    { "source": "/get-started/quickstart", "destination": "/developer-guide/getting-started/quickstart" },
+    { "source": "/get-started/overview", "destination": "/owner-guide/getting-started/introduction" }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -363,7 +368,7 @@
       "href": "https://console.vijil.ai"
     }
   },
-    "footer": {
+  "footer": {
     "socials": {
       "website": "https://vijil.ai",
       "github": "https://github.com/vijilAI/",
