@@ -1,0 +1,110 @@
+---
+title: 'Quickstart'
+description: 'Get your first Trust Score in 15 minutes.'
+---
+
+This quickstart evaluates your agent against Vijil's Trust Score harness. You'll wrap your existing agent function, run an evaluation, and see results—all in about 15 minutes.
+
+## Prerequisites
+
+- Python 3.9+
+- A Vijil API key ([get one here](https://console.vijil.ai))
+- An OpenAI API key (or another LLM provider)
+
+## Install
+
+```bash
+pip install vijil
+```
+
+## Set Credentials
+
+```bash
+export VIJIL_API_KEY="your-vijil-key"
+export OPENAI_API_KEY="your-openai-key"
+```
+
+## Evaluate Your Agent
+
+Create a file called `evaluate.py`:
+
+```python
+from vijil import Vijil
+from openai import OpenAI
+
+# Define your agent as a function
+def my_agent(prompt: str) -> str:
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+# Evaluate it
+vijil = Vijil()
+
+local_agent = vijil.local_agents.create(
+    agent_function=my_agent,
+    agent_name="my-first-agent"
+)
+
+vijil.local_agents.evaluate(
+    agent_name="my-first-agent",
+    harnesses=["trust_score"]
+)
+```
+
+Run it:
+
+```bash
+python evaluate.py
+```
+
+The evaluation takes 10–15 minutes. When complete, you'll see output like:
+
+```
+Trust Score: 0.82
+├── Reliability: 0.91
+├── Security: 0.74
+└── Safety: 0.85
+
+High-severity findings: 2
+Medium-severity findings: 5
+```
+
+## What Just Happened?
+
+1. **Vijil wrapped your agent** in a temporary HTTP server using ngrok
+2. **Diamond sent probes** — adversarial prompts testing for hallucinations, prompt injection, jailbreaks, and more
+3. **Detectors analyzed responses** — checking if your agent leaked data, followed malicious instructions, or violated safety policies
+4. **Results aggregated** into a Trust Score with specific findings
+
+Your agent code wasn't modified. The evaluation ran against your actual implementation.
+
+## View Detailed Results
+
+Open the [Vijil Console](https://console.vijil.ai) to see:
+- Per-probe results with the exact prompts and responses
+- Failure explanations with remediation guidance
+- Comparison with previous evaluations
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Framework Guides" icon="code" href="/developer-guide/frameworks/langchain">
+    Integrate with LangChain, Google ADK, or custom frameworks
+  </Card>
+  <Card title="Add Protection" icon="shield" href="/developer-guide/protect/overview">
+    Block attacks at runtime with Dome guardrails
+  </Card>
+  <Card title="CI/CD Integration" icon="rotate" href="/developer-guide/cicd/overview">
+    Run evaluations on every pull request
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret scores and prioritize fixes
+  </Card>
+</CardGroup>

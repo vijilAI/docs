@@ -22,7 +22,7 @@ User Request → Dome (Input Guards) → Your Agent → Dome (Output Guards) →
 Navigate to **Guardrails** in the sidebar to view all registered agents and their protection status.
 
 <Frame>
-  <img src="/images/dome-guardrails-page.png" alt="Dome Guardrails page showing registered agents with status, defend, configure, and monitor columns" />
+  <img src="/images/owner-guide/protect-in-production/configuring-guardrails/dome-guardrails-page.png" alt="Dome Guardrails page showing registered agents with status, defend, configure, and monitor columns" />
 </Frame>
 
 | Column | What It Shows |
@@ -36,7 +36,7 @@ Navigate to **Guardrails** in the sidebar to view all registered agents and thei
 Click the **Configure** icon (gear) to open the Dome Configuration page.
 
 <Frame>
-  <img src="/images/dome-configuration.png" alt="Dome Configuration page showing input guards, output guards, and execution flow" />
+  <img src="/images/owner-guide/protect-in-production/configuring-guardrails/dome-configuration.png" alt="Dome Configuration page showing input guards, output guards, and execution flow" />
 </Frame>
 
 ## Adding Guards
@@ -44,7 +44,7 @@ Click the **Configure** icon (gear) to open the Dome Configuration page.
 Click the **+** button in either the Input Guards or Output Guards section to add a new guard.
 
 <Frame>
-  <img src="/images/dome-guard-types.png" alt="Guard type dropdown showing Security, Moderation, and Privacy options" />
+  <img src="/images/owner-guide/protect-in-production/configuring-guardrails/dome-guard-types.png" alt="Guard type dropdown showing Security, Moderation, and Privacy options" />
 </Frame>
 
 Select a guard type from the dropdown:
@@ -126,7 +126,7 @@ The order of guards determines the execution pipeline. Use the Execution Flow pa
 ### Input Guard Pipeline
 
 <Frame>
-  <img src="/images/dome-input-flow.png" alt="Input flow showing security-guard and moderation-guard with their detectors processing incoming requests" />
+  <img src="/images/owner-guide/protect-in-production/configuring-guardrails/dome-input-flow.png" alt="Input flow showing security-guard and moderation-guard with their detectors processing incoming requests" />
 </Frame>
 
 In this example, security-guard runs first with its detectors, then moderation-guard. If Early Exit is enabled, a flagged request stops the pipeline immediately.
@@ -134,7 +134,7 @@ In this example, security-guard runs first with its detectors, then moderation-g
 ### Output Guard Pipeline
 
 <Frame>
-  <img src="/images/dome-output-flow.png" alt="Output flow showing privacy-guard with privacy-presidio detector processing outgoing responses" />
+  <img src="/images/owner-guide/protect-in-production/configuring-guardrails/dome-output-flow.png" alt="Output flow showing privacy-guard with privacy-presidio detector processing outgoing responses" />
 </Frame>
 
 ## Testing Configuration

@@ -1,0 +1,667 @@
+---
+title: "Client"
+description: "Discover the `client.py` docs"
+---
+
+## APIKeys
+
+Class for managing model hub API keys, which are required to query models.
+
+parameters:
+
+- `client` (VijilClient): The Vijil client instance.
+
+
+### _register_cache_refresh_callback
+
+Register a callback to be called when API keys are modified.
+
+parameters:
+
+- `callback` (Callable[[], None]): A callable that will refresh the API key cache.
+
+
+### _notify_cache_refresh
+
+Notify all registered callbacks that the API key cache should be refreshed.
+
+### list
+
+List all stored model hub API keys. Returns list of dictionaries. each dictionary contains information about an api key as `List(dict)`.
+
+### get_id_by_name
+
+Get the ID of an API key by its name. Used by other functions to get the ID of an API key. Returns the id of the api key as `str`.
+
+parameters:
+
+- `name` (str): The name of the API key.
+
+
+### check_model_hub
+
+Used by other functions to check that the model hub is valid and the key name is unique.
+
+parameters:
+
+- `model_hub` (str): The name of the model hub.
+
+
+### name_exists
+
+Check whether the API key name already exists. Returns true if the name exists among the stored api keys, false otherwise as `bool`.
+
+parameters:
+
+- `name` (str): The name of the API key.
+
+
+### check_hub_config
+
+Check that the model hub configuration is valid, i.e. that it has any fields required for that hub.
+
+parameters:
+
+- `model_hub` (str): The name of the model hub.
+- `hub_config` (dict): The configuration of the model hub.
+- `api_key` (str): The name of the API key.
+
+
+### create
+
+Create a new model hub API key. Returns response to the api request as `dict`.
+
+parameters:
+
+- `name` (str): Name for the API key. This must be unique.
+- `model_hub` (str): Name of the model hub. Current supported values are 'openai', 'together', 'digitalocean', 'mistral', 'fireworks', 'nvidia', 'bedrock', 'azure', 'custom', 'digitalocean', 'openrouter', 'bedrockAgents'
+- `rate_limit_per_interval` (int, optional): The maximum amount of times Vijil will query the model hub in the specified rate_limit_interval, defaults to 60
+- `rate_limit_interval` (int, optional): The size of the interval (in seconds) defining maximum queries to model hub in said interval. For example, if rate_limit_per_interval is 60 and rate_limit_interval is 10, then Vijil will query the model hub at most 60 times in 10 seconds. Defaults to 10
+- `api_key` (str, optional): The API key.
+- `hub_config` (dict, optional): A dictionary containing additional configuration for the model hub. Defaults to None.
+
+
+### rename
+
+Rename a stored API key. Returns response to the api request that renames the key as `dict`.
+
+parameters:
+
+- `name` (str): The current name of the key.
+- `new_name` (str): The new name of the key.
+
+
+### modify
+
+Modify model hub, key, or rate limits of a stored API key. Cannot be used to rename key. Returns response to the api request that modifies the key or model hub configuration as `dict`.
+
+parameters:
+
+- `name` (str): The name of the key you want to modify.
+- `model_hub` (str, optional): Name of the model hub. Current supported values are 'openai', 'together', 'octo'.
+- `api_key` (str, optional): The API key.
+- `rate_limit_per_interval` (int, optional): The maximum amount of times Vijil will query the model hub in the specified rate_limit_interval, defaults to 60
+- `rate_limit_interval` (int, optional): The size of the interval (in seconds) defining maximum queries to model hub in said interval. For example, if rate_limit_per_interval is 60 and rate_limit_interval is 10, then Vijil will query the model hub at most 60 times in 10 seconds. Defaults to 10
+
+
+### delete
+
+Delete the API key with the specified name. Returns response to the api request that deletes the key as `dict`.
+
+parameters:
+
+- `name` (str): The name of the key you want to delete
+
+
+## Harnesses
+
+Class for handling harnesses API requests.
+
+parameters:
+
+- `client` (VijilClient): The VijilClient instance.
+
+
+### calculate_md5_base64
+
+Calculate the MD5 hash of a custom harness policy file and return it as a base64 string. Returns md5 hash of the file as a base64 string as `str`.
+
+parameters:
+
+- `file_path` (str): Path to the file.
+
+
+### calculate_file_size
+
+Calculate the size of a custom harness policy file in bytes. Returns size of the file in bytes as `int`.
+
+parameters:
+
+- `file_path` (str): Path to the file.
+
+
+### list
+
+List all harnesses. Returns list of dicts where each dict contains the metadata for a harness, or a pandas dataframe if format is "dataframe" as `List(dict) or pandas.DataFrame`.
+
+parameters:
+
+- `type` (Optional[str], optional): Type of harness to list. Current supported values are "benchmark", "audit", "dimension", "custom". Defaults to None, in which case all harnesses are listed.
+- `format` (str, optional): Format of the returned list. Current supported values are 'dataframe', 'list'. Defaults to "dataframe".
+
+
+### create
+
+Create a custom harness from a system prompt and an optional policy file. Returns the specified harness name, the harness id, and the status of the harness creation process as `dict`.
+
+parameters:
+
+- `name` (any): The name of the harness.
+- `system_prompt` (any): The system prompt for the model you're testing.
+- `category` (any): The category of the harness. Options are "AGENT_POLICY", "KNOWLEDGE_BASE", "FUNCTION_ROUTE", "PERSONA"
+- `policy_file_path` (any): The path to the policy document (pdf or txt). Applicable to an agent policy harness. Defaults to "".
+- `kb_bucket` (any): The bucket name for the knowledge base. Must be specified if you want to include a knowledge base harness. Defaults to "".
+- `input_schema` (any): The input schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to {}.
+- `output_schema` (any): The output schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to {}.
+- `function_route` (any): The function route to be used for harness creation. Applicable to a tool-calling agent. Defaults to "".
+- `persona_ids` (any): The persona IDs to be used for harness creation. Applicable to a persona harness. Defaults to [].
+
+
+### get_status
+
+Get the status of a harness. Returns the status of the custom harness as `dict`.
+
+parameters:
+
+- `harness_id` (any): The ID of the harness.
+
+
+## AnalysisReports
+
+AnalysisReports class for handling analysis reports.
+
+parameters:
+
+- `client` (any): The VijilClient instance.
+- `evaluation_id` (any): The ID of the evaluation.
+- `evaluation_metadata` (any): The metadata of the evaluation.
+
+
+### _list_reports
+
+List all the reports for an evaluation. Returns a list of report ids as `list`.
+
+parameters:
+
+- `status` (any): The status of the reports to list. Defaults to "CREATED".
+
+
+### _get_analysis_report_by_id
+
+Get the report given eval ID and report ID. Returns the report as `dict`.
+
+parameters:
+
+- `report_id` (any): The ID of the report to get.
+
+
+### _request_analysis_report
+
+Request an analysis report for the evaluation.
+
+### _save_report
+
+Save the report content to a file in the specified format.
+
+parameters:
+
+- `report_content` (any): The content of the report.
+- `save_file` (any): The file path to save the report.
+- `format` (any): The format of the report ('html' or 'pdf').
+
+
+### generate
+
+Generates an analysis report for the evaluation.
+First checks to see if a report already exists, if so, it fetches the most recent report.
+Otherwise, a request is sent to create a report. If wait_till_completion is true, we wait till the report generation process is completed. Returns none if the report was generated successfully, otherwise the error message as `None | str`.
+
+parameters:
+
+- `save_file` (any): The file path to save the report. If not, a default file name formed from the evaluation ID and format is used.
+- `wait_till_completion` (any): Whether to wait till the report generation process is completed. Defaults to True.
+- `poll_frequency` (any): The frequency to poll for the report generation process. Defaults to 5 seconds.
+- `format` (any): The format of the report ('html' or 'pdf'). Defaults to 'html'.
+
+
+## Evaluations
+
+Class for handling evaluations API requests.
+
+parameters:
+
+- `client` (VijilClient): The VijilClient instance.
+
+
+### _refresh_api_proxy_dict
+
+Refresh the API proxy dictionary cache.
+
+### list
+
+List all valuations. Will return only 10 evaluations unless specified. Returns list of evaluations as `list`.
+
+parameters:
+
+- `limit` (int, optional): The number of evaluations to return, defaults to 10.
+
+
+### list_harnesses_for_type
+
+List all harnesses of a given type(s). Returns list of harnesses as `list`.
+
+parameters:
+
+- `harness_types` (List[str]): List of harness types to list.
+- `latest_version` (bool, optional): If True, will return only the latest version of each harness, defaults to True.
+
+
+### get_harness_tags
+
+Given the list of harnesses, ensure they belong to the same tag group and get the tag group.
+This is to ensure they are all on the correct UI page. Returns tag group of the harnesses as `str`.
+
+parameters:
+
+- `harness_names` (List[str]): List of harness names to get the tag group for.
+
+
+### create
+
+Create a new evaluation. Returns api response containing evaluation id of the newly created evaluation as `dict`.
+
+parameters:
+
+- `model_hub` (str): The model hub you want to use. Supported options are "openai", "together", "digitalocean", "custom".
+- `harness_version` (str): The version of the harness you want to use.
+- `model_name` (str, optional): The name of the model you want to use. Check the model hub's API documentation to find valid names.
+- `name` (str, optional): The name of the evaluation. If not specified, model hub will be concatenated with model name.
+- `api_key_name` (str, optional): The name of the model hub API key you want to use. If not specified, will use the first key we find for the specified model_hub.
+- `model_url` (str, optional): The URL of the model you want to use. Only required for custom model hub. Defaults to None
+- `model_params` (dict, optional): A dictionary specifying inference parameters like temperature and top_p. If none are specified, model hub defaults will be used. Defaults to {}
+- `harness_params` (dict, optional): Set optional parameters like is_lite, defaults to {}
+- `harnesses` (List[str], optional): A list of harnesses you want to include in the evaluation, defaults to []
+
+
+### get_status
+
+Retrieve the status of an evaluation. Returns a dict with the id, status, and other metadata of the evaluation as `dict`.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### get_metadata
+
+Get the metadata for an evaluation ID, including tag information. Returns a dict with the id, status, and other metadata of the evaluation as `dict`.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### get_tree
+
+Retrieve the tree of an evaluation. Returns for each probe, information about which harness and scenario it came from as `dict`.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### _get_ancestry
+
+Retrieve the ancestry of a node in the tree. Returns a dict with each ancestor as a value and ancestor types as the keys as `dict`.
+
+parameters:
+
+- `tree` (dict): The tree of the evaluation
+- `node_id` (str): The unique ID of the node
+
+
+### summarize
+
+Return summary dataframe of the evaluation results, aggregated at every level
+(overall evaluation, dimension, scenario, probe). Returns a dataframe with the level, level_name, and score of the evaluation as `pandas.DataFrame`.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### describe
+
+Return either a list or a dataframe of prompt-level metadata and evaluation results,
+with metadata and evaluation scores for each prompt/response in the given evaluation id. Returns a list or dataframe of prompt-level metadata and evaluation results as `list or pandas.DataFrame`.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+- `limit` (int, optional): The maximum number of prompts to include in description. Defaults to 1000.
+- `format` (str, optional): The format of the output. Defaults to "dataframe". Options are "dataframe" and "list".
+- `prettify` (bool, optional): If True, will remove the "vijil.probes." prefix from the probe names to make it more readable. Defaults to True.
+- `hits_only` (bool, optional): If True, will only return prompts that had undesirable responses (according to our detectors). Defaults to False.
+
+
+### export
+
+Exports output logs from describe() into csv, jsonl, json, or parquet. Returns success message with the filepath where the report was exported as `str`.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+- `limit` (int, optional): The maximum number of prompts to include in the report. Defaults to 1000000.
+- `format` (str, optional): The format of the output. Defaults to "csv". Options are "csv", "parquet", "json" and "jsonl"
+- `output_dir` (str, optional): The directory to save the report. Defaults to the current directory.
+- `prettify` (bool, optional): If True, will remove the "vijil.probes." prefix from the probe names to make it more readable. Defaults to True.
+- `hits_only` (bool, optional): If True, will only return prompts that had undesirable responses (according to our detectors). Defaults to False.
+
+
+### cancel
+
+Cancels an in-progress evaluation.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### delete
+
+Deletes an evaluation.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### get_probes
+
+Get all probes and probe metadata for a specific evaluation.
+Returns a dict with keys results, count.
+Results array contains probes and count indicates number of probes.
+
+### get_probes_info
+
+Get metadata for all probes in a specific evaluation.
+Returns a list of dicts with keys: probe, name, description, scoring_function.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### get_scenario_info
+
+Get metadata for all scenarios in a specific evaluation.
+Returns a list of dicts with keys: scenarios, name, description.
+
+parameters:
+
+- `evaluation_id` (str): The unique ID of the evaluation
+
+
+### get_harness_info
+
+Get metadata for all harnesses in a specific evaluation.
+Returns a list of dicts with keys: harness, name, description.
+
+parameters:
+
+- `full` (bool, optional): If True, returns all harness info. If False, returns only harness, name, description. Defaults to False.
+
+
+### report
+
+## Detectors
+
+Class for handling API requests to get detector metadata.
+
+parameters:
+
+- `client` (VijilClient): The VijilClient instance
+
+
+### get_detector_info
+
+Gets detector metadata for a specific detector id. Returns the detector metadata as `dict`.
+
+parameters:
+
+- `detector_id` (str): The unique ID of the detector
+- `version` (Optional[str], optional): The version of the detector metadata to get. Defaults to None.
+
+
+### list
+
+Lists all available detectors and their metadata. Returns the detector metadata as `dict`.
+
+parameters:
+
+- `version` (Optional[str], optional): The version of the detector metadata to get. Defaults to the latest version.
+
+
+## Detections
+
+Class for handling requests to the detections API.
+
+### _refresh_api_proxy_dict
+
+Refresh the API proxy dictionary cache.
+
+### list_detectors
+
+Lists all available detectors. Returns the list of available detectors as `list`.
+
+### create
+
+Create a new detection. Returns the response from the api. if the detection creation was successful, this is a dictionary with the following format: `{'id': your_guid, 'status': 'created'}` as `dict`.
+
+parameters:
+
+- `detector_id` (str): The unique ID of the detector
+- `detector_inputs` (List[dict]): Input payload to the detector
+- `detector_params` (dict): Optional parameters to be passed for the detector
+
+
+### get_status
+
+Retrieve the status of a detection. Returns the response from the api as `dict`.
+
+parameters:
+
+- `detection_id` (str): The unique ID of the detection
+
+
+### describe
+
+Describe a detection. Returns the response from the api as `dict`.
+
+parameters:
+
+- `detection_id` (str): The unique ID of the detection
+
+
+## Agents
+
+### _check_agent_name_exists
+
+Check if an agent name already exists.
+
+parameters:
+
+- `agent_name` (str): The agent name to check.
+- `exclude_agent_id` (str, optional): Optional agent ID to exclude from the check (for updates).
+
+
+### _find_agent_by_name
+
+Find an agent by name and return the agent object. Returns the agent object as `dict`.
+
+parameters:
+
+- `agent_name` (str): The agent name to find.
+- `include_archived` (bool, optional): Whether to include archived agents in the search.
+
+
+### create
+
+Create a new agent. If api_key_name is specified, use the API key with that name. Otherwise, create a new API key with the specified API key value. Returns the response from the api showing the created agent configuration as `dict`.
+
+parameters:
+
+- `agent_name` (str): The name of the agent.
+- `hub` (str): The hub of the agent.
+- `api_key_name` (str): The name of an existing API key to use. If not specified, we will create a new API key with a random name using the other fields in the request.
+- `agent_id` (str): The ID of the agent. Used only for certain hubs.
+- `agent_alias_id` (str): The alias ID of the agent. Used only for Bedrock Agents.
+- `model_name` (str): The name of the model.
+- `agent_system_prompt` (str): The system prompt of the agent.
+- `api_key_value` (str): The value of the API key to use. Must be empty if api_key_name is specified.
+- `rate_limit_interval` (int, optional): The size of the interval (in seconds) defining maximum queries to model hub in said interval. For example, if rate_limit_per_interval is 60 and rate_limit_interval is 10, then Vijil will query the model hub at most 60 times in 10 seconds. Defaults to 10
+- `rate_limit_per_interval` (int, optional): The maximum amount of times Vijil will query the model hub in the specified rate_limit_interval, defaults to 60
+- `hub_config` (Optional[dict], optional): The hub config of the agent, defaults to None. This is required for certain hubs.
+
+
+### update
+
+Update an existing agent configuration by name. Returns response to the api request, showing the updated agent configuration as `dict`.
+
+parameters:
+
+- `agent_name` (str): The current name of the agent to update.
+- `new_agent_name` (str, optional): The new name for the agent (if renaming).
+- `model_name` (str, optional): The new model name.
+- `agent_url` (str, optional): The new URL of the agent.
+- `api_key_name` (str, optional): The name of the API key to use.
+- `hub` (str, optional): The hub of the agent.
+- `agent_system_prompt` (str, optional): The new system prompt of the agent.
+
+
+### list
+
+List agent configurations. Returns list of agent configurations as `List[dict]`.
+
+parameters:
+
+- `include_archived` (bool, optional): Whether to include archived (deleted) agents in the list.
+
+
+### delete
+
+Archive  (delete) an agent by name. Updates the agent's status to 'archived'. Returns response to the api request containing the configuration of the deleted agent as `dict`.
+
+parameters:
+
+- `agent_name` (str): The name of the agent to archive.
+
+
+## LocalAgents
+
+Class for local agent execution and evaluation.
+
+parameters:
+
+- `base_url` (str): The base URL of the Vijil API.
+- `evaluation_client` (Evaluations): The Evaluations object.
+- `api_key_client` (APIKeys): The APIKeys object.
+
+
+### register
+
+Register a local agent with the Vijil API. Used to interact with agents that are not OpenAI-compliant. Interactions occur via an ngrok proxy. Returns a tuple containing the localserver instance and the api key name created for the agent as `tuple[LocalServer, str]`.
+
+parameters:
+
+- `agent_name` (str): The name of the agent.
+- `evaluator` (LocalAgentExecutor): The local agent executor to use for evaluation.
+- `rate_limit` (int, optional): The maximum number of requests to the model hub per rate_limit_interval seconds. Defaults to None.
+- `rate_limit_interval` (int, optional): The interval (in seconds) over which the rate limit is applied. Defaults to None.
+
+
+### deregister
+
+Deregister a local agent with the Vijil API.
+
+parameters:
+
+- `server` (LocalServer): The local server instance to deregister.
+- `api_key_name` (str): The name of the API key to delete.
+
+
+### create
+
+### evaluate
+
+Evaluate a local agent. Returns none as `None`.
+
+parameters:
+
+- `agent_name` (str): The name of the agent.
+- `evaluation_name` (str): The name of the evaluation.
+- `agent` (LocalAgentExecutor): The local agent executor instance.
+- `harnesses` (list): The list of harnesses to use for evaluation.
+- `harness_parameters` (dict): The parameters to pass to the harnesses.
+- `rate_limit` (int, optional): The maximum number of requests to the model hub per rate_limit_interval seconds. Defaults to None.
+- `rate_limit_interval` (int, optional): The interval (in seconds) over which the rate limit is applied. Defaults to None.
+- `poll_interval` (float, optional): The interval (in seconds) over which the evaluation status is polled. Defaults to 5.0.
+- `keep_alive` (bool, optional): If True, the system will be kept awake to allow the evaluation to run. Defaults to False.
+- `tags` (List[str], optional): The tags to apply to the evaluation. Defaults to None.
+
+
+## DomeConfigs
+
+:param client: The Vijil client instance.
+
+### get_config
+
+Get the dome config for a specific agent. Returns the dome config for the agent as `dict`.
+
+parameters:
+
+- `agent_id` (str): The unique ID of the agent
+
+
+### get_default_config
+
+Get the default dome config. Returns the default dome config as `dict`.
+
+### update_dome_config
+
+Update the dome config for a specific agent. Returns none as `None`.
+
+parameters:
+
+- `agent_id` (str): The unique ID of the agent
+- `config` (dict): The dome config to set for the agent
+
+
+### delete_dome_config
+
+Delete a dome config by its ID. Returns none as `None`.
+
+parameters:
+
+- `dome_config_id` (str): The ID of the dome config to delete
+
+
+## Vijil
+
+Base class for the Vijil API client.
+
+parameters:
+
+- `base_url` (str): The base URL for the Vijil API
+- `api_key` (str): The API key for the Vijil API
+
