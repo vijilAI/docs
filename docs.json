@@ -306,6 +306,10 @@
                   "legacy/tutorials/evaluate-agents/reports",
                   "legacy/tutorials/evaluate-agents/cicd",
                   {
+                    "group": "Examples",
+                    "pages": ["tutorials/evaluate-agents/examples/playground"]
+                  },
+                  {
                     "group": "Enterprise Deployment of Evaluate",
                     "expanded": true,
                     "pages": [
