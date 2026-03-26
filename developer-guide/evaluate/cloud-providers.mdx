@@ -1,0 +1,327 @@
+---
+title: 'Cloud Provider Integrations'
+description: 'Evaluate agents hosted on major cloud platforms.'
+---
+
+Vijil supports direct evaluation of agents and models hosted on major cloud platforms. This guide covers configuration for each supported provider.
+
+## Supported Providers
+
+| Provider | Hub ID | Supported Targets |
+|----------|--------|-------------------|
+| OpenAI | `openai` | GPT-4o, GPT-4, GPT-3.5 |
+| Anthropic | `anthropic` | Claude 3 family |
+| AWS Bedrock | `bedrock` / `bedrockAgents` | Foundation models, Bedrock Agents |
+| Google Vertex AI | `vertex` | Gemini family |
+| DigitalOcean | `digitalocean` | GenAI Platform agents |
+| Custom | `custom` | Any OpenAI-compatible endpoint |
+
+## OpenAI
+
+### Store Credentials
+
+```python
+from vijil import Vijil
+
+vijil = Vijil()
+
+vijil.api_keys.create(
+    name="openai-key",
+    model_hub="openai",
+    key="sk-..."  # Your OpenAI API key
+)
+```
+
+### Run Evaluation
+
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-4o",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+```
+
+### Supported Models
+
+| Model | Recommended For |
+|-------|-----------------|
+| `gpt-4o` | Production agents |
+| `gpt-4-turbo` | Complex reasoning |
+| `gpt-4` | General use |
+| `gpt-3.5-turbo` | Cost-effective testing |
+
+## Anthropic
+
+### Store Credentials
+
+```python
+vijil.api_keys.create(
+    name="anthropic-key",
+    model_hub="anthropic",
+    key="sk-ant-..."  # Your Anthropic API key
+)
+```
+
+### Run Evaluation
+
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="anthropic",
+    model_name="claude-3-sonnet-20240229",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+```
+
+### Supported Models
+
+| Model | Recommended For |
+|-------|-----------------|
+| `claude-3-opus-*` | Complex analysis |
+| `claude-3-sonnet-*` | Balanced performance |
+| `claude-3-haiku-*` | Fast, cost-effective |
+
+## AWS Bedrock
+
+Bedrock supports both foundation models and custom Bedrock Agents.
+
+### Foundation Models
+
+```python
+vijil.api_keys.create(
+    name="bedrock-key",
+    model_hub="bedrock",
+    hub_config={
+        "region": "us-east-1",
+        "access_key": "AKIA...",
+        "secret_access_key": "..."
+    }
+)
+
+# Run evaluation
+evaluation = vijil.evaluations.create(
+    model_hub="bedrock",
+    model_name="us.amazon.nova-lite-v1:0",  # Prepend "us." to model ID
+    harnesses=["trust_score"]
+)
+```
+
+<Note>
+For Bedrock foundation models, prepend `us.` to the model ID from [AWS's supported models list](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html).
+</Note>
+
+### Bedrock Agents
+
+```python
+vijil.api_keys.create(
+    name="bedrock-agent-key",
+    model_hub="bedrockAgents",
+    hub_config={
+        "agent_id": "your-agent-id",
+        "agent_alias_id": "your-alias-id",
+        "region": "us-east-1",
+        "access_key": "AKIA...",
+        "secret_access_key": "..."
+    },
+    rate_limit_per_interval=60,
+    rate_limit_interval=60
+)
+
+# Register the agent
+vijil.agents.create(
+    name="my-bedrock-agent",
+    model_hub="bedrockAgents",
+    api_key_name="bedrock-agent-key"
+)
+
+# Run evaluation
+evaluation = vijil.evaluations.create(
+    agent_id="agent-id-from-registration",
+    harnesses=["trust_score"]
+)
+```
+
+## Google Vertex AI
+
+### Get Credentials
+
+First, authenticate with Google Cloud:
+
+```bash
+gcloud auth application-default login
+```
+
+Then retrieve the credentials from `~/.config/gcloud/application_default_credentials.json`:
+
+```json
+{
+  "client_id": "XXX.apps.googleusercontent.com",
+  "client_secret": "d-FLXXX",
+  "quota_project_id": "your-project-id",
+  "refresh_token": "xxx-123"
+}
+```
+
+### Store Credentials
+
+```python
+vijil.api_keys.create(
+    name="vertex-key",
+    model_hub="vertex",
+    hub_config={
+        "region": "us-central1",
+        "project_id": "your-project-id",
+        "client_id": "XXX.apps.googleusercontent.com",
+        "client_secret": "d-FLXXX",
+        "refresh_token": "xxx-123"
+    },
+    rate_limit_per_interval=120,
+    rate_limit_interval=60
+)
+```
+
+### Run Evaluation
+
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="vertex",
+    model_name="google/gemini-1.5-flash-001",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+```
+
+### Supported Models
+
+| Model | Description |
+|-------|-------------|
+| `google/gemini-1.5-pro-*` | Most capable |
+| `google/gemini-1.5-flash-*` | Fast and efficient |
+| `google/gemini-1.0-pro-*` | Previous generation |
+
+## DigitalOcean
+
+### Get Agent Credentials
+
+Follow [DigitalOcean's guide](https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/) to get your `agent_id` and `agent_key`.
+
+### Store Credentials
+
+```python
+vijil.api_keys.create(
+    name="digitalocean-key",
+    model_hub="digitalocean",
+    hub_config={
+        "agent_id": "abc-xyz",
+        "agent_key": "xyz-123"
+    },
+    rate_limit_per_interval=60,
+    rate_limit_interval=60
+)
+```
+
+### Run Evaluation
+
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="digitalocean",
+    model_url="https://agent-xxx.ondigitalocean.app/api/v1",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+```
+
+## Custom Endpoints
+
+Evaluate any agent with an OpenAI-compatible API:
+
+### Store Credentials
+
+```python
+vijil.api_keys.create(
+    name="custom-key",
+    model_hub="custom",
+    key="your-api-key"
+)
+```
+
+### Run Evaluation
+
+```python
+evaluation = vijil.evaluations.create(
+    api_key_name="custom-key",
+    model_hub="custom",
+    model_url="https://your-endpoint.com/v1",
+    model_name="your-model-name",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+```
+
+<Note>
+For local agents not yet deployed, use [LocalAgentExecutor](/developer-guide/frameworks/custom-agents) instead.
+</Note>
+
+## Rate Limiting
+
+Control evaluation pace to avoid API throttling:
+
+```python
+vijil.api_keys.create(
+    name="my-key",
+    model_hub="openai",
+    key="sk-...",
+    rate_limit_per_interval=100,  # Max requests
+    rate_limit_interval=60         # Per 60 seconds
+)
+```
+
+### Recommended Rate Limits
+
+| Provider | Requests/min | Notes |
+|----------|--------------|-------|
+| OpenAI | 60-100 | Depends on tier |
+| Anthropic | 60-100 | Depends on tier |
+| Bedrock | 30-60 | Model-dependent |
+| Vertex AI | 60-120 | Project quotas apply |
+
+## Best Practices
+
+<Tip>
+**API Key Security**: Always store API keys through Vijil's secure vault. Never commit keys to version control.
+</Tip>
+
+### For Evaluations
+
+- Use the same model version you'll deploy to production
+- Include realistic system prompts in your agent configuration
+- Set appropriate rate limits to avoid throttling
+- Start with `_Small` harnesses during development
+
+### Troubleshooting
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Invalid API Key" | Key is inactive or incorrect | Verify in provider's dashboard |
+| "Rate Limited" | Too many requests | Reduce rate_limit_per_interval |
+| "Model Not Found" | Invalid model name | Check provider's model list |
+| "Permission Denied" | Key lacks permissions | Check API key scope |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Execute and monitor evaluations
+  </Card>
+  <Card title="Custom Agents" icon="code" href="/developer-guide/frameworks/custom-agents">
+    Evaluate local agents
+  </Card>
+  <Card title="Understanding Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret evaluation results
+  </Card>
+  <Card title="Configure Protection" icon="shield" href="/developer-guide/protect/configuring-guardrails">
+    Set up Dome guardrails
+  </Card>
+</CardGroup>

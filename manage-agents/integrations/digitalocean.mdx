@@ -4,16 +4,19 @@ description: ""
 ---
 If you are building an agent on the DigitalOcean GenAI platform, Vijil Evaluate can help you evaluate it before going to production.
 
+## Prerequisites
+
+- You have a DigitalOcean account with access to the GenAI platform.
+- You have created at least one agent or deployment on DigitalOcean GenAI.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
 To set up an agent on DigitalOcean, follow the instructions [here](https://docs.digitalocean.com/products/genai-platform/getting-started/quickstart/).
 
 ## Store Credentials
 
 Once you have an agent set up, follow the instructions [here](https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/) to fetch the credentials `data-agent-id` and `data-chatbot-id` to access that agent through an API, as well as the agent endpoint.
 
-Now log into Vijil Evaluate, and navigate to **Keys > Add new key**. From the Model Hub dropdown, select *DigitalOcean* as your chosen hub, and add the above information in the respective fields.
-
-![DigitalOcean Hub Config | 60%](/images/image-do.png)
-
+Now log into Vijil Evaluate, and navigate to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**. From the Model Hub dropdown, select *DigitalOcean* as your chosen hub, and add the above information in the respective fields.
 
 Give the API key configuration a name, save it, and you are ready to go!
 
@@ -51,3 +54,24 @@ client.evaluations.create(
 )
 ```
 </CodeGroup>
+
+## Register an Agent on Vijil
+
+Once your DigitalOcean GenAI agent credentials are stored as an API key, you can register an agent that uses this hub from the Vijil UI:
+
+![Setting up a DigitalOcean-based Agent in Vjil](/images/manage-agents/integrations/digitalocean/digitalocean.png)
+
+1. Press **Register Agent**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **DigitalOcean** as the **Hub**.
+4. Enter a DigitalOcean GenAI agent deployment endpoint URL. 
+5. Enter a model name (for example the name configured for your DigitalOcean agent). See your DigitalOcean GenAI configuration for the list of available agents or models.
+6. Select an existing DigitalOcean API key you configured earlier, or create a new one.
+7. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.

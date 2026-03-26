@@ -1,0 +1,326 @@
+---
+title: 'LangChain Agents'
+description: 'Evaluate and protect LangChain agents with Vijil Diamond and Dome.'
+---
+
+LangChain makes it easy to build agents, but the same flexibility that enables powerful workflows also creates risk. A chain that retrieves documents, reasons about them, and takes actions has multiple points where it can be manipulated—through the documents it retrieves, the prompts it receives, or the tools it invokes.
+
+This guide shows you how to evaluate your LangChain agent against adversarial scenarios before deployment, then add runtime guardrails that intercept attacks your evaluations didn't anticipate.
+
+## Overview
+
+Vijil integrates with LangChain at two points:
+
+| Stage | Product | Integration |
+|-------|---------|-------------|
+| **Development** | Diamond | `LocalAgentExecutor` wraps your agent for evaluation |
+| **Production** | Dome | `GuardrailRunnable` adds input/output filtering to chains |
+
+## Part 1: Evaluate Your LangChain Agent
+
+Test your agent's reliability, security, and safety before deployment using Diamond evaluations.
+
+### Prerequisites
+
+- Vijil API key ([get one here](https://console.vijil.ai))
+- ngrok account for local agent tunneling (free tier works)
+- Your LangChain agent
+
+```bash
+pip install vijil langchain langchain-openai
+export VIJIL_API_KEY=your-api-key
+export NGROK_AUTHTOKEN=your-ngrok-token
+```
+
+<Warning>
+Due to how Jupyter handles event loops, run evaluation code in a `.py` script rather than a notebook.
+</Warning>
+
+### Create Input/Output Adapters
+
+Vijil communicates with your agent using OpenAI-compatible messages. Create adapters to translate between Vijil's format and your agent's interface:
+
+```python
+from vijil.local_agents.models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatMessage,
+)
+
+def input_adapter(request: ChatCompletionRequest) -> str:
+    """Extract the user message from Vijil's request format."""
+    return request.messages[-1]["content"]
+
+def output_adapter(agent_output: str) -> ChatCompletionResponse:
+    """Wrap your agent's response in Vijil's expected format."""
+    message = ChatMessage(
+        role="assistant",
+        content=agent_output,
+        tool_calls=None,
+        retrieval_context=None
+    )
+    choice = ChatCompletionChoice(
+        index=0,
+        message=message,
+        finish_reason="stop"
+    )
+    return ChatCompletionResponse(
+        model="langchain-agent",
+        choices=[choice],
+        usage=None
+    )
+```
+
+### Run an Evaluation
+
+Wrap your agent and run a Trust Score evaluation:
+
+```python
+import os
+from vijil import Vijil
+from langchain_openai import ChatOpenAI
+from langchain.schema import SystemMessage, HumanMessage
+
+# Your LangChain agent
+chat = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+
+async def my_langchain_agent(prompt: str) -> str:
+    messages = [
+        SystemMessage(content="You are a helpful assistant."),
+        HumanMessage(content=prompt),
+    ]
+    response = await chat.ainvoke(messages)
+    return response.content
+
+# Create the Vijil client and local agent executor
+vijil = Vijil(api_key=os.getenv("VIJIL_API_KEY"))
+
+local_agent = vijil.local_agents.create(
+    agent_function=my_langchain_agent,
+    input_adapter=input_adapter,
+    output_adapter=output_adapter,
+)
+
+# Run the evaluation
+vijil.local_agents.evaluate(
+    agent_name="my-langchain-agent",
+    evaluation_name="Trust Score Evaluation",
+    agent=local_agent,
+    harnesses=["trust_score"],  # Or use specific harnesses like "security", "ethics"
+    rate_limit=30,
+    rate_limit_interval=1,
+)
+```
+
+The evaluation runs automatically, showing live progress. Press `Ctrl+C` to cancel if needed.
+
+### Available Harnesses
+
+| Harness | Tests |
+|---------|-------|
+| `trust_score` | Comprehensive reliability, security, and safety |
+| `security` | Prompt injection, data leakage, jailbreaks |
+| `reliability` | Hallucinations, consistency, accuracy |
+| `safety` | Harmful content, policy compliance |
+| `ethics` | Bias, fairness, ethical behavior |
+
+Use `_Small` suffix (e.g., `security_Small`) for faster iterations during development.
+
+## Part 2: Protect Your LangChain Agent
+
+Once your agent passes evaluation, add Dome guardrails for runtime protection.
+
+### Install Dome
+
+```bash
+pip install vijil-dome[langchain]
+```
+
+### Create Guardrails
+
+Configure input and output guards:
+
+```python
+from vijil_dome import Dome
+from vijil_dome.integrations.langchain.runnable import GuardrailRunnable
+
+# Configure guards
+config = {
+    "input-guards": ["security-guard"],
+    "output-guards": ["moderation-guard"],
+
+    "security-guard": {
+        "type": "security",
+        "methods": ["prompt-injection-deberta-v3-base"]
+    },
+    "moderation-guard": {
+        "type": "moderation",
+        "methods": ["moderation-flashtext"]
+    }
+}
+
+dome = Dome(config)
+input_guardrail, output_guardrail = dome.get_guardrails()
+
+# Create LangChain runnables
+input_guard = GuardrailRunnable(input_guardrail)
+output_guard = GuardrailRunnable(output_guardrail)
+```
+
+### Add Guards to Your Chain
+
+Insert guardrails into your LCEL chain:
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+prompt = ChatPromptTemplate.from_messages([
+    ('system', "You are a helpful AI assistant."),
+    ('user', '{guardrail_response_message}')
+])
+model = ChatOpenAI(model="gpt-4o-mini")
+parser = StrOutputParser()
+
+# Build the guarded chain
+guarded_chain = (
+    input_guard |
+    prompt |
+    model |
+    parser |
+    (lambda x: {"query": x}) |
+    output_guard |
+    (lambda x: x["guardrail_response_message"])
+)
+
+# Use the chain
+response = guarded_chain.invoke({"query": "What is the capital of France?"})
+```
+
+### Handle Blocked Requests
+
+Use `RunnableBranch` for custom handling when guards trigger:
+
+```python
+from langchain_core.runnables import RunnableBranch
+
+# Define the main chain (runs when input passes)
+main_chain = prompt | model | parser
+
+# Define branches based on guard results
+input_branch = RunnableBranch(
+    (lambda x: x["flagged"], lambda x: "I can't help with that request."),
+    main_chain,
+)
+
+output_branch = RunnableBranch(
+    (lambda x: x["flagged"], lambda x: "I can't provide that response."),
+    lambda x: x["guardrail_response_message"]
+)
+
+# Complete chain with branching
+chain = input_guard | input_branch | output_guard | output_branch
+```
+
+## Complete Example
+
+Here's a full example combining evaluation and protection:
+
+```python
+import os
+from vijil import Vijil
+from vijil_dome import Dome
+from vijil_dome.integrations.langchain.runnable import GuardrailRunnable
+from vijil.local_agents.models import (
+    ChatCompletionRequest, ChatCompletionResponse,
+    ChatCompletionChoice, ChatMessage,
+)
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain.schema import SystemMessage, HumanMessage
+
+# === STEP 1: Define your agent ===
+chat = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+
+async def my_agent(prompt: str) -> str:
+    messages = [
+        SystemMessage(content="You are a helpful assistant."),
+        HumanMessage(content=prompt),
+    ]
+    response = await chat.ainvoke(messages)
+    return response.content
+
+# === STEP 2: Evaluate with Diamond ===
+def input_adapter(req: ChatCompletionRequest) -> str:
+    return req.messages[-1]["content"]
+
+def output_adapter(output: str) -> ChatCompletionResponse:
+    return ChatCompletionResponse(
+        model="my-agent",
+        choices=[ChatCompletionChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=output),
+            finish_reason="stop"
+        )]
+    )
+
+if __name__ == "__main__":
+    vijil = Vijil(api_key=os.getenv("VIJIL_API_KEY"))
+
+    local_agent = vijil.local_agents.create(
+        agent_function=my_agent,
+        input_adapter=input_adapter,
+        output_adapter=output_adapter,
+    )
+
+    # Run evaluation (comment out after passing)
+    vijil.local_agents.evaluate(
+        agent_name="my-agent",
+        evaluation_name="Pre-deployment check",
+        agent=local_agent,
+        harnesses=["trust_score"],
+        rate_limit=30,
+        rate_limit_interval=1,
+    )
+
+# === STEP 3: Protect with Dome ===
+dome = Dome()  # Uses default guards
+input_guardrail, output_guardrail = dome.get_guardrails()
+
+prompt = ChatPromptTemplate.from_messages([
+    ('system', "You are a helpful assistant."),
+    ('user', '{guardrail_response_message}')
+])
+
+protected_chain = (
+    GuardrailRunnable(input_guardrail) |
+    prompt |
+    chat |
+    StrOutputParser() |
+    (lambda x: {"query": x}) |
+    GuardrailRunnable(output_guardrail) |
+    (lambda x: x["guardrail_response_message"])
+)
+
+# Deploy protected_chain in production
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Detailed evaluation options and result analysis
+  </Card>
+  <Card title="Configuring Guardrails" icon="sliders" href="/developer-guide/protect/configuring-guardrails">
+    Advanced guard configuration
+  </Card>
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
+    Build custom detection methods
+  </Card>
+  <Card title="CI/CD Integration" icon="rotate" href="/developer-guide/cicd/overview">
+    Automate evaluation in your pipeline
+  </Card>
+</CardGroup>

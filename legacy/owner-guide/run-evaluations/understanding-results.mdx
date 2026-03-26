@@ -1,0 +1,146 @@
+---
+title: 'Understanding Results'
+description: 'Interpret evaluation findings using the Taxonomy of Trust framework.'
+---
+
+Evaluation results reveal how your agent behaves across the three pillars of trustworthy AI: Reliability, Security, and Safety. This page explains the taxonomy that structures findings and how to prioritize remediation.
+
+## The Trust Score
+
+The Trust Score is a composite metric ranging from 0 to 1 that quantifies how much you can trust your agent in production. It aggregates performance across all evaluated dimensions.
+
+| Score | Status | Interpretation |
+|-------|--------|----------------|
+| ≥ 0.70 | **PASSED** | Agent meets trustworthiness threshold for deployment |
+| < 0.70 | **FAILED** | Agent requires remediation before production use |
+
+The threshold of 0.70 represents a baseline for acceptable behavior. Agents scoring below this threshold exhibited failure modes that pose unacceptable risk.
+
+<Warning>
+A passing Trust Score indicates acceptable performance against tested scenarios. It does not guarantee absence of all vulnerabilities—evaluation coverage depends on the harness configuration and probe selection.
+</Warning>
+
+## Taxonomy of Trust
+
+Vijil organizes agent behavior into a three-level taxonomy:
+
+```
+Trust Score
+├── Reliability
+│   ├── Correctness
+│   ├── Consistency
+│   └── Robustness
+├── Security
+│   ├── Confidentiality
+│   ├── Integrity
+│   └── Availability
+└── Safety
+    ├── Containment
+    ├── Compliance
+    └── Transparency
+```
+
+Each pillar addresses a distinct aspect of trustworthy AI. Failures in any pillar can render an agent unsuitable for production deployment.
+
+## Reliability
+
+Reliability measures whether your agent produces correct, consistent, and robust outputs.
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Correctness** | Factual accuracy, logical validity, task alignment, goal satisfaction |
+| **Consistency** | Self-consistency, cross-session stability, temporal stability, inter-user consistency |
+| **Robustness** | Contextual handling, distributional generalization, operational stability |
+
+## Security
+
+Security measures whether your agent resists attacks on confidentiality, integrity, and availability.
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Confidentiality** | Data leakage resistance, access control, data/user/model privacy |
+| **Integrity** | Adversarial robustness, manipulation resistance, tamper resistance |
+| **Availability** | DoS resistance, graceful degradation, resilience |
+
+## Safety
+
+Safety measures whether your agent operates within acceptable boundaries.
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Containment** | Scope boundaries, capability boundaries, self-modification control |
+| **Compliance** | Policy compliance, norm compliance, ethical behavior |
+| **Transparency** | Explainability, accountability, user controllability |
+
+## Reading the Trust Report
+
+The Trust Report organizes findings by taxonomy level:
+
+### Dimension Breakdown
+
+Each dimension (Reliability, Security, Safety) shows:
+- **Dimension score** — Aggregate performance for this pillar
+- **Subcategory scores** — Performance for each aspect within the dimension
+- **Finding count** — Number of issues identified at each severity level
+
+### Individual Findings
+
+Each finding includes:
+- **Category** — Where in the taxonomy this issue falls
+- **Severity** — Risk level from 1–4
+- **Probe** — The test case that revealed this behavior
+- **Agent Response** — What your agent actually produced
+- **Expected Behavior** — What a trustworthy agent would produce
+- **Recommendation** — Specific remediation guidance
+
+## Prioritizing Remediation
+
+Use severity and taxonomy to prioritize fixes:
+
+**Address immediately (Critical/High severity):**
+- Security vulnerabilities (prompt injection, data leakage)
+- Safety violations (harmful content, scope violations)
+- Reliability failures that affect core functionality
+
+**Address in next release (Medium severity):**
+- Consistency issues across sessions
+- Minor compliance gaps
+- Robustness failures on edge cases
+
+**Track and monitor (Low severity):**
+- Transparency improvements
+- Minor formatting inconsistencies
+- Rare edge case handling
+
+<Tip>
+Focus remediation on root causes rather than individual findings. Multiple findings often share a common root cause—fixing the underlying issue resolves all related symptoms.
+</Tip>
+
+## Comparing Evaluations
+
+Run evaluations before and after changes to track improvement:
+
+| Metric | Before | After | Change |
+|--------|--------|-------|--------|
+| Trust Score | 0.62 | 0.78 | +0.16 |
+| Critical Findings | 3 | 0 | -3 |
+| High Findings | 7 | 2 | -5 |
+
+A rising Trust Score with decreasing critical findings indicates effective remediation. A declining score signals regression—investigate recent changes.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quantifying Risk" icon="chart-pie" href="/owner-guide/audit-agent-behavior/quantifying-risk">
+    Translate findings into risk assessments
+  </Card>
+  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Add runtime protection with Dome
+  </Card>
+  <Card title="Trust Score Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/trust-score">
+    Learn about the standard evaluation
+  </Card>
+  <Card title="Running Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Launch and monitor evaluations
+  </Card>
+</CardGroup>
