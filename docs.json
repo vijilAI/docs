@@ -17,6 +17,11 @@
   "icons": {
     "library": "lucide"
   },
+  "redirects": [
+    { "source": "/get-started/welcome", "destination": "/concepts/what-is-vijil" },
+    { "source": "/get-started/quickstart", "destination": "/developer-guide/getting-started/quickstart" },
+    { "source": "/get-started/overview", "destination": "/owner-guide/getting-started/introduction" }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -25,7 +30,6 @@
           {
             "group": "Overview",
             "pages": [
-              "concepts/welcome",
               "concepts/what-is-vijil"
             ]
           },
@@ -33,29 +37,50 @@
             "group": "Trust Score",
             "pages": [
               "concepts/trust-score/introduction",
-              "concepts/trust-score/reliability",
-              "concepts/trust-score/security",
-              "concepts/trust-score/safety"
+              {
+                "group": "Dimensions of Trust",
+                "icon": "ruler-dimension-line",
+                "expanded": true,
+                "pages": [
+                  "concepts/trust-score/reliability",
+                  "concepts/trust-score/safety",
+                  "concepts/trust-score/security"
+                ]
+              }
             ]
           },
           {
             "group": "Evaluation",
             "pages": [
               "concepts/evaluation-components/introduction",
-              "concepts/evaluation-components/harness",
-              "concepts/evaluation-components/scenario",
-              "concepts/evaluation-components/probe",
-              "concepts/evaluation-components/detector"
+              {
+                "group": "Trust Score Components",
+                "icon": "handshake",
+                "expanded": true,
+                "pages": [
+                  "concepts/evaluation-components/harness",
+                  "concepts/evaluation-components/scenario",
+                  "concepts/evaluation-components/probe",
+                  "concepts/evaluation-components/detector"
+                ]
+              }
             ]
           },
           {
-            "group": "Defense",
+            "group": "Runtime Defense",
             "pages": [
               "concepts/defense/introduction",
-              "concepts/defense/guardrail",
-              "concepts/defense/guard",
-              "concepts/defense/detector",
-              "concepts/defense/observe"
+              {
+                "group": "Defense Components",
+                "icon": "shield-check",
+                "expanded": true,
+                "pages": [
+                  "concepts/defense/guardrail",
+                  "concepts/defense/guard",
+                  "concepts/defense/detector",
+                  "concepts/defense/observe"
+                ]
+              }
             ]
           },
           {
@@ -69,16 +94,14 @@
         ]
       },
       {
-        "tab": "Agent Owner Guide",
+        "tab": "Agent Owner's Guide",
         "groups": [
           {
-            "group": "Get Started",
-            "pages": ["get-started/welcome", "get-started/quickstart", "get-started/overview"],
+            "group": "Quick Start",
             "pages": [
               "owner-guide/getting-started/introduction",
-              "owner-guide/getting-started/enterprise-deployment",
               "owner-guide/getting-started/account-setup",
-              "owner-guide/getting-started/quick-start"
+              "owner-guide/getting-started/enterprise-deployment"
             ]
           },
           {
@@ -88,7 +111,7 @@
             ]
           },
           {
-            "group": "Simulate Environment",
+            "group": "Build an Evaluation Environment",
             "pages": [
               "owner-guide/simulate-environment/personas",
               "owner-guide/simulate-environment/policies",
@@ -102,14 +125,14 @@
             ]
           },
           {
-            "group": "Run Evaluations",
+            "group": "Evaluate Agents",
             "pages": [
               "owner-guide/run-evaluations/running-evaluations",
               "owner-guide/run-evaluations/understanding-results"
             ]
           },
           {
-            "group": "Protect in Production",
+            "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
               "owner-guide/protect-in-production/deploying-dome",
@@ -117,7 +140,7 @@
             ]
           },
           {
-            "group": "Audit Agent Behavior",
+            "group": "Audit & Readiness",
             "pages": [
               "owner-guide/audit-agent-behavior/quantifying-risk",
               "owner-guide/audit-agent-behavior/operational-readiness"
@@ -129,7 +152,7 @@
         "tab": "Agent Developer Guide",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
               "developer-guide/getting-started/installation",
@@ -138,7 +161,7 @@
             ]
           },
           {
-            "group": "Use Frameworks",
+            "group": "Integrations",
             "pages": [
               "developer-guide/frameworks/langchain",
               "developer-guide/frameworks/google-adk",
@@ -163,24 +186,6 @@
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
               "developer-guide/protect/observability"
-            ]
-          },
-          {
-            "group": "Deploy with CI/CD",
-            "pages": [
-              "developer-guide/cicd/overview",
-              "developer-guide/cicd/github-actions",
-              "developer-guide/cicd/gitlab-ci",
-              "developer-guide/cicd/testing-strategies"
-            ]
-          },
-          {
-            "group": "Deploy On-Premises",
-            "pages": [
-              "developer-guide/enterprise/overview",
-              "developer-guide/enterprise/self-hosted",
-              "developer-guide/enterprise/prerequisites",
-              "developer-guide/enterprise/configuration"
             ]
           },
           {
@@ -363,17 +368,14 @@
       "href": "https://console.vijil.ai"
     }
   },
-    "footer": {
+  "footer": {
     "socials": {
       "website": "https://vijil.ai",
       "github": "https://github.com/vijilAI/",
       "linkedin": "https://www.linkedin.com/company/vijil"
     }
   },
-  "banner": {
-    "content": "🚀 Welcome to Vijil Documentation!",
-    "dismissible": true
-  },
+
   "fonts": {
     "family": "Nunito"
   },
@@ -402,5 +404,8 @@
     "fonts": {
       "family": "Nunito"
     }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs"
   }
 }
