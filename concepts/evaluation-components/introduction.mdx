@@ -27,6 +27,17 @@ The flow has three phases:
 - **Detector** → Analyzes the response for specific patterns or behaviors
 - **Pass Rate** → The percentage of probes the agent handled correctly
 - **Trust Score** → The final measure of trustworthiness
+Learn more about trust score components:
+<Columns cols={2}>
+    <Card
+        title="Harness"
+        horizontal
+        icon="box"
+        href="/concepts/evaluation-components/harness"
+        arrow="true"
+    >
+        Learn more about Harnesses
+    </Card>
 
 ## Why This Architecture?
 
@@ -35,6 +46,15 @@ The pipeline exists because trust evaluation has competing requirements.
 **Coverage vs. specificity**: You need broad coverage—hundreds of test cases across multiple attack vectors—but you also need to understand exactly what failed and why. The hierarchy gives you both: aggregate scores at the top, individual probe results at the bottom.
 
 **Standardization vs. customization**: Standard harnesses ensure consistent, comparable results. But every agent is different—different system prompts, different use cases, different risk profiles. Custom harnesses let you test for your specific concerns while maintaining the same evaluation infrastructure.
+    <Card
+        title="Guard"
+        horizontal
+        icon="shield"
+        href="/concepts/defense/guard"
+        arrow="true"
+    >
+        Learn more about Guard
+    </Card>
 
 **Reusability**: Scenarios and probes can be composed into multiple harnesses. A prompt injection scenario appears in both the security harness and the OWASP LLM Top 10 harness. You don't duplicate tests; you compose them.
 
@@ -76,5 +96,11 @@ This drill-down is how you move from "my agent scored 87" to "my agent is vulner
   </Card>
   <Card title="Detector" icon="microscope" href="/concepts/evaluation-components/detector">
     Response analyzers that determine pass/fail
+  </Card>
+  <Card title="Guard" icon="shield" href="/concepts/defense/guard">
+    Specialized protection modules
+  </Card>
+  <Card title="Guardrail" icon="train-track" href="/concepts/defense/guardrail">
+    Configurable protection pipelines
   </Card>
 </CardGroup>
