@@ -73,6 +73,7 @@
         "groups": [
           {
             "group": "Get Started",
+            "pages": ["get-started/welcome", "get-started/quickstart", "get-started/overview"],
             "pages": [
               "owner-guide/getting-started/introduction",
               "owner-guide/getting-started/enterprise-deployment",
@@ -304,6 +305,10 @@
                   "legacy/tutorials/evaluate-agents/local-agent-evaluation",
                   "legacy/tutorials/evaluate-agents/reports",
                   "legacy/tutorials/evaluate-agents/cicd",
+                  {
+                    "group": "Examples",
+                    "pages": ["tutorials/evaluate-agents/examples/playground"]
+                  },
                   {
                     "group": "Enterprise Deployment of Evaluate",
                     "expanded": true,
