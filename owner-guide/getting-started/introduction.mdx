@@ -1,121 +1,162 @@
 ---
-title: 'Shipping with Trust'
-description: 'Objective evidence for agent deployment decisions—whether you need to ship fast or approve safely.'
+title: 'Get Started'
+description: 'Why teams use Vijil for trust evidence, then register an agent, run an evaluation, and turn on Dome—from the console.'
 ---
 
-## Evidence of Trustworthiness
+## Evidence you can ship on
 
-AI agents stall between development and production. Security wants proof the agent won't leak data. Compliance wants proof it follows policy. The business wants proof it actually works. Without objective evidence, these conversations become negotiations based on intuition, and agents sit in pilot programs indefinitely.
+AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This guide shows you how to generate that evidence. You'll learn to evaluate agents against specific failure modes, quantify risk in terms stakeholders understand, and make deployment decisions backed by data.
+This page explains how Vijil helps both sides—then walks through the **console**: register an agent, run an evaluation, read your **Trust Report**, and configure **Dome** guardrails.
 
 <Info>
-If you're a developer integrating Vijil into your codebase, see the [Developer Guide](/get-started/welcome). This guide focuses on evaluation workflows through the Vijil console.
+If you integrate via APIs and code, use the [Developer Guide](/developer-guide/getting-started/introduction). This guide focuses on the **Vijil console**.
 </Info>
 
-## Two Stakeholders, One Decision
-
-Agent deployment requires sign-off from people with different priorities. This guide serves both:
+## Who this is for
 
 <CardGroup cols={2}>
-  <Card title="Business Owner" icon="rocket">
-    **Your goal:** Deploy an agent that delivers business value.
-
-    You're accountable for an agent that will serve customers, generate content, or automate workflows. You need it in production—but you need evidence that justifies that decision.
-
-    **What you get from Vijil:**
-    - Fast evaluation cycles that don't block releases
-    - Clear pass/fail criteria you can plan against
-    - Evidence that satisfies reviewers without over-testing
-
-    **Key Tasks:**
-    - <Icon icon="square-check" /> [Run Evaluations](/owner-guide/run-evaluations/running-evaluations) — Test efficiently
-    - <Icon icon="square-check" /> [Understand Results](/owner-guide/run-evaluations/understanding-results) — Know when you're ready
-    - <Icon icon="square-check" /> [Deliver Trust Reports](/owner-guide/run-evaluations/understanding-results) — Evidence for stakeholders
+  <Card title="Business owner" icon="rocket">
+    Ship agents that deliver value with **fast evaluation cycles**, **clear pass/fail criteria**, and **reports** stakeholders can use—without endless ad hoc testing.
   </Card>
-  <Card title="Risk Officer" icon="shield">
-    **Your goal:** Approve agents with quantified, acceptable risk.
-
-    You're accountable for security, privacy, and compliance. You need to authorize deployment—but you need evidence that the risk is understood and mitigated.
-
-    **What you get from Vijil:**
-    - Quantified risk across security, safety, and reliability
-    - Audit-ready evidence with versioned reports
-    - Compensating controls when residual risk remains
-
-    **Key Tasks:**
-    - <Icon icon="square-check" /> [Set Policies](/owner-guide/simulate-environment/policies) — Testable requirements
-    - <Icon icon="square-check" /> [Review Trust Reports](/owner-guide/run-evaluations/understanding-results) — Defensible audit artifacts
-    - <Icon icon="square-check" /> [Audit Agent Behavior](/owner-guide/protect-in-production/observability) — Continuous risk visibility
+  <Card title="Risk owner" icon="shield">
+    Approve with **quantified** reliability, security, and safety; **versioned, audit-style** artifacts; and visibility into **residual risk** and compensating controls.
   </Card>
 </CardGroup>
 
-## Balance Speed and Risk with Vijil
+## One metric both sides can use
 
-These roles have competing pressures:
+| | Business owner | Risk owner |
+|---|----------------|------------|
+| **Pressure** | Delivery speed | Risk reduction |
+| **Question** | “Can we ship?” | “Can I defend approving this?” |
 
-| Business Owner | Risk Officer |
-|----------------|--------------|
-| Measured on delivery speed | Measured on risk prevention |
-| Asks: "Is this agent ready to ship?" | Asks: "Can I prove this agent is safe?" |
-| Frustrated by review delays | Frustrated by pressure to approve without evidence |
+**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**—a reproducible score from a defined harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
 
-**Vijil resolves this tension with shared evidence.** The [Trust Score](/concepts/trust-score/introduction) provides an objective metric both parties can reference. Before testing, you agree on the threshold. After testing, you compare results to that threshold. The decision becomes mechanical rather than political.
+Vijil measures **reliability**, **security**, and **safety**—the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
-This works because evaluation results are:
-- **Quantified** — A score, not an opinion
-- **Reproducible** — Same agent, same [harness](/concepts/evaluation-components/harness), comparable results
-- **Auditable** — Timestamped reports with full test parameters
+## Console walkthrough
 
-When Business Owners and Risk Officers align on criteria upfront, deployment decisions stop being negotiations.
+You will **register** the agent, **run** an evaluation (built-in Trust Score harness or a custom harness), **read** the report, then **protect** the agent with Dome.
 
-### What Vijil Measures
+### 1. Register your agent
 
-Agents fail in ways that don't look like bugs. They hallucinate facts, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Vijil evaluates agents across three dimensions that capture these failure modes:
+Open **Agents** → **+ Register Agent**.
 
-| Dimension | What It Measures | Example Failures |
-|-----------|------------------|------------------|
-| **Reliability** | Does the agent do what it's supposed to do? | Hallucinations, task failures, inconsistent responses |
-| **Security** | Can the agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
-| **Safety** | Does the agent stay within acceptable boundaries? | [Policy](/concepts/glossary#policy-1) violations, harmful content, unauthorized actions |
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-agent-registry.png" alt="Agent Registry showing registered agents with status and Trust Score" />
+</Frame>
 
-Each evaluation produces a **Trust Score**—a quantitative measure of where the agent is strong, where it's vulnerable, and how it compares to alternatives.
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-register-agent-new.png" alt="Register Agent modal with Black Box, Grey Box, and White Box options" />
+</Frame>
 
-<Note>
-For detailed breakdowns of each dimension, see [The Trust Score](/concepts/trust-score/introduction) in the Concepts guide.
-</Note>
+| Level | You provide | Vijil can test |
+|-------|-------------|----------------|
+| **Black Box** | Description, endpoint, credentials | Input/output behavior |
+| **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
+| **White Box** | Full config and source | Deeper audit-style analysis |
 
-## Get to the baseline in 5 minutes
+For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit—then **Register Agent**.
 
-Get to your first Trust Score in five steps:
+<Tip>
+If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
+</Tip>
 
-<Steps>
-  <Step title="Create your account">
-    Sign up at [console.vijil.ai](https://console.vijil.ai) and set up your workspace.
-  </Step>
-  <Step title="Register your agent and its environment">
-    Add your agent by providing as little information as only it's URL and description or as much information as its source code. Vijil uses the behavior and composition of the agent to test and defend it.
-  </Step>
-  <Step title="Select a harness">
-    Select the **Trust Score** harness for comprehensive testing, or build your own harness with your user personas and org policies.
-  </Step>
-  <Step title="Run an evaluation">
-    Execute the harness against your agent. Diamond runs hundreds of probes and returns a Trust Score in minutes.
-  </Step>
-  <Step title="Review your Trust Report">
-    Examine where your agent passed and failed. Each finding includes the failure mode, severity, and remediation guidance.
-  </Step>
-</Steps>
+### 2. (Optional) Custom harness
 
-Once you have these baseline evaluation results, you can [configure Dome guardrails](/owner-guide/protect-in-production/configuring-guardrails) for runtime protection and [set up observability](/owner-guide/protect-in-production/observability) for continuous visibility.
+For a baseline, you can skip this and use the **Trust Score** harness in the next step.
 
-## Next Steps
+To test **your** personas and **org policies**, go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, agent, **personas** (who talks to the agent), and **policies** (rules it must follow)—then generates test cases.
+
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-create-harness-new.png" alt="Create Harness wizard showing the four-step configuration flow" />
+</Frame>
+
+Set the harness to **Active** when you are ready. More depth: [Custom harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
+
+### 3. Run an evaluation
+
+Open **Evaluations**. Pick the **agent** and a **harness**:
+
+- **Trust Score** — all three dimensions at once (toggle dimensions if you need a narrower run).
+- **Custom** — the harness you configured above.
+
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-evaluations.png" alt="Diamond Evaluations page showing agent selection and Trust Score dimensions" />
+</Frame>
+
+**Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
+
+### 4. Read the Trust Report
+
+Open the report from the results list. You get a **Trust Score** (pass/fail threshold is typically **0.70**), per-harness breakdown, spec used, and remediation-oriented findings.
+
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-evaluation-report.png" alt="Trust Report showing agent evaluation results with Trust Score" />
+</Frame>
+
+| Score | Read | Typical next step |
+|-------|------|-------------------|
+| **≥ 0.70** | Pass | Ship with normal monitoring |
+| **0.50–0.69** | Marginal | Strongly consider Dome and extra monitoring |
+| **Below 0.50** | Fail | Remediate before production |
+
+<Warning>
+The score reflects **what the harness exercised**, not a guarantee that every possible failure is impossible.
+</Warning>
+
+### 5. Configure Dome
+
+Open **Guardrails**. **Domed** vs **Unprotected** shows coverage. **Configure Guardrails** opens **input** and **output** pipelines (e.g. security, moderation, privacy). Add guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
+
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-dome-dashboard.png" alt="Dome Guardrails dashboard showing agent protection status" />
+</Frame>
+
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-dome-config.png" alt="Dome configuration showing input and output guards" />
+</Frame>
+
+<Frame>
+  <img src="/images/owner-guide/getting-started/quick-start/quickstart-execution-flow.png" alt="Execution Flow showing a test prompt flowing through Security, Moderation, and Privacy guards" />
+</Frame>
+
+Save when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
+
+### 6. Wire Dome in your app
+
+Use the SDK so traffic passes through Dome before and after your model:
+
+```python
+from vijil import Dome
+
+dome = Dome(
+    api_key="your-vijil-api-key",
+    agent_id="your-agent-id"
+)
+
+safe_input = dome.guard_input(user_message)
+safe_output = dome.guard_output(agent_response)
+```
+
+Details: [Installation](/developer-guide/getting-started/installation) and [Configuring guardrails](/owner-guide/protect-in-production/configuring-guardrails).
+
+---
+
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Account Setup" icon="user-plus" href="/owner-guide/getting-started/account-setup">
-    Configure your workspace and team permissions
+  <Card title="Account setup" icon="user-plus" href="/owner-guide/getting-started/account-setup">
+    Workspace, access, and team
   </Card>
-  <Card title="First Evaluation" icon="play" href="/owner-guide/getting-started/quick-start">
-    Run your first evaluation and interpret the results
+  <Card title="Run evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Deeper evaluation workflows
+  </Card>
+  <Card title="Understand results" icon="chart-line" href="/owner-guide/run-evaluations/understanding-results">
+    Reports and stakeholder evidence
+  </Card>
+  <Card title="Enterprise deployment" icon="building" href="/owner-guide/getting-started/enterprise-deployment">
+    Production rollout options
   </Card>
 </CardGroup>
