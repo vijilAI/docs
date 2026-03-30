@@ -3,233 +3,156 @@ title: 'Custom Harnesses'
 description: 'Create targeted evaluations with custom harnesses, personas, and policies.'
 ---
 
-Custom harnesses let you create evaluations tailored to your agent's specific use case. Define personas (who interacts with your agent) and policies (what rules it must follow) to generate targeted test probes.
+While Vijil has a variety of pre-configured [Harnesses](/concepts/components/harness) that you can select from, you can also create your own Harnesses in order to obtain a trust score specific to your organization and agent.
 
-## When to Use Custom Harnesses
+## View Custom Harnesses
 
-Use custom harnesses when:
+You can view previously created custom Harnesses by navigating to [Harnesses](https://evaluate.vijil.ai/harnesses) in the left sidebar.
 
-- Your agent serves a specific audience (e.g., enterprise customers, healthcare patients)
-- Your agent must comply with domain-specific policies
-- Standard harnesses don't cover your use case
-- You need reproducible evaluations across agent versions
+To view the prompts in a custom Harness, click on its row in the **Harnesses** table.
 
-## Creating a Harness
+## Create a Custom Harness
 
-A harness combines personas and policies to generate evaluation scenarios:
+1. In the left sidebar, navigate to [Harnesses](https://evaluate.vijil.ai/harnesses) and click **Create Harness**.
+2. Enter a Harness name and a description.
 
-```python
-from vijil import Vijil
+<Tabs>
+    <Tab title="Select Prompts">
+        1. Select an existing prompt, or create a new one by pressing **Add Prompt**.
+        2. Press Create.
+    </Tab>
+    <Tab title="Generate Prompts">
+        1. Specify one more existing [Agents](/manage-agents/integrations/platform). If you do not have an existing Agent, press **Register Agent**.
+        2. Specify up to 3 **Personas**.
+        <Info>
+            Personas define structured user archetypes used to condition evaluations and analyze model behavior across demographic and contextual variations.
+        </Info>
+        3. Specify one or more Policy Requirements. You can choose existing, or upload your own.
+        <Info>
+            Specify regulatory or security frameworks to align [Evaluations](/developer-guide/evaluate/evaluations) with compliance and policy constraints.
+        </Info>
+        4. Specify optional dimensionality tests (Reliability, Security, and Safety)
+        5. Press Create.
+    </Tab>
+</Tabs>
 
-vijil = Vijil()
 
-harness = vijil.harnesses.create(
-    name="Customer Support Compliance",
-    description="Tests support bot for policy compliance and user safety",
-    agent_id="agent-123",
-    persona_ids=["enterprise-user", "frustrated-customer"],
-    policy_ids=["privacy-policy", "brand-guidelines"]
+## Create a Custom Harness using Python
+
+The following example assumes that you have already initialized a Vijil [client](/owner-guide/getting-started/quick-start) named `client`.
+
+### Policy Document(s)
+
+You can create a custom policy adherence Harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you do not provide a policy file, Vijil will create a harness based only on the provided system prompt. To specify that you want a policy adherence harness, you need to specify the `category` argument as `["AGENT_POLICY"]`.
+
+The following examples uses the `harnesses.create` function to create a Harness to test adherence against the NIST [AI Risk Management](https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf) framework.
+
+<CodeGroup>
+```python title="python" icon="python"
+harness_creation_job = client.harnesses.create(
+    harness_name="NIST AI RMF harness",
+    system_prompt="You are a helpful assistant.",
+    policy_file_path="nist.ai.100-1.pdf",
+    category=["AGENT_POLICY"]
+)
+# {'harness_name': 'NIST AI RMF harness', 'harness_config_id': '816725ab-c101-4380-b8d4-92fcc367cf6d', 'status': 'CREATED'}
+```
+</CodeGroup>
+
+You can use the `get_status` command to know the status of a Harness creation job.
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.harnesses.get_status(harness_id=harness['harness_config_id'])
+# {'created_by': 'f6e0b128-c075-4bc3-91da-34d03fa6c67e',
+#  'created_at': 1741819347,
+#  'id': '654289d2-d4c4-40fb-b893-120ab3978a69',
+#  'harness_config_id': '85482e8b-a8b4-4cac-a4a2-92b4f4f6e56e',
+#  'harness_name': 'NIST AI RMF harness',
+#  'team_id': '00ccc042-1b41-4f02-ae5f-6a09b5e6e844',
+#  'status': 'COMPLETED',
+#  'status_message': 'Harness NIST AI RMF harness updated successfully!',
+#  'agent_system_prompt': 'you are a helpful assistant',
+#  'started_at': None,
+#  'completed_at': None,
+#  'harness_config_version': '1.0.0'}
+```
+</CodeGroup>
+
+The `harness_config_version` starts at 1.0.0 for any Harness of the given Harness name. If you create another Harness with the same name, vijil automatically increments the Harness version, e.g. from 1.0.0 to 1.0.1. In the above example, you assume that `NIST AI RMF harness` is a new harness name, so you set the version to 1.0.0.
+
+Once the Harness is created, you can [run an evaluation](/developer-guide/evaluate/evaluations#creating-an-evaluation) with it:
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.create(
+    harnesses=[harness_creation_job['harness_config_id']],
+    model_hub=your_model_hub,
+    model_name=your_model
 )
 ```
+</CodeGroup>
 
-### Harness Parameters
+### Knowledge Base (Enterprise Only)
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| `name` | Human-readable harness name | Yes |
-| `description` | What this harness tests | No |
-| `agent_id` | Agent to associate with | Yes |
-| `persona_ids` | List of persona IDs to include | Yes |
-| `policy_ids` | List of policy IDs to enforce | No |
+If you are developing a RAG agent and would like to generate a custom test Harness to evaluate generation and retrieval capabilities based on a set of document chunks, upload the documents that you would like to base the evaluation on into a GCP storage bucket and use the following command. To specify that you want a RAG Harness, set the `category` parameter to `["KNOWLEDGE_BASE"]`.
 
-## Managing Personas
-
-Personas represent the types of users who interact with your agent.
-
-### Create a Persona
-
-```python
-persona = vijil.personas.create(
-    name="Enterprise Admin",
-    description="IT administrator managing company accounts",
-    traits={
-        "technical_level": "high",
-        "intent": "administrative tasks",
-        "tone": "professional"
-    }
+<CodeGroup>
+```python title="Python" icon="python"
+harness_creation_job = client.harnesses.create(
+    harness_name="Your KB harness",
+    system_prompt="You are a RAG agent that answers questions based on a knowledge base.",
+    kb_bucket="your_bucket_name",
+    category=["KNOWLEDGE_BASE"]
 )
 ```
+</CodeGroup>
 
-### List Personas
+### Tool Calling Agent (Enterprise Only)
 
-```python
-personas = vijil.personas.list()
+To evaluate a tool calling agent, you need to supply input and output schemas for a function that you want to generate test prompts based on, as well as an endpoint to call that function. To specify that you want a tool calling Harness, set the `category` parameter to `["FUNCTION_ROUTE"]`.
 
-for p in personas:
-    print(f"{p.get('id')}: {p.get('name')}")
+For example, you are calling a `calculator` function to compute the sum of two numbers `num1` and `num2`, and returns the variable `result`. Thus input and output schema are
+
+```
+input_schema = {
+  "num1": {
+    "type": "number",
+    "required": True,
+    "description": "the first number"
+  },
+  "num2": {
+    "type": "number",
+    "required": True,
+    "description": "the second number"
+  }
+}
+output_schema = {
+  "result": {
+    "type": "number",
+    "description": "The final result"
+  }
+}
 ```
 
-### Persona Examples
+In addition, suppose the variable `function_route` stores the URL required to call the function with the two arguments and return the result. Then, the following command creates a Harness creation job.
 
-| Persona | Description | Use Case |
-|---------|-------------|----------|
-| Power User | Technically sophisticated, pushes boundaries | Security testing |
-| New User | Unfamiliar with system, needs guidance | Reliability testing |
-| Adversarial User | Attempts to misuse the system | Security/safety testing |
-| Frustrated Customer | Upset, uses strong language | Safety/moderation testing |
-
-## Managing Policies
-
-Policies define rules your agent must follow.
-
-### Create a Policy
-
-```python
-policy = vijil.policies.create(
-    name="Data Privacy Policy",
-    description="Agent must not reveal or process PII inappropriately",
-    rules=[
-        "Never ask for social security numbers",
-        "Redact credit card numbers in responses",
-        "Do not store personal health information"
-    ]
+<CodeGroup>
+```python title="Python" icon="python"
+harness_creation_job = client.harnesses.create(
+    harness_name="Your tool calling harness",
+    system_prompt="You are a calculator agent that calls a function to calculate the sum of two numbers.",
+    input_schema = input_schema,
+    output_schema = input_schema,
+    function_route = function_route,
+    category=["FUNCTION_ROUTE"]
 )
 ```
+</CodeGroup>
 
-### Policy Examples
+### Custom Harness with Multple Components
 
-| Policy | Description | Rules |
-|--------|-------------|-------|
-| Brand Voice | Maintain consistent tone | Professional language, no slang |
-| Privacy | Protect user data | No PII collection, data minimization |
-| Compliance | Regulatory requirements | GDPR consent, HIPAA safeguards |
-| Safety | Prevent harm | No dangerous instructions, crisis escalation |
-
-## Using Custom Harnesses
-
-### Run Evaluation
-
-```python
-evaluation = vijil.evaluations.create(
-    agent_id="agent-123",
-    harness=f"custom:{harness.get('id')}"
-)
-```
-
-### Combine with Standard Harnesses
-
-```python
-evaluation = vijil.evaluations.create(
-    agent_id="agent-123",
-    harnesses=[
-        "security_Small",           # Standard security harness
-        f"custom:{harness.get('id')}"  # Your custom harness
-    ]
-)
-```
-
-## Managing Harnesses
-
-### List Harnesses
-
-```python
-harnesses = vijil.harnesses.list()
-
-for h in harnesses:
-    print(f"{h.get('id')}: {h.get('name')} ({h.get('status')})")
-```
-
-### Update a Harness
-
-```python
-updated = vijil.harnesses.update(
-    harness.get("id"),
-    persona_ids=["enterprise-user", "frustrated-customer", "new-customer"],
-    policy_ids=["privacy-policy", "brand-guidelines", "compliance-policy"]
-)
-```
-
-### Delete a Harness
-
-```python
-vijil.harnesses.delete(harness.get("id"))
-```
-
-## Example: Healthcare Agent
-
-Create a comprehensive harness for a healthcare assistant:
-
-```python
-# Create personas
-patient = vijil.personas.create(
-    name="Patient",
-    description="Person seeking health information",
-    traits={"medical_knowledge": "low", "anxiety_level": "variable"}
-)
-
-caregiver = vijil.personas.create(
-    name="Family Caregiver",
-    description="Person caring for a family member",
-    traits={"medical_knowledge": "moderate", "seeking": "guidance"}
-)
-
-# Create policies
-hipaa = vijil.policies.create(
-    name="HIPAA Compliance",
-    rules=[
-        "Never store or transmit PHI without consent",
-        "Refer to healthcare providers for diagnosis",
-        "Maintain audit trail of health-related queries"
-    ]
-)
-
-safety = vijil.policies.create(
-    name="Medical Safety",
-    rules=[
-        "Always recommend professional consultation for symptoms",
-        "Never provide dosage recommendations",
-        "Escalate crisis situations immediately"
-    ]
-)
-
-# Create harness
-healthcare_harness = vijil.harnesses.create(
-    name="Healthcare Assistant Compliance",
-    description="Tests healthcare bot for HIPAA and safety compliance",
-    agent_id="healthcare-agent-id",
-    persona_ids=[patient.get("id"), caregiver.get("id")],
-    policy_ids=[hipaa.get("id"), safety.get("id")]
-)
-
-# Run evaluation
-evaluation = vijil.evaluations.create(
-    agent_id="healthcare-agent-id",
-    harness=f"custom:{healthcare_harness.get('id')}"
-)
-```
-
-## Best Practices
-
-### Persona Design
-
-- Create diverse personas representing your actual user base
-- Include edge cases (frustrated users, technical experts, beginners)
-- Consider adversarial personas for security testing
-- Update personas as you learn from production usage
-
-### Policy Design
-
-- Keep policies specific and testable
-- Map policies to regulatory requirements where applicable
-- Include both prohibitions and requirements
-- Version policies alongside your agent
-
-### Harness Management
-
-- Name harnesses descriptively (e.g., "Q1-2024 Compliance Check")
-- Document what each harness tests
-- Create separate harnesses for different evaluation goals
-- Archive old harnesses rather than deleting for audit trail
+In the above examples, only one value is specified in `category`, but you can also create a Harness that contains multiple components. For example, you can create a Harness that contains a knowledge base component and a tool calling agent component, or any of those components together with a policy adherence component. To do this, specify multiple values in `category`. For example, to create a Harness with all three components, use `category=["KNOWLEDGE_BASE", "FUNCTION_ROUTE", "POLICY_ADHERENCE"]`.
 
 ## Next Steps
 

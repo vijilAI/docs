@@ -1,0 +1,78 @@
+---
+title: "DigitalOcean (Legacy)"
+description: "Legacy DigitalOcean integration docs copied from the integrations-section branch."
+---
+If you are building an agent on the DigitalOcean GenAI platform, Vijil Evaluate can help you evaluate it before going to production.
+
+## Prerequisites
+
+- You have a DigitalOcean account with access to the GenAI platform.
+- You have created at least one agent or deployment on DigitalOcean GenAI.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/owner-guide/register-agents/registering-agents)**.
+
+To set up an agent on DigitalOcean, follow the instructions [here](https://docs.digitalocean.com/products/genai-platform/getting-started/quickstart/).
+
+## Store Credentials
+
+Once you have an agent set up, follow the instructions [here](https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/) to fetch the credentials `data-agent-id` and `data-chatbot-id` to access that agent through an API, as well as the agent endpoint.
+
+Now log into Vijil Evaluate, and navigate to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**. From the Model Hub dropdown, select *DigitalOcean* as your chosen hub, and add the above information in the respective fields.
+
+Give the API key configuration a name, save it, and you are ready to go!
+
+To add the credentials using the python client, you need to supply the fields inside the `hub_config` argument.
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.api_keys.create(
+    name="digitalocean-test",
+    model_hub="digitalocean",
+    hub_config={
+        "agent_id": "abc-xyz",
+        "agent_key": "xyz-123"
+    }
+    rate_limit_per_interval=60, # optional
+    rate_limit_interval=60 # optional
+)
+```
+</CodeGroup>
+
+
+## Run an Evaluation
+
+To run an evaluation from the UI, simply select *DigitalOcean* as the Model Hub, then paste the agent endpoint as the *Model URL*.
+
+To run an evaluation using the Python client, use the following code pattern, with the agent API as `model_url` and a harness of your choice.
+
+<CodeGroup>
+```python title="Python" icon="python"
+client.evaluations.create(
+    model_hub="digitalocean",
+    model_url="https://agent-xxx.ondigitalocean.app/api/v1",
+    model_params={"temperature": 0},
+    harnesses=["hallucination"]
+)
+```
+</CodeGroup>
+
+## Register an Agent on Vijil
+
+Once your DigitalOcean GenAI agent credentials are stored as an API key, you can register an agent that uses this hub from the Vijil UI:
+
+![Setting up a DigitalOcean-based Agent in Vjil](/images/owner-guide/register-agents/integrations/digitalocean.png)
+
+1. Press **Register Agent**.
+2. Enter an [Agent](/owner-guide/register-agents/registering-agents) name.
+3. Select **DigitalOcean** as the **Hub**.
+4. Enter a DigitalOcean GenAI agent deployment endpoint URL. 
+5. Enter a model name (for example the name configured for your DigitalOcean agent). See your DigitalOcean GenAI configuration for the list of available agents or models.
+6. Select an existing DigitalOcean API key you configured earlier, or create a new one.
+7. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.
+
