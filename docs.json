@@ -18,9 +18,18 @@
     "library": "lucide"
   },
   "redirects": [
-    { "source": "/get-started/welcome", "destination": "/concepts/what-is-vijil" },
-    { "source": "/get-started/quickstart", "destination": "/developer-guide/getting-started/quickstart" },
-    { "source": "/get-started/overview", "destination": "/owner-guide/getting-started/introduction" }
+    {
+      "source": "/get-started/welcome",
+      "destination": "/concepts/what-is-vijil"
+    },
+    {
+      "source": "/get-started/quickstart",
+      "destination": "/developer-guide/getting-started/quickstart"
+    },
+    {
+      "source": "/get-started/overview",
+      "destination": "/owner-guide/getting-started/introduction"
+    }
   ],
   "navigation": {
     "tabs": [
@@ -100,8 +109,7 @@
             "group": "Quick Start",
             "pages": [
               "owner-guide/getting-started/introduction",
-              "owner-guide/getting-started/account-setup",
-              "owner-guide/getting-started/enterprise-deployment"
+              "owner-guide/getting-started/account-setup"
             ]
           },
           {
@@ -155,9 +163,7 @@
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/installation",
-              "developer-guide/getting-started/authentication",
-              "developer-guide/getting-started/quickstart"
+              "developer-guide/getting-started/enterprise-deployment"
             ]
           },
           {
@@ -312,7 +318,9 @@
                   "legacy/tutorials/evaluate-agents/cicd",
                   {
                     "group": "Examples",
-                    "pages": ["tutorials/evaluate-agents/examples/playground"]
+                    "pages": [
+                      "tutorials/evaluate-agents/examples/playground"
+                    ]
                   },
                   {
                     "group": "Enterprise Deployment of Evaluate",
@@ -375,7 +383,6 @@
       "linkedin": "https://www.linkedin.com/company/vijil"
     }
   },
-
   "fonts": {
     "family": "Nunito"
   },
