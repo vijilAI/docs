@@ -24,10 +24,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "concepts/welcome",
-              "concepts/what-is-vijil"
-            ]
+            "pages": ["concepts/welcome", "concepts/what-is-vijil"]
           },
           {
             "group": "Trust Score",
@@ -60,11 +57,7 @@
           },
           {
             "group": "Reference",
-            "pages": [
-              "concepts/glossary",
-              "concepts/component-reference",
-              "concepts/release-notes"
-            ]
+            "pages": ["concepts/glossary", "concepts/component-reference", "concepts/release-notes"]
           }
         ]
       },
@@ -73,7 +66,6 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["get-started/welcome", "get-started/quickstart", "get-started/overview"],
             "pages": [
               "owner-guide/getting-started/introduction",
               "owner-guide/getting-started/enterprise-deployment",
@@ -83,9 +75,7 @@
           },
           {
             "group": "Register Agents",
-            "pages": [
-              "owner-guide/register-agents/registering-agents"
-            ]
+            "pages": ["owner-guide/register-agents/registering-agents"]
           },
           {
             "group": "Simulate Environment",
@@ -114,13 +104,6 @@
               "owner-guide/protect-in-production/configuring-guardrails",
               "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
-            ]
-          },
-          {
-            "group": "Audit Agent Behavior",
-            "pages": [
-              "owner-guide/audit-agent-behavior/quantifying-risk",
-              "owner-guide/audit-agent-behavior/operational-readiness"
             ]
           }
         ]
@@ -200,10 +183,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": [
-              "legacy/get-started/welcome",
-              "legacy/get-started/quickstart"
-            ]
+            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
           },
           {
             "group": "Core Concepts",
@@ -268,9 +248,7 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": [
-              "legacy/evaluate-agents/introduction"
-            ]
+            "pages": ["legacy/evaluate-agents/introduction"]
           },
           {
             "group": "Tutorials",
@@ -363,7 +341,7 @@
       "href": "https://console.vijil.ai"
     }
   },
-    "footer": {
+  "footer": {
     "socials": {
       "website": "https://vijil.ai",
       "github": "https://github.com/vijilAI/",
