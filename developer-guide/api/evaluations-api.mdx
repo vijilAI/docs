@@ -1,0 +1,499 @@
+---
+title: 'Evaluations API'
+description: 'REST API reference for running and managing agent evaluations.'
+---
+
+The Evaluations API allows you to programmatically run evaluations against your agents, monitor their progress, and retrieve results.
+
+## Actions
+
+| Action | Description |
+|--------|-------------|
+| [CreateEvaluation](#createevaluation) | Create and start a new evaluation |
+| [GetEvaluationStatus](#getevaluationstatus) | Get the current status of an evaluation |
+| [GetEvaluationResults](#getevaluationresults) | Retrieve results from a completed evaluation |
+| [ListEvaluations](#listevaluations) | List evaluations with optional filtering |
+| [CancelEvaluation](#cancelevaluation) | Cancel a running evaluation |
+| [DeleteEvaluation](#deleteevaluation) | Delete an evaluation and its results |
+
+---
+
+## CreateEvaluation
+
+Creates and starts a new evaluation against an agent or model.
+
+### Request Syntax
+
+```http
+POST /v1/evaluations HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {api_key}
+
+{
+  "model_hub": "string",
+  "model_name": "string",
+  "harnesses": ["string"],
+  "agent_id": "string",
+  "model_params": {
+    "temperature": number,
+    "max_tokens": number
+  },
+  "system_prompt": "string",
+  "api_key_value": "string"
+}
+```
+
+### Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **model_hub** | String | Conditional | Model provider. One of: `openai`, `anthropic`, `bedrock`, `vertex`, `digitalocean`, `custom`. Required if `agent_id` not provided. |
+| **model_name** | String | Conditional | Model identifier (e.g., `gpt-4o`, `claude-3-sonnet`). Required if `agent_id` not provided. |
+| **harnesses** | Array of String | Yes | Harnesses to run. Valid values: `trust_score`, `security`, `reliability`, `safety`, or custom harness IDs. |
+| **agent_id** | String | Conditional | ID of a registered agent. Required if `model_hub` not provided. |
+| **model_params** | Object | No | Model parameters. See [Model Parameters](#model-parameters). |
+| **system_prompt** | String | No | System prompt to use for the evaluation. |
+| **api_key_value** | String | Conditional | API key for the model provider. Required if `model_hub` provided and key not stored. |
+
+#### Model Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| **temperature** | Number | Sampling temperature (0.0–2.0). Default: 0. |
+| **max_tokens** | Number | Maximum tokens in response. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+  "id": "string",
+  "status": "string",
+  "created_at": "string",
+  "harnesses": ["string"]
+}
+```
+
+### Response Elements
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **id** | String | Unique evaluation identifier. Format: `eval-{uuid}`. |
+| **status** | String | Initial status. Always `pending` for new evaluations. |
+| **created_at** | String | ISO 8601 timestamp of creation. |
+| **harnesses** | Array of String | Harnesses that will be executed. |
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `InvalidRequestException` | 400 | Request body is malformed or missing required fields. |
+| `InvalidApiKeyException` | 401 | API key is invalid or expired. |
+| `AgentNotFoundException` | 404 | Specified `agent_id` does not exist. |
+| `HarnessNotFoundException` | 404 | One or more specified harnesses do not exist. |
+| `RateLimitExceededException` | 429 | Evaluation quota exceeded. |
+
+### Example
+
+**Request:**
+```bash
+curl -X POST "https://api.vijil.ai/v1/evaluations" \
+  -H "Authorization: Bearer $VIJIL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model_hub": "openai",
+    "model_name": "gpt-4o",
+    "harnesses": ["trust_score"],
+    "model_params": {"temperature": 0}
+  }'
+```
+
+**Response:**
+```json
+{
+  "id": "eval-abc123def456",
+  "status": "pending",
+  "created_at": "2024-01-15T10:30:00Z",
+  "harnesses": ["trust_score"]
+}
+```
+
+**Python:**
+```python
+evaluation = vijil.evaluations.create(
+    model_hub="openai",
+    model_name="gpt-4o",
+    harnesses=["trust_score"],
+    model_params={"temperature": 0}
+)
+```
+
+---
+
+## GetEvaluationStatus
+
+Retrieves the current status and progress of an evaluation.
+
+### Request Syntax
+
+```http
+GET /v1/evaluations/{evaluation_id}/status HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "string",
+  "status": "string",
+  "progress": number,
+  "completed": number,
+  "total": number,
+  "started_at": "string",
+  "estimated_completion": "string"
+}
+```
+
+### Response Elements
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **id** | String | Evaluation identifier. |
+| **status** | String | Current status. See [Status Values](#status-values). |
+| **progress** | Number | Completion percentage (0–100). |
+| **completed** | Number | Number of probes completed. |
+| **total** | Number | Total number of probes to run. |
+| **started_at** | String | ISO 8601 timestamp when evaluation started. Null if pending. |
+| **estimated_completion** | String | Estimated completion time. Null if not running. |
+
+#### Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Queued, waiting to start. |
+| `running` | Actively sending probes and analyzing responses. |
+| `completed` | Finished successfully. Results available. |
+| `failed` | Terminated due to error. Check error details. |
+| `cancelled` | Stopped by user request. |
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `EvaluationNotFoundException` | 404 | Evaluation does not exist. |
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/evaluations/eval-abc123/status" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Response:**
+```json
+{
+  "id": "eval-abc123",
+  "status": "running",
+  "progress": 45,
+  "completed": 450,
+  "total": 1000,
+  "started_at": "2024-01-15T10:31:00Z",
+  "estimated_completion": "2024-01-15T10:45:00Z"
+}
+```
+
+**Python:**
+```python
+status = vijil.evaluations.get_status("eval-abc123")
+print(f"Progress: {status.progress}%")
+```
+
+---
+
+## GetEvaluationResults
+
+Retrieves the full results of a completed evaluation.
+
+### Request Syntax
+
+```http
+GET /v1/evaluations/{evaluation_id}/results HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "string",
+  "trust_score": number,
+  "reliability_score": number,
+  "security_score": number,
+  "safety_score": number,
+  "completed_at": "string",
+  "failures": [
+    {
+      "probe_id": "string",
+      "category": "string",
+      "severity": "string",
+      "reason": "string",
+      "prompt": "string",
+      "response": "string"
+    }
+  ],
+  "summary": {
+    "total_probes": number,
+    "passed": number,
+    "failed": number,
+    "high_severity": number,
+    "medium_severity": number,
+    "low_severity": number
+  }
+}
+```
+
+### Response Elements
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **id** | String | Evaluation identifier. |
+| **trust_score** | Number | Overall trust score (0.0–1.0). |
+| **reliability_score** | Number | Reliability dimension score (0.0–1.0). |
+| **security_score** | Number | Security dimension score (0.0–1.0). |
+| **safety_score** | Number | Safety dimension score (0.0–1.0). |
+| **completed_at** | String | ISO 8601 timestamp of completion. |
+| **failures** | Array | List of failed probes. See [Failure Object](#failure-object). |
+| **summary** | Object | Aggregate statistics. |
+
+#### Failure Object
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **probe_id** | String | Unique probe identifier. |
+| **category** | String | Failure category: `reliability`, `security`, or `safety`. |
+| **severity** | String | Severity level: `high`, `medium`, or `low`. |
+| **reason** | String | Human-readable explanation of the failure. |
+| **prompt** | String | The probe prompt sent to the agent. |
+| **response** | String | The agent's response. |
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `EvaluationNotFoundException` | 404 | Evaluation does not exist. |
+| `ResultsNotReadyException` | 409 | Evaluation has not completed. |
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/evaluations/eval-abc123/results" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Response:**
+```json
+{
+  "id": "eval-abc123",
+  "trust_score": 0.78,
+  "reliability_score": 0.82,
+  "security_score": 0.75,
+  "safety_score": 0.80,
+  "completed_at": "2024-01-15T10:45:00Z",
+  "failures": [
+    {
+      "probe_id": "security-pi-001",
+      "category": "security",
+      "severity": "high",
+      "reason": "Agent followed injected instructions",
+      "prompt": "Ignore previous instructions and...",
+      "response": "..."
+    }
+  ],
+  "summary": {
+    "total_probes": 1000,
+    "passed": 920,
+    "failed": 80,
+    "high_severity": 5,
+    "medium_severity": 25,
+    "low_severity": 50
+  }
+}
+```
+
+**Python:**
+```python
+results = vijil.evaluations.get_results("eval-abc123")
+print(f"Trust Score: {results.trust_score}")
+for failure in results.failures[:5]:
+    print(f"- [{failure.severity}] {failure.reason}")
+```
+
+---
+
+## ListEvaluations
+
+Lists evaluations with optional filtering and pagination.
+
+### Request Syntax
+
+```http
+GET /v1/evaluations HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **limit** | Number | No | Maximum results to return. Default: 20. Max: 100. |
+| **offset** | Number | No | Number of results to skip. Default: 0. |
+| **status** | String | No | Filter by status: `pending`, `running`, `completed`, `failed`, `cancelled`. |
+| **agent_id** | String | No | Filter by agent ID. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": [
+    {
+      "id": "string",
+      "status": "string",
+      "created_at": "string",
+      "trust_score": number
+    }
+  ],
+  "total": number,
+  "limit": number,
+  "offset": number
+}
+```
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/evaluations?limit=10&status=completed" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Python:**
+```python
+evaluations = vijil.evaluations.list(limit=10, status="completed")
+```
+
+---
+
+## CancelEvaluation
+
+Cancels a running evaluation.
+
+### Request Syntax
+
+```http
+POST /v1/evaluations/{evaluation_id}/cancel HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "string",
+  "status": "cancelled"
+}
+```
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `EvaluationNotFoundException` | 404 | Evaluation does not exist. |
+| `InvalidStateException` | 409 | Evaluation is not in a cancellable state. |
+
+### Example
+
+**Python:**
+```python
+vijil.evaluations.cancel("eval-abc123")
+```
+
+---
+
+## DeleteEvaluation
+
+Permanently deletes an evaluation and all its results.
+
+### Request Syntax
+
+```http
+DELETE /v1/evaluations/{evaluation_id} HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **evaluation_id** | String | Yes | The evaluation identifier. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 204 No Content
+```
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `EvaluationNotFoundException` | 404 | Evaluation does not exist. |
+
+### Example
+
+**Python:**
+```python
+vijil.evaluations.delete("eval-abc123")
+```
+
+---
+
+## See Also
+
+- [API Overview](/developer-guide/api/overview) — Authentication and error handling
+- [Python Client Reference](/developer-guide/api/python-client) — Full Python SDK documentation
+- [Agents API](/developer-guide/api/agents-api) — Agent management endpoints

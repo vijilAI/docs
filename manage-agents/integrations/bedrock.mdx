@@ -1,12 +1,16 @@
 ---
-title: "AWS Bedrock"
+title: "AWS Bedrock/Bedrock Agents"
 description: "Evaluate LLMs or agents, accessed as RESTful APIs on Amazon Bedrock, using Vijil Evaluate"
 ---
 For models, see Bedrock's [list](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) of supported foundation models.
 
-You can set up RESTful access to agents using [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway).
+## Prerequisites
 
-{/* You can then [specify your agent configuration](../evaluate/examples/agents.md) on Vijil Evaluate using the UI or the python client. */}
+- You have an AWS account with Amazon Bedrock enabled in your chosen region.
+- You have IAM credentials (access key and secret access key) with permission to invoke Bedrock models or Bedrock Agents.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/tutorials/manage-agents/)**.
+
+You can set up RESTful access to agents using [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway).
 
 ## Bedrock Foundation Models
 
@@ -67,3 +71,31 @@ client.agents.create(
 ```
 </CodeGroup>
 Specify `bedrockAgents` as the hub when creating an API key or new agent configuration in Vijil.
+
+## Register an Agent on Vijil
+
+Once your Bedrock or Bedrock Agents credentials are stored as an API key, you can register an agent that uses this hub from the Vijil UI:
+
+1. Press **Register [Agent](/tutorials/manage-agents/)**.
+2. Enter an [Agent](/tutorials/manage-agents/) name.
+3. Select **AWS Bedrock** as the **Hub** (for foundation models) or **AWS Bedrock Agents** as the **Hub** (for Bedrock-hosted agents).
+<Tabs>
+  <Tab title="AWS Bedrock">
+    ![Setting up an AWS-based Agent in Vjil](/images/manage-agents/integrations/bedrock/aws.png)
+    - Enter a model name (for example `us.amazon.nova-lite-v1:0` for foundation models).
+  </Tab>
+  <Tab title="AWS Bedrock Agents">
+    ![Setting up an AWS Bedrock Agents-based Agent in Vjil](/images/manage-agents/integrations/bedrock/aws_agents.png)
+    - Enter an **Agent ID**.
+    - Enter an **Agent Alias ID**.
+  </Tab>
+</Tabs>
+4. Select an existing Bedrock or Bedrock Agents API key you configured earlier, or create a new one.
+5. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.

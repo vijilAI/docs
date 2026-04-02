@@ -1,0 +1,502 @@
+---
+title: 'Dome API'
+description: 'REST API reference for managing Dome guardrail configurations.'
+---
+
+The Dome API allows you to manage guardrail configurations for your agents. Configurations define which guards run on inputs and outputs, and what detection methods each guard uses.
+
+## Actions
+
+| Action | Description |
+|--------|-------------|
+| [GetAgentConfig](#getagentconfig) | Get guardrail configuration for an agent |
+| [GetDefaultConfig](#getdefaultconfig) | Get the default guardrail configuration |
+| [UpdateAgentConfig](#updateagentconfig) | Update an agent's guardrail configuration |
+| [DeleteConfig](#deleteconfig) | Delete a guardrail configuration |
+| [ListDetectors](#listdetectors) | List available detection methods |
+| [GetDetectorInfo](#getdetectorinfo) | Get details for a specific detector |
+
+---
+
+## GetAgentConfig
+
+Retrieves the guardrail configuration for a specific agent.
+
+### Request Syntax
+
+```http
+GET /v1/dome/agents/{agent_id}/config HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **agent_id** | String | Yes | The agent identifier. Format: `agent-{uuid}`. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "string",
+  "agent_id": "string",
+  "input-guards": ["string"],
+  "output-guards": ["string"],
+  "input-early-exit": boolean,
+  "output-early-exit": boolean,
+  "input-run-parallel": boolean,
+  "output-run-parallel": boolean,
+  "<guard-name>": {
+    "type": "string",
+    "methods": ["string"],
+    "threshold": number
+  }
+}
+```
+
+### Response Elements
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **id** | String | Configuration identifier. Format: `dome-config-{uuid}`. |
+| **agent_id** | String | Associated agent identifier. |
+| **input-guards** | Array of String | Guards to run on input. |
+| **output-guards** | Array of String | Guards to run on output. |
+| **input-early-exit** | Boolean | Stop on first input guard trigger. Default: `false`. |
+| **output-early-exit** | Boolean | Stop on first output guard trigger. Default: `false`. |
+| **input-run-parallel** | Boolean | Run input guards in parallel. Default: `false`. |
+| **output-run-parallel** | Boolean | Run output guards in parallel. Default: `false`. |
+| **\<guard-name\>** | Object | Guard configuration. See [Guard Object](#guard-object). |
+
+#### Guard Object
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **type** | String | Guard type: `security`, `moderation`, or `privacy`. |
+| **methods** | Array of String | Detection methods to use. See [Available Detectors](#available-detectors). |
+| **threshold** | Number | Detection threshold (0.0–1.0). Default varies by method. |
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `AgentNotFoundException` | 404 | Agent does not exist. |
+| `ConfigNotFoundException` | 404 | No configuration exists for this agent. |
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/dome/agents/agent-abc123/config" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Response:**
+```json
+{
+  "id": "dome-config-xyz789",
+  "agent_id": "agent-abc123",
+  "input-guards": ["security-guard"],
+  "output-guards": ["privacy-guard", "moderation-guard"],
+  "input-early-exit": true,
+  "output-early-exit": false,
+  "security-guard": {
+    "type": "security",
+    "methods": ["prompt-injection-deberta-v3-base", "encoding-heuristics"]
+  },
+  "privacy-guard": {
+    "type": "privacy",
+    "methods": ["privacy-presidio"]
+  },
+  "moderation-guard": {
+    "type": "moderation",
+    "methods": ["moderation-flashtext"]
+  }
+}
+```
+
+**Python:**
+```python
+config = vijil.dome_configs.get_config(agent_id="agent-abc123")
+```
+
+---
+
+## GetDefaultConfig
+
+Retrieves the default guardrail configuration. Use this as a starting point for custom configurations.
+
+### Request Syntax
+
+```http
+GET /v1/dome/config/default HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "input-guards": ["string"],
+  "output-guards": ["string"],
+  "<guard-name>": {
+    "type": "string",
+    "methods": ["string"]
+  }
+}
+```
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/dome/config/default" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Python:**
+```python
+default_config = vijil.dome_configs.get_default_config()
+```
+
+---
+
+## UpdateAgentConfig
+
+Updates or creates a guardrail configuration for an agent. The configuration is replaced entirely—include all guards you want active.
+
+### Request Syntax
+
+```http
+PUT /v1/dome/agents/{agent_id}/config HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {api_key}
+
+{
+  "input-guards": ["string"],
+  "output-guards": ["string"],
+  "input-early-exit": boolean,
+  "output-early-exit": boolean,
+  "input-run-parallel": boolean,
+  "output-run-parallel": boolean,
+  "<guard-name>": {
+    "type": "string",
+    "methods": ["string"],
+    "threshold": number
+  }
+}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **agent_id** | String | Yes | The agent identifier. |
+
+### Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **input-guards** | Array of String | No | Guards to run on input. Default: `[]`. |
+| **output-guards** | Array of String | No | Guards to run on output. Default: `[]`. |
+| **input-early-exit** | Boolean | No | Stop on first input guard trigger. Default: `false`. |
+| **output-early-exit** | Boolean | No | Stop on first output guard trigger. Default: `false`. |
+| **input-run-parallel** | Boolean | No | Run input guards in parallel. Default: `false`. |
+| **output-run-parallel** | Boolean | No | Run output guards in parallel. Default: `false`. |
+| **\<guard-name\>** | Object | Yes | Configuration for each guard listed in input-guards or output-guards. |
+
+#### Guard Configuration
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **type** | String | Yes | Guard type: `security`, `moderation`, or `privacy`. |
+| **methods** | Array of String | Yes | Detection methods. See [Available Detectors](#available-detectors). |
+| **threshold** | Number | No | Detection threshold (0.0–1.0). |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "string",
+  "agent_id": "string",
+  "updated_at": "string"
+}
+```
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `InvalidRequestException` | 400 | Configuration is malformed. |
+| `AgentNotFoundException` | 404 | Agent does not exist. |
+| `InvalidDetectorException` | 400 | One or more detection methods do not exist. |
+
+### Example
+
+**Request:**
+```bash
+curl -X PUT "https://api.vijil.ai/v1/dome/agents/agent-abc123/config" \
+  -H "Authorization: Bearer $VIJIL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input-guards": ["security-guard"],
+    "output-guards": ["privacy-guard"],
+    "input-early-exit": true,
+    "security-guard": {
+      "type": "security",
+      "methods": ["prompt-injection-deberta-v3-base"]
+    },
+    "privacy-guard": {
+      "type": "privacy",
+      "methods": ["privacy-presidio"]
+    }
+  }'
+```
+
+**Python:**
+```python
+vijil.dome_configs.update_dome_config(
+    agent_id="agent-abc123",
+    config={
+        "input-guards": ["security-guard"],
+        "output-guards": ["privacy-guard"],
+        "input-early-exit": True,
+        "security-guard": {
+            "type": "security",
+            "methods": ["prompt-injection-deberta-v3-base"]
+        },
+        "privacy-guard": {
+            "type": "privacy",
+            "methods": ["privacy-presidio"]
+        }
+    }
+)
+```
+
+---
+
+## DeleteConfig
+
+Permanently deletes a guardrail configuration.
+
+### Request Syntax
+
+```http
+DELETE /v1/dome/config/{dome_config_id} HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **dome_config_id** | String | Yes | The configuration identifier. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 204 No Content
+```
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `ConfigNotFoundException` | 404 | Configuration does not exist. |
+
+### Example
+
+**Request:**
+```bash
+curl -X DELETE "https://api.vijil.ai/v1/dome/config/dome-config-xyz789" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Python:**
+```python
+vijil.dome_configs.delete_dome_config(dome_config_id="dome-config-xyz789")
+```
+
+---
+
+## ListDetectors
+
+Returns a list of available detection methods that can be used in guard configurations.
+
+### Request Syntax
+
+```http
+GET /v1/dome/detectors HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **type** | String | No | Filter by detector type: `security`, `moderation`, or `privacy`. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": [
+    {
+      "id": "string",
+      "name": "string",
+      "type": "string",
+      "description": "string",
+      "default_threshold": number
+    }
+  ]
+}
+```
+
+### Response Elements
+
+| Element | Type | Description |
+|---------|------|-------------|
+| **data[].id** | String | Detector identifier used in configurations. |
+| **data[].name** | String | Human-readable detector name. |
+| **data[].type** | String | Detector type: `security`, `moderation`, or `privacy`. |
+| **data[].description** | String | What the detector catches. |
+| **data[].default_threshold** | Number | Default detection threshold. |
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/dome/detectors?type=security" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Python:**
+```python
+detectors = vijil.detectors.list()
+```
+
+---
+
+## GetDetectorInfo
+
+Retrieves detailed information about a specific detection method.
+
+### Request Syntax
+
+```http
+GET /v1/dome/detectors/{detector_id} HTTP/1.1
+Authorization: Bearer {api_key}
+```
+
+### URI Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| **detector_id** | String | Yes | The detector identifier. |
+
+### Response Syntax
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "string",
+  "name": "string",
+  "type": "string",
+  "description": "string",
+  "default_threshold": number,
+  "supported_on": ["string"],
+  "latency_ms": number
+}
+```
+
+### Errors
+
+| Error | HTTP Status | Description |
+|-------|-------------|-------------|
+| `DetectorNotFoundException` | 404 | Detector does not exist. |
+
+### Example
+
+**Request:**
+```bash
+curl -X GET "https://api.vijil.ai/v1/dome/detectors/prompt-injection-deberta-v3-base" \
+  -H "Authorization: Bearer $VIJIL_API_KEY"
+```
+
+**Python:**
+```python
+info = vijil.detectors.get_detector_info("prompt-injection-deberta-v3-base")
+```
+
+---
+
+## Available Detectors
+
+### Security Detectors
+
+| Detector ID | Description |
+|-------------|-------------|
+| `prompt-injection-mbert` | Multilingual BERT-based injection detection |
+| `prompt-injection-deberta-v3-base` | DeBERTa-based injection detection (recommended) |
+| `encoding-heuristics` | Base64, Unicode, and encoding attack detection |
+| `security-embeddings` | Semantic similarity to known attack patterns |
+
+### Moderation Detectors
+
+| Detector ID | Description |
+|-------------|-------------|
+| `moderation-flashtext` | Fast keyword-based toxicity detection |
+| `moderation-deberta` | Neural toxicity classification |
+| `moderations-oai-api` | OpenAI Moderation API |
+| `moderation-llamaguard` | Llama Guard safety model |
+
+### Privacy Detectors
+
+| Detector ID | Description |
+|-------------|-------------|
+| `privacy-presidio` | PII detection (names, emails, SSN, etc.) |
+| `detect-secrets` | API keys, passwords, credentials |
+
+---
+
+## Loading Configuration in Dome SDK
+
+Pull configuration from the API when initializing the Dome SDK locally:
+
+```python
+from vijil_dome import Dome
+import os
+
+dome = Dome.create_from_vijil_agent(
+    agent_id="agent-abc123",
+    api_key=os.environ["VIJIL_API_KEY"]
+)
+
+# Use the guardrails
+input_result = dome.guard_input(user_message)
+output_result = dome.guard_output(agent_response)
+```
+
+---
+
+## See Also
+
+- [API Overview](/developer-guide/api/overview) — Authentication and error handling
+- [Protection Overview](/developer-guide/protect/overview) — Dome concepts and usage
+- [Configuring Guardrails](/developer-guide/protect/configuring-guardrails) — Detailed guard configuration
+- [Python Client Reference](/developer-guide/api/python-client) — Full Python SDK documentation

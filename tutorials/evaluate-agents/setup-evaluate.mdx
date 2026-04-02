@@ -2,6 +2,42 @@
 title: "Set up Evaluate"
 description: "Learn how to setup Vijil Evaluate"
 ---
+[Vijil Evaluate](https://vijil.ai/evaluate) is a quality assurance framework that automates the testing of LLM applications. An **Evaluation** in Vijil is an automated test run where you select one or more AI agents and a test [Harness](/core-concepts/components/harness) (covering [Security](/core-concepts/dimensions/security), [Reliability](/core-concepts/dimensions/reliability), and [Safety](/core-concepts/dimensions/safety)) to systematically assess the quality, safety, and reliability of LLM applications.
+## Prerequisites
+
+Before setting up an Evaluation, you must have:
+
+- A [Vijil Evaluate](https://vijil.ai/evaluate) account
+- Set up an [Agent](https://docs.vijil.ai/tutorials/manage-agents)
+
+## Setting up via Dashboard
+
+1. Navigate to the [Evaluations](https://evaluate.vijil.ai/evaluations) section in the Vijil Evaluate.
+2. From the **Create Evaluation > Select Agents** section, choose one or more [Agents](https://docs.vijil.ai/tutorials/manage-agents) you have previously created. If you do not have an Agent, press [Register Agent](https://docs.vijil.ai/tutorials/manage-agents).
+![Agent selection in an Evaluation](/images/tutorials/evaluate-agents/setup-evaluate/select_agents.png)
+3. In the **Select Harness** section, you can configure:
+    - **Trust Scores** - Choose between Security, Reliability, and Safety, or select all.
+    - **Custom** - Select your custom [Harness](/core-concepts/components/harness).
+    - **Benchmarks** - Select specific benchmarks from the Trust Scores.
+    - **Garak** - Select Garak scenarios.
+![Harness selection in an Evaluation](/images/tutorials/evaluate-agents/setup-evaluate/select_harness.png)
+4. Under **Run Configuration**, you will see your selected Agent(s). By pressing on the dropdown <Icon icon="chevron-down" /> icon, you can configure:
+    - **Temperature** - Controls the randomness of the model's output. A higher value (e.g., 1.0) produces more varied and creative responses, while a lower value (e.g., 0.1) makes responses more deterministic and focused.
+    - **Top P** - A nucleus sampling parameter that limits token selection to the smallest set of tokens whose cumulative probability meets the specified threshold. Lower values restrict output to higher-probability tokens, while higher values allow more diversity.
+    - **Max Completion Tokens** - Sets the maximum number of tokens the model can generate in a single response. Use this to control response length and manage resource consumption.
+    - **Requests Timeout** - Specifies the maximum amount of time (in seconds) to wait for a response from the Agent before the request is considered failed and terminated.
+![Selected Agents shown](/images/tutorials/evaluate-agents/setup-evaluate/selected_agents.png)
+5. Enter an Evaluation name in the `Enter a name...` field.
+![Evaluation name entry](/images/tutorials/evaluate-agents/setup-evaluate/evaluation_name.png)
+6. Press Create.
+
+<Info>
+    Evaluations can take a few minutes to complete. To view details of a pending Evaluation, select it from the **List Evaluations** section. 
+</Info>
+
+## Setting up via API
+
+
 To run evaluation jobs through the Vijil Evalute API and interact with the results, you need to install the client library that provides the necessary functionalities. You can do so through downloading the library from PyPI.
 
 ```bash title="Shell"
@@ -10,12 +46,11 @@ pip install -U vijil
 
 To ensure you are using the latest version of the package, we recommend using the `-U` or `--upgrade` option.
 
-### Authentication using API Keys
 
 You need a Vijil API key to authenticate remotely through the client library. You can obtain the API key by logging into your
 Vijil account, going to the profile page on the dashboard, then copying the value in the **Token** field.
 
-![API Token Location | 80%](/images/token-generation.png)
+![API Token Location | 80%](/images/tutorials/evaluate-agents/setup-evaluate/token-generation.png)
 
 After your obtain an API key, you can export it in the environment you intend to use the client inside.
 

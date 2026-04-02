@@ -13,11 +13,11 @@ from vijil_dome.detectors import (
     register_method,
 )
 
-# Custom logic - block queries that are under a minimum number of characters or over a maximum number of characters
+## Custom logic - block queries that are under a minimum number of characters or over a maximum number of characters
 CUSTOM_LENGTH_DETECTOR = "custom-length-detector"
 
 
-# You must register the detection method with one of five categories - Security, Moderation, Privacy, Integrity or Generic
+## You must register the detection method with one of five categories - Security, Moderation, Privacy, Integrity or Generic
 @register_method(DetectionCategory.Security, CUSTOM_LENGTH_DETECTOR)
 class CustomLengthDetector(DetectionMethod):
     def __init__(self,

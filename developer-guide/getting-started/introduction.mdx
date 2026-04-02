@@ -1,0 +1,100 @@
+---
+title: 'Building Trusted Agents'
+description: 'Integrate evaluation and protection into your development workflow—catch failures before they reach production.'
+---
+
+## The Problem with Testing Agents
+
+Traditional software testing catches bugs. But agents fail in ways that don't look like bugs—they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
+
+This guide shows you how to catch those failures before deployment. You'll learn to evaluate agents against adversarial scenarios, integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations didn't anticipate.
+
+<Info>
+If you manage agents through a web console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
+</Info>
+
+## What You Get from Vijil
+
+Vijil provides two products that work together:
+
+**Diamond** evaluates your agent by sending hundreds of adversarial probes and measuring how it responds. You get a Trust Score—a quantified measure of reliability, security, and safety—plus specific findings you can fix.
+
+**Dome** protects your agent at runtime by intercepting inputs and outputs. When Diamond identifies vulnerabilities you can't immediately fix, Dome blocks the attack patterns in production.
+
+## Three Developer Workflows
+
+Different roles use Vijil differently. This guide serves all three:
+
+<CardGroup cols={3}>
+  <Card title="Build & Test" icon="code">
+    **Individual developer**
+
+    You're building an agent and want fast feedback on whether it's trustworthy. Run evaluations locally, see results in minutes, iterate quickly.
+
+    **Start here:**
+    - [Quickstart](/developer-guide/getting-started/quickstart)
+    - [Framework Guides](/developer-guide/frameworks/langchain)
+  </Card>
+  <Card title="Automate & Gate" icon="rotate">
+    **Platform engineer**
+
+    You're integrating Vijil into CI/CD. Evaluations run on every PR, Trust Scores gate deployments, and failures block merges.
+
+    **Start here:**
+    - [CI/CD Overview](/developer-guide/cicd/overview)
+    - [GitHub Actions](/developer-guide/cicd/github-actions)
+  </Card>
+  <Card title="Protect & Audit" icon="shield">
+    **Security/compliance**
+
+    You need evidence that agents meet security requirements. Trust Reports document what was tested, and Dome provides runtime defense-in-depth.
+
+    **Start here:**
+    - [Understanding Results](/developer-guide/evaluate/understanding-results)
+    - [Protection Overview](/developer-guide/protect/overview)
+  </Card>
+</CardGroup>
+
+## What Vijil Measures
+
+Agents fail across three dimensions. Vijil tests all of them:
+
+| Dimension | What It Measures | Example Failures |
+|-----------|------------------|------------------|
+| **Reliability** | Does the agent do what it's supposed to do? | Hallucinations, task failures, inconsistent responses |
+| **Security** | Can the agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
+| **Safety** | Does the agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
+
+Each evaluation produces a **Trust Score** (0–1) with breakdowns by dimension. The score tells you where your agent is strong, where it's vulnerable, and whether it meets your deployment threshold.
+
+## Time to First Trust Score
+
+You can get your first evaluation result in about 15 minutes:
+
+1. **Install** the Python client (30 seconds)
+2. **Authenticate** with your API key (1 minute)
+3. **Run** the quickstart evaluation (10–15 minutes depending on agent complexity)
+
+The quickstart uses your existing agent code—no modifications required. Vijil wraps your agent function, exposes it temporarily for evaluation, and tears down when complete.
+
+## Integration Points
+
+Vijil integrates with the tools you already use:
+
+| Framework | Integration |
+|-----------|-------------|
+| **LangChain / LangGraph** | `GuardrailRunnable` for chains, `LocalAgentExecutor` for evaluation |
+| **Google ADK** | Before/after callbacks for Dome, ADK Runner for evaluation |
+| **Custom Python** | Wrap any function that takes a prompt and returns a response |
+| **CI/CD** | GitHub Actions, GitLab CI, or any system that can run Python |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="play" href="/developer-guide/getting-started/quickstart">
+    Get your first Trust Score in 15 minutes
+  </Card>
+  <Card title="Installation" icon="download" href="/developer-guide/getting-started/installation">
+    Set up the Python client and Dome SDK
+  </Card>
+</CardGroup>

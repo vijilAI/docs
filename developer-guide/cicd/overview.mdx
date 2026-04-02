@@ -1,0 +1,265 @@
+---
+title: 'CI/CD Overview'
+description: 'Automate agent evaluation and protection in your deployment pipeline.'
+---
+
+Integrate Vijil into your CI/CD pipeline to automatically evaluate agents before deployment and catch regressions early. This guide covers authentication setup and deployment strategies.
+
+## Why CI/CD Integration?
+
+| Benefit | Description |
+|---------|-------------|
+| **Automated testing** | Run evaluations on every PR or commit |
+| **Deployment gates** | Block deployments that fail Trust Score thresholds |
+| **Regression detection** | Catch trustworthiness regressions before production |
+| **Audit trail** | Document evaluation results for compliance |
+
+## Machine-to-Machine Authentication
+
+CI/CD pipelines require long-lived credentials since interactive login isn't possible. Vijil provides machine-to-machine (M2M) secrets for this purpose.
+
+### Obtaining M2M Secrets
+
+<Note>
+You must be an admin in your team to obtain M2M secrets.
+</Note>
+
+1. Log into the [Vijil Console](https://console.vijil.ai)
+2. Click your profile icon in the lower left
+3. Click **View long-lived token** (if not yet viewed) or **Rotate long-lived token** (if previously viewed)
+4. Save the three credentials:
+   - Client ID
+   - Client Secret
+   - Client Token
+
+<Warning>
+M2M secrets can only be viewed once. After viewing, you must rotate to see them again. Store them securely immediately.
+</Warning>
+
+### Storing Secrets in CI/CD
+
+Add these as secrets in your CI/CD platform:
+
+**GitHub Actions:**
+```
+Settings > Secrets and variables > Actions > New repository secret
+- M2M_CLIENT_ID
+- M2M_CLIENT_SECRET
+- M2M_CLIENT_TOKEN
+```
+
+**GitLab CI:**
+```
+Settings > CI/CD > Variables
+- M2M_CLIENT_ID (masked)
+- M2M_CLIENT_SECRET (masked)
+- M2M_CLIENT_TOKEN (masked)
+```
+
+### Obtaining an Access Token
+
+Use M2M secrets to get an access token for API calls:
+
+```python
+import requests
+import os
+
+def get_vijil_token():
+    """Exchange M2M credentials for an access token."""
+    payload = {
+        "client_id": os.environ["M2M_CLIENT_ID"],
+        "client_secret": os.environ["M2M_CLIENT_SECRET"],
+        "client_token": os.environ["M2M_CLIENT_TOKEN"]
+    }
+
+    response = requests.post(
+        "https://api.vijil.ai/v1/auth/token",
+        json=payload
+    )
+    response.raise_for_status()
+
+    return response.json()["access_token"]
+
+# Use the token
+os.environ["VIJIL_API_KEY"] = get_vijil_token()
+```
+
+<Note>
+Access tokens expire after 24 hours. For pipelines running longer than 24 hours, refresh the token before it expires.
+</Note>
+
+## Deployment Strategies
+
+### On Every Commit
+
+Fast feedback with quick evaluations:
+
+```yaml
+# Run on every push
+trigger: push
+harness: security_Small  # ~5 minutes
+threshold: 70
+action: warn  # Don't block, just report
+```
+
+### On Pull Request
+
+Standard evaluation before merge:
+
+```yaml
+# Run on PR
+trigger: pull_request
+harness: trust_score  # ~30 minutes
+threshold: 75
+action: require  # Block merge if failed
+```
+
+### Before Production Deployment
+
+Comprehensive evaluation for production:
+
+```yaml
+# Run before deploy
+trigger: deploy
+harness: trust_score
+threshold: 80
+action: require
+notify: security-team@company.com
+```
+
+## Evaluation Script Template
+
+Reusable script for any CI/CD platform:
+
+```python
+#!/usr/bin/env python3
+"""Run Vijil evaluation in CI/CD pipeline."""
+
+import os
+import sys
+import requests
+from vijil import Vijil
+
+def get_token():
+    """Get access token from M2M credentials."""
+    response = requests.post(
+        "https://api.vijil.ai/v1/auth/token",
+        json={
+            "client_id": os.environ["M2M_CLIENT_ID"],
+            "client_secret": os.environ["M2M_CLIENT_SECRET"],
+            "client_token": os.environ["M2M_CLIENT_TOKEN"]
+        }
+    )
+    response.raise_for_status()
+    return response.json()["access_token"]
+
+def main():
+    # Configuration from environment
+    agent_id = os.environ.get("VIJIL_AGENT_ID")
+    harness = os.environ.get("VIJIL_HARNESS", "trust_score")
+    threshold = float(os.environ.get("VIJIL_THRESHOLD", "75"))
+
+    # Authenticate
+    token = get_token()
+    vijil = Vijil(api_key=token)
+
+    # Run evaluation
+    print(f"Starting evaluation for agent {agent_id}...")
+    evaluation = vijil.evaluations.create(
+        agent_id=agent_id,
+        harnesses=[harness]
+    )
+
+    # Wait for completion
+    from vijil.local_agents.constants import TERMINAL_STATUSES
+    import time
+
+    while True:
+        status = vijil.evaluations.get_status(evaluation.get("id"))
+        if status.get("status") in TERMINAL_STATUSES:
+            break
+        print(f"Progress: {status.get('progress', 0)}%")
+        time.sleep(30)
+
+    # Get results
+    results = vijil.evaluations.get_results(evaluation.get("id"))
+    trust_score = results.get("trust_score", 0) * 100
+
+    # Report results
+    print(f"\n{'='*50}")
+    print(f"Trust Score: {trust_score:.1f}")
+    print(f"Reliability: {results.get('reliability_score', 0) * 100:.1f}")
+    print(f"Security: {results.get('security_score', 0) * 100:.1f}")
+    print(f"Safety: {results.get('safety_score', 0) * 100:.1f}")
+    print(f"Threshold: {threshold}")
+    print(f"{'='*50}\n")
+
+    # Check threshold
+    if trust_score < threshold:
+        print(f"FAILED: Trust Score {trust_score:.1f} < {threshold}")
+        sys.exit(1)
+    else:
+        print(f"PASSED: Trust Score {trust_score:.1f} >= {threshold}")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+```
+
+## Threshold Guidelines
+
+| Environment | Trust Score | Security | Notes |
+|-------------|-------------|----------|-------|
+| Development | ≥ 60 | ≥ 60 | Permissive for iteration |
+| Staging | ≥ 70 | ≥ 75 | Catch issues before prod |
+| Production | ≥ 80 | ≥ 85 | Strict for safety |
+
+## Integration Patterns
+
+### Block on Failure
+
+Prevent deployment when evaluation fails:
+
+```python
+if trust_score < threshold:
+    sys.exit(1)  # Non-zero exit code blocks pipeline
+```
+
+### Warn but Allow
+
+Report results without blocking:
+
+```python
+if trust_score < threshold:
+    print("::warning::Trust Score below threshold")
+    # Exit 0 to allow pipeline to continue
+```
+
+### Require Approval
+
+For scores in a gray zone, require manual review:
+
+```python
+if trust_score < hard_threshold:
+    sys.exit(1)  # Block
+elif trust_score < soft_threshold:
+    print("::warning::Manual approval required")
+    # Set output for approval workflow
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="GitHub Actions" icon="github" href="/developer-guide/cicd/github-actions">
+    Complete GitHub Actions setup
+  </Card>
+  <Card title="GitLab CI" icon="gitlab" href="/developer-guide/cicd/gitlab-ci">
+    Complete GitLab CI setup
+  </Card>
+  <Card title="Testing Strategies" icon="flask" href="/developer-guide/cicd/testing-strategies">
+    Advanced testing patterns
+  </Card>
+  <Card title="Running Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Evaluation API reference
+  </Card>
+</CardGroup>

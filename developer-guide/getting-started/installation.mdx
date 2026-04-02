@@ -1,0 +1,97 @@
+---
+title: 'Installation'
+description: 'Install the Vijil Python client and Dome SDK.'
+---
+
+The Vijil package includes everything you need to evaluate and protect agents programmatically:
+
+- **Vijil client** — Run evaluations, manage agents, retrieve results
+- **LocalAgentExecutor** — Wrap local agent functions for evaluation without deployment
+- **Dome SDK** — Add runtime guardrails to intercept and filter agent inputs/outputs
+
+One package, one install. Choose optional extras based on your framework.
+
+## Requirements
+
+- Python 3.9+
+- pip or poetry
+
+## Install with pip
+
+```bash
+pip install vijil
+```
+
+## Install with poetry
+
+```bash
+poetry add vijil
+```
+
+## Verify Installation
+
+```python
+import vijil
+print(vijil.__version__)
+```
+
+## Quick Test
+
+```python
+from vijil import Client
+
+client = Client(api_key="your-api-key")
+
+# List your agents
+agents = client.agents.list()
+print(f"Found {len(agents)} agents")
+```
+
+## Optional Dependencies
+
+### For Dome SDK
+
+```bash
+pip install vijil[dome]
+```
+
+### For LangChain Integration
+
+```bash
+pip install vijil[langchain]
+```
+
+### For Full Development
+
+```bash
+pip install vijil[all]
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+export VIJIL_API_KEY="your-api-key"
+```
+
+### Configuration File
+
+Create `~/.vijil/config.yaml`:
+
+```yaml
+api_key: your-api-key
+base_url: https://api.vijil.ai  # default
+timeout: 30  # seconds
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/developer-guide/getting-started/authentication">
+    Configure API keys
+  </Card>
+  <Card title="Quickstart" icon="play" href="/developer-guide/getting-started/quickstart">
+    Run your first evaluation
+  </Card>
+</CardGroup>
