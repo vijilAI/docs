@@ -1,4 +1,5 @@
 .vscode
-Styles
+.styles/*
+!.styles/VijilStyle/
 .zencoder/
 .zenflow/
