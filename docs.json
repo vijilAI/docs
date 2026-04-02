@@ -19,8 +19,14 @@
   },
   "redirects": [
     { "source": "/get-started/welcome", "destination": "/concepts/what-is-vijil" },
-    { "source": "/get-started/quickstart", "destination": "/developer-guide/getting-started/quickstart" },
-    { "source": "/get-started/overview", "destination": "/owner-guide/getting-started/introduction" }
+    {
+      "source": "/get-started/quickstart",
+      "destination": "/developer-guide/getting-started/quickstart"
+    },
+    {
+      "source": "/get-started/overview",
+      "destination": "/owner-guide/getting-started/introduction"
+    }
   ],
   "navigation": {
     "tabs": [
@@ -29,9 +35,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "concepts/welcome"
-            ]
+            "pages": ["concepts/welcome"]
           },
           {
             "group": "Trust Score",
@@ -85,7 +89,7 @@
           },
           {
             "group": "Reference",
-            "pages": ["concepts/glossary", "concepts/component-reference", "concepts/release-notes"]
+            "pages": ["concepts/glossary"]
           }
         ]
       },
