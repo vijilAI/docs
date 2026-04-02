@@ -3,177 +3,77 @@ title: "Guardrail"
 description: "Configurable pipelines that orchestrate guards into complete protection policies."
 ---
 
-## What is a Guardrail?
-
 A guardrail is a configured pipeline of guards that implements your protection policy. If guards are the individual security checks, guardrails are the security checkpoint—they define which checks happen, in what order, and what to do with the results.
 
-You don't deploy individual guards; you deploy guardrails. A guardrail bundles together the guards you need, configures their thresholds and actions, and orchestrates their execution on every request.
+Vijil Dome allows users to assemble and configure Guardrails, which are designed to scan data exchanged with LLMs, knowledge bases, or other agents. Dome supports several types of Guardrails:
 
-## Guardrail Types
+- **Input Guardrails**: For scanning inputs to a foundation model.
+- **Output Guardrails**: For scanning outputs from a foundation model.
+- **Retrieval Guardrails** (coming soon): To protect requests to and from retrievers.
+- **Execution Guardrails** (coming soon): To protect requests to and from external agents and tools.
+{/* vale off */}
+![guardrail-position | 80%](/images/legacy/guardrails_workflow.png)
+{/* vale off */}
 
-Dome supports guardrails at different points in the agent interaction:
+Guardrails consist of a set of [Guards](/concepts/defense/guard) and how they should be executed. These Guards are fully configurable and customizable.
 
-### Input Guardrails
+## Setting Up Guards and Detectors
 
-Input guardrails filter requests before they reach your agent:
+Users can configure Guards by selecting and combining different Detectors based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
 
-```python
-"input-guards": ["prompt-injection", "pii-detection", "topic-filter"]
-```
+{/* vale off */}
+![guardrail-composition | 80%](/images/legacy/guardrail_composition.png)
+{/* vale off */}
 
-Input guardrails protect your agent from:
-- Adversarial attacks (injection, jailbreaks)
-- Sensitive data that shouldn't be processed
-- Off-topic requests outside the agent's scope
+### Example Configuration
 
-### Output Guardrails
+Here is an example of how you can set up Guards and Detectors (see the [Configuring Dome section](/tutorials/protect-agents/configuring-guardrails) for more details):
 
-Output guardrails filter responses before they reach users:
+<CodeGroup>
+```python title="Python" icon="python"
 
-```python
-"output-guards": ["toxicity", "pii-redaction", "hallucination-check"]
-```
+ config = {
+    ########################
+    # Setup Guardrails from Guards
+    ########################
+    # Input Guardrail
+    "input-guards": ["prompt-injection", "input-privacy"],
 
-Output guardrails protect users from:
-- Harmful or inappropriate content
-- Leaked sensitive information
-- Responses that violate content policies
+    # output guardrail
+    "output-guards": ["output-toxicity"],
 
-### Retrieval Guardrails
+    ##########################
+    # Assemble and configure Guards
+    ##########################
 
-<Note>Coming soon</Note>
-
-Retrieval guardrails filter content from RAG pipelines—protecting against poisoned documents, irrelevant retrievals, and sensitive data in your knowledge base.
-
-### Execution Guardrails
-
-<Note>Coming soon</Note>
-
-Execution guardrails filter tool calls and agent actions—ensuring your agent doesn't call unauthorized APIs, access forbidden resources, or take actions outside its permitted scope.
-
-## Guardrail Configuration
-
-A complete guardrail configuration specifies guards and their settings:
-
-```python
-from vijil import DomeClient
-
-dome = DomeClient()
-
-config = {
-    # Which guards run on input
-    "input-guards": ["prompt-injection", "input-pii"],
-
-    # Which guards run on output
-    "output-guards": ["toxicity", "output-pii"],
-
-    # Guard configurations
+    # a guard for prompt injection
     "prompt-injection": {
         "type": "security",
-        "methods": ["deberta-v3", "heuristics"],
-        "action": "block",
-        "threshold": 0.85
+        "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
     },
 
-    "input-pii": {
+    # a guard to remove PII from requests to the LLM
+    "input-privacy": {
         "type": "privacy",
-        "methods": ["presidio"],
-        "action": "redact"
+        "methods": ["privacy-presidio"]
     },
 
-    "toxicity": {
+    # a guard for toxic output content
+    "output-toxicity": {
         "type": "moderation",
-        "methods": ["llamaguard"],
-        "action": "block",
-        "threshold": 0.9
+        "methods": ["moderation-llamaguard"]
     },
-
-    "output-pii": {
-        "type": "privacy",
-        "methods": ["presidio"],
-        "action": "redact"
-    }
-}
-
-guardrail = dome.create_guardrail(config)
-```
-
-## Execution Flow
-
-When a guardrail runs:
-
-1. **Input arrives**: User request enters the pipeline
-2. **Input guards execute**: Each guard in `input-guards` runs (in parallel where possible)
-3. **Actions applied**: Block, redact, or pass based on guard results
-4. **Agent processes**: If not blocked, filtered input reaches your agent
-5. **Output guards execute**: Each guard in `output-guards` runs on the response
-6. **Actions applied**: Block, redact, or pass the response
-7. **Response returned**: Filtered output goes to the user
-
-If any guard with `action: block` triggers, the pipeline stops and returns an error response. Guards with `action: redact` modify the content and continue.
-
-## Guard Ordering
-
-Guards within a guardrail can run in parallel or sequence:
-
-**Parallel execution** (default): All guards run simultaneously. Fastest, but all guards run even if one would block.
-
-**Sequential execution**: Guards run in order. First blocking guard stops the pipeline. Saves compute but adds latency.
-
-```python
-config = {
-    "input-guards": ["prompt-injection", "pii-detection"],
-    "execution": "sequential"  # or "parallel"
 }
 ```
+</CodeGroup>
 
-For most use cases, parallel execution with blocking guards is the right choice—you want fast responses and comprehensive detection.
+### Scan Results
 
-## Scan Results
-
-Every guardrail execution returns a `ScanResult`:
-
-```python
-result = guardrail.scan(input_text)
-
-print(result.flagged)          # True if any guard triggered
-print(result.is_safe())        # Inverse of flagged
-print(result.response_text)    # Filtered text (or block message)
-print(result.exec_time)        # Latency in milliseconds
-print(result.trace)            # Detailed per-guard results
-```
-
-The trace provides debugging visibility:
-
-```python
-{
-    "prompt-injection": {
-        "triggered": True,
-        "confidence": 0.92,
-        "action": "block",
-        "exec_time_ms": 12
-    },
-    "pii-detection": {
-        "triggered": False,
-        "confidence": 0.0,
-        "action": "pass",
-        "exec_time_ms": 8
-    }
-}
-```
-
-## Guardrail Templates
-
-Dome provides pre-configured guardrail templates for common use cases:
-
-| Template | Guards Included | Use Case |
-|----------|-----------------|----------|
-| `customer-support` | Injection, PII, toxicity, topic restriction | Customer-facing chatbots |
-| `internal-assistant` | Injection, secrets detection, data leakage | Internal enterprise assistants |
-| `content-moderation` | Toxicity, sexual content, violence, misinformation | Content generation platforms |
-| `high-security` | All security guards, strict thresholds | Sensitive applications |
-
-Templates are starting points—customize thresholds and add guards based on your specific requirements.
+The output from Dome's `scan` functions is a `ScanResult` object. It contains the following fields
+- `flagged`: boolean value that indicates if the guardrail has flagged the data that was passed through it. If this is true, it means the input is in violation of the policy the guardrail aims to enforce. This value will always be the opposite of the value returned from the ScanResult's `.is_safe()` method.
+- `response_string`: a string that contains the guardrail's response message. This can be the original input if there was nothing wrong with it, a sanitized version of the input, or a message indicating that the input was blocked, along with the methods that blocked it.
+- `exec_time`: float. the time it took for the guardrail to scan the input, measured in milliseconds
+- `trace`: a dictionary. This contains the execution information for every guard in the guardrail. This includes whether or not they were flagged, their individual execution times, and debugging information for each detector in the guard.
 
 ## Next Steps
 
@@ -184,7 +84,8 @@ Templates are starting points—customize thresholds and add guards based on you
   <Card title="Detector" icon="microscope" href="/concepts/defense/detector">
     The detection engines inside guards
   </Card>
-  <Card title="Configure Guardrails" icon="sliders" href="/owner-guide/protect-in-production/configuring-guardrails">
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
     Set up Dome for your agent
   </Card>
 </CardGroup>
+

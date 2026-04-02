@@ -1,0 +1,57 @@
+---
+title: "Google Vertex AI"
+description: "Legacy Google Vertex AI integration docs copied from the integrations-section branch."
+---
+
+You can evaluate the Gemini series of LLMs, [available through APIs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) in Google Vertex AI, using Vijil Evaluate.
+
+## Prerequisites
+
+- You have a Google Cloud project with Vertex AI enabled.
+- You have appropriate credentials (for example, Application Default Credentials) with permission to call Vertex AI generative models.
+- You have access to a Vijil team and permission to manage **[Keys](https://evaluate.vijil.ai/keys)** and **[Agents](/owner-guide/register-agents/registering-agents)**.
+
+## Store Credentials
+
+First, you need to store credentials from your Google Cloud account as API key configuration in Evaluate. To do so, follow the instructions [here](https://cloud.google.com/docs/authentication/application-default-credentials) to log into your account from a command-line environment, and get the contents of the `application_default_credentials.json` file.
+
+```bash
+gcloud auth application-default login
+vi $HOME/.config/gcloud/application_default_credentials.json
+# {
+#   "account": "",
+#   "client_id": "XXX.apps.googleusercontent.com",
+#   "client_secret": "d-FLXXX",
+#   "quota_project_id": "xxx-xxx",
+#   "refresh_token": "xxx-123",
+#   "type": "authorized_user",
+#   "universe_domain": "googleapis.com"
+# }
+```
+
+Copy the fields `client_id`, `client_secret`, `quota_project_id`, and `refresh_token`. The gcloud CLI asks you to select a region when logging in, keep that handy as well.
+
+Now log into Vijil Evaluate, and navigate to **[Keys](https://evaluate.vijil.ai/keys) > Add new key**. From the Model Hub dropdown, select *Vertex* as your chosen hub, and add the above information in the respective fields.
+
+Give the API key configuration a name, save it, and you are ready to go!
+
+## Register an Agent on Vijil
+
+Once your Vertex AI credentials are stored as an API key, you can register an agent that uses this hub from the Vijil UI:
+
+![Setting up a Google Cloud-based Agent in Vjil](/images/owner-guide/register-agents/integrations/gcp.png)
+
+1. Press **Register [Agent](/owner-guide/register-agents/registering-agents)**.
+2. Enter an [Agent](/owner-guide/register-agents/registering-agents) name.
+3. Select **Google Cloud** as the **Hub**.
+4. Enter a model name (for example `google/gemini-2.5-pro`). See the list of supported models in the Google Cloud documentation.
+5. Select an existing Vertex API key you configured earlier, or create a new one.
+6. Add a **System Prompt** if you want Vijil to send a default system prompt with every request to this agent.
+
+## Enterprise
+
+If your organization uses enterprise-only features with Vijil:
+
+1. Add an **MCP server URL** so the agent can access MCP tools exposed by that server.
+2. Add an **A2A Agent Card URL** so this agent can participate in agent-to-agent workflows defined in your enterprise.
+

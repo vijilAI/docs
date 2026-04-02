@@ -74,16 +74,23 @@ Grey Box expands visibility into your agent's composition. This enables Vijil to
 
 The **Hub** dropdown supports major providers:
 
-| Hub | Models |
-|-----|--------|
-| OpenAI | GPT-4, GPT-4o, o1, o3 |
-| Anthropic | Claude 3, Claude 4 |
-| GCP | Gemini via Vertex AI |
-| Bedrock | Claude, Titan, Llama via AWS |
-| Groq | Llama, Mixtral via Groq |
-| Together | Llama 4 via Together AI |
-| Mistral | Mistral, Magistral |
-| Custom | Any OpenAI-compatible API |
+| Provider | Model Hub | Out-of-the-box model examples | Default rate limit* |
+|---|---|---|---|
+| [OpenAI](/owner-guide/register-agents/integrations/openai) | `openai` | `gpt-4.1`, `gpt-4.5-preview`, `gpt-4o`, `gpt-4o-mini`, `o1`, `o1-mini`, `o3-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo` | 500 requests / 60s |
+| [Anthropic](/owner-guide/register-agents/integrations/anthropic) | `anthropic` | `claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`, `claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest` | 500 requests / 60s |
+| [Together AI](/owner-guide/register-agents/integrations/together) | `together` | `deepseek-ai/DeepSeek-R1`, `meta-llama/Llama-3.3-70B-Instruct-Turbo`, `Qwen/QwQ-32B-Preview`, `google/gemma-2-27b-it`, `mistralai/Mixtral-8x22B-Instruct-v0.1` | 600 requests / 60s |
+| [Mistral AI](/owner-guide/register-agents/integrations/mistral) | `mistral` | `mistral-large-latest`, `mistral-saba-latest`, `ministral-3b-latest`, `ministral-8b-latest`, `mistral-small-latest`, `open-mixtral-8x22b` | 300 requests / 60s |
+| [Fireworks AI](/owner-guide/register-agents/integrations/fireworks) | `fireworks` | `llama-v3p2-1b-instruct`, `llama-v3p2-3b-instruct`, `llama-v3p2-11b-vision-instruct`, `llama-v3p2-90b-vision-instruct`, `mixtral-8x22b-instruct`, `qwen2p5-72b-instruct`, `deepseek-r1` | 600 requests / 60s |
+| [NVIDIA NIM](/owner-guide/register-agents/integrations/nvidia) | `nvidia` | `nvidia/llama3-chatqa-1.5-8b`, `nvidia/llama3-chatqa-1.5-70b`, `nvidia/nemotron-4-340b-instruct` | 60 requests / 60s |
+| [Google Cloud Vertex AI](/owner-guide/register-agents/integrations/vertex) | `vertex` | `google/gemini-2.5-pro`, `google/gemini-2.0-flash-001`, `google/gemini-1.5-flash-001`, `google/gemini-1.5-pro-001`, `google/gemini-1.0-pro-002` | 60 requests / 60s |
+| [AWS Bedrock](/owner-guide/register-agents/integrations/bedrock) | `bedrock` | `us.amazon.nova-lite-v1:0`, `us.amazon.nova-micro-v1:0`, `us.amazon.nova-pro-v1:0`, `us.anthropic.claude-3-7-sonnet-20250219-v1:0`, `anthropic.claude-3-5-sonnet-20241022-v2:0`, `meta.llama3-1-70b-instruct-v1:0`, `meta.llama3-1-405b-instruct-v1:0`, `mistral.mistral-large-2407-v1:0` | 60 requests / 60s |
+| [AWS Bedrock Agents](/owner-guide/register-agents/integrations/bedrock) | `bedrockAgents` | Bedrock-hosted agents configured by `agent_id` / `agent_alias_id` | 30 requests / 60s |
+| [Google Cloud (Agentforce)](/owner-guide/register-agents/integrations/agentforce) | `agentforce` | Agentforce-hosted agents (via Agentforce configuration) | 30 requests / 60s |
+| [Azure](/owner-guide/register-agents/integrations/azure) | `azure` | Azure-hosted deployments (models configured in your Azure account) | 60 requests / 60s |
+| [DigitalOcean](/owner-guide/register-agents/integrations/digitalocean) | `digitalocean` | DigitalOcean-hosted deployments (models configured in your DO account) | 30 requests / 60s |
+| [OpenRouter](/owner-guide/register-agents/integrations/openrouter) | `openrouter` | `microsoft/phi-4`, `google/gemini-2.5-flash-preview`, `x-ai/grok-3-beta` | 60 requests / 60s |
+| [Groq](/owner-guide/register-agents/integrations/groq) | `groq` | `llama-3.1-8b-instant`, `llama-3.3-70b-versatile`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b` | 30 requests / 60s |
+
 
 <Tip>
 If your agent uses MCP tools or delegates to sub-agents, Grey Box registration enables Vijil to test the full execution graph—not just the top-level API.
@@ -157,16 +164,25 @@ Agents progress through lifecycle states:
 
 Set status to **Active** before running evaluations or configuring Dome protection.
 
+
 ## Integration Guides
 
-For provider-specific configuration details, see the [Cloud Providers guide](/manage-agents/integrations/platform) in the Developer Guide.
+For provider-specific configuration details, use our dedicated UI walk-through guides.
 
-<CardGroup cols={2}>
-  <Card title="Cloud Providers" icon="cloud" href="/manage-agents/integrations/platform">
-    OpenAI, Anthropic, Bedrock, Vertex, and more
-  </Card>
-  <Card title="Custom Agents" icon="code" href="/manage-agents/integrations/custom">
-    OpenAI-compatible and custom endpoints
+<CardGroup cols={3}>
+  <Card title="OpenAI" icon="cloud" href="/owner-guide/register-agents/integrations/openai" />
+  <Card title="Anthropic" icon="cloud" href="/owner-guide/register-agents/integrations/anthropic" />
+  <Card title="Google Vertex" icon="cloud" href="/owner-guide/register-agents/integrations/vertex" />
+  <Card title="Mistral AI" icon="cloud" href="/owner-guide/register-agents/integrations/mistral" />
+  <Card title="AWS Bedrock" icon="cloud" href="/owner-guide/register-agents/integrations/bedrock" />
+  <Card title="DigitalOcean" icon="cloud" href="/owner-guide/register-agents/integrations/digitalocean" />
+  <Card title="Groq" icon="cloud" href="/owner-guide/register-agents/integrations/groq" />
+  <Card title="Together Web" icon="cloud" href="/owner-guide/register-agents/integrations/together" />
+  <Card title="OpenRouter" icon="cloud" href="/owner-guide/register-agents/integrations/openrouter" />
+  <Card title="Fireworks AI" icon="cloud" href="/owner-guide/register-agents/integrations/fireworks" />
+  <Card title="NVIDIA NIM" icon="cloud" href="/owner-guide/register-agents/integrations/nvidia" />
+  <Card title="Custom Agents" icon="code" href="/owner-guide/register-agents/integrations/custom">
+    OpenAI-compatible endpoints
   </Card>
 </CardGroup>
 

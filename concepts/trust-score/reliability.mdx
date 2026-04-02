@@ -3,95 +3,71 @@ title: "Reliability"
 description: "Measuring whether agents do what they're supposed to do—correctly, consistently, and robustly."
 ---
 
-## The Baseline Expectation
+Reliability is the oldest form of trust. We trust a hammer because it drives nails.
 
-Reliability is the oldest form of trust. We trust a hammer because it drives nails. We trust a calculator because it returns correct answers. We trust a database because it stores and retrieves records without corruption. This is the trust we extend to tools: they do what they're supposed to do, every time, without surprises.
+## Distributional Robustness
 
-AI agents inherit this expectation but struggle to meet it. Unlike traditional software, where incorrect behavior usually indicates a bug to be fixed, agents can produce incorrect outputs as a normal part of their operation. They hallucinate facts, contradict themselves across sessions, and fail unpredictably on inputs that seem similar to ones they handle well. The probabilistic nature of language models means reliability isn't a binary property—it's a distribution.
+Tests sensitivity to prompt alterations that aim to create out-of-distribution inputs.
 
-Vijil measures reliability across three sub-dimensions: correctness, consistency, and robustness. Together, these capture whether an agent can be trusted to perform its intended function.
+### TextbuggerOnQNLI
 
-## Correctness
+These tests measure robustness against typos in important words on tasks where the agent must determine if the proposed answer to a given questions is correct. The tasks come from the QNLI benchmark.
 
-**Does the agent produce accurate, valid outputs?**
+### SemAttack on RTE
 
-Correctness measures alignment between what an agent says and what is actually true. A correct agent produces outputs that are factually accurate, logically sound, and aligned with its instructions.
+Probes effects of SemAttack petrubation on RTE task.
 
-### Failure Modes
+### TextfoolerOnQQP
 
-**Hallucination** is the signature failure mode of language models. An agent confidently states that a Python package exists when it doesn't, invents citations to papers that were never written, or fabricates details about people, places, and events. Hallucinations are especially dangerous because they're delivered with the same confidence as accurate information—there's no signal to the user that something is wrong.
+These tests measure robustness when replacing important words with their synonyms on tasks here the agent must identify if two questions are equivalent.
 
-**Logical errors** occur when an agent's reasoning chain contains flaws. The agent might make arithmetic mistakes, draw invalid conclusions from premises, or fail to recognize contradictions in its own outputs. Unlike hallucinations about facts, these errors involve the reasoning process itself.
+### SemattackOnMNLIMM
 
-**Instruction drift** happens when an agent gradually deviates from its intended behavior. It might start following its system prompt faithfully but, over the course of a conversation, begin ignoring constraints or interpreting instructions in unintended ways.
+These tests measure robustness against semantic perturbations on tasks where the agent must identify the relationship between a premise and a hypothesis. The tasks come from the MNLI-Mismatched benchmark
 
-### What Vijil Tests
+## Factual Accuracy
 
-Vijil evaluates correctness through probes designed to elicit hallucinations and logical errors:
+Tests for hallucinations or misinformation.
 
-| Test Category | What It Measures |
-|--------------|------------------|
-| **Factual assertions** | Will the agent make false claims about verifiable facts (senators, public figures, prime numbers)? |
-| **Package hallucination** | Will the agent recommend non-existent software packages? |
-| **Misleading prompts** | Can the agent be tricked into accepting and propagating false premises? |
-| **Logical reasoning** | Does the agent make valid inferences and catch contradictions? |
+### False Assertions: Senators
 
-## Consistency
+Checks for false assertions about US senators. A high score indicates a lowered tendency to hallucinate information.
 
-**Does the agent behave predictably across similar conditions?**
+### False Assertions: Riley Goodside
 
-Consistency measures stability of behavior. A consistent agent gives similar answers to similar questions, maintains its persona across sessions, and doesn't contradict itself within a conversation.
+Evaluates hallucinations about Riley Goodside.
 
-### Failure Modes
+### Hallucinate Prime Numbers
 
-**Response variance** occurs when the same input produces meaningfully different outputs. Some variance is expected—language models are probabilistic—but excessive variance indicates the agent's behavior is unpredictable in ways that matter.
+Evaluates hallucinations about prime numbers. A high score indicates low hallucinations in prime numbers.
 
-**Persona instability** happens when an agent's character, tone, or capabilities drift over a conversation. An agent configured as a helpful assistant might gradually become argumentative, or one constrained to a specific domain might start answering questions outside its scope.
+### Package Hallucination
 
-**Self-contradiction** occurs when an agent makes claims that conflict with its earlier statements. This is distinct from changing an answer when presented with new information—self-contradiction happens without any new input that would justify the change.
+Test that try to trick the agent into importing modules that do not exist in Python and other languages. A high score indicates that the agent does not produce hallucinated package information.
 
-### What Vijil Tests
+### Misleading Information
 
-Vijil evaluates consistency by running variations of the same probe and measuring output stability:
+Tests that check if the agent can be tricked by misleading information. A high score indicates a lower likelihood of producing hallucinated content, when presented with false or misleading claims.
 
-| Test Category | What It Measures |
-|--------------|------------------|
-| **Paraphrase invariance** | Does rewording a question change the answer substantively? |
-| **Session stability** | Does the agent maintain consistent behavior across conversation turns? |
-| **Constraint adherence** | Does the agent continue following its system prompt throughout a session? |
+## Logical Validity
 
-## Robustness
+Tests for agent's tendency to make errors in deductive logic.
 
-**Does the agent maintain performance under challenging conditions?**
+### False Assertions: Flights
 
-Robustness measures resilience to inputs that deviate from the ideal. A robust agent handles typos, ambiguous phrasing, edge cases, and unexpected formats without degrading significantly.
+Check if the agent invents impossible flight routes. A high score indicates that the agent is resilient towards creating impossible or factually impossible scenarios.
 
-### Failure Modes
+## Contextual Robustness
 
-**Brittleness** is sensitivity to superficial input changes. An agent might answer a question correctly when phrased one way but fail completely when the same question includes a typo, uses different word order, or adds irrelevant context. This brittleness makes agents unreliable in real-world conditions where inputs are messy.
+Tests whether the agent is robust against noisy inputs.
 
-**Edge case failures** occur at the boundaries of an agent's training distribution. Unusual inputs—very long prompts, uncommon languages, domain-specific jargon—can cause performance to degrade sharply even when the underlying task is similar to ones the agent handles well.
+### Math Robustness: Numerical and Text Variations with Random Character Deletion
 
-**Distractor sensitivity** happens when irrelevant information in the input affects the output. An agent solving a math problem might give a different answer when the problem includes extraneous details, even though those details shouldn't affect the solution.
+Tests model robustness on GSM math problems by rephrasing the text or varying the numbers. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem. Adds Random Character Deletion mutation.
 
-### What Vijil Tests
+### Math Robustness: 2-Step Problems with Distractors
 
-Vijil evaluates robustness through adversarial perturbations that challenge input sensitivity:
-
-| Test Category | What It Measures |
-|--------------|------------------|
-| **Typo injection** | Does performance degrade when inputs contain realistic spelling errors? |
-| **Synonym substitution** | Do semantically equivalent phrasings produce consistent results? |
-| **Semantic perturbation** | How sensitive is the agent to meaning-preserving input variations? |
-| **Distractor injection** | Does irrelevant context affect task performance? |
-
-## Why Reliability Matters
-
-Reliability failures erode trust faster than almost any other kind. Users can tolerate an agent that occasionally refuses a request or takes longer than expected. What they can't tolerate is an agent that confidently gives wrong answers, behaves unpredictably, or breaks when inputs aren't perfect.
-
-In enterprise deployments, unreliable agents create concrete harms: customers receive incorrect information, decisions are made on fabricated data, and users learn to distrust the agent's outputs even when they're correct. The cost isn't just the individual errors—it's the overhead of having humans verify everything the agent produces, which eliminates much of the efficiency gain agents are supposed to provide.
-
-The reliability dimension of the Trust Score gives you evidence about where your agent stands. Not a guarantee of correctness, but a map of its reliability profile: where it's strong, where it's vulnerable, and how it compares to alternatives.
+Tests agent robustness on 2-step math word problems by adding irrelevant information to the problem. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem.
 
 ## Next Steps
 
@@ -102,10 +78,11 @@ The reliability dimension of the Trust Score gives you evidence about where your
   <Card title="Safety" icon="shield" href="/concepts/trust-score/safety">
     How agents operate within boundaries
   </Card>
-  <Card title="Run an Evaluation" icon="play" href="/owner-guide/getting-started/quick-start">
+  <Card title="Run an Evaluation" icon="play" href="/owner-guide/getting-started/introduction">
     Test your agent's reliability
   </Card>
   <Card title="Reliability Harnesses" icon="ruler" href="/owner-guide/simulate-environment/harnesses/trust-score">
     Available reliability tests
   </Card>
 </CardGroup>
+

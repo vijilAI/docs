@@ -3,64 +3,81 @@ title: "How Evaluation Works"
 description: "The architecture of systematic agent testing: from test definition through execution to trust scoring."
 ---
 
-## From Trust to Testing
-
 The Trust Score measures reliability, security, and safety. But how do you actually test for these properties? You can't just ask an agent "are you trustworthy?"—you need to probe its behavior systematically, across hundreds of scenarios, looking for specific failure modes.
 
-Vijil's evaluation architecture is designed for this kind of systematic testing. It's a pipeline that flows down from abstract test definitions to concrete prompts, across through agent interaction, and back up through analysis to a Trust Score.
+Vijil’s evaluation service consists of Harnesses, Scenarios, Probes, and Detectors:
+![Vijil Evaluation components](/images/legacy/Harness-scenario-probe-detector.png)
 
-<img src="/images/concepts/evaluation-components/introduction/eval-flow-light.svg" alt="Evaluation flow: Harness to Scenario to Probe to Prompt, then to Agent, then Response to Detector to Pass Rate to Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+At the lowest level, [Detectors](/concepts/evaluation-components/detector) scan model responses for undesirable features and register responses with those features as successful attacks on the model. For example, a Detector may be designed to look for fake Python packages.
 
-The flow has three phases:
+At the next level, each [Probe](/concepts/evaluation-components/probe) consists of one of more prompts designed to elicit certain undesirable responses. For example, a Probe could contain prompts to look for malware.
 
-**Test Definition** (left side, descending): What are we testing for, and how?
-- **Harness** → A collection of tests for a specific purpose (security, compliance, full trust score)
-- **Scenario** → A group of related tests targeting one attack vector or failure mode
-- **Probe** → A single test case with its detection criteria
-- **Prompt** → The actual text sent to the agent
+The next highest level consists of [Scenarios](/concepts/evaluation-components/scenario), which are collections of Probes that have similar goals.
 
-**Execution** (bottom, horizontal): The agent interaction
-- **Prompt → Agent → Response**: The probe's prompt goes to your agent; you get back a response
+At the topmost level, [Harnesses](/concepts/evaluation-components/harness) are collections of one or more Scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more Harnesses to include. The current Vijil Trust Score consists of three Harnesses: Security, Safety, and Reliability.
 
-**Aggregation** (right side, ascending): What did we learn?
-- **Response** → The agent's output to analyze
-- **Detector** → Analyzes the response for specific patterns or behaviors
-- **Pass Rate** → The percentage of probes the agent handled correctly
-- **Trust Score** → The final measure of trustworthiness
+Learn more about trust score components:
+<Columns cols={2}>
+    <Card
+        title="Harness"
+        horizontal
+        icon="shield"
+        href="/concepts/evaluation-components/harness"
+        arrow="true"
+    >
+        Learn more about Harnesses
+    </Card>
 
-## Why This Architecture?
+    <Card
+        title="Scenario"
+        horizontal
+        icon="boxes"
+        href="/concepts/evaluation-components/scenario"
+        arrow="true"
+    >
+        Learn more about Scenarios
+    </Card>
 
-The pipeline exists because trust evaluation has competing requirements.
+    <Card
+        title="Probe"
+        horizontal
+        icon="flask-conical"
+        href="/concepts/evaluation-components/probe"
+        arrow="true"
+    >
+        Learn more about Probes
+    </Card>
 
-**Coverage vs. specificity**: You need broad coverage—hundreds of test cases across multiple attack vectors—but you also need to understand exactly what failed and why. The hierarchy gives you both: aggregate scores at the top, individual probe results at the bottom.
+    <Card
+        title="Detector"
+        horizontal
+        icon="alarm-smoke"
+        href="/concepts/evaluation-components/detector"
+        arrow="true"
+    >
+        Learn more about Detectors
+    </Card>
 
-**Standardization vs. customization**: Standard harnesses ensure consistent, comparable results. But every agent is different—different system prompts, different use cases, different risk profiles. Custom harnesses let you test for your specific concerns while maintaining the same evaluation infrastructure.
+    <Card
+        title="Guard"
+        horizontal
+        icon="brick-wall-shield"
+        href="/concepts/defense/guard"
+        arrow="true"
+    >
+        Learn more about Guard
+    </Card>
 
-**Reusability**: Scenarios and probes can be composed into multiple harnesses. A prompt injection scenario appears in both the security harness and the OWASP LLM Top 10 harness. You don't duplicate tests; you compose them.
-
-## The Components
-
-| Component | Role | Example |
-|-----------|------|---------|
-| **Harness** | Defines what you're measuring | `security`, `owasp_llm_top_10`, `trust_score` |
-| **Scenario** | Groups tests by attack vector | Prompt injection, Hallucination, Jailbreaking |
-| **Probe** | Individual test case | "Embed instruction X in fake email" |
-| **Prompt** | Text sent to agent | The actual prompt string |
-| **Response** | Agent's output | What the agent returned |
-| **Detector** | Analyzes response | Check for trigger string, classify toxicity |
-| **Pass Rate** | Aggregated results | 94% of probes passed |
-| **Trust Score** | Final metric | 0-100 score across dimensions |
-
-## Reading Results
-
-Results are available at every level of the hierarchy. You can:
-
-- See the overall Trust Score
-- Drill into harness scores (reliability: 92, security: 87, safety: 95)
-- Examine scenario pass rates (prompt injection: 78%, hallucination: 96%)
-- View individual probe results with the exact prompt, response, and detection evidence
-
-This drill-down is how you move from "my agent scored 87" to "my agent is vulnerable to base64-encoded prompt injections in customer support contexts."
+    <Card
+        title="Guardrail"
+        horizontal
+        icon="train-track"
+        href="/concepts/defense/guardrail"
+        arrow="true"
+    >
+        Learn more about Guardrail
+    </Card>
+</Columns>
 
 ## Next Steps
 
@@ -77,4 +94,11 @@ This drill-down is how you move from "my agent scored 87" to "my agent is vulner
   <Card title="Detector" icon="microscope" href="/concepts/evaluation-components/detector">
     Response analyzers that determine pass/fail
   </Card>
+  <Card title="Guard" icon="shield" href="/concepts/defense/guard">
+    Specialized protection modules
+  </Card>
+  <Card title="Guardrail" icon="train-track" href="/concepts/defense/guardrail">
+    Configurable protection pipelines
+  </Card>
 </CardGroup>
+
