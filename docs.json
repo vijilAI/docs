@@ -187,16 +187,6 @@
               "developer-guide/protect/custom-detectors",
               "developer-guide/protect/observability"
             ]
-          },
-          {
-            "group": "API Reference",
-            "pages": [
-              "developer-guide/api/overview",
-              "developer-guide/api/python-client",
-              "developer-guide/api/evaluations-api",
-              "developer-guide/api/agents-api",
-              "developer-guide/api/dome-api"
-            ]
           }
         ]
       },
