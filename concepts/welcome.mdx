@@ -19,16 +19,10 @@ Start with the full model in [Trust Score](/concepts/trust-score/introduction).
 
 ## Build, Ship, Run, Evolve
 
-<img src="/images/concepts/what-is-vijil/vijil-lifecycle-light.svg" alt="Vijil lifecycle: Build with Depot, Ship with Diamond, Run with Dome, Evolve with Darwin" style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}} className="theme-aware-image" />
+<img src="/images/concepts/what-is-vijil/vijil-lifecycle-light.svg" alt="Vijil lifecycle: Ship with Diamond, Run with Dome" style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}} className="theme-aware-image" />
 
-- **Depot** — Hardened models and building blocks so you start from a stronger baseline.
 - **Diamond** — Evaluations and scenarios that produce a Trust Score and actionable findings before you deploy.
 - **Dome** — Low-latency input and output guardrails for production traffic.
-- **Darwin** *(in development)* — Reinforcement learning from telemetry to keep trust current as behavior drifts.
-
-<Check>
-  **Note:** Darwin and Depot are soon-to-be released products.
-</Check>
 
 ## Continue with Vijil
 
@@ -52,8 +46,21 @@ Pick where you work and what you need next:
   </Card>
 </CardGroup>
 
-### Qucik Resources
+### Quick Resources
 
 - **Evaluate in the UI** → [Get started](/owner-guide/getting-started/introduction)
 - **Protect in production** → [Configuring guardrails](/owner-guide/protect-in-production/configuring-guardrails)
 - **Install the SDK** → [Installation](/developer-guide/getting-started/installation)
+
+## Coming Soon
+
+Two additional products are currently in development and will expand the Vijil platform:
+
+<CardGroup cols={2}>
+  <Card title="Depot" icon="box" badge="Coming Soon">
+    A catalog of hardened models and building blocks—guardrail models tuned for agent safety, hardened LLMs optimized for specific tasks, and pre-validated components that reduce months of security work to days.
+  </Card>
+  <Card title="Darwin" icon="dna" badge="Coming Soon">
+    Continuous improvement powered by reinforcement learning over production telemetry. Darwin learns from real-world failures, edge cases, and behavior drift to keep your agents resilient over time.
+  </Card>
+</CardGroup>
