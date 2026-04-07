@@ -9,23 +9,21 @@ The Vijil package includes everything you need to evaluate and protect agents pr
 - **LocalAgentExecutor** — Wrap local agent functions for evaluation without deployment
 - **Dome SDK** — Add runtime guardrails to intercept and filter agent inputs/outputs
 
-One package, one install. Choose optional extras based on your framework.
-
 ## Requirements
 
 - Python 3.9+
-- pip or poetry
+- pip
 
-## Install with pip
+## Install
 
 ```bash
 pip install vijil
 ```
 
-## Install with poetry
+For Dome (runtime guardrails), install the separate package:
 
 ```bash
-poetry add vijil
+pip install vijil-dome
 ```
 
 ## Verify Installation
@@ -38,51 +36,27 @@ print(vijil.__version__)
 ## Quick Test
 
 ```python
-from vijil import Client
+from vijil import Vijil
 
-client = Client(api_key="your-api-key")
-
-# List your agents
-agents = client.agents.list()
-print(f"Found {len(agents)} agents")
-```
-
-## Optional Dependencies
-
-### For Dome SDK
-
-```bash
-pip install vijil[dome]
-```
-
-### For LangChain Integration
-
-```bash
-pip install vijil[langchain]
-```
-
-### For Full Development
-
-```bash
-pip install vijil[all]
+client = Vijil(api_key="your-api-key")
 ```
 
 ## Configuration
 
 ### Environment Variables
 
+The recommended way to authenticate is via an environment variable:
+
 ```bash
 export VIJIL_API_KEY="your-api-key"
 ```
 
-### Configuration File
+If the `VIJIL_API_KEY` environment variable is set, you can instantiate the client without passing a key:
 
-Create `~/.vijil/config.yaml`:
+```python
+from vijil import Vijil
 
-```yaml
-api_key: your-api-key
-base_url: https://api.vijil.ai  # default
-timeout: 30  # seconds
+client = Vijil()  # reads VIJIL_API_KEY from environment
 ```
 
 ## Next Steps

@@ -10,6 +10,7 @@ This quickstart evaluates your agent against Vijil's Trust Score harness. You'll
 - Python 3.9+
 - A Vijil API key ([get one here](https://console.vijil.ai))
 - An OpenAI API key (or another LLM provider)
+- An ngrok auth token ([get one here](https://dashboard.ngrok.com/get-started/setup/python)) — used to expose your local agent to the evaluation service
 
 ## Install
 
@@ -22,6 +23,7 @@ pip install vijil
 ```bash
 export VIJIL_API_KEY="your-vijil-key"
 export OPENAI_API_KEY="your-openai-key"
+export NGROK_AUTHTOKEN="your-ngrok-token"
 ```
 
 ## Evaluate Your Agent
@@ -30,9 +32,15 @@ Create a file called `evaluate.py`:
 
 ```python
 from vijil import Vijil
+from vijil.local_agents.models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatMessage,
+)
 from openai import OpenAI
 
-# Define your agent as a function
+# Define your agent
 def my_agent(prompt: str) -> str:
     client = OpenAI()
     response = client.chat.completions.create(
@@ -44,17 +52,36 @@ def my_agent(prompt: str) -> str:
     )
     return response.choices[0].message.content
 
-# Evaluate it
+# Adapters translate between Vijil's message format and your agent
+def input_adapter(request: ChatCompletionRequest) -> str:
+    return request.messages[-1]["content"]
+
+def output_adapter(output: str) -> ChatCompletionResponse:
+    return ChatCompletionResponse(
+        model="my-agent",
+        choices=[ChatCompletionChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=output),
+            finish_reason="stop"
+        )]
+    )
+
+# Create and evaluate the local agent
 vijil = Vijil()
 
 local_agent = vijil.local_agents.create(
     agent_function=my_agent,
-    agent_name="my-first-agent"
+    input_adapter=input_adapter,
+    output_adapter=output_adapter,
 )
 
 vijil.local_agents.evaluate(
     agent_name="my-first-agent",
-    harnesses=["trust_score"]
+    evaluation_name="My First Evaluation",
+    agent=local_agent,
+    harnesses=["trust_score"],
+    rate_limit=30,
+    rate_limit_interval=1,
 )
 ```
 
@@ -64,28 +91,18 @@ Run it:
 python evaluate.py
 ```
 
-The evaluation takes 10–15 minutes. When complete, you'll see output like:
-
-```
-Trust Score: 0.82
-├── Reliability: 0.91
-├── Security: 0.74
-└── Safety: 0.85
-
-High-severity findings: 2
-Medium-severity findings: 5
-```
+The evaluation takes 10–15 minutes. When it completes, open the [Vijil Console](https://console.vijil.ai) to see your results.
 
 ## What Just Happened?
 
-1. **Vijil wrapped your agent** in a temporary HTTP server using ngrok
+1. **Vijil created an ephemeral endpoint** for your agent using ngrok, so the evaluation service can reach it without you deploying anything
 2. **Diamond sent probes** — adversarial prompts testing for hallucinations, prompt injection, jailbreaks, and more
-3. **Detectors analyzed responses** — checking if your agent leaked data, followed malicious instructions, or violated safety policies
-4. **Results aggregated** into a Trust Score with specific findings
+3. **Detectors analyzed responses** — checking whether your agent leaked data, followed malicious instructions, or violated safety policies
+4. **Results were saved** to your Vijil account and are ready to view in the console
 
 Your agent code wasn't modified. The evaluation ran against your actual implementation.
 
-## View Detailed Results
+## View Results
 
 Open the [Vijil Console](https://console.vijil.ai) to see:
 - Per-probe results with the exact prompts and responses

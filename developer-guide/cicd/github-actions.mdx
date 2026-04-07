@@ -52,23 +52,14 @@ jobs:
           import os
           import sys
           import time
-          import requests
           from vijil import Vijil
 
-          # Get access token
-          response = requests.post(
-              "https://api.vijil.ai/v1/auth/token",
-              json={
-                  "client_id": os.environ["M2M_CLIENT_ID"],
-                  "client_secret": os.environ["M2M_CLIENT_SECRET"],
-                  "client_token": os.environ["M2M_CLIENT_TOKEN"]
-              }
+          # Authenticate with M2M credentials
+          vijil = Vijil(
+              client_id=os.environ["M2M_CLIENT_ID"],
+              client_secret=os.environ["M2M_CLIENT_SECRET"],
+              client_token=os.environ["M2M_CLIENT_TOKEN"]
           )
-          response.raise_for_status()
-          token = response.json()["access_token"]
-
-          # Run evaluation
-          vijil = Vijil(api_key=token)
           evaluation = vijil.evaluations.create(
               agent_id=os.environ["VIJIL_AGENT_ID"],
               harnesses=["trust_score"]
@@ -132,22 +123,16 @@ jobs:
           import os
           import sys
           import time
-          import requests
           from vijil import Vijil
 
-          # Authenticate
-          response = requests.post(
-              "https://api.vijil.ai/v1/auth/token",
-              json={
-                  "client_id": os.environ["M2M_CLIENT_ID"],
-                  "client_secret": os.environ["M2M_CLIENT_SECRET"],
-                  "client_token": os.environ["M2M_CLIENT_TOKEN"]
-              }
+          # Authenticate with M2M credentials
+          vijil = Vijil(
+              client_id=os.environ["M2M_CLIENT_ID"],
+              client_secret=os.environ["M2M_CLIENT_SECRET"],
+              client_token=os.environ["M2M_CLIENT_TOKEN"]
           )
-          token = response.json()["access_token"]
 
           # Run quick evaluation
-          vijil = Vijil(api_key=token)
           evaluation = vijil.evaluations.create(
               agent_id=os.environ["VIJIL_AGENT_ID"],
               harnesses=["security_Small"]  # Fast ~5 min evaluation
@@ -212,22 +197,16 @@ jobs:
           import os
           import sys
           import time
-          import requests
           from vijil import Vijil
 
-          # Authenticate
-          response = requests.post(
-              "https://api.vijil.ai/v1/auth/token",
-              json={
-                  "client_id": os.environ["M2M_CLIENT_ID"],
-                  "client_secret": os.environ["M2M_CLIENT_SECRET"],
-                  "client_token": os.environ["M2M_CLIENT_TOKEN"]
-              }
+          # Authenticate with M2M credentials
+          vijil = Vijil(
+              client_id=os.environ["M2M_CLIENT_ID"],
+              client_secret=os.environ["M2M_CLIENT_SECRET"],
+              client_token=os.environ["M2M_CLIENT_TOKEN"]
           )
-          token = response.json()["access_token"]
 
           # Run evaluation
-          vijil = Vijil(api_key=token)
           evaluation = vijil.evaluations.create(
               agent_id=os.environ["VIJIL_AGENT_ID"],
               harnesses=["trust_score"]

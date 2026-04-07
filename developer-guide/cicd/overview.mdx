@@ -58,34 +58,25 @@ Settings > CI/CD > Variables
 
 ### Obtaining an Access Token
 
-Use M2M secrets to get an access token for API calls:
+Once you have your M2M credentials stored as CI/CD secrets, use them to authenticate the Vijil client:
 
 ```python
-import requests
 import os
+from vijil import Vijil
 
-def get_vijil_token():
-    """Exchange M2M credentials for an access token."""
-    payload = {
-        "client_id": os.environ["M2M_CLIENT_ID"],
-        "client_secret": os.environ["M2M_CLIENT_SECRET"],
-        "client_token": os.environ["M2M_CLIENT_TOKEN"]
-    }
-
-    response = requests.post(
-        "https://api.vijil.ai/v1/auth/token",
-        json=payload
+def get_vijil_client():
+    """Create authenticated Vijil client using M2M credentials."""
+    return Vijil(
+        client_id=os.environ["M2M_CLIENT_ID"],
+        client_secret=os.environ["M2M_CLIENT_SECRET"],
+        client_token=os.environ["M2M_CLIENT_TOKEN"]
     )
-    response.raise_for_status()
 
-    return response.json()["access_token"]
-
-# Use the token
-os.environ["VIJIL_API_KEY"] = get_vijil_token()
+client = get_vijil_client()
 ```
 
 <Note>
-Access tokens expire after 24 hours. For pipelines running longer than 24 hours, refresh the token before it expires.
+If the exact authentication flow differs for your deployment, contact [support@vijil.ai](mailto:support@vijil.ai) for the correct M2M setup steps for your account.
 </Note>
 
 ## Deployment Strategies
@@ -141,17 +132,12 @@ import requests
 from vijil import Vijil
 
 def get_token():
-    """Get access token from M2M credentials."""
-    response = requests.post(
-        "https://api.vijil.ai/v1/auth/token",
-        json={
-            "client_id": os.environ["M2M_CLIENT_ID"],
-            "client_secret": os.environ["M2M_CLIENT_SECRET"],
-            "client_token": os.environ["M2M_CLIENT_TOKEN"]
-        }
+    """Get authenticated Vijil client from M2M credentials."""
+    return Vijil(
+        client_id=os.environ["M2M_CLIENT_ID"],
+        client_secret=os.environ["M2M_CLIENT_SECRET"],
+        client_token=os.environ["M2M_CLIENT_TOKEN"]
     )
-    response.raise_for_status()
-    return response.json()["access_token"]
 
 def main():
     # Configuration from environment
@@ -160,8 +146,7 @@ def main():
     threshold = float(os.environ.get("VIJIL_THRESHOLD", "75"))
 
     # Authenticate
-    token = get_token()
-    vijil = Vijil(api_key=token)
+    vijil = get_token()
 
     # Run evaluation
     print(f"Starting evaluation for agent {agent_id}...")

@@ -33,71 +33,50 @@ export VIJIL_API_KEY="your-api-key"
 ```
 
 ```python
-from vijil import Client
+from vijil import Vijil
 
-# Automatically reads from environment
-client = Client()
+# Automatically reads VIJIL_API_KEY from environment
+client = Vijil()
 ```
 
 ### Direct Initialization
 
 ```python
-from vijil import Client
+from vijil import Vijil
 
-client = Client(api_key="your-api-key")
+client = Vijil(api_key="your-api-key")
 ```
 
 <Warning>
-Never commit API keys to version control. Use environment variables or secrets management.
+Never commit API keys to version control. Use environment variables or a secrets manager.
 </Warning>
-
-### Configuration File
-
-Create `~/.vijil/config.yaml`:
-
-```yaml
-api_key: your-api-key
-```
-
-## Key Permissions
-
-API keys inherit team permissions:
-
-| Scope | Capabilities |
-|-------|--------------|
-| **Full Access** | All operations |
-| **Read Only** | View only |
-| **Evaluations** | Run evaluations only |
 
 ## Key Rotation
 
 Rotate keys regularly:
 
-1. Create new key
-2. Update your applications
-3. Revoke old key
+1. Create a new key
+2. Update your applications to use the new key
+3. Revoke the old key
 
 ## Security Best Practices
 
-1. **Use environment variables** - Not hardcoded values
-2. **Rotate regularly** - Every 90 days recommended
-3. **Limit scope** - Use minimal permissions needed
-4. **Monitor usage** - Check for unauthorized access
-5. **Revoke unused keys** - Clean up old keys
+1. **Use environment variables** — never hardcode keys in source
+2. **Rotate regularly** — every 90 days is a reasonable default
+3. **Monitor usage** — check the console for unexpected activity
+4. **Revoke unused keys** — clean up keys that are no longer needed
 
 ## Troubleshooting
 
 ### "Invalid API Key"
 
-- Verify the key is correct
-- Check for extra whitespace
-- Ensure the key hasn't been revoked
+- Verify the key is correct and hasn't been revoked
+- Check for extra whitespace when copying
 
 ### "Insufficient Permissions"
 
-- Check key scope matches operation
 - Verify team membership
-- Contact admin for access
+- Contact your admin for access
 
 ## Next Steps
 
@@ -105,7 +84,7 @@ Rotate keys regularly:
   <Card title="Quickstart" icon="play" href="/developer-guide/getting-started/quickstart">
     Run your first evaluation
   </Card>
-  <Card title="API Reference" icon="book" href="/developer-guide/api/overview">
-    Full API documentation
+  <Card title="CI/CD Integration" icon="unplug" href="/developer-guide/cicd/overview">
+    Set up machine-to-machine authentication for pipelines
   </Card>
 </CardGroup>
