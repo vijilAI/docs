@@ -38,9 +38,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "concepts/welcome"
-            ]
+            "pages": ["concepts/welcome"]
           },
           {
             "group": "Trust Score",
@@ -94,11 +92,7 @@
           },
           {
             "group": "Reference",
-            "pages": [
-              "concepts/glossary",
-              "concepts/component-reference",
-              "concepts/release-notes"
-            ]
+            "pages": ["concepts/glossary"]
           }
         ]
       },
@@ -114,9 +108,7 @@
           },
           {
             "group": "Register Agents",
-            "pages": [
-              "owner-guide/register-agents/registering-agents"
-            ]
+            "pages": ["owner-guide/register-agents/registering-agents"]
           },
           {
             "group": "Build an Evaluation Environment",
@@ -145,13 +137,6 @@
               "owner-guide/protect-in-production/configuring-guardrails",
               "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
-            ]
-          },
-          {
-            "group": "Audit & Readiness",
-            "pages": [
-              "owner-guide/audit-agent-behavior/quantifying-risk",
-              "owner-guide/audit-agent-behavior/operational-readiness"
             ]
           }
         ]
@@ -201,10 +186,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": [
-              "legacy/get-started/welcome",
-              "legacy/get-started/quickstart"
-            ]
+            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
           },
           {
             "group": "Core Concepts",
@@ -269,9 +251,7 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": [
-              "legacy/evaluate-agents/introduction"
-            ]
+            "pages": ["legacy/evaluate-agents/introduction"]
           },
           {
             "group": "Tutorials",
