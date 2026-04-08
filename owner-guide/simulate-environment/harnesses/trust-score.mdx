@@ -57,16 +57,16 @@ Navigate to **Evaluations** in the sidebar to open Diamond Evaluations.
 
 The evaluation interface has two panels:
 
-**Select Agent** — Choose which registered agent to evaluate. The table shows agent name and status. Only agents with status **Active** appear in the list.
+**Select Agent**: Choose which registered agent to evaluate. The table shows agent name and status. Only agents with status **Active** appear in the list.
 
-**Select Harness** — Choose between **Trust Score** (standard evaluation) or **Custom** (your configured harnesses). When Trust Score is selected, you see the three dimensions with toggles.
+**Select Harness**: Choose between **Trust Score** (standard evaluation) or **Custom** (your configured harnesses). When Trust Score is selected, you see the three dimensions with toggles.
 
 ### Configuring Dimensions
 
 Each dimension has a toggle that enables or disables it for the evaluation:
 
-- **All dimensions enabled** — Comprehensive evaluation across reliability, security, and safety
-- **Selected dimensions** — Focus on specific concerns (e.g., security-only for a penetration test)
+- **All dimensions enabled**: Comprehensive evaluation across reliability, security, and safety
+- **Selected dimensions**: Focus on specific concerns (e.g., security-only for a penetration test)
 
 The subcategories beneath each dimension show what behaviors will be tested.
 
@@ -108,15 +108,15 @@ The Trust Report provides a complete record of the evaluation with actionable fi
 
 ### Report Sections
 
-**Executive Summary** — High-level overview stating whether the agent passed or failed, with the overall Trust Score.
+**Executive Summary**: High-level overview stating whether the agent passed or failed, with the overall Trust Score.
 
-**Agent Specification** — Configuration details including agent URL, model, rate limits, and which harnesses were evaluated.
+**Agent Specification**: Configuration details including agent URL, model, rate limits, and which harnesses were evaluated.
 
-**Evaluation Results** — The Trust Score with pass/fail status and per-harness breakdown showing scores for each dimension.
+**Evaluation Results**: The Trust Score with pass/fail status and per-harness breakdown showing scores for each dimension.
 
-**Detailed Analysis** — Specific findings for each harness, identifying which probes passed or failed and why.
+**Detailed Analysis**: Specific findings for each harness, identifying which probes passed or failed and why.
 
-**Conclusion** — Deployment recommendation based on the results.
+**Conclusion**: Deployment recommendation based on the results.
 
 ### Interpreting the Score
 
@@ -149,15 +149,15 @@ The report concludes with a deployment recommendation:
 
 ## Best Practices
 
-**Run before deployment** — Evaluate every agent before it reaches production. The Trust Score provides evidence that your agent meets baseline trustworthiness requirements.
+**Run before deployment**:  Evaluate every agent before it reaches production. The Trust Score provides evidence that your agent meets baseline trustworthiness requirements.
 
-**Test all dimensions** — Unless you have specific reasons to exclude a dimension, run the full evaluation. Security vulnerabilities can exist even in agents that seem reliable.
+**Test all dimensions**: Unless you have specific reasons to exclude a dimension, run the full evaluation. Security vulnerabilities can exist even in agents that seem reliable.
 
-**Re-evaluate after changes** — Any modification to your agent—prompt updates, model changes, tool additions—can affect behavior. Re-run the Trust Score to verify.
+**Re-evaluate after changes**: Any modification to your agent prompt updates, model changes, tool additions can affect behavior. Re-run the Trust Score to verify.
 
-**Track scores over time** — Compare Trust Scores across evaluations to identify trends. Regressions indicate problems introduced by recent changes.
+**Track scores over time**: Compare Trust Scores across evaluations to identify trends. Regressions indicate problems introduced by recent changes.
 
-**Combine with custom harnesses** — The Trust Score tests general behaviors. Custom harnesses test your specific policies and user scenarios. Use both for comprehensive coverage.
+**Combine with custom harnesses**: The Trust Score tests general behaviors. Custom harnesses test your specific policies and user scenarios. Use both for comprehensive coverage.
 
 ## Next Steps
 

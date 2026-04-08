@@ -7,7 +7,7 @@ Before deploying an agent to production, verify it meets your organization's cri
 
 ## Deployment Gates
 
-A deployment gate is a checkpoint where an agent must demonstrate acceptable risk before proceeding. Gates convert subjective "is it ready?" conversations into objective pass/fail decisions.
+A deployment gate is a checkpoint where an agent must demonstrate acceptable risk before proceeding. Gates convert subjective "is it ready?" conversations into objective **pass/fail** decisions.
 
 ### Gate Structure
 
@@ -135,12 +135,12 @@ Deployment decisions require alignment between stakeholders with different prior
 
 Every deployment decision should include:
 
-1. **Evaluation report** — Full Trust Report with scores and findings
-2. **Gate criteria** — The specific thresholds applied
-3. **Comparison table** — Actual vs. required for each criterion
-4. **Decision record** — Approved, conditionally approved, or rejected
-5. **Sign-off signatures** — Business Owner and Risk Officer approval
-6. **Conditions** (if applicable) — Compensating controls and remediation timeline
+1. **Evaluation report**: Full Trust Report with scores and findings
+2. **Gate criteria**: The specific thresholds applied
+3. **Comparison table**: Actual vs. required for each criterion
+4. **Decision record**: Approved, conditionally approved, or rejected
+5. **Sign-off signatures**: Business Owner and Risk Officer approval
+6. **Conditions** (if applicable): Compensating controls and remediation timeline
 
 ## Setting Thresholds
 
@@ -181,20 +181,3 @@ Monitor readiness across agent versions to identify trends:
 | v1.3 | Mar 1 | 0.78 | 0 | 1 | Passed |
 
 Improving scores with decreasing findings indicate effective remediation. Declining scores signal regression requiring investigation.
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Quantifying Risk" icon="chart-pie" href="/owner-guide/audit-agent-behavior/quantifying-risk">
-    Translate findings into risk assessments
-  </Card>
-  <Card title="Understanding Results" icon="brain" href="/owner-guide/run-evaluations/understanding-results">
-    Interpret evaluation findings
-  </Card>
-  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
-    Set up compensating controls
-  </Card>
-  <Card title="Observability" icon="chart-line" href="/owner-guide/protect-in-production/observability">
-    Monitor production behavior
-  </Card>
-</CardGroup>

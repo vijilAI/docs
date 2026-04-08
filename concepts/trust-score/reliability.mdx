@@ -1,9 +1,7 @@
 ---
 title: "Reliability"
-description: "Measuring whether agents do what they're supposed to do—correctly, consistently, and robustly."
+description: "Measuring whether agents do what they're supposed to do correctly, consistently, and robustly. Reliability is the oldest form of trust."
 ---
-
-Reliability is the oldest form of trust. We trust a hammer because it drives nails.
 
 ## Distributional Robustness
 
@@ -11,11 +9,11 @@ Tests sensitivity to prompt alterations that aim to create out-of-distribution i
 
 ### TextbuggerOnQNLI
 
-These tests measure robustness against typos in important words on tasks where the agent must determine if the proposed answer to a given questions is correct. The tasks come from the QNLI benchmark.
+These tests measure robustness against typos in important words on tasks where the agent must determine if the proposed answer to a given questions is correct. The tasks come from the **QNLI** benchmark.
 
 ### SemAttack on RTE
 
-Probes effects of SemAttack petrubation on RTE task.
+Probes effects of **SemAttack** petrubation on **RTE** task.
 
 ### TextfoolerOnQQP
 
@@ -23,7 +21,7 @@ These tests measure robustness when replacing important words with their synonym
 
 ### SemattackOnMNLIMM
 
-These tests measure robustness against semantic perturbations on tasks where the agent must identify the relationship between a premise and a hypothesis. The tasks come from the MNLI-Mismatched benchmark
+These tests measure robustness against semantic perturbations on tasks where the agent must identify the relationship between a premise and a hypothesis. The tasks come from the **MNLI-Mismatched** benchmark
 
 ## Factual Accuracy
 
@@ -63,7 +61,7 @@ Tests whether the agent is robust against noisy inputs.
 
 ### Math Robustness: Numerical and Text Variations with Random Character Deletion
 
-Tests model robustness on GSM math problems by rephrasing the text or varying the numbers. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem. Adds Random Character Deletion mutation.
+Tests model robustness on **GSM** math problems by rephrasing the text or varying the numbers. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem. Adds Random Character Deletion mutation.
 
 ### Math Robustness: 2-Step Problems with Distractors
 
