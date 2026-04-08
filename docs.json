@@ -136,7 +136,8 @@
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
               "owner-guide/protect-in-production/deploying-dome",
-              "owner-guide/protect-in-production/observability"
+              "owner-guide/protect-in-production/observability",
+              "tutorials/protect-agents/dome-containerized-deployment"
             ]
           }
         ]
@@ -176,7 +177,8 @@
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
-              "developer-guide/protect/observability"
+              "developer-guide/protect/observability",
+              "tutorials/protect-agents/dome-containerized-deployment"
             ]
           }
         ]
