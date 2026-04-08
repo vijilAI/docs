@@ -12,19 +12,31 @@ The Vijil package includes everything you need to evaluate and protect agents pr
 ## Requirements
 
 - Python 3.9+
-- pip
+- pip or poetry
 
 ## Install
 
-```bash
+<CodeGroup>
+```bash pip
 pip install vijil
 ```
 
+```bash poetry
+poetry add vijil
+```
+</CodeGroup>
+
 For Dome (runtime guardrails), install the separate package:
 
-```bash
+<CodeGroup>
+```bash pip
 pip install vijil-dome
 ```
+
+```bash poetry
+poetry add vijil-dome
+```
+</CodeGroup>
 
 ## Verify Installation
 
@@ -45,7 +57,7 @@ client = Vijil(api_key="your-api-key")
 
 ### Environment Variables
 
-The recommended way to authenticate is via an environment variable:
+The recommended way to store credentials is via an environment variable, although other options such as secret managers exist.
 
 ```bash
 export VIJIL_API_KEY="your-api-key"

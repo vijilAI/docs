@@ -48,40 +48,11 @@ Higher scores indicate more trustworthy behavior. Use scores to:
 
 ### Cloud-Hosted Agents
 
-Evaluate agents deployed on supported cloud platforms:
-
-```python
-from vijil import Vijil
-
-vijil = Vijil()
-evaluation = vijil.evaluations.create(
-    model_hub="openai",
-    model_name="gpt-4o",
-    harnesses=["trust_score"]
-)
-```
-
-Supported platforms: OpenAI, Anthropic, AWS Bedrock, Google Vertex AI, DigitalOcean, and any OpenAI-compatible endpoint.
+Evaluate agents deployed on supported cloud platforms such as OpenAI, Anthropic, AWS Bedrock, Google Vertex AI, DigitalOcean, and any OpenAI-compatible endpoint.
 
 ### Local Agents
 
-Evaluate agents running locally without deployment:
-
-```python
-local_agent = vijil.local_agents.create(
-    agent_function=my_agent,
-    input_adapter=input_adapter,
-    output_adapter=output_adapter,
-)
-
-vijil.local_agents.evaluate(
-    agent_name="my-agent",
-    agent=local_agent,
-    harnesses=["trust_score"]
-)
-```
-
-This creates a temporary authenticated tunnel (via ngrok) for Vijil to communicate with your local agent.
+Evaluate agents running locally without deployment. This creates a temporary authenticated tunnel (via ngrok) for Vijil to communicate with your local agent.
 
 ## Available Harnesses
 
@@ -120,17 +91,11 @@ Add `_Small` suffix (e.g., `security_Small`) for faster iterations during develo
 
 ## Rate Limiting
 
-Control the evaluation pace to avoid overwhelming your agent or hitting API limits:
+Control the evaluation pace to avoid overwhelming your agent or hitting API limits during evaluations.
 
-```python
-vijil.local_agents.evaluate(
-    agent_name="my-agent",
-    agent=local_agent,
-    harnesses=["trust_score"],
-    rate_limit=30,           # Max requests per interval
-    rate_limit_interval=1    # Interval in minutes
-)
-```
+<Card title="Work in Progress" icon="pickaxe" badge="Private preview">
+  The programmatic evaluation capabilities are currently in private preview and subject to change.
+</Card>
 
 ## Next Steps
 

@@ -10,9 +10,7 @@ Run Vijil evaluations automatically in your GitLab CI/CD pipelines. This guide p
 1. Store M2M credentials as CI/CD variables (see [CI/CD Overview](/developer-guide/cicd/overview)):
 
    Go to **Settings > CI/CD > Variables** and add:
-   - `M2M_CLIENT_ID` (masked)
-   - `M2M_CLIENT_SECRET` (masked)
-   - `M2M_CLIENT_TOKEN` (masked)
+   - `VIJIL_API_KEY` (masked)
    - `VIJIL_AGENT_ID`
 
 ## Basic Pipeline
@@ -38,12 +36,8 @@ vijil-evaluation:
       import time
       from vijil import Vijil
 
-      # Authenticate with M2M credentials
-      vijil = Vijil(
-          client_id=os.environ["M2M_CLIENT_ID"],
-          client_secret=os.environ["M2M_CLIENT_SECRET"],
-          client_token=os.environ["M2M_CLIENT_TOKEN"]
-      )
+      # Authenticate using VIJIL_API_KEY from environment
+      vijil = Vijil()
       evaluation = vijil.evaluations.create(
           agent_id=os.environ["VIJIL_AGENT_ID"],
           harnesses=["trust_score"]
@@ -88,12 +82,8 @@ vijil-quick-check:
       import time
       from vijil import Vijil
 
-      # Authenticate with M2M credentials
-      vijil = Vijil(
-          client_id=os.environ["M2M_CLIENT_ID"],
-          client_secret=os.environ["M2M_CLIENT_SECRET"],
-          client_token=os.environ["M2M_CLIENT_TOKEN"]
-      )
+      # Authenticate using VIJIL_API_KEY from environment
+      vijil = Vijil()
       evaluation = vijil.evaluations.create(
           agent_id=os.environ["VIJIL_AGENT_ID"],
           harnesses=["security_Small"]
@@ -133,12 +123,8 @@ vijil-evaluation:
       import time
       from vijil import Vijil
 
-      # Authenticate with M2M credentials
-      vijil = Vijil(
-          client_id=os.environ["M2M_CLIENT_ID"],
-          client_secret=os.environ["M2M_CLIENT_SECRET"],
-          client_token=os.environ["M2M_CLIENT_TOKEN"]
-      )
+      # Authenticate using VIJIL_API_KEY from environment
+      vijil = Vijil()
       evaluation = vijil.evaluations.create(
           agent_id=os.environ["VIJIL_AGENT_ID"],
           harnesses=["trust_score"]
@@ -284,12 +270,8 @@ vijil-evaluation:
       from vijil import Vijil
       from junit_xml import TestSuite, TestCase
 
-      # Authenticate with M2M credentials
-      vijil = Vijil(
-          client_id=os.environ["M2M_CLIENT_ID"],
-          client_secret=os.environ["M2M_CLIENT_SECRET"],
-          client_token=os.environ["M2M_CLIENT_TOKEN"]
-      )
+      # Authenticate using VIJIL_API_KEY from environment
+      vijil = Vijil()
       evaluation = vijil.evaluations.create(
           agent_id=os.environ["VIJIL_AGENT_ID"],
           harnesses=["trust_score"]

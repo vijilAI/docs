@@ -7,10 +7,8 @@ Run Vijil evaluations automatically in your GitHub Actions workflows. This guide
 
 ## Prerequisites
 
-1. Store M2M credentials as repository secrets (see [CI/CD Overview](/developer-guide/cicd/overview)):
-   - `M2M_CLIENT_ID`
-   - `M2M_CLIENT_SECRET`
-   - `M2M_CLIENT_TOKEN`
+1. Store your API Key as a repository secret (see [CI/CD Overview](/developer-guide/cicd/overview)):
+   - `VIJIL_API_KEY`
 
 2. Store your agent ID:
    - `VIJIL_AGENT_ID`
@@ -43,9 +41,7 @@ jobs:
 
       - name: Run evaluation
         env:
-          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
-          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
-          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_API_KEY: ${{ secrets.VIJIL_API_KEY }}
           VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
         run: |
           python << 'EOF'
@@ -54,12 +50,8 @@ jobs:
           import time
           from vijil import Vijil
 
-          # Authenticate with M2M credentials
-          vijil = Vijil(
-              client_id=os.environ["M2M_CLIENT_ID"],
-              client_secret=os.environ["M2M_CLIENT_SECRET"],
-              client_token=os.environ["M2M_CLIENT_TOKEN"]
-          )
+          # Authenticate using VIJIL_API_KEY from environment
+          vijil = Vijil()
           evaluation = vijil.evaluations.create(
               agent_id=os.environ["VIJIL_AGENT_ID"],
               harnesses=["trust_score"]
@@ -114,9 +106,7 @@ jobs:
 
       - name: Quick evaluation
         env:
-          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
-          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
-          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_API_KEY: ${{ secrets.VIJIL_API_KEY }}
           VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
         run: |
           python << 'EOF'
@@ -125,12 +115,8 @@ jobs:
           import time
           from vijil import Vijil
 
-          # Authenticate with M2M credentials
-          vijil = Vijil(
-              client_id=os.environ["M2M_CLIENT_ID"],
-              client_secret=os.environ["M2M_CLIENT_SECRET"],
-              client_token=os.environ["M2M_CLIENT_TOKEN"]
-          )
+          # Authenticate using VIJIL_API_KEY from environment
+          vijil = Vijil()
 
           # Run quick evaluation
           evaluation = vijil.evaluations.create(
@@ -188,9 +174,7 @@ jobs:
       - name: Run evaluation
         id: eval
         env:
-          M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
-          M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
-          M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+          VIJIL_API_KEY: ${{ secrets.VIJIL_API_KEY }}
           VIJIL_AGENT_ID: ${{ secrets.VIJIL_AGENT_ID }}
         run: |
           python << 'EOF'
@@ -199,12 +183,8 @@ jobs:
           import time
           from vijil import Vijil
 
-          # Authenticate with M2M credentials
-          vijil = Vijil(
-              client_id=os.environ["M2M_CLIENT_ID"],
-              client_secret=os.environ["M2M_CLIENT_SECRET"],
-              client_token=os.environ["M2M_CLIENT_TOKEN"]
-          )
+          # Authenticate using VIJIL_API_KEY from environment
+          vijil = Vijil()
 
           # Run evaluation
           evaluation = vijil.evaluations.create(
@@ -394,11 +374,7 @@ on:
         type: number
         default: 75
     secrets:
-      M2M_CLIENT_ID:
-        required: true
-      M2M_CLIENT_SECRET:
-        required: true
-      M2M_CLIENT_TOKEN:
+      VIJIL_API_KEY:
         required: true
     outputs:
       trust_score:
@@ -428,9 +404,7 @@ jobs:
       harness: security
       threshold: 80
     secrets:
-      M2M_CLIENT_ID: ${{ secrets.M2M_CLIENT_ID }}
-      M2M_CLIENT_SECRET: ${{ secrets.M2M_CLIENT_SECRET }}
-      M2M_CLIENT_TOKEN: ${{ secrets.M2M_CLIENT_TOKEN }}
+      VIJIL_API_KEY: ${{ secrets.VIJIL_API_KEY }}
 ```
 
 ## Next Steps
