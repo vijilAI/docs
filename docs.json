@@ -134,9 +134,7 @@
           {
             "group": "Protect Agents",
             "pages": [
-              "owner-guide/protect-in-production/configuring-guardrails",
-              "owner-guide/protect-in-production/deploying-dome",
-              "owner-guide/protect-in-production/observability"
+              "owner-guide/protect-in-production/configuring-guardrails"
             ]
           }
         ]
@@ -147,8 +145,7 @@
           {
             "group": "Quick Start",
             "pages": [
-              "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/enterprise-deployment"
+              "developer-guide/getting-started/introduction"
             ]
           },
           {
