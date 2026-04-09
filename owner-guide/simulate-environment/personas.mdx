@@ -3,7 +3,7 @@ title: 'Defining Personas'
 description: 'Create user profiles that represent who interacts with your agent during evaluation.'
 ---
 
-Personas define *who* interacts with your agent during evaluation. Each persona represents a distinct user type—with their own role, expertise level, and intent. Vijil uses personas to generate realistic test cases that probe how your agent responds to different kinds of users.
+Personas define *who* interacts with your agent during evaluation. Each persona represents a distinct user type with their own role, expertise level, and intent. Vijil uses personas to generate realistic test cases that probe how your agent responds to different kinds of users.
 
 ## Why Personas Matter
 
@@ -45,7 +45,7 @@ Intent determines how aggressively the persona probes your agent:
 | **Adversarial** | Deliberate misuse attempts | Security controls, jailbreak resistance |
 | **Malicious** | Active attacks, exploitation | Data exfiltration, prompt injection |
 
-A comprehensive evaluation includes personas across the intent spectrum. Don't skip adversarial testing—those are the scenarios that matter most in production.
+A comprehensive evaluation includes personas across the intent spectrum. Don't skip adversarial testing those are the scenarios that matter most in production.
 
 ## Creating Personas
 
@@ -81,25 +81,25 @@ Switch to the **Custom** tab to define a persona from scratch:
 </Frame>
 
 **Basic Information:**
-- **Persona Name** — Descriptive identifier (e.g., "Frustrated Customer", "Junior Developer")
-- **Description** — Context about this persona's background and behavior
-- **Language** — Primary language for test case generation
-- **Tags** — Categories for filtering (e.g., "healthcare", "legal", "finance")
+- **Persona Name**: Descriptive identifier (e.g., "Frustrated Customer", "Junior Developer")
+- **Description**: Context about this persona's background and behavior
+- **Language**: Primary language for test case generation
+- **Tags**: Categories for filtering (e.g., "healthcare", "legal", "finance")
 
 **Role Definition:**
-- **Role** — Job function or user type (e.g., "attorney", "recruiter", "analyst")
-- **Role Description** — Detailed responsibilities and context
+- **Role**: Job function or user type (e.g., "attorney", "recruiter", "analyst")
+- **Role Description**: Detailed responsibilities and context
 
 **Competency & Intent:**
-- **Knowledge Level** — Beginner, Intermediate, Advanced, or Expert
-- **Skill Level** — Novice, Competent, Proficient, or Expert
-- **Intent** — Benign, Curious, Adversarial, or Malicious
+- **Knowledge Level**: Beginner, Intermediate, Advanced, or Expert
+- **Skill Level**: Novice, Competent, Proficient, or Expert
+- **Intent**: Benign, Curious, Adversarial, or Malicious
 
 **Access Permissions:**
-- **Privilege Level** — Guest, User, Power User, or Admin
-- **Data Access Scope** — Own Data Only, Team Data, Department Data, or All Data
-- **Allowed Tools** — Tools this persona can access (for MCP-enabled agents)
-- **Restricted Actions** — Actions this persona should be blocked from
+- **Privilege Level**: Guest, User, Power User, or Admin
+- **Data Access Scope**: Own Data Only, Team Data, Department Data, or All Data
+- **Allowed Tools**: Tools this persona can access (for MCP-enabled agents)
+- **Restricted Actions**: Actions this persona should be blocked from
 
 <Note>
 Access permissions define what the persona *should* have access to—not what they actually have. Vijil uses these to generate test cases that verify your agent enforces the intended boundaries.
@@ -115,7 +115,7 @@ Personas become powerful when combined with harnesses. When you create a custom 
 
 For balanced coverage, include:
 - At least one benign professional persona (baseline behavior)
-- At least one curious or boundary-testing persona (edge cases)
+- At least one curious or boundary testing persona (edge cases)
 - At least one adversarial persona (security testing)
 
 ## Persona Design Principles
@@ -127,10 +127,10 @@ Create personas that reflect your actual users. If your agent serves healthcare 
 ### Include Edge Cases
 
 Consider users who interact with your agent in unexpected ways:
-- **Non-native speakers** — Tests clarity and robustness to unusual phrasing
-- **Accessibility users** — Tests compatibility with assistive technologies
-- **New employees** — Tests onboarding and permission boundaries
-- **Power users** — Tests advanced features and rate limits
+- **Non-native speakers**: Tests clarity and robustness to unusual phrasing
+- **Accessibility users**: Tests compatibility with assistive technologies
+- **New employees**: Tests onboarding and permission boundaries
+- **Power users**: Tests advanced features and rate limits
 
 ### Don't Neglect Adversaries
 

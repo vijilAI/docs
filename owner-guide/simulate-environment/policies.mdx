@@ -3,15 +3,15 @@ title: 'Defining Policies'
 description: 'Specify organizational rules your agent must follow during evaluation.'
 ---
 
-Policies define *what rules* your agent must follow. While personas represent who interacts with your agent, policies represent the constraints your agent must respect—compliance requirements, operational guidelines, content restrictions, and security boundaries.
+Policies define *what rules* your agent must follow. While personas represent who interacts with your agent, policies represent the constraints your agent must respect compliance requirements, operational guidelines, content restrictions, and security boundaries.
 
 ## Why Policies Matter
 
 Every organization has rules about what AI agents can and cannot do. These might be:
-- **Regulatory requirements** — HIPAA, GDPR, SOC 2, industry-specific mandates
-- **Operational guidelines** — Response formatting, escalation procedures, approved topics
-- **Security boundaries** — Data access limits, prohibited actions, authentication requirements
-- **Content restrictions** — Tone guidelines, forbidden topics, disclosure requirements
+- **Regulatory requirements**: HIPAA, GDPR, SOC 2, industry-specific mandates
+- **Operational guidelines**: Response formatting, escalation procedures, approved topics
+- **Security boundaries**: Data access limits, prohibited actions, authentication requirements
+- **Content restrictions**: Tone guidelines, forbidden topics, disclosure requirements
 
 Without explicit policies, evaluations test generic behaviors. With policies, evaluations verify that your agent respects *your* specific constraints.
 
@@ -58,16 +58,16 @@ Use this option to define policies directly in the console:
 </Frame>
 
 **Basic Information:**
-- **Policy Name** — Descriptive identifier (e.g., "GDPR Compliance Policy", "Customer Support Guidelines")
-- **Description** — Brief summary of what this policy covers
+- **Policy Name**: Descriptive identifier (e.g., "GDPR Compliance Policy", "Customer Support Guidelines")
+- **Description**: Brief summary of what this policy covers
 
 **Category & Status:**
-- **Category** — Select from Compliance, Security, Operational, or Custom
-- **Status** — Start with Draft, change to Active when ready for use
-- **Version** — Semantic version (e.g., 1.0.0)
+- **Category**: Select from Compliance, Security, Operational, or Custom
+- **Status**: Start with Draft, change to Active when ready for use
+- **Version**: Semantic version (e.g., 1.0.0)
 
 **Policy Content:**
-- **Policy Text** — The full text of your policy, written in plain text or markdown
+- **Policy Text**: The full text of your policy, written in plain text or markdown
 
 ### Upload Policy
 
@@ -78,8 +78,8 @@ Use this option to import existing policy documents:
 </Frame>
 
 Supported formats:
-- **PDF** — Standard policy documents
-- **TXT** — Plain text files
+- **PDF**: Standard policy documents
+- **TXT**: Plain text files
 
 Maximum file size: 10MB
 
@@ -89,16 +89,16 @@ After upload, Vijil extracts the policy text for rule generation.
 
 Effective policies contain clear, testable statements. Structure your policies with:
 
-**Prohibitions** — What the agent must never do:
+**Prohibitions**: What the agent must never do:
 > "The agent must never disclose customer personal information to unauthorized parties."
 
-**Obligations** — What the agent must always do:
+**Obligations**: What the agent must always do:
 > "The agent must verify user identity before providing account information."
 
-**Permissions** — What the agent is allowed to do:
+**Permissions**: What the agent is allowed to do:
 > "The agent may recommend products based on customer purchase history."
 
-**Conditions** — Context-specific rules:
+**Conditions**: Context-specific rules:
 > "When handling healthcare data, the agent must comply with HIPAA requirements."
 
 <Tip>
@@ -173,7 +173,7 @@ Policies become powerful when combined with personas in custom harnesses:
 2. In the **Select Policies** step, choose relevant policies
 3. Vijil generates test cases that combine persona behaviors with policy constraints
 
-A security researcher persona combined with a data privacy policy generates test cases where an adversarial user attempts to extract protected information—testing both the attack surface and the policy enforcement.
+A security researcher persona combined with a data privacy policy generates test cases where an adversarial user attempts to extract protected information testing both the attack surface and the policy enforcement.
 
 ## Next Steps
 

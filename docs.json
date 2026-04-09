@@ -147,16 +147,7 @@
           {
             "group": "Quick Start",
             "pages": [
-              "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/enterprise-deployment"
-            ]
-          },
-          {
-            "group": "Integrations",
-            "pages": [
-              "developer-guide/frameworks/langchain",
-              "developer-guide/frameworks/google-adk",
-              "developer-guide/frameworks/custom-agents"
+              "developer-guide/getting-started/introduction"
             ]
           },
           {

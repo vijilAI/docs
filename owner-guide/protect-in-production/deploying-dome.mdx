@@ -9,10 +9,10 @@ Dome protects your AI agent by filtering requests and responses through configur
 
 To deploy Dome, your development team will:
 
-1. **Install the SDK** — Add `vijil-dome` to your Python dependencies
-2. **Wrap LLM calls** — Insert guard checks before and after your agent's LLM interactions
-3. **Configure guards** — Load configuration from the Vijil Console or define it in code
-4. **Handle blocked content** — Return safe responses when guards trigger
+1. **Install the SDK**: Add `vijil-dome` to your Python dependencies
+2. **Wrap LLM calls**: Insert guard checks before and after your agent's LLM interactions
+3. **Configure guards**: Load configuration from the Vijil Console or define it in code
+4. **Handle blocked content**: Return safe responses when guards trigger
 
 ## Integration Pattern
 
@@ -47,18 +47,18 @@ When you configure guardrails in the Console, your developers can pull that conf
 ## Framework Support
 
 Dome integrates with popular agent frameworks:
-- **LangChain / LangGraph** — Use `GuardrailRunnable` in your chains
-- **Google ADK** — Register Dome callbacks with your agent
-- **Custom agents** — Wrap any LLM client with guard calls
+- **LangChain / LangGraph**: Use `GuardrailRunnable` in your chains
+- **Google ADK**: Register Dome callbacks with your agent
+- **Custom agents**: Wrap any LLM client with guard calls
 
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Monitor Performance" icon="chart-line" href="/owner-guide/protect-in-production/observability">
+    View traces and metrics after deployment
+  </Card>
   <Card title="Dome SDK Guide" icon="code" href="/protect-agents/introduction">
     Complete deployment instructions for developers
-  </Card>
-    <Card title="Monitor Performance" icon="chart-line" href="/owner-guide/protect-in-production/observability">
-    View traces and metrics after deployment
   </Card>
   <Card title="Configuring Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
     Set up guard policies in the Console

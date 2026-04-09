@@ -8,9 +8,9 @@ Custom harnesses let you create evaluation scenarios tailored to your agent's sp
 ## Why Custom Harnesses Matter
 
 Standard harnesses test against general benchmarks. Custom harnesses test against *your* requirements:
-- **Your users** — Personas that match your actual user base and threat actors
-- **Your rules** — Policies that reflect your compliance obligations and operational guidelines
-- **Your agent** — Test cases generated specifically for your agent's role and capabilities
+- **Your users**: Personas that match your actual user base and threat actors
+- **Your rules**: Policies that reflect your compliance obligations and operational guidelines
+- **Your agent**: Test cases generated specifically for your agent's role and capabilities
 
 A customer support agent for a healthcare company needs different evaluation than a code assistant for developers. Custom harnesses capture that context.
 
@@ -44,9 +44,9 @@ Click **+ Create Harness** to open the creation wizard. The wizard guides you th
 </Frame>
 
 **Basic Info:**
-- **Name** — Descriptive identifier (e.g., "Security Evaluation Suite", "Customer Support Compliance")
-- **Description** — What this harness tests and why
-- **Status** — Start with Draft, change to Active when ready for evaluations
+- **Name**: Descriptive identifier (e.g., "Security Evaluation Suite", "Customer Support Compliance")
+- **Description**: What this harness tests and why
+- **Status**: Start with Draft, change to Active when ready for evaluations
 
 ### Step 2: Select Agent
 
@@ -68,13 +68,13 @@ Only agents with status **Active** appear in the selection list. Register and ac
 
 Select personas that represent who will interact with your agent during evaluation. The interface presents two columns:
 
-**Preset Personas** — Built-in personas covering common user types and threat actors:
+**Preset Personas**: Built-in personas covering common user types and threat actors:
 - Professional users (Data Analyst, Legal Counsel, Software Developer)
 - Security personas (Security Researcher, Prompt Injection Tester, Social Engineer)
 - Edge cases (Confused User, Non-English Speaker, Accessibility User)
 - Threat actors (Malicious Actor)
 
-**Custom Personas** — Personas you've created in the Persona Registry.
+**Custom Personas**: Personas you've created in the Persona Registry.
 
 Select multiple personas to generate diverse test cases. For comprehensive coverage:
 - Include at least one benign user persona (baseline behavior)
@@ -178,29 +178,23 @@ Click **Delete** to permanently remove a harness. This action cannot be undone, 
 
 ## Best Practices
 
-**Start focused, then expand** — Begin with a harness testing specific behaviors (e.g., data privacy for customer support). Add complexity as you understand your agent's failure modes.
+**Start focused, then expand**: Begin with a harness testing specific behaviors (e.g., data privacy for customer support). Add complexity as you understand your agent's failure modes.
 
-**Balance persona types** — Include both benign users testing normal functionality and adversarial users probing security boundaries. Production agents face both.
+**Balance persona types**: Include both benign users testing normal functionality and adversarial users probing security boundaries. Production agents face both.
 
-**Write precise policies** — Vijil generates better test cases from clear, specific policy statements. "Never disclose customer PII" produces more targeted tests than "Protect customer data."
+**Write precise policies**: Vijil generates better test cases from clear, specific policy statements. "Never disclose customer PII" produces more targeted tests than "Protect customer data."
 
-**Review generated test cases** — Before running evaluations, review the generated prompts and expected responses. They should align with your understanding of correct agent behavior.
+**Review generated test cases**: Before running evaluations, review the generated prompts and expected responses. They should align with your understanding of correct agent behavior.
 
-**Iterate based on results** — Evaluation findings reveal gaps. Add personas that represent failure cases. Refine policies that generate too many false positives.
+**Iterate based on results**: Evaluation findings reveal gaps. Add personas that represent failure cases. Refine policies that generate too many false positives.
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Define Personas" icon="users" href="/owner-guide/simulate-environment/personas">
-    Create user profiles for your harness
-  </Card>
-  <Card title="Define Policies" icon="scroll-text" href="/owner-guide/simulate-environment/policies">
-    Set organizational rules your agent must follow
-  </Card>
-  <Card title="Trust Score Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/trust-score">
-    Evaluate against the Trust Score dimensions
-  </Card>
   <Card title="Run an Evaluation" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
     Test your agent with custom harnesses
+  </Card>
+  <Card title="Understanding Results" icon="brain" href="/owner-guide/run-evaluations/understanding-results">
+    Deep dive into evaluation findings
   </Card>
 </CardGroup>
