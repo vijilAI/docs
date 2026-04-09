@@ -1,0 +1,378 @@
+---
+title: "Console API"
+description: "This guide walks through the Vijil Console REST API using `curl`. By the end you will have registered an AI agent, run a trust evaluation against it, and retrieved the results."
+---
+
+All requests go through a single API gateway URL that routes to the appropriate backend service.
+
+## Prerequisites
+
+- **API gateway URL** — the external address of your Vijil Console deployment (e.g. `https://console-api.example.com`)
+
+- **User credentials** — an email and password for an existing Vijil Console account
+
+Set a shell variable for convenience:
+
+```bash
+export VIJIL_URL="https://console-api.example.com"
+```
+
+## Authenticate
+
+Exchange your credentials for a JWT access token:
+
+```bash
+
+curl -s -X POST "$VIJIL_URL/auth/jwt/login" \
+
+  -H "Content-Type: application/json" \
+
+  -d '{
+
+    "email": "user@example.com",
+
+    "password": "your-password"
+
+  }'
+
+```
+
+Response:
+
+```json
+{
+  "access_token": "eyJhbG...",
+
+  "token_type": "bearer"
+}
+```
+
+Save the token:
+
+```bash
+export TOKEN="eyJhbG..."
+```
+
+All subsequent requests include this header:
+
+```bash
+Authorization: Bearer $TOKEN
+```
+
+## Select a Team
+
+Most operations are scoped to a team. List your team memberships:
+
+```bash
+curl -s "$VIJIL_URL/users/me/teams" \
+
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "a9b8c7d6-...",
+
+    "team_id": "c58aea71-3861-4f28-b8c4-20832a2f22ee",
+
+    "user_id": "f1e2d3c4-...",
+
+    "role": "owner",
+
+    "created_at": 1712505600,
+
+    "updated_at": 1712505600
+  }
+]
+```
+
+Save the `team_id` value:
+
+```bash
+export TEAM_ID="c58aea71-3861-4f28-b8c4-20832a2f22ee"
+```
+
+## Register an Agent
+
+Create an agent configuration pointing at the AI model you want to evaluate.
+
+The team is derived from your JWT token, so no `team_id` parameter is needed:
+
+```bash
+curl -s -X POST "$VIJIL_URL/agent-configurations/" \
+
+  -H "Authorization: Bearer $TOKEN" \
+
+  -H "Content-Type: application/json" \
+
+  -d '{
+
+    "agent_name": "My Chat Agent",
+
+    "model_name": "gpt-4",
+
+    "agent_url": "https://api.openai.com/v1/chat/completions",
+
+    "api_key": "sk-..."
+
+  }'
+```
+
+Required fields:
+
+- `agent_name` — a display name for the agent
+
+- `model_name` — the model identifier (e.g. `gpt-4`, `claude-sonnet-4-20250514`)
+
+Optional fields:
+
+- `agent_url` — the endpoint the agent is reachable at
+
+- `api_key` — API key for the agent's provider
+
+- `agent_system_prompt` — system prompt the agent uses
+
+Response (HTTP 201):
+
+```json
+
+{
+
+  "id": "a1b2c3d4-...",
+
+  "agent_name": "My Chat Agent",
+
+  "model_name": "gpt-4",
+
+  "status": "active",
+
+  "trust_stage": "registered",
+
+  "created_at": 1712505600,
+
+  ...
+
+}
+
+```
+
+Save the agent ID:
+
+```bash
+
+export AGENT_ID="a1b2c3d4-..."
+
+```
+
+## List Agents
+
+Verify the agent was created:
+
+```bash
+curl -s "$VIJIL_URL/agent-configurations/?limit=10" \
+
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Response:
+
+```json
+{
+  "results": [
+    {
+      "id": "a1b2c3d4-...",
+
+      "agent_name": "My Chat Agent",
+
+      "model_name": "gpt-4",
+
+      "status": "active",
+
+      "trust_stage": "registered",
+
+      "created_at": 1712505600
+    }
+  ],
+
+  "count": 1
+}
+```
+
+## List Available Harnesses
+
+Harnesses are test suites that evaluate different trust dimensions. List the standard harnesses:
+
+```bash
+curl -s "$VIJIL_URL/harnesses/?team_id=$TEAM_ID" \
+
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Response:
+
+```json
+[
+  { "name": "safety", "updated_at": 1712505600 },
+
+  { "name": "ethics", "updated_at": 1712505600 },
+
+  { "name": "privacy", "updated_at": 1712505600 },
+
+  { "name": "security", "updated_at": 1712505600 },
+
+  { "name": "toxicity", "updated_at": 1712505600 }
+]
+```
+
+## Run an Evaluation
+
+Start a trust evaluation against your agent. Evaluations run asynchronously — the API returns immediately with a `202 Accepted` status.
+
+```bash
+curl -s -X POST "$VIJIL_URL/evaluations/" \
+
+  -H "Authorization: Bearer $TOKEN" \
+
+  -H "Content-Type: application/json" \
+
+  -d "{
+
+    \"agent_id\": \"$AGENT_ID\",
+
+    \"team_id\": \"$TEAM_ID\",
+
+    \"harness_names\": [\"safety\", \"security\"],
+
+    \"sample_size\": 50
+
+  }"
+```
+
+Required fields:
+
+- `agent_id` — UUID of the agent to evaluate
+
+- `team_id` — UUID of the team
+
+- `harness_names` — list of harness names to run (at least one)
+
+Optional fields:
+
+- `sample_size` — number of prompts to run (1-1000); omit to run all prompts
+
+- `harness_type` — `"standard"` (default) or `"custom"`
+
+Response (HTTP 202):
+
+```json
+{
+  "evaluation_id": "e5f6a7b8-...",
+
+  "status": "starting"
+}
+```
+
+Save the evaluation ID:
+
+```bash
+export EVAL_ID="e5f6a7b8-..."
+```
+
+## Check Evaluation Status
+
+Poll until the evaluation completes:
+
+```bash
+curl -s "$VIJIL_URL/evaluations/$EVAL_ID" \
+
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Response:
+
+```json
+{
+  "evaluation_id": "e5f6a7b8-...",
+
+  "status": "running",
+
+  "scores": null,
+
+  "created_at": 1712505600,
+
+  "started_at": 1712505610,
+
+  "completed_at": null,
+
+  "error_message": null
+}
+```
+
+When polling, the `status` field progresses through: `starting` -> `pending` -> `running` -> `completed` -> `saving` -> `saved`. It may also be `failed` or `canceled`.
+
+When the status is `completed`, the `scores` field contains per-harness scores:
+
+```json
+{
+  "status": "completed",
+
+  "scores": {
+    "safety": 0.82,
+
+    "security": 0.67
+  },
+
+  "completed_at": 1712506200
+}
+```
+
+## View Evaluation Results
+
+Retrieve the full results once the evaluation has completed:
+
+```bash
+curl -s "$VIJIL_URL/evaluation-results/$EVAL_ID/results?team_id=$TEAM_ID" \
+
+  -H "Authorization: Bearer $TOKEN"
+```
+
+This returns the detailed results JSON including per-harness breakdowns, individual probe results, and analysis.
+
+## Download the Report
+
+Get the evaluation report as HTML:
+
+```bash
+curl -s "$VIJIL_URL/evaluations/$EVAL_ID/html?team_id=$TEAM_ID" \
+
+  -H "Authorization: Bearer $TOKEN" \
+
+  -o report.html
+```
+
+Or as PDF:
+
+```bash
+curl -s "$VIJIL_URL/evaluations/$EVAL_ID/pdf?team_id=$TEAM_ID" \
+
+  -H "Authorization: Bearer $TOKEN" \
+
+  -o report.pdf
+```
+
+## Next Steps
+
+- **Custom harnesses** — create test suites tailored to your use case with `POST /custom-harnesses/`
+
+- **Personas** — define user archetypes for testing with `POST /personas/` or copy from presets with `POST /personas/from-preset/{preset_id}`
+
+- **Policies** — manage compliance policies and rules with `POST /policies/`
+
+- **DOME guardrails** — configure runtime protection with `POST /dome-configs`
+
+- **Red team campaigns** — run adversarial attack campaigns with `POST /redteam/campaigns`
+
+- **Full API reference** — browse the interactive docs at `$VIJIL_URL/docs`
