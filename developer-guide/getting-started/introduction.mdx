@@ -1,23 +1,23 @@
 ---
 title: 'Building Trusted Agents'
-description: 'Integrate evaluation and protection into your development workflow—catch failures before they reach production.'
+description: 'Integrate evaluation and protection into your development workflow, catch failures before they reach production.'
 ---
 
 ## The Problem with Testing Agents
 
-Traditional software testing catches bugs. But agents fail in ways that don't look like bugs—they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
+Traditional software testing catches bugs. But agents fail in ways that don't look like bugs, they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
 
 This guide shows you how to catch those failures before deployment. You'll learn to evaluate agents against adversarial scenarios, integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations didn't anticipate.
 
 <Info>
-If you manage agents through a web console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
+If you manage agents through a web Console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
 </Info>
 
 ## What You Get from Vijil
 
 Vijil provides two products that work together:
 
-**Diamond** evaluates your agent by sending hundreds of adversarial probes and measuring how it responds. You get a Trust Score—a quantified measure of reliability, security, and safety—plus specific findings you can fix.
+**Diamond** evaluates your agent by sending hundreds of adversarial probes and measuring how it responds. You get a Trust Score, a quantified measure of reliability, security, and safety, plus specific findings you can fix.
 
 **Dome** protects your agent at runtime by intercepting inputs and outputs. When Diamond identifies vulnerabilities you can't immediately fix, Dome blocks the attack patterns in production.
 
@@ -75,13 +75,7 @@ Each evaluation produces a **Trust Score** (0–1) with breakdowns by dimension.
 
 ## Time to First Trust Score
 
-You can get your first evaluation result in about 15 minutes:
-
-1. **Install** the Python client (30 seconds)
-2. **Authenticate** with your API key (1 minute)
-3. **Run** the quickstart evaluation (10–15 minutes depending on agent complexity)
-
-The quickstart uses your existing agent code—no modifications required. Vijil wraps your agent function, exposes it temporarily for evaluation, and tears down when complete.
+You can get your first evaluation result quickly directly from the Console without any complex integration or coding required. The quickstart uses your existing agent endpoints with no modifications required.
 
 ## Integration Points
 

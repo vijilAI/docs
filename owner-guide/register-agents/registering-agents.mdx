@@ -37,7 +37,7 @@ Vijil supports three access levels, each enabling progressively deeper evaluatio
 
 ### Black Box
 
-Black Box registration requires minimal information—your agent's API endpoint and authentication. Vijil treats the agent as an opaque system, testing only its observable behavior.
+Black Box registration requires minimal information: your agent's API endpoint and authentication. Vijil treats the agent as an opaque system, testing only its observable behavior.
 
 This approach works well for:
 - Third-party agents you don't control
@@ -49,15 +49,15 @@ This approach works well for:
 </Frame>
 
 **Required fields:**
-- **Agent Name** — A descriptive identifier
-- **Status** — Start with Draft for initial setup
-- **Agent URL** — Where your agent accepts requests
-- **API Key** — Authentication credentials (you can add multiple keys)
-- **Rate Limit Per Minute** — Matches your provider's limits to avoid throttling
+- **Agent Name**: A descriptive identifier
+- **Status**: Start with Draft for initial setup
+- **Agent URL**: Where your agent accepts requests
+- **API Key**: Authentication credentials (you can add multiple keys)
+- **Rate Limit Per Minute**: Matches your provider's limits to avoid throttling
 
 ### Grey Box
 
-Grey Box expands visibility into your agent's composition. This enables Vijil to trace vulnerabilities to specific components—whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated agent behavior.
+Grey Box expands visibility into your agent's composition. This enables Vijil to trace vulnerabilities to specific components whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated agent behavior.
 
 <Frame>
   <img src="/images/owner-guide/register-agents/registering-agents/register-agent-greybox.png" alt="Grey Box configuration showing model and external resource settings" />
@@ -105,8 +105,8 @@ White Box provides full source code access for static analysis (SAST) combined w
 </Frame>
 
 **Additional fields:**
-- **Source Code** — Paste code directly, or leave empty to pull from repository
-- **GitHub Repository** — URL, username, and access token for private repos
+- **Source Code**: Paste code directly, or leave empty to pull from repository
+- **GitHub Repository**: URL, username, and access token for private repos
 
 White Box evaluation can identify vulnerabilities that Black Box testing would miss—hardcoded secrets, unsafe deserialization, SQL injection in tool implementations, and similar code-level issues.
 
@@ -170,17 +170,17 @@ Set status to **Active** before running evaluations or configuring Dome protecti
 For provider-specific configuration details, use our dedicated UI walk-through guides.
 
 <CardGroup cols={3}>
-  <Card title="OpenAI" icon="cloud" href="/owner-guide/register-agents/integrations/openai" />
-  <Card title="Anthropic" icon="cloud" href="/owner-guide/register-agents/integrations/anthropic" />
-  <Card title="Google Vertex" icon="cloud" href="/owner-guide/register-agents/integrations/vertex" />
-  <Card title="Mistral AI" icon="cloud" href="/owner-guide/register-agents/integrations/mistral" />
-  <Card title="AWS Bedrock" icon="cloud" href="/owner-guide/register-agents/integrations/bedrock" />
-  <Card title="DigitalOcean" icon="cloud" href="/owner-guide/register-agents/integrations/digitalocean" />
-  <Card title="Groq" icon="cloud" href="/owner-guide/register-agents/integrations/groq" />
-  <Card title="Together Web" icon="cloud" href="/owner-guide/register-agents/integrations/together" />
-  <Card title="OpenRouter" icon="cloud" href="/owner-guide/register-agents/integrations/openrouter" />
-  <Card title="Fireworks AI" icon="cloud" href="/owner-guide/register-agents/integrations/fireworks" />
-  <Card title="NVIDIA NIM" icon="cloud" href="/owner-guide/register-agents/integrations/nvidia" />
+  <Card title="OpenAI" icon="openai" href="/owner-guide/register-agents/integrations/openai" />
+  <Card title="Anthropic" icon="asterisk" href="/owner-guide/register-agents/integrations/anthropic" />
+  <Card title="Google Vertex" icon="google" href="/owner-guide/register-agents/integrations/vertex" />
+  <Card title="Mistral AI" icon="wind" href="/owner-guide/register-agents/integrations/mistral" />
+  <Card title="AWS Bedrock" icon="aws" href="/owner-guide/register-agents/integrations/bedrock" />
+  <Card title="DigitalOcean" icon="digital-ocean" href="/owner-guide/register-agents/integrations/digitalocean" />
+  <Card title="Groq" icon="bolt" href="/owner-guide/register-agents/integrations/groq" />
+  <Card title="Together Web" icon="users" href="/owner-guide/register-agents/integrations/together" />
+  <Card title="OpenRouter" icon="route" href="/owner-guide/register-agents/integrations/openrouter" />
+  <Card title="Fireworks AI" icon="flame" href="/owner-guide/register-agents/integrations/fireworks" />
+  <Card title="NVIDIA NIM" icon="microchip" href="/owner-guide/register-agents/integrations/nvidia" />
   <Card title="Custom Agents" icon="code" href="/owner-guide/register-agents/integrations/custom">
     OpenAI-compatible endpoints
   </Card>
@@ -189,10 +189,10 @@ For provider-specific configuration details, use our dedicated UI walk-through g
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Run an Evaluation" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
-    Test your registered agent with Diamond
+<Card title="Define Personas" icon="users" href="/owner-guide/simulate-environment/personas">
+    Create user profiles for evaluation
   </Card>
-  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
-    Protect your agent with Dome
+  <Card title="Define Policies" icon="scroll-text" href="/owner-guide/simulate-environment/policies">
+    Set organizational rules your agent must follow
   </Card>
 </CardGroup>

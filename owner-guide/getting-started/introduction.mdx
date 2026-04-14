@@ -1,13 +1,13 @@
 ---
 title: 'Get Started'
-description: 'Why teams use Vijil for trust evidence, then register an agent, run an evaluation, and turn on Dome—from the console.'
+description: 'Why teams use Vijil for trust evidence, then register an agent, run an evaluation, and turn on Dome from the console.'
 ---
 
 ## Evidence you can ship on
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides—then walks through the **console**: register an agent, run an evaluation, read your **Trust Report**, and configure **Dome** guardrails.
+This page explains how Vijil helps both sides, then walks through the **console**: register an agent, run an evaluation, read your **Trust Report**, and configure **Dome** guardrails.
 
 <Info>
 If you integrate via APIs and code, use the [Developer Guide](/developer-guide/getting-started/introduction). This guide focuses on the **Vijil console**.
@@ -17,7 +17,7 @@ If you integrate via APIs and code, use the [Developer Guide](/developer-guide/g
 
 <CardGroup cols={2}>
   <Card title="Business owner" icon="rocket">
-    Ship agents that deliver value with **fast evaluation cycles**, **clear pass/fail criteria**, and **reports** stakeholders can use—without endless ad hoc testing.
+    Ship agents that deliver value with **fast evaluation cycles**, **clear pass/fail criteria**, and **reports** stakeholders can use without endless ad hoc testing.
   </Card>
   <Card title="Risk owner" icon="shield">
     Approve with **quantified** reliability, security, and safety; **versioned, audit-style** artifacts; and visibility into **residual risk** and compensating controls.
@@ -31,9 +31,9 @@ If you integrate via APIs and code, use the [Developer Guide](/developer-guide/g
 | **Pressure** | Delivery speed | Risk reduction |
 | **Question** | “Can we ship?” | “Can I defend approving this?” |
 
-**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**—a reproducible score from a defined harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
+**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
 
-Vijil measures **reliability**, **security**, and **safety**—the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
+Vijil measures **reliability**, **security**, and **safety**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
 ## Console walkthrough
 
@@ -57,7 +57,7 @@ Open **Agents** → **+ Register Agent**.
 | **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
 | **White Box** | Full config and source | Deeper audit-style analysis |
 
-For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit—then **Register Agent**.
+For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit; then **Register Agent**.
 
 <Tip>
 If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
@@ -67,7 +67,7 @@ If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can 
 
 For a baseline, you can skip this and use the **Trust Score** harness in the next step.
 
-To test **your** personas and **org policies**, go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, agent, **personas** (who talks to the agent), and **policies** (rules it must follow)—then generates test cases.
+To test **your** personas and **org policies**, go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, agent, **personas** (who talks to the agent), and **policies** (rules it must follow); then generates test cases.
 
 <Frame>
   <img src="/images/owner-guide/getting-started/quick-start/quickstart-create-harness-new.png" alt="Create Harness wizard showing the four-step configuration flow" />
@@ -79,8 +79,8 @@ Set the harness to **Active** when you are ready. More depth: [Custom harnesses]
 
 Open **Evaluations**. Pick the **agent** and a **harness**:
 
-- **Trust Score** — all three dimensions at once (toggle dimensions if you need a narrower run).
-- **Custom** — the harness you configured above.
+- **Trust Score**: all three dimensions at once (toggle dimensions if you need a narrower run).
+- **Custom**: the harness you configured above.
 
 <Frame>
   <img src="/images/owner-guide/getting-started/quick-start/quickstart-evaluations.png" alt="Diamond Evaluations page showing agent selection and Trust Score dimensions" />

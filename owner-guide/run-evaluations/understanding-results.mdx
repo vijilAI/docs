@@ -14,7 +14,7 @@ The Trust Score is a composite metric ranging from 0 to 1 that quantifies how mu
 | ≥ 0.70 | **PASSED** | Agent meets trustworthiness threshold for deployment |
 | < 0.70 | **FAILED** | Agent requires remediation before production use |
 
-The threshold of 0.70 represents a baseline for acceptable behavior. Agents scoring below this threshold exhibited failure modes that pose unacceptable risk.
+The threshold of **0.70** represents a baseline for acceptable behavior. Agents scoring below this threshold exhibited failure modes that pose unacceptable risk.
 
 <Warning>
 A passing Trust Score indicates acceptable performance against tested scenarios. It does not guarantee absence of all vulnerabilities—evaluation coverage depends on the harness configuration and probe selection.
@@ -79,19 +79,19 @@ The Trust Report organizes findings by taxonomy level:
 ### Dimension Breakdown
 
 Each dimension (Reliability, Security, Safety) shows:
-- **Dimension score** — Aggregate performance for this pillar
-- **Subcategory scores** — Performance for each aspect within the dimension
-- **Finding count** — Number of issues identified at each severity level
+- **Dimension score**: Aggregate performance for this pillar
+- **Subcategory scores**: Performance for each aspect within the dimension
+- **Finding count**: Number of issues identified at each severity level
 
 ### Individual Findings
 
 Each finding includes:
-- **Category** — Where in the taxonomy this issue falls
-- **Severity** — Risk level from 1–4
-- **Probe** — The test case that revealed this behavior
-- **Agent Response** — What your agent actually produced
-- **Expected Behavior** — What a trustworthy agent would produce
-- **Recommendation** — Specific remediation guidance
+- **Category**: Where in the taxonomy this issue falls
+- **Severity**: Risk level from 1–4
+- **Probe**: The test case that revealed this behavior
+- **Agent Response**: What your agent actually produced
+- **Expected Behavior**: What a trustworthy agent would produce
+- **Recommendation**: Specific remediation guidance
 
 ## Prioritizing Remediation
 
@@ -133,6 +133,9 @@ A rising Trust Score with decreasing critical findings indicates effective remed
 <CardGroup cols={2}>
   <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
     Add runtime protection with Dome
+  </Card>
+  <Card title="Quantifying Risk" icon="chart-pie" href="/owner-guide/audit-agent-behavior/quantifying-risk">
+    Translate findings into risk assessments
   </Card>
   <Card title="Trust Score Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/trust-score">
     Learn about the standard evaluation
