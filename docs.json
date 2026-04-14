@@ -38,7 +38,9 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": ["concepts/welcome"]
+            "pages": [
+              "concepts/welcome"
+            ]
           },
           {
             "group": "Trust Score",
@@ -92,7 +94,9 @@
           },
           {
             "group": "Reference",
-            "pages": ["concepts/glossary"]
+            "pages": [
+              "concepts/glossary"
+            ]
           }
         ]
       },
@@ -108,7 +112,9 @@
           },
           {
             "group": "Register Agents",
-            "pages": ["owner-guide/register-agents/registering-agents"]
+            "pages": [
+              "owner-guide/register-agents/registering-agents"
+            ]
           },
           {
             "group": "Build an Evaluation Environment",
@@ -147,7 +153,19 @@
           {
             "group": "Quick Start",
             "pages": [
-              "developer-guide/getting-started/introduction"
+              "developer-guide/getting-started/introduction",
+              "developer-guide/getting-started/enterprise-deployment",
+              "developer-guide/getting-started/cli",
+              "developer-guide/getting-started/api",
+              "developer-guide/getting-started/mcp"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "developer-guide/frameworks/langchain",
+              "developer-guide/frameworks/google-adk",
+              "developer-guide/frameworks/custom-agents"
             ]
           },
           {
@@ -167,7 +185,8 @@
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
-              "developer-guide/protect/observability"
+              "developer-guide/protect/observability",
+              "tutorials/protect-agents/dome-containerized-deployment"
             ]
           }
         ]
@@ -177,7 +196,10 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
+            "pages": [
+              "legacy/get-started/welcome",
+              "legacy/get-started/quickstart"
+            ]
           },
           {
             "group": "Core Concepts",
@@ -242,7 +264,9 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": ["legacy/evaluate-agents/introduction"]
+            "pages": [
+              "legacy/evaluate-agents/introduction"
+            ]
           },
           {
             "group": "Tutorials",

@@ -1,0 +1,261 @@
+---
+title: "Console CLI"
+description: "This guide walks through the `vijil` command-line tool. By the end you will have registered an AI agent, run a trust evaluation against it, and retrieved the results."
+---
+
+## Install Vijil Console CLI
+
+<CodeGroup>
+```bash title="pip"
+pip install vijil-console
+```
+
+```bash title="pipx" 
+pipx install vijil-console
+```
+</CodeGroup>
+
+### Verify the Installation
+
+```bash
+vijil --help
+```
+
+## Initialize the CLI 
+
+Point the CLI at your Vijil Console deployment:
+
+```bash
+vijil init --url https://console-api.example.com
+```
+
+Or run `vijil init` without arguments to be prompted for the URL. The CLI verifies connectivity before saving.
+
+Configuration is stored in `~/.vijil/config.yaml`.
+
+## Login to Vijil Console
+
+```bash
+vijil login
+```
+
+You will be prompted for your email and password. On success the CLI stores your JWT token and automatically selects your team if you belong to exactly one.
+
+If you belong to multiple teams, select one:
+
+```bash
+vijil team list
+vijil team use <team_id>
+```
+
+The active team ID is injected automatically into commands that require it.
+
+## Register an Agent
+
+Create an agent configuration pointing at the AI model you want to evaluate.
+
+To avoid putting secrets directly in your shell history, export your provider API key first:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+vijil agent create \
+  --agent-name "My Chat Agent" \
+  --model-name "gpt-4" \
+  --agent-url "https://api.openai.com/v1/chat/completions" \
+  --api-key "$OPENAI_API_KEY"
+```
+
+Required flags:
+
+- `--agent-name` — a display name for the agent
+
+- `--model-name` — the model identifier (e.g. `gpt-4`, `claude-sonnet-4-20250514`)
+
+Optional flags:
+
+- `--agent-url` — the endpoint the agent is reachable at
+
+- `--api-key` — API key for the agent's provider
+
+- `--agent-system-prompt` — system prompt the agent uses
+
+The output shows the created agent including its `id`. Copy that ID for the next steps.
+
+## List Agents
+
+```bash
+vijil agent list
+```
+
+Output:
+
+```
+ID                                    AGENT_NAME       MODEL_NAME  CREATED_AT
+a1b2c3d4-...                          My Chat Agent    gpt-4       1712505600
+```
+
+Use `--json` for machine-readable output:
+
+```bash
+vijil agent list --json
+```
+
+## List Available Harnesses
+
+Harnesses are test suites that evaluate different trust dimensions:
+
+```bash
+vijil harness list
+```
+
+Output:
+
+```
+NAME       UPDATED_AT
+safety     1712505600
+ethics     1712505600
+privacy    1712505600
+security   1712505600
+toxicity   1712505600
+```
+
+## Run an Evaluation
+
+Start a trust evaluation against your agent:
+
+```bash
+vijil eval run \
+  --agent-id a1b2c3d4-... \
+  --harness-names '["safety", "security"]' \
+  --sample-size 50
+```
+
+Required flags:
+
+- `--agent-id` — UUID of the agent to evaluate
+
+- `--harness-names` — JSON array of harness names to run
+
+Optional flags:
+
+- `--sample-size` — number of prompts to run (1-1000); omit to run all
+
+- `--harness-type` — `standard` (default) or `custom`
+
+- `--wait` — poll until the evaluation completes instead of returning immediately
+
+### Waiting for Completion
+
+Add `--wait` to block until the evaluation finishes:
+
+```bash
+vijil eval run \
+  --agent-id a1b2c3d4-... \
+  --harness-names '["safety", "security"]' \
+  --sample-size 50 \
+  --wait
+```
+
+The CLI polls every 5 seconds and prints status updates as the evaluation progresses.
+
+## Check Evaluation Status
+
+If you did not use `--wait`, check the status manually:
+
+```bash
+vijil eval status <evaluation_id>
+```
+
+Output:
+
+```
+evaluation_id:  e5f6a7b8-...
+status:         running
+scores:         None
+created_at:     1712505600
+started_at:     1712505610
+completed_at:   None
+```
+
+When the evaluation completes, scores appear:
+
+```
+status:         completed
+scores:         {"safety": 0.82, "security": 0.67}
+completed_at:   1712506200
+```
+
+## View Evaluation Results
+
+Retrieve the detailed results:
+
+```bash
+vijil eval results-detail <evaluation_id>
+```
+
+This returns the full results including per-harness breakdowns and individual probe results.
+
+Use `--json` to pipe into other tools:
+
+```bash
+vijil eval results-detail <evaluation_id> --json | jq '.scores'
+```
+
+## Generate a Report
+
+Trigger on-demand report generation for the completed evaluation:
+
+```bash
+vijil eval report <evaluation_id>
+```
+
+To download the generated report as HTML or PDF, use the API directly:
+
+```bash
+curl -s "$VIJIL_URL/evaluations/<evaluation_id>/html?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -o report.html
+```
+
+## Next Steps
+
+- **Custom Harnesses** — create test suites tailored to your use case:
+
+  ```bash
+  vijil harness custom-create --name "My Harness" --agent-id <id>
+  ```
+
+- **Personas** — list presets and create personas for testing:
+
+  ```bash
+  vijil persona preset-list
+  vijil persona from-preset <preset_id>
+  ```
+
+- **Policies** — manage compliance policies and rules:
+
+  ```bash
+  vijil policy preset-list
+  vijil policy from-preset <preset_id>
+  ```
+
+- **Dome Guardrails** — configure runtime protection:
+
+  ```bash
+  vijil dome config-create --agent-id <id>
+  ```
+
+- **Red Team Campaigns** — run adversarial attack campaigns:
+
+  ```bash
+  vijil redteam tools
+  vijil redteam run --tool garak --agent-url <url> --purpose "chatbot"
+  ```
+
+- **Trust Dashboard** — view aggregated trust metrics:
+
+  ```bash
+  vijil dashboard show
+  ```
+
+Every command supports `--help` for detailed usage and `--json` for machine-readable output.
