@@ -1,0 +1,290 @@
+---
+title: "EEOC Stereotype Detection"
+description: "Detect stereotypes and harmful assumptions about EEOC protected classes in AI agent conversations."
+---
+
+Vijil's EEOC stereotype detector catches stereotyping, harmful generalizations, and differential treatment targeting six federally protected classes: Race/Color, Sex/Gender, Religion, National Origin, Age (40+), and Disability.
+
+The detector classifies each request in under 5 milliseconds on GPU, costs nothing when self-hosted, and achieves F1=0.923 on a balanced test set of 2,136 examples across all six EEOC classes.
+
+## How it works
+
+A policy-following teacher model (GPT-OSS-Safeguard-20B) labeled 146,000 prompt-response pairs from Vijil's evaluation corpus using a custom EEOC discrimination policy. From that labeled pool, we selected 21,000 examples balanced uniformly across all six EEOC classes and trained a 149M-parameter ModernBERT student model via distillation. The student classifies each input as stereotyped or neutral based on both the user's prompt and the agent's response.
+
+### Three operating modes
+
+| Mode | Method name | Latency | Accuracy | Cost | Best for |
+|------|-------------|---------|----------|------|----------|
+| **Fast** | `stereotype-eeoc-fast` | <5ms (GPU) | F1=0.923 | $0 | High-throughput production |
+| **Safeguard** | `stereotype-eeoc-safeguard` | ~200ms | ~100% | $0.044/1K req | Regulated industries |
+| **Hybrid** | `stereotype-eeoc-hybrid` | ~5ms avg | ~98%+ | ~$4.40/M req | Recommended default |
+
+**Fast** runs the ModernBERT classifier locally. No API calls, no network dependency.
+
+**Safeguard** sends each request to GPT-OSS-Safeguard-20B via the Groq API for a policy-based verdict. Requires `GROQ_API_KEY`.
+
+**Hybrid** runs the fast classifier first, then escalates to the Safeguard API when model confidence falls below 85%. Most requests resolve on the fast path; only uncertain cases incur API cost. Without a `GROQ_API_KEY`, hybrid degrades gracefully to fast-only.
+
+## Accuracy by input mode
+
+The detector performs best when it sees both the user's prompt and the agent's response together. With only one side available, accuracy drops:
+
+| Input mode | F1 | Recall | When this happens |
+|------------|-----|--------|-------------------|
+| **Prompt + response (paired)** | **0.923** | 0.935 | Output guard with prompt context |
+| Prompt only | 0.675 | 0.579 | Input guard (no response yet) |
+| Response only | 0.429 | 0.279 | Output guard without prompt context |
+
+For output guards, always provide both the original prompt and the agent's response. Dome's `DomePayload` structured input handles this automatically.
+
+### Accuracy by protected class
+
+| EEOC Class | Paired F1 | Prompt-only F1 |
+|------------|:---------:|:--------------:|
+| Religion | 0.958 | 0.705 |
+| National Origin | 0.950 | 0.617 |
+| Age | 0.902 | 0.770 |
+| Disability | 0.896 | 0.669 |
+| Race/Color | 0.884 | 0.611 |
+| Sex/Gender | 0.871 | 0.711 |
+
+## Use with Dome
+
+Add the detector to your Dome guardrail configuration. It works on both input and output guards.
+
+### TOML configuration
+
+```toml
+[guardrail]
+input-guards = ["prompt-injection", "stereotype-detection"]
+output-guards = ["output-toxicity", "stereotype-detection"]
+
+[prompt-injection]
+type = "security"
+methods = ["prompt-injection-mbert"]
+
+[stereotype-detection]
+type = "moderation"
+methods = ["stereotype-eeoc-hybrid"]
+
+[output-toxicity]
+type = "moderation"
+methods = ["moderation-flashtext", "moderation-mbert"]
+```
+
+### Python dictionary configuration
+
+```python
+from vijil_dome import Dome
+
+config = {
+    "input-guards": ["prompt-injection", "stereotype-detection"],
+    "output-guards": ["output-toxicity", "stereotype-detection"],
+
+    "prompt-injection": {
+        "type": "security",
+        "methods": ["prompt-injection-mbert"],
+    },
+
+    "stereotype-detection": {
+        "type": "moderation",
+        "methods": ["stereotype-eeoc-hybrid"],
+    },
+
+    "output-toxicity": {
+        "type": "moderation",
+        "methods": ["moderation-flashtext", "moderation-mbert"],
+    },
+}
+
+dome = Dome(config)
+```
+
+### Providing prompt context on output guards
+
+For best accuracy on output guards, pass both the original prompt and the agent's response:
+
+```python
+from vijil_dome.types import DomePayload
+
+# When guarding agent output, provide both sides
+payload = DomePayload(
+    prompt="What career advice would you give to older workers?",
+    response=agent_response,
+)
+
+result = await dome.guard_output(payload)
+```
+
+<Note>
+Without the prompt, the detector operates in response-only mode (F1=0.43 instead of F1=0.92). Always provide the prompt when guarding output.
+</Note>
+
+### Adjusting sensitivity
+
+Lower or raise the detection threshold per guard:
+
+```toml
+[stereotype-detection]
+type = "moderation"
+methods = ["stereotype-eeoc-fast"]
+
+[stereotype-detection.stereotype-eeoc-fast]
+score_threshold = 0.7
+```
+
+A higher threshold (e.g., 0.7) reduces false positives but misses subtler stereotypes. A lower threshold (e.g., 0.3) catches more stereotypes but flags more neutral content.
+
+### Hybrid mode configuration
+
+Tune the hybrid mode's confidence threshold and Safeguard parameters:
+
+```toml
+[stereotype-detection]
+type = "moderation"
+methods = ["stereotype-eeoc-hybrid"]
+
+[stereotype-detection.stereotype-eeoc-hybrid]
+confidence_threshold = 0.85
+temperature = 0.0
+max_tokens = 8
+timeout_seconds = 10.0
+```
+
+The `confidence_threshold` controls when the fast classifier escalates to the Safeguard API. Lower values escalate more often (higher accuracy, higher cost); higher values escalate less (faster, cheaper, slightly less accurate).
+
+## Use as a standalone model
+
+Use the ModernBERT classifier directly without Dome for batch evaluation, research, or integration into your own pipeline.
+
+### Installation
+
+```bash
+pip install transformers torch
+```
+
+### Basic usage
+
+```python
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+
+tokenizer = AutoTokenizer.from_pretrained("answerdotai/ModernBERT-base")
+model = AutoModelForSequenceClassification.from_pretrained(
+    "vijil/stereotype-eeoc-detector"
+)
+
+classifier = pipeline(
+    "text-classification",
+    model=model,
+    tokenizer=tokenizer,
+    truncation=True,
+    max_length=512,
+)
+
+# Classify a prompt-response pair
+text = "What jobs are best for women? [SEP] Women are best suited for nursing and teaching."
+result = classifier(text)
+print(result)
+# [{'label': 'biased', 'score': 0.94}]
+```
+
+### Input format
+
+Join the prompt and response with ` [SEP] ` (spaces on both sides). For a prompt without a response, append ` [SEP] ` with nothing after it:
+
+```python
+# Paired input (best accuracy, F1=0.923)
+text = f"{prompt} [SEP] {response}"
+
+# Prompt only (F1=0.675)
+text = f"{prompt} [SEP] "
+```
+
+### Batch classification
+
+The HuggingFace pipeline accepts lists for efficient batched inference:
+
+```python
+texts = [
+    f"{prompt_1} [SEP] {response_1}",
+    f"{prompt_2} [SEP] {response_2}",
+    f"{prompt_3} [SEP] {response_3}",
+]
+
+results = classifier(texts, batch_size=32)
+for text, result in zip(texts, results):
+    label = result["label"]
+    score = result["score"]
+    flagged = label == "biased" and score >= 0.5
+    print(f"{'FLAGGED' if flagged else 'OK'} ({score:.2f}): {text[:60]}...")
+```
+
+### Interpreting scores
+
+The model outputs two labels: `biased` (stereotyping detected) and `unbiased` (neutral). The `score` field is the model's confidence in the returned label.
+
+To compute bias probability regardless of which label was returned:
+
+```python
+def bias_probability(result):
+    if result["label"] in ("biased", "1", "LABEL_1"):
+        return result["score"]
+    return 1.0 - result["score"]
+```
+
+### Long inputs
+
+The pipeline truncates inputs longer than 512 tokens automatically. The model was trained at 512-token context length. For long conversations, extract the most relevant prompt-response turn rather than feeding the entire transcript.
+
+Through Dome, long inputs are handled automatically: Dome's chunking algorithm centers each window on the `[SEP]` boundary so the end of the prompt and beginning of the response always survive truncation.
+
+## What this detector does and does not detect
+
+**Detects:**
+- Stereotyping statements about protected classes ("all X are Y")
+- Harmful generalizations and assumptions
+- Differential treatment expressed in text
+
+**Does not detect:**
+- **Counterfactual bias** -- whether the same prompt produces different responses when only the protected class changes. This requires comparing two prompt-response pairs and is a separate evaluation task.
+- **Genetic Information and Pregnancy discrimination** -- these two EEOC classes lack training data in the current version.
+- **Subtle or implicit bias** -- the model catches overt stereotyping reliably but may miss coded language or dog whistles.
+
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GROQ_API_KEY` | Safeguard and hybrid modes | API key for Groq (hosts the Safeguard model) |
+| `HF_TOKEN` | Only if model is gated | HuggingFace token for model download |
+
+Fast mode requires no API keys or environment variables.
+
+## Model card
+
+| Property | Value |
+|----------|-------|
+| Architecture | ModernBERT-base (149M parameters) |
+| Labeled corpus | 146,000 prompt-response pairs (Safeguard teacher labels) |
+| Training subset | 21,360 balanced examples across 6 EEOC classes |
+| Labels | Distilled from GPT-OSS-Safeguard-20B |
+| Max input length | 512 tokens |
+| Inference latency | <5ms (GPU), ~50ms (CPU) |
+| License | Apache 2.0 |
+| HuggingFace | [vijil/stereotype-eeoc-detector](https://huggingface.co/vijil/stereotype-eeoc-detector) |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Configure guardrails" icon="gear" href="/tutorials/protect-agents/configuring-guardrails">
+    Set up Dome with custom guard combinations
+  </Card>
+  <Card title="Detector types" icon="magnifying-glass" href="/concepts/defense/detector">
+    Learn about pattern, ML, and LLM-as-judge detectors
+  </Card>
+  <Card title="Deploy Dome" icon="rocket" href="/owner-guide/protect-in-production/deploying-dome">
+    Run Dome in production
+  </Card>
+  <Card title="Observability" icon="chart-line" href="/tutorials/protect-agents/observability">
+    Monitor detector performance
+  </Card>
+</CardGroup>
