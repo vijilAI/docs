@@ -11,7 +11,7 @@ Dome includes built-in telemetry that captures the full picture of agent behavio
 
 1. **Operational visibility**: Are your guardrails working? What's getting blocked? What's the latency impact?
 2. **Security monitoring**: Are you seeing attack patterns? Anomalous behavior? Escalating threats?
-3. **Continuous improvement**: What's happening in production that evaluation didn't anticipate? This feeds Darwin.
+3. **Continuous improvement**: What's happening in production that evaluation didn't anticipate?
 
 ## Telemetry
 
@@ -163,23 +163,6 @@ For compliance and security review:
 ```
 
 Logs can be shipped to your SIEM, log aggregator, or stored in Vijil for analysis.
-
-## The Darwin Connection
-
-Observability data feeds Darwin—Vijil's continuous improvement system.
-
-Darwin learns from production telemetry:
-
-- **Edge cases**: Inputs that nearly triggered guards but didn't—potential blind spots
-- **False positives**: Blocked interactions that users disputed—guards that need tuning
-- **Emerging patterns**: New attack signatures appearing in the wild
-- **Drift detection**: Agent behavior changing over time
-
-This creates a feedback loop: Evaluation → Defense → Observe → Improve → Re-evaluate. Trust isn't a one-time measurement; it's a continuous process that adapts as threats evolve and agents change.
-
-<Note>
-Darwin is currently in development. Observability data collected now will feed Darwin's learning when it launches.
-</Note>
 
 ## Dashboard
 
