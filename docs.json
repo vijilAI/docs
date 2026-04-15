@@ -161,14 +161,6 @@
             ]
           },
           {
-            "group": "Integrations",
-            "pages": [
-              "developer-guide/frameworks/langchain",
-              "developer-guide/frameworks/google-adk",
-              "developer-guide/frameworks/custom-agents"
-            ]
-          },
-          {
             "group": "Evaluate Agents",
             "pages": [
               "developer-guide/evaluate/overview",
