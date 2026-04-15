@@ -17,12 +17,12 @@ The Treemap of Trust provides an interactive visualization of your agent's risk 
 
 Each rectangle represents a specific risk category:
 
-- **Size** — Corresponds to risk weight (likelihood × impact). Larger rectangles indicate higher-priority concerns.
-- **Color** — Indicates trust score for that category:
+- **Size**: Corresponds to risk weight (likelihood × impact). Larger rectangles indicate higher-priority concerns.
+- **Color**: Indicates trust score for that category:
   - Red tones (0–0.55): Critical to poor performance
   - Neutral tones (0.55–0.70): Fair performance, needs attention
   - Blue tones (0.70–1.0): Good to excellent performance
-- **Label** — Shows the category name and numerical score
+- **Label**: Shows the category name and numerical score
 
 Hover over any rectangle to see detailed metadata: category, subcategory, likelihood rating (1–5), and impact rating (1–5).
 
@@ -30,9 +30,9 @@ Hover over any rectangle to see detailed metadata: category, subcategory, likeli
 
 The treemap enables rapid identification of priority areas:
 
-1. **Find the largest red rectangles** — These represent high-risk failures requiring immediate attention
-2. **Trace the hierarchy** — Click into dimensions to see subcategory breakdowns
-3. **Compare across agents** — Use the agent selector to compare risk profiles between different agents or versions
+1. **Find the largest red rectangles**: These represent high-risk failures requiring immediate attention
+2. **Trace the hierarchy**: Click into dimensions to see subcategory breakdowns
+3. **Compare across agents**: Use the agent selector to compare risk profiles between different agents or versions
 
 ## Risk Framework
 
@@ -198,11 +198,11 @@ Increasing severity counts or rising average risk scores indicate regression. In
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Understanding Results" icon="list-check" href="/owner-guide/run-evaluations/understanding-results">
-    Interpret evaluation findings
-  </Card>
   <Card title="Operational Readiness" icon="gauge" href="/owner-guide/audit-agent-behavior/operational-readiness">
     Assess deployment readiness
+  </Card>
+  <Card title="Understanding Results" icon="list-check" href="/owner-guide/run-evaluations/understanding-results">
+    Interpret evaluation findings
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
     Add runtime protection with Dome

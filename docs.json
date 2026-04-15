@@ -95,9 +95,7 @@
           {
             "group": "Reference",
             "pages": [
-              "concepts/glossary",
-              "concepts/component-reference",
-              "concepts/release-notes"
+              "concepts/glossary"
             ]
           }
         ]
@@ -146,13 +144,6 @@
               "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
             ]
-          },
-          {
-            "group": "Audit & Readiness",
-            "pages": [
-              "owner-guide/audit-agent-behavior/quantifying-risk",
-              "owner-guide/audit-agent-behavior/operational-readiness"
-            ]
           }
         ]
       },
@@ -163,15 +154,10 @@
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/enterprise-deployment"
-            ]
-          },
-          {
-            "group": "Integrations",
-            "pages": [
-              "developer-guide/frameworks/langchain",
-              "developer-guide/frameworks/google-adk",
-              "developer-guide/frameworks/custom-agents"
+              "developer-guide/getting-started/enterprise-deployment",
+              "developer-guide/getting-started/cli",
+              "developer-guide/getting-started/api",
+              "developer-guide/getting-started/mcp"
             ]
           },
           {
@@ -191,7 +177,8 @@
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
-              "developer-guide/protect/observability"
+              "developer-guide/protect/observability",
+              "tutorials/protect-agents/dome-containerized-deployment"
             ]
           }
         ]

@@ -7,7 +7,7 @@ description: "The detection engines that identify threats within guards."
 
 A detector is the engine inside a guard that actually identifies threats. Guards define what category of threat to look for; detectors do the looking.
 
-This is the same concept as detectors in evaluation—in fact, many detectors are shared between Diamond (evaluation) and Dome (defense). The difference is context: evaluation detectors analyze probe responses after the fact; defense detectors analyze real traffic in real-time.
+This is the same concept as detectors in evaluation, in fact, many detectors are shared between **Diamond** (evaluation) and **Dome** (defense). The difference is context: evaluation detectors analyze probe responses after the fact; defense detectors analyze real traffic in real-time.
 
 ## Detector Types
 
@@ -34,7 +34,7 @@ ML classifiers use trained models to detect threats:
 | **Toxicity classifier** | Fine-tuned RoBERTa | Toxic content categories |
 | **PII NER** | Presidio/spaCy | Named entities that are PII |
 
-ML detectors handle variation better than patterns—they catch novel phrasings of known attack types. They're slower (5-20ms typically) and produce confidence scores rather than binary results.
+ML detectors handle variation better than patterns, they catch novel phrasings of known attack types. They're slower (5-20ms typically) and produce confidence scores rather than binary results.
 
 ### LLM-as-Judge
 
@@ -46,11 +46,11 @@ LLM judges use language models to evaluate content:
 | **GPT-4 judge** | GPT-4 | Complex policy violations |
 | **Custom judge** | Your choice | Domain-specific rules |
 
-LLM judges are the most flexible—they can evaluate nuanced policies that resist simple classification. They're also the slowest (50-200ms) and most expensive. Use them for high-stakes decisions or as a second opinion on borderline cases.
+LLM judges are the most flexible, they can evaluate nuanced policies that resist simple classification. They're also the slowest (50-200ms) and most expensive. Use them for high-stakes decisions or as a second opinion on borderline cases.
 
 ### Heuristic Detectors
 
-Heuristic detectors use domain-specific rules that aren't simple patterns:
+Heuristic detectors use domain, specific rules that aren't simple patterns:
 
 | Detector | What It Checks |
 |----------|----------------|
@@ -117,7 +117,7 @@ Each detector produces structured results:
 }
 ```
 
-Evidence helps you understand why a detector fired—essential for tuning thresholds and investigating false positives.
+Evidence helps you understand why a detector fired essential for tuning thresholds and investigating false positives.
 
 ## Custom Detectors
 

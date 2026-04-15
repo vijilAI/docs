@@ -26,12 +26,12 @@ The dashboard has three main sections:
 Summary cards at the top show aggregate statistics:
 
 **Input Guardrails:**
-- **Flagged Requests** — Number and percentage of requests that triggered input guards
-- **Errors** — Count of processing errors in input guards
+- **Flagged Requests**: Number and percentage of requests that triggered input guards
+- **Errors**: Count of processing errors in input guards
 
 **Output Guardrails:**
-- **Flagged Responses** — Number and percentage of responses that triggered output guards
-- **Errors** — Count of processing errors in output guards
+- **Flagged Responses**: Number and percentage of responses that triggered output guards
+- **Errors**: Count of processing errors in output guards
 
 ### Time Series Charts
 
@@ -48,28 +48,28 @@ Four charts visualize guardrail activity over time:
 
 Real-time monitoring of individual guardrail executions:
 
-**Traces** — Detailed execution logs for each request, showing:
+**Traces**: Detailed execution logs for each request, showing:
 - Request ID
 - Guards executed
 - Detection results
 - Timing information
 
-**Logs** — Streaming log output with search and level filtering.
+**Logs**: Streaming log output with search and level filtering.
 
 ## Dashboard Controls
 
 ### Layout Options
 
 Toggle between:
-- **Grid** — Charts arranged in a grid layout
-- **Row** — Charts stacked vertically
+- **Grid**: Charts arranged in a grid layout
+- **Row**: Charts stacked vertically
 
 ### Chart Type
 
 Select how data points are displayed:
-- **Line Connected** — Points connected with lines
-- **Line Gaps** — Lines with gaps for missing data
-- **Points Only** — Individual data points without connecting lines
+- **Line Connected**: Points connected with lines
+- **Line Gaps**: Lines with gaps for missing data
+- **Points Only**: Individual data points without connecting lines
 
 ### Time Range
 
@@ -86,8 +86,8 @@ All times display in UTC.
 ### Flagged Requests/Responses
 
 The bar charts show two series:
-- **Red bars** — Requests/responses flagged by guardrails
-- **Dark bars** — Total requests/responses
+- **Red bars**: Requests/responses flagged by guardrails
+- **Dark bars**: Total requests/responses
 
 Hover over any bar to see exact counts and timestamps.
 
@@ -99,10 +99,10 @@ A high flag rate may indicate:
 ### Latency Distribution
 
 The latency charts show percentile lines:
-- **P50 (Median)** — Half of requests complete faster than this
-- **P90** — 90% of requests complete faster than this
-- **P95** — 95% of requests complete faster than this
-- **P99** — 99% of requests complete faster than this
+- **P50 (Median)**: Half of requests complete faster than this
+- **P90**: 90% of requests complete faster than this
+- **P95**: 95% of requests complete faster than this
+- **P99**: 99% of requests complete faster than this
 
 Monitor P99 latency to understand worst-case user experience. Spikes in P99 may indicate:
 - Guard processing bottlenecks
@@ -113,11 +113,11 @@ Monitor P99 latency to understand worst-case user experience. Spikes in P99 may 
 
 The Traces panel shows recent guardrail executions. Click any trace to view:
 
-- **Request ID** — Unique identifier for the request
-- **Timestamp** — When the request was processed
-- **Guards Executed** — Which guards ran and in what order
-- **Detection Results** — Whether each guard flagged the content
-- **Timing Breakdown** — How long each guard took
+- **Request ID**: Unique identifier for the request
+- **Timestamp**: When the request was processed
+- **Guards Executed**: Which guards ran and in what order
+- **Detection Results**: Whether each guard flagged the content
+- **Timing Breakdown**: How long each guard took
 
 Use traces to debug:
 - Why specific requests were flagged
@@ -131,11 +131,11 @@ The Logs panel shows streaming log output from your guardrails.
 ### Filtering Logs
 
 Filter by log level:
-- **All Levels** — Show everything
-- **Error** — Only errors
-- **Warning** — Warnings and above
-- **Info** — Informational and above
-- **Debug** — All log levels
+- **All Levels**: Show everything
+- **Error**: Only errors
+- **Warning**: Warnings and above
+- **Info**: Informational and above
+- **Debug**: All log levels
 
 Use the search box to find logs containing specific text.
 
@@ -172,6 +172,9 @@ Export options are available through the API.
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Quantifying Risk" icon="chart-pie" href="/owner-guide/audit-agent-behavior/quantifying-risk">
+    Translate findings into risk assessments
+  </Card>
   <Card title="Deploying Dome" icon="rocket" href="/owner-guide/protect-in-production/deploying-dome">
     Integrate Dome into your agent
   </Card>

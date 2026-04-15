@@ -13,9 +13,9 @@ Dome interposes between users and your agent, inspecting traffic in both directi
 User Request → Dome (Input Guards) → Your Agent → Dome (Output Guards) → User Response
 ```
 
-**Input guards** filter incoming requests before they reach your agent—blocking prompt injection attempts, detecting malicious content, and enforcing content policies.
+**Input guards** filter incoming requests before they reach your agent, blocking prompt injection attempts, detecting malicious content, and enforcing content policies.
 
-**Output guards** filter outgoing responses before they reach users—preventing data leakage, redacting sensitive information, and ensuring compliance with content guidelines.
+**Output guards** filter outgoing responses before they reach users, preventing data leakage, redacting sensitive information, and ensuring compliance with content guidelines.
 
 ## Accessing Guardrails
 
@@ -48,9 +48,9 @@ Click the **+** button in either the Input Guards or Output Guards section to ad
 </Frame>
 
 Select a guard type from the dropdown:
-- **Security** — Detect adversarial inputs
-- **Moderation** — Filter harmful content
-- **Privacy** — Protect sensitive data
+- **Security**: Detect adversarial inputs
+- **Moderation**: Filter harmful content
+- **Privacy**: Protect sensitive data
 
 ## Security Guards
 
@@ -64,8 +64,8 @@ Security guards protect against adversarial inputs designed to manipulate your a
 | **Adversarial Suffixes** | Appended strings that trigger unsafe behavior |
 
 **Underlying detectors:**
-- `encoding-heuristics` — Detects encoded content that may hide malicious payloads
-- `prompt-injection-mbert` — ML model trained to identify injection attempts
+- `encoding-heuristics`: Detects encoded content that may hide malicious payloads
+- `prompt-injection-mbert`: ML model trained to identify injection attempts
 
 Enable security guards on inputs for customer-facing agents, agents with access to sensitive data or tools, and any agent exposed to untrusted users.
 
@@ -81,8 +81,8 @@ Moderation guards filter content that violates usage policies or community stand
 | **Self-Harm** | Content promoting self-injury |
 
 **Underlying detectors:**
-- `moderation-flashtext` — Fast keyword-based detection
-- `moderation-deberta` — ML model for nuanced content classification
+- `moderation-flashtext`: Fast keyword-based detection
+- `moderation-deberta`: ML model for nuanced content classification
 
 Enable moderation guards on inputs to block requests for harmful content, and on outputs to prevent inappropriate responses.
 
@@ -98,7 +98,7 @@ Privacy guards detect and protect personally identifiable information (PII).
 | **Addresses / Names** | Physical addresses, personal names |
 
 **Underlying detector:**
-- `privacy-presidio` — Microsoft Presidio-based entity recognition
+- `privacy-presidio`: Microsoft Presidio-based entity recognition
 
 Enable privacy guards on inputs to detect when users share sensitive information, and on outputs to prevent PII leakage.
 
@@ -115,9 +115,9 @@ When enabled, processing stops if this guard flags the input. The request is blo
 
 ### Execution Mode
 
-**Serial** — Guards execute in sequence. Use when guard order matters or later guards depend on earlier transformations.
+**Serial**: Guards execute in sequence. Use when guard order matters or later guards depend on earlier transformations.
 
-**Parallel** — Guards execute simultaneously. Use when guards are independent and you want lower latency.
+**Parallel**: Guards execute simultaneously. Use when guards are independent and you want lower latency.
 
 ## Guard Pipeline
 
@@ -161,16 +161,16 @@ My email is test@example.com and my phone is 555-123-4567.
 After configuring guards, click **Save Configuration**. The agent's status changes from **Unprotected** to **Domed** once guardrails are active.
 
 Use the toolbar to:
-- **View Code** — See configuration as code for developers
-- **Export** — Save configuration to version control or share between environments
-- **Import** — Load a previously exported configuration
+- **View Code**: See configuration as code for developers
+- **Export**: Save configuration to version control or share between environments
+- **Import**: Load a previously exported configuration
 
 ## Best Practices
 
-- **Start with security** — Enable security guards on inputs for any externally-accessible agent
-- **Layer defenses** — Use multiple guard types; an attacker who bypasses one may be caught by another
-- **Test before deploying** — Verify guards behave as expected using the Execution Flow panel
-- **Monitor after deployment** — Review metrics to identify false positives and missed detections
+- **Start with security**: Enable security guards on inputs for any externally-accessible agent
+- **Layer defenses**: Use multiple guard types; an attacker who bypasses one may be caught by another
+- **Test before deploying**: Verify guards behave as expected using the Execution Flow panel
+- **Monitor after deployment**: Review metrics to identify false positives and missed detections
 
 ## Next Steps
 
@@ -181,10 +181,11 @@ Use the toolbar to:
   <Card title="Observing Traces" icon="chart-line" href="/owner-guide/protect-in-production/observability">
     Monitor guardrail performance
   </Card>
-  <Card title="Protection Overview" icon="shield-half" href="/protect-agents/introduction">
+  <Card title="Protection Overview" icon="shield-half" href="/developer-guide/protect/overview">
     Complete SDK reference for developers
   </Card>
-  <Card title="Custom Detectors" icon="wrench" href="/tutorials/protect-agents/custom-detectors">
+  <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
     Build custom detection methods
   </Card>
 </CardGroup>
+
