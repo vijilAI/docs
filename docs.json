@@ -38,9 +38,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "concepts/welcome"
-            ]
+            "pages": ["concepts/welcome"]
           },
           {
             "group": "Trust Score",
@@ -94,9 +92,7 @@
           },
           {
             "group": "Reference",
-            "pages": [
-              "concepts/glossary"
-            ]
+            "pages": ["concepts/glossary"]
           }
         ]
       },
@@ -112,9 +108,7 @@
           },
           {
             "group": "Register Agents",
-            "pages": [
-              "owner-guide/register-agents/registering-agents"
-            ]
+            "pages": ["owner-guide/register-agents/registering-agents"]
           },
           {
             "group": "Build an Evaluation Environment",
@@ -141,7 +135,6 @@
             "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
-              "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
             ]
           }
@@ -154,7 +147,6 @@
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/enterprise-deployment",
               "developer-guide/getting-started/cli",
               "developer-guide/getting-started/api",
               "developer-guide/getting-started/mcp"
@@ -188,10 +180,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": [
-              "legacy/get-started/welcome",
-              "legacy/get-started/quickstart"
-            ]
+            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
           },
           {
             "group": "Core Concepts",
@@ -256,9 +245,7 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": [
-              "legacy/evaluate-agents/introduction"
-            ]
+            "pages": ["legacy/evaluate-agents/introduction"]
           },
           {
             "group": "Tutorials",
@@ -295,9 +282,7 @@
                   "legacy/tutorials/evaluate-agents/cicd",
                   {
                     "group": "Examples",
-                    "pages": [
-                      "tutorials/evaluate-agents/examples/playground"
-                    ]
+                    "pages": ["tutorials/evaluate-agents/examples/playground"]
                   },
                   {
                     "group": "Enterprise Deployment of Evaluate",
