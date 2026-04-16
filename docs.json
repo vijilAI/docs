@@ -122,7 +122,7 @@
               "owner-guide/simulate-environment/personas",
               "owner-guide/simulate-environment/policies",
               {
-                "group": "Specifying Harnesses",
+                "group": "Specify Harnesses",
                 "pages": [
                   "owner-guide/simulate-environment/harnesses/trust-score",
                   "owner-guide/simulate-environment/custom-harnesses"
