@@ -3,7 +3,7 @@ title: 'Running Evaluations'
 description: 'Execute and monitor agent evaluations programmatically or visually.'
 ---
 
-Vijil Evaluate is a quality assurance framework that automates the testing of LLM applications. An **Evaluation** in Vijil is an automated test run where you select one or more AI agents and a test [Harness](/concepts/components/harness) (covering [Security](/concepts/dimensions/security), [Reliability](/concepts/dimensions/reliability), and [Safety](/concepts/dimensions/safety)) to systematically assess the quality, safety, and reliability of LLM applications.
+Vijil Evaluate is a quality assurance framework that automates the testing of LLM applications. An **Evaluation** in Vijil is an automated test run where you select one or more AI agents and a test [Harness](/concepts/evaluation-components/harness) (covering [Security](/concepts/trust-score/security), [Reliability]( §/concepts/trust-score/reliability), and [Safety](/concepts/trust-score/safety)) to systematically assess the quality, safety, and reliability of LLM applications.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Before setting up an Evaluation, you must have:
 2. From the **Create Evaluation > Select Agents** section, choose one or more Agents you have previously created. If you do not have an Agent, register one first.
 3. In the **Select Harness** section, you can configure:
     - **Trust Scores** - Choose between Security, Reliability, and Safety, or select all.
-    - **Custom** - Select your custom [Harness](/concepts/components/harness).
+    - **Custom** - Select your custom [Harness](/concepts/evaluation-components/harness).
     - **Benchmarks** - Select specific benchmarks from the Trust Scores.
     - **Garak** - Select Garak scenarios.
 4. Under **Run Configuration**, you will see your selected Agent(s). By pressing on the dropdown <Icon icon="chevron-down" /> icon, you can configure model parameters:
