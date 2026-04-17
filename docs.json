@@ -154,10 +154,15 @@
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/enterprise-deployment",
               "developer-guide/getting-started/cli",
               "developer-guide/getting-started/api",
               "developer-guide/getting-started/mcp"
+            ]
+          },
+          {
+            "group": "Deploy Vijil",
+            "pages": [
+              "developer-guide/deploy-vijil/deploy-vijil-console"
             ]
           },
           {
