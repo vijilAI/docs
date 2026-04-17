@@ -1,0 +1,1064 @@
+---
+title: 'Deploying Vijil Console'
+description: This guide walks through deploying the full Vijil Console stack on Kubernetes (AWS EKS). It covers AWS infrastructure setup, IAM configuration, Helm deployment, DNS, and post-install steps.
+---
+
+
+> **Already have a cluster and AWS resources?** Jump to [Phase 2: IAM and EKS Add-ons](#phase-2-iam-and-eks-add-ons) and then [Phase 3: Helm Values and Secrets](#phase-3-helm-values-and-secrets).
+
+
+## Prerequisites
+
+Before you start, make sure you have the following tools installed and configured:
+
+| Requirement | Details |
+|---|---|
+| AWS CLI | Configured and working — `aws sts get-caller-identity` should succeed |
+| `eksctl` | ≥ 0.160 |
+| `kubectl` | ≥ 1.28 (keep client within one minor version of the server) |
+| `helm` | ≥ 3.8 |
+| Domain + DNS | A registered domain with a Route 53 hosted zone (or another DNS provider) |
+| Container images | Access to Vijil's ECR, or `vijil-console` and `vijil-console-frontend` built and pushed to your own registry |
+
+## Architecture Overview
+
+<img src="/images/developer-guide/deploy-vijil/Deploying Vijil Console Architecture Overview.png" alt="Vijil Console Architecture showing VPC, subnets, NLB, EKS, and RDS" style={{maxWidth: '700px', margin: '2rem auto', display: 'block'}} />
+
+All application workloads and the database live in **private subnets**. Only a single nginx NLB sits in a **public subnet**, both `console.*` and `console-api.*` resolve to this one NLB, and the unified nginx router handles splitting frontend vs API traffic internally. EKS nodes reach S3 and ECR via NAT Gateway.
+
+---
+
+## Phase 1: AWS Infrastructure
+
+### 1.1 VPC
+
+Create a VPC with two public and two private subnets across two Availability Zones. The subnet tags are **required**. EKS uses them to discover subnets, and the AWS Load Balancer Controller uses them to place NLBs correctly.
+
+```bash
+export AWS_REGION=us-west-2
+export VPC_NAME=vijil-prod
+
+# Create VPC
+VPC_ID=$(aws ec2 create-vpc \
+  --cidr-block 10.0.0.0/16 \
+  --region $AWS_REGION \
+  --query 'Vpc.VpcId' --output text)
+
+aws ec2 create-tags --resources $VPC_ID \
+  --tags Key=Name,Value=$VPC_NAME
+
+# Enable DNS hostnames (required for EKS)
+aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames
+
+# Internet Gateway
+IGW_ID=$(aws ec2 create-internet-gateway \
+  --query 'InternetGateway.InternetGatewayId' --output text)
+aws ec2 attach-internet-gateway --vpc-id $VPC_ID --internet-gateway-id $IGW_ID
+```
+
+**Public subnets**: the NLB goes here. It must have the `kubernetes.io/role/elb=1` tag:
+
+```bash
+# Replace us-west-2a / us-west-2b with your AZs
+PUBLIC_SUBNET_1=$(aws ec2 create-subnet \
+  --vpc-id $VPC_ID --cidr-block 10.0.1.0/24 \
+  --availability-zone ${AWS_REGION}a \
+  --query 'Subnet.SubnetId' --output text)
+
+PUBLIC_SUBNET_2=$(aws ec2 create-subnet \
+  --vpc-id $VPC_ID --cidr-block 10.0.2.0/24 \
+  --availability-zone ${AWS_REGION}b \
+  --query 'Subnet.SubnetId' --output text)
+
+for SUBNET in $PUBLIC_SUBNET_1 $PUBLIC_SUBNET_2; do
+  aws ec2 create-tags --resources $SUBNET --tags \
+    Key=Name,Value="$VPC_NAME-public" \
+    Key=kubernetes.io/role/elb,Value=1
+  aws ec2 modify-subnet-attribute --subnet-id $SUBNET \
+    --map-public-ip-on-launch
+done
+
+# Route table: public subnets → Internet Gateway
+PUBLIC_RT=$(aws ec2 create-route-table --vpc-id $VPC_ID \
+  --query 'RouteTable.RouteTableId' --output text)
+aws ec2 create-route --route-table-id $PUBLIC_RT \
+  --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW_ID
+for SUBNET in $PUBLIC_SUBNET_1 $PUBLIC_SUBNET_2; do
+  aws ec2 associate-route-table --subnet-id $SUBNET --route-table-id $PUBLIC_RT
+done
+```
+
+**Private subnets**: EKS nodes and RDS go here. It must have the `kubernetes.io/role/internal-elb=1` tag:
+
+```bash
+PRIVATE_SUBNET_1=$(aws ec2 create-subnet \
+  --vpc-id $VPC_ID --cidr-block 10.0.3.0/24 \
+  --availability-zone ${AWS_REGION}a \
+  --query 'Subnet.SubnetId' --output text)
+
+PRIVATE_SUBNET_2=$(aws ec2 create-subnet \
+  --vpc-id $VPC_ID --cidr-block 10.0.4.0/24 \
+  --availability-zone ${AWS_REGION}b \
+  --query 'Subnet.SubnetId' --output text)
+
+for SUBNET in $PRIVATE_SUBNET_1 $PRIVATE_SUBNET_2; do
+  aws ec2 create-tags --resources $SUBNET --tags \
+    Key=Name,Value="$VPC_NAME-private" \
+    Key=kubernetes.io/role/internal-elb,Value=1
+done
+
+# NAT Gateway in the first public subnet (lets private nodes reach ECR and S3)
+EIP=$(aws ec2 allocate-address --domain vpc \
+  --query 'AllocationId' --output text)
+NAT_GW=$(aws ec2 create-nat-gateway \
+  --subnet-id $PUBLIC_SUBNET_1 --allocation-id $EIP \
+  --query 'NatGateway.NatGatewayId' --output text)
+echo "Waiting for NAT Gateway..."
+aws ec2 wait nat-gateway-available --nat-gateway-ids $NAT_GW
+
+# Route table: private subnets → NAT Gateway
+PRIVATE_RT=$(aws ec2 create-route-table --vpc-id $VPC_ID \
+  --query 'RouteTable.RouteTableId' --output text)
+aws ec2 create-route --route-table-id $PRIVATE_RT \
+  --destination-cidr-block 0.0.0.0/0 --nat-gateway-id $NAT_GW
+for SUBNET in $PRIVATE_SUBNET_1 $PRIVATE_SUBNET_2; do
+  aws ec2 associate-route-table --subnet-id $SUBNET --route-table-id $PRIVATE_RT
+done
+```
+
+### 1.2 EKS Cluster
+
+```bash
+export CLUSTER_NAME=vijil-prod
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+eksctl create cluster \
+  --name $CLUSTER_NAME \
+  --region $AWS_REGION \
+  --version 1.30 \
+  --vpc-private-subnets=$PRIVATE_SUBNET_1,$PRIVATE_SUBNET_2 \
+  --vpc-public-subnets=$PUBLIC_SUBNET_1,$PUBLIC_SUBNET_2 \
+  --with-oidc \
+  --nodegroup-name standard-workers \
+  --node-type m5.large \
+  --nodes 2 \
+  --nodes-min 2 \
+  --nodes-max 4 \
+  --managed
+
+# Verify
+kubectl get nodes
+```
+
+> **`--with-oidc` is required.** It enables the OIDC provider used by the EBS CSI driver's IRSA configuration. Do not omit it.
+>
+> **Node sizing:** `m5.large` is a reasonable starting point. If pods are OOMKilled or evicted for resources, scale up to `r5.xlarge` (what the dev environment currently uses).
+
+### 1.3 RDS PostgreSQL
+
+```bash
+# Security group: allow port 5432 from EKS nodes only
+RDS_SG=$(aws ec2 create-security-group \
+  --group-name vijil-rds-sg \
+  --description "RDS access from EKS nodes" \
+  --vpc-id $VPC_ID \
+  --query 'GroupId' --output text)
+
+EKS_NODE_SG=$(aws eks describe-cluster --name $CLUSTER_NAME \
+  --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
+
+aws ec2 authorize-security-group-ingress \
+  --group-id $RDS_SG \
+  --protocol tcp --port 5432 \
+  --source-group $EKS_NODE_SG
+
+# Subnet group using private subnets
+aws rds create-db-subnet-group \
+  --db-subnet-group-name vijil-prod-subnets \
+  --db-subnet-group-description "Vijil Console RDS subnets" \
+  --subnet-ids $PRIVATE_SUBNET_1 $PRIVATE_SUBNET_2
+
+# Custom parameter group with SSL disabled
+# PostgreSQL 15+ defaults to rds.force_ssl=1; this lets the app connect without SSL
+# for in-VPC-only traffic. Remove this if your app connection string uses SSL.
+aws rds create-db-parameter-group \
+  --db-parameter-group-name vijil-pg15-no-ssl \
+  --db-parameter-group-family postgres15 \
+  --description "Vijil Console RDS — SSL disabled for in-VPC clients"
+
+aws rds modify-db-parameter-group \
+  --db-parameter-group-name vijil-pg15-no-ssl \
+  --parameters "ParameterName=rds.force_ssl,ParameterValue=0,ApplyMethod=pending-reboot"
+
+# Create RDS instance
+aws rds create-db-instance \
+  --db-instance-identifier vijil-prod-pg \
+  --db-instance-class db.t3.medium \
+  --engine postgres \
+  --engine-version 15 \
+  --master-username postgres \
+  --master-user-password YOUR_STRONG_PASSWORD \
+  --db-name postgres \
+  --allocated-storage 20 \
+  --storage-type gp3 \
+  --no-publicly-accessible \
+  --vpc-security-group-ids $RDS_SG \
+  --db-subnet-group-name vijil-prod-subnets \
+  --db-parameter-group-name vijil-pg15-no-ssl \
+  --backup-retention-period 7
+
+# Wait for it to be available (takes a few minutes), then get the endpoint
+aws rds wait db-instance-available --db-instance-identifier vijil-prod-pg
+RDS_ENDPOINT=$(aws rds describe-db-instances \
+  --db-instance-identifier vijil-prod-pg \
+  --query 'DBInstances[0].Endpoint.Address' --output text)
+echo "RDS endpoint: $RDS_ENDPOINT"
+```
+
+### 1.4 S3 Bucket
+
+```bash
+export S3_BUCKET=vijil-console-data-prod
+
+aws s3api create-bucket \
+  --bucket $S3_BUCKET \
+  --region $AWS_REGION \
+  --create-bucket-configuration LocationConstraint=$AWS_REGION
+
+# Block all public access
+aws s3api put-public-access-block \
+  --bucket $S3_BUCKET \
+  --public-access-block-configuration \
+    BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
+### 1.5 ACM Certificate
+
+Request a wildcard certificate, it covers both `console.` and `console-api.` subdomains with a single cert:
+
+```bash
+CERT_ARN=$(aws acm request-certificate \
+  --domain-name "*.yourdomain.com" \
+  --validation-method DNS \
+  --region $AWS_REGION \
+  --query 'CertificateArn' --output text)
+
+echo "Certificate ARN: $CERT_ARN"
+# Add the CNAME record from the ACM console to Route 53 to validate:
+# aws acm describe-certificate --certificate-arn $CERT_ARN
+```
+
+Wait for `ISSUED` status before proceeding:
+
+```bash
+aws acm wait certificate-validated --certificate-arn $CERT_ARN
+```
+
+---
+
+## Phase 2: IAM and EKS Add-ons
+
+### 2.1 IAM Policy for S3
+
+Create a scoped S3 policy for your app data bucket. If you're deploying to multiple environments, use distinct policy names (e.g. `VijilConsoleS3Access` for prod, `VijilConsoleS3AccessStaging` for staging) to avoid conflicts.
+
+```bash
+export S3_BUCKET=vijil-console-data-prod  # adjust per environment
+
+cat > /tmp/vijil-s3-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${S3_BUCKET}",
+        "arn:aws:s3:::${S3_BUCKET}/*"
+      ]
+    }
+  ]
+}
+EOF
+
+S3_POLICY_ARN=$(aws iam create-policy \
+  --policy-name VijilConsoleS3Access \
+  --policy-document file:///tmp/vijil-s3-policy.json \
+  --query 'Policy.Arn' --output text)
+
+echo "S3 policy ARN: $S3_POLICY_ARN"
+```
+
+### 2.2 S3 Access for Pods
+
+There are two supported approaches. **EKS Pod Identity (Option A)** and **Node IAM Role (Option B)**. EKS Pod Identity is recommended, it's what the current dev environment uses and scopes credentials to specific service accounts rather than all pods on a node.
+
+#### Option A: EKS Pod Identity (recommended)
+
+Pod Identity is the modern replacement for IRSA. Pods receive AWS credentials via `http://169.254.170.23/v1/credentials`, injected automatically by the Pod Identity Agent. The AWS SDK picks this up with no code changes.
+
+```bash
+# Step 1: Install the EKS Pod Identity Agent add-on
+aws eks create-addon \
+  --cluster-name $CLUSTER_NAME \
+  --addon-name eks-pod-identity-agent \
+  --region $AWS_REGION
+
+kubectl -n kube-system rollout status daemonset/eks-pod-identity-agent
+
+# Step 2: Create an IAM role for Pod Identity to assume
+cat > /tmp/pod-identity-trust.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "Service": "pods.eks.amazonaws.com" },
+      "Action": ["sts:AssumeRole", "sts:TagSession"]
+    }
+  ]
+}
+EOF
+
+S3_ROLE_ARN=$(aws iam create-role \
+  --role-name VijilConsoleS3Role \
+  --assume-role-policy-document file:///tmp/pod-identity-trust.json \
+  --query 'Role.Arn' --output text)
+
+aws iam attach-role-policy \
+  --role-name VijilConsoleS3Role \
+  --policy-arn $S3_POLICY_ARN
+
+# Step 3: Associate the role with the service accounts that need AWS access
+# `default` covers most app pods; the other two are dedicated SAs created by the chart
+for SA in default diamond-service redteam-service; do
+  aws eks create-pod-identity-association \
+    --cluster-name $CLUSTER_NAME \
+    --namespace vijil-console \
+    --service-account $SA \
+    --role-arn $S3_ROLE_ARN \
+    --region $AWS_REGION
+done
+
+echo "Pod Identity associations created for vijil-console/default, diamond-service, and redteam-service."
+```
+
+#### Option B: Node IAM Role (simpler, broader scope)
+
+Attach the S3 policy directly to the EKS node group role. All pods on every node in the cluster will inherit these permissions, simpler to set up but less isolated.
+
+```bash
+NODE_ROLE=$(aws eks describe-nodegroup \
+  --cluster-name $CLUSTER_NAME \
+  --nodegroup-name standard-workers \
+  --query 'nodegroup.nodeRole' --output text | awk -F/ '{print $NF}')
+
+aws iam attach-role-policy \
+  --role-name $NODE_ROLE \
+  --policy-arn $S3_POLICY_ARN
+```
+
+### 2.3 EBS CSI Driver
+
+The telemetry stack (Grafana, Loki, Mimir, Tempo) uses PersistentVolumeClaims backed by EBS. The driver must be installed **before** `helm install`.
+
+Install the driver via Helm first (this creates the `ebs-csi-controller-sa` service account that the IRSA script needs), then run the IRSA setup script:
+
+```bash
+# Step 1: Install the driver
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
+  --namespace kube-system
+
+# Step 2: Configure IRSA (from the repo root)
+export CLUSTER_NAME=$CLUSTER_NAME
+export REGION=$AWS_REGION
+export ACCOUNT_ID=$ACCOUNT_ID
+./scripts/setup-ebs-csi-driver.sh
+
+# Step 3: Restart the controller to pick up the IAM role
+kubectl rollout restart deployment ebs-csi-controller -n kube-system
+
+# Verify both controller replicas are running (expect 5/5)
+kubectl get pods -n kube-system -l app=ebs-csi-controller
+```
+
+> Alternatively, use the EKS managed add-on: `aws eks create-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver`
+>
+> The EBS CSI driver deploys two controller replicas across AZs. Verify they show 5/5 Running before proceeding.
+
+### 2.4 ECR Pull Access
+
+#### Option A: Vijil's ECR (cross-account pull)
+
+Vijil's images live in account `266735823956` (region `us-west-2`). Two steps are required: one run by Vijil's side, one by yours.
+
+**Step 1 - Vijil side** (run in account `266735823956`): Grant your account pull access on the ECR registry.
+
+```bash
+# Run in Vijil account (266735823956)
+export AWS_REGION=us-west-2
+CUSTOMER_ACCOUNT_ID=YOUR_ACCOUNT_ID
+
+cat > /tmp/ecr-registry-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCustomerPull",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${CUSTOMER_ACCOUNT_ID}:root"
+      },
+      "Action": [
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability"
+      ],
+      "Resource": "arn:aws:ecr:${AWS_REGION}:266735823956:repository/*"
+    }
+  ]
+}
+EOF
+
+aws ecr put-registry-policy --policy-text file:///tmp/ecr-registry-policy.json --region $AWS_REGION
+```
+
+To allow **multiple customer accounts**, add additional ARNs to `Principal.AWS` as an array and re-run `put-registry-policy` once.
+
+**Step 2 - Customer side**: Give the EKS node role permission to pull from Vijil's ECR.
+
+```bash
+NODE_ROLE=$(aws eks describe-nodegroup \
+  --cluster-name $CLUSTER_NAME \
+  --nodegroup-name standard-workers \
+  --query 'nodegroup.nodeRole' --output text | awk -F/ '{print $NF}')
+
+aws iam attach-role-policy \
+  --role-name $NODE_ROLE \
+  --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly
+
+cat > /tmp/vijil-ecr-pull-policy.json <<'EOF'
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": "arn:aws:ecr:us-west-2:266735823956:repository/*"
+    }
+  ]
+}
+EOF
+
+aws iam put-role-policy \
+  --role-name $NODE_ROLE \
+  --policy-name VijilECRPull \
+  --policy-document file:///tmp/vijil-ecr-pull-policy.json
+```
+
+After a minute, run a test pod that pulls from Vijil's ECR:
+
+```bash
+kubectl run ecr-test \
+  --image=266735823956.dkr.ecr.us-west-2.amazonaws.com/vijil-console:latest \
+  --restart=Never --rm -it -- /bin/sh -c "echo ok"
+```
+
+#### Option B: Your own registry
+
+Build and push images to your own registry, then override `*.image.repository` in your values file (see [Phase 3](#phase-3-helm-values-and-secrets)).
+
+### 2.5 Bedrock AgentCore (Diamond / custom harness)
+
+The Diamond evaluation page and custom harness workflows call the Bedrock AgentCore API. Attach a scoped policy to the same IAM principal your Console pods use for AWS access. If you used Pod Identity, attach it to the Pod Identity role. If you used the node IAM role, attach it to that.
+
+```bash
+# If using Pod Identity, set BEDROCK_ROLE to your Pod Identity role name (e.g. VijilConsoleS3Role)
+# If using node IAM, resolve the node role:
+BEDROCK_ROLE=${BEDROCK_ROLE:-$(aws eks describe-nodegroup \
+  --cluster-name $CLUSTER_NAME \
+  --nodegroup-name standard-workers \
+  --query 'nodegroup.nodeRole' --output text | awk -F/ '{print $NF}')}
+
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+cat > /tmp/vijil-bedrock-agentcore-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BedrockAgentCoreControl",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:ListAgentRuntimes",
+        "bedrock-agentcore-control:ListAgentRuntimes"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:${AWS_REGION}:${ACCOUNT_ID}:runtime/*"
+    },
+    {
+      "Sid": "BedrockAgentCoreData",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:InvokeAgentRuntime",
+        "bedrock-agentcore:GetSessionStatus",
+        "bedrock-agentcore:StopSession",
+        "bedrock-agentcore:GetAgentCard"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:${AWS_REGION}:${ACCOUNT_ID}:runtime/*"
+    }
+  ]
+}
+EOF
+
+BEDROCK_POLICY_ARN=$(aws iam create-policy \
+  --policy-name VijilBedrockAgentCoreAccess \
+  --policy-document file:///tmp/vijil-bedrock-agentcore-policy.json \
+  --query 'Policy.Arn' --output text)
+
+aws iam attach-role-policy \
+  --role-name $BEDROCK_ROLE \
+  --policy-arn $BEDROCK_POLICY_ARN
+```
+
+The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fetch the agent card when creating custom harnesses. If you created the policy before this was added, add a new policy version that includes `bedrock-agentcore:GetAgentCard` in the `BedrockAgentCoreData` statement and run `aws iam create-policy-version --policy-arn <policy-arn> --policy-document file://policy.json --set-as-default`.
+
+### 2.6 Staging / Non-Dev: Custom Harness AgentCore Runtime
+
+In dev, a custom harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime doesn't exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
+
+**Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a--vijils-ecr-cross-account-pull).
+
+#### Step 1: Create the execution role
+
+The runtime runs the harness container under an IAM role that Bedrock AgentCore assumes. Create a role with (a) a trust policy allowing `bedrock-agentcore.amazonaws.com`, and (b) permissions for ECR pull (your account + Vijil’s 266735823956), S3 for your app bucket, and CloudWatch Logs.
+
+Replace `STAGING_ACCOUNT_ID` with your account ID (e.g. 565393042914 for staging). Run in the staging account:
+
+```bash
+export AWS_PROFILE=your-staging-profile
+export AWS_REGION=us-west-2
+export STAGING_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+cat > /tmp/agentcore-trust.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AssumeRolePolicy",
+      "Effect": "Allow",
+      "Principal": { "Service": "bedrock-agentcore.amazonaws.com" },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": { "aws:SourceAccount": "${STAGING_ACCOUNT_ID}" },
+        "ArnLike": { "aws:SourceArn": "arn:aws:bedrock-agentcore:${AWS_REGION}:${STAGING_ACCOUNT_ID}:*" }
+      }
+    }
+  ]
+}
+EOF
+
+aws iam create-role \
+  --role-name vijil_staging_harness_agent_execution_role \
+  --assume-role-policy-document file:///tmp/agentcore-trust.json \
+  --description "Execution role for Bedrock AgentCore custom harness runtime"
+```
+
+Then attach permissions for ECR (your account + Vijil's `266735823956`), S3, CloudWatch Logs, X-Ray, and Bedrock model invocation. Replace `vijil-console-data-staging` with your app bucket name:
+
+```bash
+cat > /tmp/agentcore-permissions.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ECRTokenAccess",
+      "Effect": "Allow",
+      "Action": [ "ecr:GetAuthorizationToken" ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ECRPull",
+      "Effect": "Allow",
+      "Action": [ "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer" ],
+      "Resource": [
+        "arn:aws:ecr:${AWS_REGION}:${STAGING_ACCOUNT_ID}:repository/*",
+        "arn:aws:ecr:${AWS_REGION}:266735823956:repository/*"
+      ]
+    },
+    {
+      "Sid": "S3HarnessBucket",
+      "Effect": "Allow",
+      "Action": [ "s3:GetObject", "s3:PutObject", "s3:ListBucket", "s3:DeleteObject" ],
+      "Resource": [
+        "arn:aws:s3:::vijil-console-data-staging",
+        "arn:aws:s3:::vijil-console-data-staging/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [ "logs:DescribeLogStreams", "logs:CreateLogGroup" ],
+      "Resource": [ "arn:aws:logs:${AWS_REGION}:${STAGING_ACCOUNT_ID}:log-group:/aws/bedrock-agentcore/runtimes/*" ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [ "logs:DescribeLogGroups" ],
+      "Resource": [ "arn:aws:logs:${AWS_REGION}:${STAGING_ACCOUNT_ID}:log-group:*" ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ],
+      "Resource": [ "arn:aws:logs:${AWS_REGION}:${STAGING_ACCOUNT_ID}:log-group:/aws/bedrock-agentcore/runtimes/*:log-stream:*" ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [ "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules", "xray:GetSamplingTargets" ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "cloudwatch:PutMetricData",
+      "Resource": "*",
+      "Condition": { "StringEquals": { "cloudwatch:namespace": "bedrock-agentcore" } }
+    },
+    {
+      "Sid": "BedrockModelInvocation",
+      "Effect": "Allow",
+      "Action": [ "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream" ],
+      "Resource": [
+        "arn:aws:bedrock:*::foundation-model/*",
+        "arn:aws:bedrock:${AWS_REGION}:${STAGING_ACCOUNT_ID}:*"
+      ]
+    }
+  ]
+}
+EOF
+
+aws iam put-role-policy \
+  --role-name vijil_staging_harness_agent_execution_role \
+  --policy-name StagingAgentCoreExecutionPolicy \
+  --policy-document file:///tmp/agentcore-permissions.json
+
+ROLE_ARN=$(aws iam get-role \
+  --role-name vijil_staging_harness_agent_execution_role \
+  --query 'Role.Arn' --output text)
+echo "Role ARN: $ROLE_ARN"
+```
+
+#### Step 2: Create the AgentCore runtime
+
+Use the same VPC subnets and security group as your EKS. Container image: Vijil’s harness agent in dev ECR (`vijil-harness-agent-agentcore`). Environment variables should match dev except the bucket; the following snippet uses the same set as dev with the staging bucket.
+
+```bash
+# Replace with your own subnet IDs and EKS node security group
+SUBNET_IDS='["subnet-xxxxxxxx","subnet-yyyyyyyy"]'
+SG_ID="sg-xxxxxxxxxxxxxxxxx"
+CONTAINER_URI="266735823956.dkr.ecr.us-west-2.amazonaws.com/vijil-harness-agent-agentcore:latest"
+
+# Set GOOGLE_API_KEY to your actual key — do not commit it
+ENV_VARS='{"AGENT_OBSERVABILITY_ENABLED":"true","GOOGLE_API_KEY":"YOUR_GOOGLE_API_KEY","VIJIL_HARNESS_MODEL":"gemini-2.5-flash","VIJIL_HARNESS_OUTPUTS_BUCKET":"vijil-console-data-staging","VIJIL_HARNESS_OUTPUT_BACKEND":"aws","VIJIL_HARNESS_RPM":"500"}'
+
+aws bedrock-agentcore-control create-agent-runtime \
+  --agent-runtime-name vijil_staging_harness_agent \
+  --agent-runtime-artifact "{\"containerConfiguration\":{\"containerUri\":\"$CONTAINER_URI\"}}" \
+  --role-arn "$ROLE_ARN" \
+  --network-configuration "{\"networkMode\":\"VPC\",\"networkModeConfig\":{\"securityGroups\":[\"$SG_ID\"],\"subnets\":$SUBNET_IDS}}" \
+  --protocol-configuration '{"serverProtocol":"A2A"}' \
+  --lifecycle-configuration '{"idleRuntimeSessionTimeout":1800,"maxLifetime":28800}' \
+  --environment-variables "$ENV_VARS" \
+  --region "$AWS_REGION" \
+  --profile "$AWS_PROFILE"
+```
+The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTOM_HARNESS_AGENT_RUNTIME_ARN` in your values (e.g. `my-values.yaml`) to the returned `agentRuntimeArn`.
+
+
+### 2.7 Diamond Artifacts S3 Access (staging / customer accounts)
+
+The Diamond evaluation engine downloads detector configs from a `vijil-artifacts-bucket` that lives in Vijil's dev account. In any non-dev account, your EKS nodes need cross-account read access to that bucket.
+
+There are two parts:
+
+1. Identity policy on the staging EKS nodegroup role (staging account)
+2. Bucket policy on `vijil-artifacts-bucket` (dev account) that trusts the staging role
+
+#### Step 1: Identity policy on your node role
+
+In the customer (staging) account, attach an inline policy to the EKS nodegroup role so it can list and read/write the artifacts bucket in the Vijil dev account. Replace `CLUSTER_NAME` and `NODEGROUP_NAME` as needed if you do not already know the node role name.
+```bash
+export AWS_PROFILE=your-staging-profile
+export AWS_REGION=us-west-2
+
+# Resolve node role (if you don't have it already)
+CLUSTER_NAME="vijil-staging-eks"
+NODEGROUP_NAME="standard-workers"
+
+NODE_ROLE=$(aws eks describe-nodegroup \
+  --cluster-name "$CLUSTER_NAME" \
+  --nodegroup-name "$NODEGROUP_NAME" \
+  --query 'nodegroup.nodeRole' --output text | awk -F/ '{print $NF}')
+
+cat > /tmp/staging-diamond-artifacts-s3.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListArtifactsBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "arn:aws:s3:::vijil-artifacts-bucket"
+    },
+    {
+      "Sid": "ObjectsInArtifactsBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::vijil-artifacts-bucket/*"
+    }
+  ]
+}
+EOF
+
+aws iam put-role-policy \
+  --role-name "$NODE_ROLE" \
+  --policy-name StagingDiamondArtifactsS3Access \
+  --policy-document file:///tmp/staging-diamond-artifacts-s3.json
+```
+
+This does not grant access by itself; the Vijil-side bucket account must also trust this role.
+
+#### Step 2: Bucket policy on Vijil's side
+
+In the Vijil-side dev account that owns `vijil-artifacts-bucket`, add or update the bucket policy so it trusts the customer staging nodegroup role. Replace `STAGING_ACCOUNT_ID` and `NODE_ROLE_NAME` with your values (for example, `STAGING_ACCOUNT_ID=565393042914` and `NODE_ROLE_NAME=eksctl-vijil-staging-eks-nodegroup-NodeInstanceRole-a9C7smGsfmFa).
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowStagingEksNodegroupAccess",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_NODE_ROLE_NAME"
+        ]
+      },
+      "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy",
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::vijil-artifacts-bucket",
+        "arn:aws:s3:::vijil-artifacts-bucket/*"
+      ]
+    }
+  ]
+}
+```
+
+This policy does not make the bucket public; it only allows the specific principals listed in `Principal.AWS`. After this policy is in place and the customer staging nodegroup role has the identity policy above, Diamond evaluations in the customer staging cluster can download detector configs and write results to `vijil-artifacts-bucket` just like the Vijil dev environment.
+
+---
+
+## Phase 3: Helm Values and Secrets
+
+Work from the chart directory:
+
+```bash
+cd helm_charts/vijil-console
+```
+
+### 3.1 Secrets file
+
+```bash
+cp values/secrets/example.yaml values/secrets/secrets.yaml
+```
+
+Edit `values/secrets/secrets.yaml`:
+
+```yaml
+secrets:
+  vijil-console:
+    POSTGRES_PASSWORD: "the-rds-password-you-set-in-phase-1.3"
+    SECRET_KEY: "$(openssl rand -hex 32)"  # generate once and store securely
+    GROQ_API_KEY: "your-groq-api-key"
+
+  vijil-diamond:
+    GROQ_API_KEY: "your-groq-api-key"
+```
+
+> **Never commit `secrets.yaml`** — add it to `.gitignore`.
+
+### 3.2 Environment values file
+
+Create `my-values.yaml`. The `install` block is the simplest way to configure the chart — set values once and the chart derives the redundant env vars for you:
+
+```yaml
+commonEnv:
+  # Database (RDS endpoint from Phase 1.3)
+  POSTGRES_HOST: "vijil-prod-pg.xxxx.us-west-2.rds.amazonaws.com"
+
+  # S3
+  S3_BUCKET_NAME: "vijil-console-data-prod"
+  AWS_REGION: "us-west-2"
+
+  # Custom harness bucket (can be the same bucket)
+  CUSTOM_HARNESS_BUCKET_NAME: "vijil-console-data-prod"
+
+  # Frontend and API URLs — both must be reachable from the internet
+  # because the React SPA calls the API from the user's browser
+  VITE_API_PREFIX: "https://console-api.yourdomain.com"
+  API_HOST: "https://console-api.yourdomain.com"
+  API_DOMAIN_FOR_CSP: "console-api.yourdomain.com"
+  CORS_ORIGINS: "https://console.yourdomain.com,https://console-api.yourdomain.com"
+
+  # Custom harness / Diamond (optional): default CUSTOM_HARNESS_AGENT_NAME is "vijil_dev_harness_agent", which is looked up in this account. In non-dev (e.g. staging), set CUSTOM_HARNESS_AGENT_RUNTIME_ARN to your AgentCore runtime ARN, or create a runtime with that name.
+  # CUSTOM_HARNESS_AGENT_RUNTIME_ARN: "arn:aws:bedrock-agentcore:us-west-2:ACCOUNT:runtime/RUNTIME_ID"
+
+# Single nginx NLB — internet-facing (public subnets)
+# NOTE: internal: false is required for users outside the VPC to reach both the UI and API.
+# The default values.yaml has internal: true (private-only). Override it here.
+nginx:
+  service:
+    aws:
+      nlb:
+        internal: false                                  # ← must be false for public access
+        subnets: "subnet-public-1-id,subnet-public-2-id"  # public subnet IDs from Phase 1.1
+      tls:
+        enabled: true
+        certificateArn: "arn:aws:acm:us-west-2:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID"
+```
+
+> Why the nginx NLB must be internal: false for public deployments: The React frontend is a single-page application that runs in the user's browser. `VITE_API_PREFIX` is baked into the frontend at build time, and the browser makes API calls directly to that URL. If the single nginx NLB is internal-only, browser requests will fail even if DNS resolves.
+
+---
+
+## Phase 4: Helm Install
+
+```bash
+# From helm_charts/vijil-console/
+helm install vijil-console . \
+  --namespace vijil-console \
+  --create-namespace \
+  -f values.yaml \
+  -f values/secrets/secrets.yaml \
+  -f my-values.yaml \
+  --set telemetry.enabled=true
+
+# Watch rollout
+kubectl get pods -n vijil-console -w
+```
+
+Wait for all pods to reach Running. Then get the nginx NLB hostname:
+
+```bash
+kubectl get svc -n vijil-console vijil-console-nginx \
+  -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{"\n"}'
+```
+
+If `EXTERNAL-IP` shows `<pending>`, wait a moment and re-run.
+
+---
+
+## Phase 4.5: Deploy Darwin (Evolution Engine)
+
+Darwin is the evolution engine. It runs in its own namespace (`vijil-darwin`) and is deployed separately from the `vijil-console` Helm chart.
+
+The Console chart routes `/evolution/...` API traffic to `service-darwin.vijil-darwin.svc.cluster.local`. Console starts fine without Darwin, but any `/evolution` calls will return `502` or `504` until Darwin is running.
+
+```bash
+# From the vijil-darwin repo root
+helm upgrade vijil-darwin helm_charts/vijil-darwin \
+  --install \
+  --namespace vijil-darwin \
+  --create-namespace \
+  --values helm_charts/vijil-darwin/values.yaml \
+  --values helm_charts/vijil-darwin/my-values.yaml \
+  --set image.tag=<IMAGE_TAG>
+```
+
+Verify Darwin is healthy:
+
+```bash
+kubectl get pods -n vijil-darwin
+
+# Health check via port-forward
+kubectl port-forward -n vijil-darwin svc/service-darwin 8099:80 &
+curl http://localhost:8099/health        # expect: 200
+curl http://localhost:8099/health/ready  # expect: 200
+```
+
+---
+
+## Phase 5: DNS
+
+Create Route 53 records after the NLB is provisioned. Both `console.*` and `console-api.*` point to the **same nginx NLB hostname**.
+
+```bash
+HOSTED_ZONE_ID=$(aws route53 list-hosted-zones-by-name \
+  --dns-name yourdomain.com \
+  --query 'HostedZones[0].Id' --output text | awk -F/ '{print $3}')
+
+NGINX_NLB=$(kubectl get svc vijil-console-nginx -n vijil-console \
+  -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+# Alias hosted zone ID for NLBs in us-west-2
+NLB_HOSTED_ZONE_ID=Z18D5FSROUN65G
+
+cat > /tmp/dns-records.json <<EOF
+{
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "console.yourdomain.com",
+        "Type": "A",
+        "AliasTarget": {
+          "HostedZoneId": "$NLB_HOSTED_ZONE_ID",
+          "DNSName": "$NGINX_NLB",
+          "EvaluateTargetHealth": true
+        }
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "console-api.yourdomain.com",
+        "Type": "A",
+        "AliasTarget": {
+          "HostedZoneId": "$NLB_HOSTED_ZONE_ID",
+          "DNSName": "$NGINX_NLB",
+          "EvaluateTargetHealth": true
+        }
+      }
+    }
+  ]
+}
+EOF
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id $HOSTED_ZONE_ID \
+  --change-batch file:///tmp/dns-records.json
+```
+
+> If you prefer `CNAME` records instead of alias records, replace `AliasTarget` with `"Type": "CNAME"` and `"ResourceRecords": [{"Value": "$NGINX_NLB"}]` — no `NLB_HOSTED_ZONE_ID` needed.  
+>
+> The NLB alias hosted zone ID differs by region — see the [full list in AWS docs](https://docs.aws.amazon.com/general/latest/gr/elb.html).
+
+---
+
+## Phase 6: Database Migrations
+
+Migrations run automatically as Helm `pre-install` and `pre-upgrade` hooks — no manual action needed on a normal install. Verify they completed:
+
+```bash
+kubectl get jobs -n vijil-console
+# Expect: vijil-console-migrate-teams and vijil-console-migrate-agent-environment
+# both show COMPLETIONS: 1/1
+```
+
+If a hook failed, run the migration manually after pods are in `Running` state:
+
+```bash
+# Teams service
+kubectl exec -n vijil-console \
+  $(kubectl get pod -n vijil-console -l app=teams -o jsonpath='{.items[0].metadata.name}') -- \
+  bash -c "cd /vijil-console && python -m alembic -c src/service_teams/alembic.ini upgrade head"
+
+# Agent-environment service
+kubectl exec -n vijil-console \
+  $(kubectl get pod -n vijil-console -l app=agent-environment -o jsonpath='{.items[0].metadata.name}') -- \
+  bash -c "cd /vijil-console && python -m alembic -c src/service_agent_environment/alembic.ini upgrade head"
+```
+
+---
+
+## Phase 7: Bootstrap
+
+Run from the **repo root** (not the chart directory):
+
+```bash
+export BOOTSTRAP_USER_EMAIL=admin@yourdomain.com
+export BOOTSTRAP_USER_PASSWORD=your-secure-admin-password
+export BOOTSTRAP_USER_NAME="Admin"
+export TEAMS_SERVICE_URL=https://console-api.yourdomain.com
+
+poetry run python scripts/bootstrap_teams.py
+```
+
+Optionally seed default content:
+
+```bash
+# Predefined agents (Groq, OpenAI, etc.)
+poetry run python scripts/seed_agents.py
+
+# System preset personas (professional + adversarial)
+poetry run python scripts/seed_persona_presets.py
+
+# Demographic dimensions for bias testing
+poetry run python scripts/seed_demographics.py
+
+# Compliance policy presets (GDPR, CCPA, OWASP, etc.)
+poetry run python scripts/seed_policy_presets.py
+```
+
+**For staging environments with in-cluster sample agents:** Set these env vars before running `seed_agents.py` to point seeded agents at in-cluster sample agent services:
+
+```bash
+export SAMPLE_AGENTS_USE_EKS_URLS=1
+export SAMPLE_AGENTS_EKS_NAMESPACE=vijil-sample-agents  # default
+export SAMPLE_AGENTS_DUMMY_API_KEY=dummy
+```
+
+Then run the seed script (or use `--update` to refresh existing agents’ URLs to `http://<service>.<namespace>.svc.cluster.local/v1`):
+```bash
+poetry run python scripts/seed_agents.py
+# Or to update existing agents' URLs without re-seeding:
+poetry run python scripts/seed_agents.py --update
+```
+
+---
+
+## Phase 8: Verify
+
+```bash
+# All pods running
+kubectl get pods -n vijil-console
+kubectl get pods -n vijil-telemetry
+kubectl get pods -n vijil-darwin
+
+# API health checks — the gateway exposes these paths (no root /healthz)
+curl -f https://console-api.yourdomain.com/teams/healthz
+curl -f https://console-api.yourdomain.com/evaluations/healthz
+curl -f https://console-api.yourdomain.com/console/healthz
+
+# Frontend loads
+curl -f -o /dev/null -w "%{http_code}" https://console.yourdomain.com/
+# Expect: 200
+
+# Run smoke tests
+make helm-smoketest
+```
+
+Access the UI at `https://console.yourdomain.com` and log in with the credentials you set in bootstrap.

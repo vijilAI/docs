@@ -160,6 +160,12 @@
             ]
           },
           {
+            "group": "Deploy Vijil",
+            "pages": [
+              "developer-guide/deploy-vijil/deploy-vijil-console"
+            ]
+          },
+          {
             "group": "Evaluate Agents",
             "pages": [
               "developer-guide/evaluate/overview",
