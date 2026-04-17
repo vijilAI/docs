@@ -1,0 +1,25 @@
+---
+title: 'Reliability'
+description: 'Scenarios and probes for the Reliability dimension of trust (correctness, robustness, consistency).'
+sidebarTitle: 'Reliability'
+icon: 'table-list'
+mode: 'wide'
+---
+
+| Scenario ID | Scenario Name | Probe ID | Probe Name | Description |
+| --- | --- | --- | --- | --- |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | vijil.probes.SemattackOnMNLI_Small | SemAttack Attack on MNLI Tasks | These tests measure robustness against semantic pertubations on tasks where the agent must identify the relationship between a premise and a hypothesis. The tasks come from the MNLI benchmark. |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | vijil.probes.TextfoolerOnRTE_Small | TextFooler Attack on RTE Tasks | These tests measure robustness when replacing important words with their synonyms on tasks where the agent must identify the logical entailment between two sentences. The tasks come from the RTE benchmark. |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | vijil.probes.advglue.TextfoolerOnMNLI | TextFooler Attack on MNLI Tasks | Probes effects of TextFooler perturbation on MNLI task |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | vijil.probes.advglue.TextfoolerOnMNLIMM | TextFooler Attack on MNLI-MM Tasks | Probes effects of TextFooler perturbation on MNLI-MM task |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | vijil.probes.advglue.BertattackOnRTE | BERT-Attack on RTE Tasks | Probes effects of BERT-based perturbation on RTE task |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | vijil.probes.SemattackOnMNLIMM_Small | SemAttack Attack on MNLI-MM Tasks | These tests measure robustness against semantic pertubations on tasks where the agent must identify the relationship between a premise and a hypothesis. The tasks come from the MNLI-Mismatched benchmark. |
+| vijil.scenarios.reliability_correctness_factualaccuracy | Factual Accuracy | vijil.probes.goodside.WhoIsRiley | False Assertions: Riley Goodside | Evaluates hallucinations about Riley Goodside |
+| vijil.scenarios.reliability_correctness_factualaccuracy | Factual Accuracy | vijil.probes.snowball.SenatorsMini_Small | False assertions: Senators | Checks for false assertions about US senators. A high score indicates a lowered tendency to hallucinate information. |
+| vijil.scenarios.reliability_correctness_factualaccuracy | Factual Accuracy | vijil.probes.misleading_Small | Misleading Information | Tests that check if the agent can be tricked by misleading information. A high score indicates a lower likelihood of producing hallucinated content, when presented with false or misleading claims. |
+| vijil.scenarios.reliability_correctness_factualaccuracy | Factual Accuracy | vijil.probes.packagehallucination_Small | Package Hallucination | Tests that try to trick the agent into importing modules that dont exist in Python and other languages. A high score indicates that the agent does not produce hallucinated package information. |
+| vijil.scenarios.reliability_correctness_factualaccuracy | Factual Accuracy | vijil.probes.UnanswerableQueryFabrication | Unanswerable Query Fabrication | Tests whether the model fabricates confident answers to queries that ask for specific information that cannot be known or verified. |
+| vijil.scenarios.reliability_correctness_logicalvalidity | Logical Validity | vijil.probes.snowball.GraphConnectivityMini_Small | False Assertions: Flights | Check if the agent invents impossible flight routes. A high score indicates that the agent is resilent towards creating impossible or factually impossible scenarios. |
+| vijil.scenarios.reliability_robustness_contextualrobustness | Contextual Robustness | vijil.probes.math_robustness.2step_distractors | Math Robustness: 2-Step Problems with Distractors | Tests agent robustness on 2-step math word problems by adding irrelevant information to the problem. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem. |
+| vijil.scenarios.reliability_robustness_contextualrobustness | Contextual Robustness | vijil.probes.math_robustness.gsm_Add_Accents | Math Robustness: Numerical and Text Variations with Add Accents mutation | Tests model robustness on GSM math problems by rephrasing the text or varying the numbers. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem.Adds Add Accents mutation. |
+| vijil.scenarios.reliability_robustness_contextualrobustness | Contextual Robustness | vijil.probes.math_robustness.gsm_Tag | Math Robustness: Numerical and Text Variations with Tag mutation | Tests model robustness on GSM math problems by rephrasing the text or varying the numbers. The agent fails if it solves the unperturbed problem but does not solve the perturbed problem.Adds Tag mutation. |
