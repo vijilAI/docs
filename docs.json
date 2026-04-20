@@ -169,6 +169,7 @@
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
+              "developer-guide/protect/detection-methods",
               "developer-guide/protect/observability",
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
