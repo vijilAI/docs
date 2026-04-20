@@ -38,9 +38,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "concepts/welcome"
-            ]
+            "pages": ["concepts/welcome"]
           },
           {
             "group": "Trust Score",
@@ -94,9 +92,7 @@
           },
           {
             "group": "Reference",
-            "pages": [
-              "concepts/glossary"
-            ]
+            "pages": ["concepts/glossary"]
           }
         ]
       },
@@ -112,9 +108,7 @@
           },
           {
             "group": "Register Agents",
-            "pages": [
-              "owner-guide/register-agents/registering-agents"
-            ]
+            "pages": ["owner-guide/register-agents/registering-agents"]
           },
           {
             "group": "Build an Evaluation Environment",
@@ -122,7 +116,7 @@
               "owner-guide/simulate-environment/personas",
               "owner-guide/simulate-environment/policies",
               {
-                "group": "Specifying Harnesses",
+                "group": "Specify Harnesses",
                 "pages": [
                   "owner-guide/simulate-environment/harnesses/trust-score",
                   "owner-guide/simulate-environment/custom-harnesses"
@@ -141,7 +135,6 @@
             "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
-              "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
             ]
           }
@@ -182,6 +175,7 @@
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
+              "developer-guide/protect/detection-methods",
               "developer-guide/protect/observability",
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
@@ -193,10 +187,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": [
-              "legacy/get-started/welcome",
-              "legacy/get-started/quickstart"
-            ]
+            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
           },
           {
             "group": "Core Concepts",
@@ -261,9 +252,7 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": [
-              "legacy/evaluate-agents/introduction"
-            ]
+            "pages": ["legacy/evaluate-agents/introduction"]
           },
           {
             "group": "Tutorials",
@@ -300,9 +289,7 @@
                   "legacy/tutorials/evaluate-agents/cicd",
                   {
                     "group": "Examples",
-                    "pages": [
-                      "tutorials/evaluate-agents/examples/playground"
-                    ]
+                    "pages": ["tutorials/evaluate-agents/examples/playground"]
                   },
                   {
                     "group": "Enterprise Deployment of Evaluate",
