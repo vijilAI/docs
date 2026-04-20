@@ -1,5 +1,5 @@
 ---
-title: "Integrating Vijil Evaluate into CI/CD"
+title: "Integrate Vijil Evaluate into CI/CD"
 description: ""
 ---
 You can use Vijil Evaluate to automatically run evaluations as part of your CI/CD pipeline. To do that, you will need to obtain machine-to-machine secrets and use those to get and refresh authentication tokens. This is necessary because the regular user token expires every 24 hours.
@@ -60,6 +60,6 @@ To use the Vijil Python SDK to run CI/CD scripts, you will need to use the long-
 
 ## Save the Access Token to Your Envionrment
 
-Now you can use `simple_access_token` to authenticate requests to the Vijil Evaluate API. Save it as `VIJIL_API_KEY` in your environment file and you can run the code samples in our [quickstart](/developer-guide/getting-started/quickstart).
+Now you can use `simple_access_token` to authenticate requests to the Vijil Evaluate API. Save it as `VIJIL_API_KEY` in your environment file and you can run the code samples in our other tutorials.
 
 The access token expires after 24 hours, so you should use the above script to refresh it if you are making API calls more than 24 hours apart.
