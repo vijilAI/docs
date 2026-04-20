@@ -17,6 +17,22 @@
   "icons": {
     "library": "lucide"
   },
+  "api": {
+    "openapi": ["openapi/api.json"],
+    "playground": {
+      "display": "interactive"
+    },
+    "params": {
+      "expanded": "all"
+    },
+    "url": "full",
+    "examples": {
+      "languages": ["curl", "python", "javascript", "go"],
+      "defaults": "required",
+      "prefill": true,
+      "autogenerate": true
+    }
+  },
   "redirects": [
     {
       "source": "/get-started/welcome",
@@ -38,9 +54,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "concepts/welcome"
-            ]
+            "pages": ["concepts/welcome"]
           },
           {
             "group": "Trust Score",
@@ -94,9 +108,7 @@
           },
           {
             "group": "Reference",
-            "pages": [
-              "concepts/glossary"
-            ]
+            "pages": ["concepts/glossary"]
           }
         ]
       },
@@ -105,16 +117,11 @@
         "groups": [
           {
             "group": "Quick Start",
-            "pages": [
-              "owner-guide/getting-started/introduction",
-              "owner-guide/getting-started/account-setup"
-            ]
+            "pages": ["owner-guide/getting-started/introduction"]
           },
           {
-            "group": "Register Agents",
-            "pages": [
-              "owner-guide/register-agents/registering-agents"
-            ]
+            "group": "Agents",
+            "pages": ["owner-guide/register-agents/registering-agents"]
           },
           {
             "group": "Build an Evaluation Environment",
@@ -148,17 +155,19 @@
         ]
       },
       {
-        "tab": "Agent Developer Guide",
+        "tab": "Agent Developer's Guide",
         "groups": [
           {
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/enterprise-deployment",
-              "developer-guide/getting-started/cli",
               "developer-guide/getting-started/api",
-              "developer-guide/getting-started/mcp"
+              "developer-guide/getting-started/cli"
             ]
+          },
+          {
+            "group": "Agentic Workflow",
+            "pages": ["developer-guide/agentic/mcp"]
           },
           {
             "group": "Evaluate Agents",
@@ -180,18 +189,20 @@
               "developer-guide/protect/observability",
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
+          },
+          {
+            "group": "API Reference",
+            "openapi": "openapi/api.json",
+            "expanded": false
           }
         ]
       },
       {
-        "tab": "Legacy Docs",
+        "tab": "Legacy",
         "groups": [
           {
             "group": "Get Started",
-            "pages": [
-              "legacy/get-started/welcome",
-              "legacy/get-started/quickstart"
-            ]
+            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
           },
           {
             "group": "Core Concepts",
@@ -256,9 +267,7 @@
           },
           {
             "group": "Evaluate Agents",
-            "pages": [
-              "legacy/evaluate-agents/introduction"
-            ]
+            "pages": ["legacy/evaluate-agents/introduction"]
           },
           {
             "group": "Tutorials",
@@ -295,9 +304,7 @@
                   "legacy/tutorials/evaluate-agents/cicd",
                   {
                     "group": "Examples",
-                    "pages": [
-                      "tutorials/evaluate-agents/examples/playground"
-                    ]
+                    "pages": ["tutorials/evaluate-agents/examples/playground"]
                   },
                   {
                     "group": "Enterprise Deployment of Evaluate",
