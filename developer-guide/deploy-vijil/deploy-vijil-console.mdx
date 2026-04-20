@@ -1,11 +1,10 @@
 ---
-title: 'Deploying Vijil Console'
+title: 'Vijil Console'
 description: This guide walks through deploying the full Vijil Console stack on Kubernetes (AWS EKS). It covers AWS infrastructure setup, IAM configuration, Helm deployment, DNS, and post-install steps.
 ---
 
 
-> **Already have a cluster and AWS resources?** Jump to [Phase 2: IAM and EKS Add-ons](#phase-2-iam-and-eks-add-ons) and then [Phase 3: Helm Values and Secrets](#phase-3-helm-values-and-secrets).
-
+> **Already have a cluster and AWS resources?** Jump to [Step 2: IAM and EKS Add-ons](#step-2-iam-and-eks-add-ons) and then [Step 3: Helm Values and Secrets](#step-3-helm-values-and-secrets).
 
 ## Prerequisites
 
@@ -13,26 +12,28 @@ Before you start, make sure you have the following tools installed and configure
 
 | Requirement | Details |
 |---|---|
-| AWS CLI | Configured and working — `aws sts get-caller-identity` should succeed |
-| `eksctl` | ≥ 0.160 |
-| `kubectl` | ≥ 1.28 (keep client within one minor version of the server) |
-| `helm` | ≥ 3.8 |
+| [AWS CLI](https://aws.amazon.com/cli/) | Configured and working — `aws sts get-caller-identity` should succeed |
+| [`eksctl`](https://docs.aws.amazon.com/eks/latest/eksctl/what-is-eksctl.html) | ≥ 0.160 |
+| [`kubectl`](https://kubernetes.io/docs/reference/kubectl/) | ≥ 1.28 (keep client within one minor version of the server) |
+| [`helm`](https://helm.sh/docs/intro/install/) | ≥ 3.8 |
 | Domain + DNS | A registered domain with a Route 53 hosted zone (or another DNS provider) |
 | Container images | Access to Vijil's ECR, or `vijil-console` and `vijil-console-frontend` built and pushed to your own registry |
 
 ## Architecture Overview
 
-<img src="/images/developer-guide/deploy-vijil/Deploying Vijil Console Architecture Overview.png" alt="Vijil Console Architecture showing VPC, subnets, NLB, EKS, and RDS" style={{maxWidth: '700px', margin: '2rem auto', display: 'block'}} />
+<img src="/images/developer-guide/deploy-vijil/vijil-console-architecture-showing-vpc-subnets-nlb-eks-and-rd.webp" alt="Vijil Console Architecture showing VPC, subnets, NLB, EKS, and RDS" style={{maxWidth: '700px', margin: '2rem auto', display: 'block'}} />
 
-All application workloads and the database live in **private subnets**. Only a single nginx NLB sits in a **public subnet**, both `console.*` and `console-api.*` resolve to this one NLB, and the unified nginx router handles splitting frontend vs API traffic internally. EKS nodes reach S3 and ECR via NAT Gateway.
+All application workloads and the database live in **private subnets**. 
+Only a single [NGINX Network Load Balancer (NLB)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html) sits in a **public subnet** 
+, both `console.*` and `console-api.*` resolve to this one NLB, and the unified nginx router handles splitting frontend vs API traffic internally. EKS nodes reach S3 and ECR via NAT Gateway.
 
 ---
 
-## Phase 1: AWS Infrastructure
+## Step 1: AWS Infrastructure
 
-### 1.1 VPC
+### VPC
 
-Create a VPC with two public and two private subnets across two Availability Zones. The subnet tags are **required**. EKS uses them to discover subnets, and the AWS Load Balancer Controller uses them to place NLBs correctly.
+Create a VPC with two public and two private subnets across two [Availability Zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html). The subnet tags are **required**. EKS uses them to discover subnets, and the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/) uses them to place NLBs correctly.
 
 ```bash
 export AWS_REGION=us-west-2
@@ -126,7 +127,7 @@ for SUBNET in $PRIVATE_SUBNET_1 $PRIVATE_SUBNET_2; do
 done
 ```
 
-### 1.2 EKS Cluster
+### EKS Cluster
 
 ```bash
 export CLUSTER_NAME=vijil-prod
@@ -150,11 +151,13 @@ eksctl create cluster \
 kubectl get nodes
 ```
 
-> **`--with-oidc` is required.** It enables the OIDC provider used by the EBS CSI driver's IRSA configuration. Do not omit it.
->
-> **Node sizing:** `m5.large` is a reasonable starting point. If pods are OOMKilled or evicted for resources, scale up to `r5.xlarge` (what the dev environment currently uses).
+<Note>
+**`--with-oidc` is required.** It enables the OIDC provider used by the EBS CSI driver's IRSA configuration. Do not omit it.
 
-### 1.3 RDS PostgreSQL
+**Node sizing:** `m5.large` is a reasonable starting point. If pods are OOMKilled or evicted for resources, scale up to `r5.xlarge` (what the dev environment currently uses).
+</Note>
+
+### RDS PostgreSQL
 
 ```bash
 # Security group: allow port 5432 from EKS nodes only
@@ -215,7 +218,7 @@ RDS_ENDPOINT=$(aws rds describe-db-instances \
 echo "RDS endpoint: $RDS_ENDPOINT"
 ```
 
-### 1.4 S3 Bucket
+### S3 Bucket
 
 ```bash
 export S3_BUCKET=vijil-console-data-prod
@@ -232,7 +235,7 @@ aws s3api put-public-access-block \
     BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
 ```
 
-### 1.5 ACM Certificate
+### ACM Certificate
 
 Request a wildcard certificate, it covers both `console.` and `console-api.` subdomains with a single cert:
 
@@ -256,9 +259,9 @@ aws acm wait certificate-validated --certificate-arn $CERT_ARN
 
 ---
 
-## Phase 2: IAM and EKS Add-ons
+## Step 2: IAM and EKS Add-ons
 
-### 2.1 IAM Policy for S3
+### IAM Policy for S3
 
 Create a scoped S3 policy for your app data bucket. If you're deploying to multiple environments, use distinct policy names (e.g. `VijilConsoleS3Access` for prod, `VijilConsoleS3AccessStaging` for staging) to avoid conflicts.
 
@@ -294,7 +297,7 @@ S3_POLICY_ARN=$(aws iam create-policy \
 echo "S3 policy ARN: $S3_POLICY_ARN"
 ```
 
-### 2.2 S3 Access for Pods
+### S3 Access for Pods
 
 There are two supported approaches. **EKS Pod Identity (Option A)** and **Node IAM Role (Option B)**. EKS Pod Identity is recommended, it's what the current dev environment uses and scopes credentials to specific service accounts rather than all pods on a node.
 
@@ -363,7 +366,7 @@ aws iam attach-role-policy \
   --policy-arn $S3_POLICY_ARN
 ```
 
-### 2.3 EBS CSI Driver
+### EBS CSI Driver
 
 The telemetry stack (Grafana, Loki, Mimir, Tempo) uses PersistentVolumeClaims backed by EBS. The driver must be installed **before** `helm install`.
 
@@ -389,11 +392,13 @@ kubectl rollout restart deployment ebs-csi-controller -n kube-system
 kubectl get pods -n kube-system -l app=ebs-csi-controller
 ```
 
-> Alternatively, use the EKS managed add-on: `aws eks create-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver`
->
-> The EBS CSI driver deploys two controller replicas across AZs. Verify they show 5/5 Running before proceeding.
+<Tip>
+Alternatively, use the EKS managed add-on: `aws eks create-addon --cluster-name $CLUSTER_NAME --addon-name aws-ebs-csi-driver`
 
-### 2.4 ECR Pull Access
+The EBS CSI driver deploys two controller replicas across AZs. Verify they show 5/5 Running before proceeding.
+</Tip>
+
+### ECR Pull Access
 
 #### Option A: Vijil's ECR (cross-account pull)
 
@@ -481,9 +486,9 @@ kubectl run ecr-test \
 
 #### Option B: Your own registry
 
-Build and push images to your own registry, then override `*.image.repository` in your values file (see [Phase 3](#phase-3-helm-values-and-secrets)).
+Build and push images to your own registry, then override `*.image.repository` in your values file (see [Step 3](#step-3-helm-values-and-secrets)).
 
-### 2.5 Bedrock AgentCore (Diamond / custom harness)
+### Bedrock AgentCore (Diamond / custom harness)
 
 The Diamond evaluation page and custom harness workflows call the Bedrock AgentCore API. Attach a scoped policy to the same IAM principal your Console pods use for AWS access. If you used Pod Identity, attach it to the Pod Identity role. If you used the node IAM role, attach it to that.
 
@@ -537,7 +542,7 @@ aws iam attach-role-policy \
 
 The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fetch the agent card when creating custom harnesses. If you created the policy before this was added, add a new policy version that includes `bedrock-agentcore:GetAgentCard` in the `BedrockAgentCoreData` statement and run `aws iam create-policy-version --policy-arn <policy-arn> --policy-document file://policy.json --set-as-default`.
 
-### 2.6 Staging / Non-Dev: Custom Harness AgentCore Runtime
+### Staging / Non-Dev: Custom Harness AgentCore Runtime
 
 In dev, a custom harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime doesn't exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
 
@@ -686,7 +691,7 @@ aws bedrock-agentcore-control create-agent-runtime \
 The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTOM_HARNESS_AGENT_RUNTIME_ARN` in your values (e.g. `my-values.yaml`) to the returned `agentRuntimeArn`.
 
 
-### 2.7 Diamond Artifacts S3 Access (staging / customer accounts)
+### Diamond Artifacts S3 Access (staging / customer accounts)
 
 The Diamond evaluation engine downloads detector configs from a `vijil-artifacts-bucket` that lives in Vijil's dev account. In any non-dev account, your EKS nodes need cross-account read access to that bucket.
 
@@ -775,13 +780,13 @@ In the Vijil-side dev account that owns `vijil-artifacts-bucket`, add or update 
     }
   ]
 }
-```
+```## Step 4: Helm Install
 
 This policy does not make the bucket public; it only allows the specific principals listed in `Principal.AWS`. After this policy is in place and the customer staging nodegroup role has the identity policy above, Diamond evaluations in the customer staging cluster can download detector configs and write results to `vijil-artifacts-bucket` just like the Vijil dev environment.
 
 ---
 
-## Phase 3: Helm Values and Secrets
+## Step 3: Helm Values and Secrets
 
 Work from the chart directory:
 
@@ -800,7 +805,7 @@ Edit `values/secrets/secrets.yaml`:
 ```yaml
 secrets:
   vijil-console:
-    POSTGRES_PASSWORD: "the-rds-password-you-set-in-phase-1.3"
+    POSTGRES_PASSWORD: "the-rds-password-you-set-in-step-1.3"
     SECRET_KEY: "$(openssl rand -hex 32)"  # generate once and store securely
     GROQ_API_KEY: "your-groq-api-key"
 
@@ -808,7 +813,9 @@ secrets:
     GROQ_API_KEY: "your-groq-api-key"
 ```
 
-> **Never commit `secrets.yaml`** — add it to `.gitignore`.
+<Danger>
+**Never commit `secrets.yaml`** — add it to `.gitignore`.
+</Danger>
 
 ### 3.2 Environment values file
 
@@ -816,7 +823,7 @@ Create `my-values.yaml`. The `install` block is the simplest way to configure th
 
 ```yaml
 commonEnv:
-  # Database (RDS endpoint from Phase 1.3)
+  # Database (RDS endpoint from Step 1.3)
   POSTGRES_HOST: "vijil-prod-pg.xxxx.us-west-2.rds.amazonaws.com"
 
   # S3
@@ -844,17 +851,20 @@ nginx:
     aws:
       nlb:
         internal: false                                  # ← must be false for public access
-        subnets: "subnet-public-1-id,subnet-public-2-id"  # public subnet IDs from Phase 1.1
+        subnets: "subnet-public-1-id,subnet-public-2-id"  # public subnet IDs from Step 1.1
       tls:
         enabled: true
         certificateArn: "arn:aws:acm:us-west-2:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID"
 ```
+<Note>
+Why the nginx NLB must be internal: false for public deployments: The React frontend is a single-page application that runs in the user's browser. 
 
-> Why the nginx NLB must be internal: false for public deployments: The React frontend is a single-page application that runs in the user's browser. `VITE_API_PREFIX` is baked into the frontend at build time, and the browser makes API calls directly to that URL. If the single nginx NLB is internal-only, browser requests will fail even if DNS resolves.
+`VITE_API_PREFIX` is baked into the frontend at build time, and the browser makes API calls directly to that URL. If the single nginx NLB is internal-only, browser requests will fail even if DNS resolves.
+</Note>
 
 ---
 
-## Phase 4: Helm Install
+## Step 4: Helm Install
 
 ```bash
 # From helm_charts/vijil-console/
@@ -881,7 +891,7 @@ If `EXTERNAL-IP` shows `<pending>`, wait a moment and re-run.
 
 ---
 
-## Phase 4.5: Deploy Darwin (Evolution Engine)
+## Step 4.5: Deploy Darwin (Evolution Engine)
 
 Darwin is the evolution engine. It runs in its own namespace (`vijil-darwin`) and is deployed separately from the `vijil-console` Helm chart.
 
@@ -911,7 +921,7 @@ curl http://localhost:8099/health/ready  # expect: 200
 
 ---
 
-## Phase 5: DNS
+## Step 5: DNS
 
 Create Route 53 records after the NLB is provisioned. Both `console.*` and `console-api.*` point to the **same nginx NLB hostname**.
 
@@ -962,13 +972,15 @@ aws route53 change-resource-record-sets \
   --change-batch file:///tmp/dns-records.json
 ```
 
-> If you prefer `CNAME` records instead of alias records, replace `AliasTarget` with `"Type": "CNAME"` and `"ResourceRecords": [{"Value": "$NGINX_NLB"}]` — no `NLB_HOSTED_ZONE_ID` needed.  
->
-> The NLB alias hosted zone ID differs by region — see the [full list in AWS docs](https://docs.aws.amazon.com/general/latest/gr/elb.html).
+<Tip>
+If you prefer `CNAME` records instead of alias records, replace `AliasTarget` with `"Type": "CNAME"` and `"ResourceRecords": [{"Value": "$NGINX_NLB"}]` — no `NLB_HOSTED_ZONE_ID` needed.  
+
+The NLB alias hosted zone ID differs by region — see the [full list in AWS docs](https://docs.aws.amazon.com/general/latest/gr/elb.html).
+</Tip>
 
 ---
 
-## Phase 6: Database Migrations
+## Step 6: Database Migrations
 
 Migrations run automatically as Helm `pre-install` and `pre-upgrade` hooks — no manual action needed on a normal install. Verify they completed:
 
@@ -994,7 +1006,7 @@ kubectl exec -n vijil-console \
 
 ---
 
-## Phase 7: Bootstrap
+## Step 7: Bootstrap
 
 Run from the **repo root** (not the chart directory):
 
@@ -1040,7 +1052,7 @@ poetry run python scripts/seed_agents.py --update
 
 ---
 
-## Phase 8: Verify
+## Step 8: Verify
 
 ```bash
 # All pods running
