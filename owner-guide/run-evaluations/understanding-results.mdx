@@ -1,5 +1,5 @@
 ---
-title: 'Understanding Results'
+title: 'Understand Results'
 description: 'Interpret evaluation findings using the Taxonomy of Trust framework.'
 ---
 
@@ -24,21 +24,46 @@ A passing Trust Score indicates acceptable performance against tested scenarios.
 
 Vijil organizes agent behavior into a three-level taxonomy:
 
-```
-Trust Score
-├── Reliability
-│   ├── Correctness
-│   ├── Consistency
-│   └── Robustness
-├── Security
-│   ├── Confidentiality
-│   ├── Integrity
-│   └── Availability
-└── Safety
-    ├── Containment
-    ├── Compliance
-    └── Transparency
-```
+
+<CardGroup cols={3}>
+  <Card
+    title="Reliability"
+    icon="circle-check"
+    href="/concepts/trust-score/reliability"
+    arrow="true"
+  >
+    <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
+      <li>Correctness</li>
+      <li>Consistency</li>
+      <li>Robustness</li>
+    </ul>
+  </Card>
+  <Card
+    title="Security"
+    href="/concepts/trust-score/security"
+    arrow="true"
+    icon="lock"
+  >
+    <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
+      <li>Confidentiality</li>
+      <li>Integrity</li>
+      <li>Availability</li>
+    </ul>
+  </Card>
+  <Card
+    title="Safety"
+    href="/concepts/trust-score/safety"
+    arrow="true"
+    icon="shield"
+  >
+    <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
+      <li>Containment</li>
+      <li>Compliance</li>
+      <li>Transparency</li>
+    </ul>
+  </Card>
+</CardGroup>
+
 
 Each pillar addresses a distinct aspect of trustworthy AI. Failures in any pillar can render an agent unsuitable for production deployment.
 
@@ -140,7 +165,7 @@ A rising Trust Score with decreasing critical findings indicates effective remed
   <Card title="Trust Score Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/trust-score">
     Learn about the standard evaluation
   </Card>
-  <Card title="Running Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+  <Card title="Run Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
     Launch and monitor evaluations
   </Card>
 </CardGroup>

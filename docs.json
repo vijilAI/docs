@@ -129,7 +129,7 @@
               "owner-guide/simulate-environment/personas",
               "owner-guide/simulate-environment/policies",
               {
-                "group": "Specifying Harnesses",
+                "group": "Specify Harnesses",
                 "pages": [
                   "owner-guide/simulate-environment/harnesses/trust-score",
                   "owner-guide/simulate-environment/custom-harnesses"
@@ -148,7 +148,6 @@
             "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
-              "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
             ]
           }
@@ -161,8 +160,8 @@
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/api",
-              "developer-guide/getting-started/cli"
+              "developer-guide/getting-started/cli",
+              "developer-guide/getting-started/api"
             ]
           },
           {
@@ -186,6 +185,7 @@
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
+              "developer-guide/protect/detection-methods",
               "developer-guide/protect/observability",
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
