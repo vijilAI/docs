@@ -1,19 +1,25 @@
 ---
-title: 'Get Started'
-description: 'Why teams use Vijil for trust evidence, then register an agent, run an evaluation, and turn on Dome from the console.'
+title: 'Get Started with Console'
+description: 'Why teams use Vijil for trust evidence, then register an Agent, run an Evaluation, and turn on Dome from the Console.'
 ---
 
-## Evidence you can ship on
+## Evidence You Can Ship On
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides, then walks through the **console**: register an agent, run an evaluation, read your **Trust Report**, and configure **Dome** guardrails.
+This page explains how Vijil helps both sides, then walks through the **Console**: register an agent, run an evaluation, read your [Trust Report](#read-the-trust-report), and configure **[Dome](concepts/welcome#build-ship-run-evolve)** guardrails.
+
+<Warning>
+    This guide assumes you have Vijil Console deployed. See [how to deploy Vijil Console in your environment](#).
+</Warning>
 
 <Info>
-If you integrate via APIs and code, use the [Developer Guide](/developer-guide/getting-started/introduction). This guide focuses on the **Vijil console**.
+If you want to integrate via the Vijil API and using a code library, use the [Developer Guide](/developer-guide/getting-started/introduction). This guide focuses on the **Vijil Console**.
 </Info>
 
-## Who this is for
+
+
+## Who This Is For
 
 <CardGroup cols={2}>
   <Card title="Business owner" icon="rocket">
@@ -24,7 +30,7 @@ If you integrate via APIs and code, use the [Developer Guide](/developer-guide/g
   </Card>
 </CardGroup>
 
-## One metric both sides can use
+## One Metric Both Sides Can Use
 
 | | Business owner | Risk owner |
 |---|----------------|------------|
@@ -57,11 +63,18 @@ For most agents, start with **Black Box**: name, description, **Draft** status, 
 If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
 </Tip>
 
-### 2. (Optional) Custom harness
+First you will need to **register** an Agent, then **run** an [Evaluation](/concepts/evaluation-components/introduction) (with a built-in [Trust Score Harness](/concepts/evaluation-components/harness) or a [custom Harness](/concepts/evaluation-components/harness)), **read** the [Trust Report](#read-the-trust-report), then **[Protect](/owner-guide/protect-in-production/configuring-guardrails)** the agent with Dome.
 
-For a baseline, you can skip this and use the **Trust Score** harness in the next step.
+<Steps>
+  <Step title="Register an Agent">
+    1. Open **Agents** → **+ Register Agent**.
+    2. Enter Agent details based on the visibility layers:
 
-To test **your** personas and **org policies**, go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, agent, **personas** (who talks to the agent), and **policies** (rules it must follow); then generates test cases.
+    | Level | You provide | Vijil can test |
+    |-------|-------------|----------------|
+    | **Black Box** | Description, endpoint, credentials | Input/output behavior |
+    | **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
+    | **White Box** | Full config and source | Deeper audit-style analysis |
 
 Set the harness to **Active** when you are ready. More depth: [Custom harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
 
@@ -88,7 +101,10 @@ Open the report from the results list. You get a **Trust Score** (pass/fail thre
 The score reflects **what the harness exercised**, not a guarantee that every possible failure is impossible.
 </Warning>
 
-### 5. Configure Dome
+    3. Press **Register Agent**
+    
+    <Tip>More details on [Registering Agents](/owner-guide/register-agents/registering-agents).</Tip>
+  </Step>
 
 Open **Guardrails**. The status **Domed** vs **Unprotected** shows coverage. 
 
@@ -96,30 +112,44 @@ You can **Configure Guardrails** to open **input** and **output** pipelines (e.g
 
 Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
 
-### 6. Wire Dome in your app
+    **Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
+  </Step>
 
-Use the SDK so traffic passes through Dome before and after your model:
+  <Step title="Read the Trust Report">
+    Open the report from the results list. You get a **Trust Score** (pass/fail threshold is **70**), per-Harness breakdown, spec used, and remediation-oriented findings.
 
-```python
-from vijil import Dome
+    A Vijil **Trust Report** covers:
+    
+    - **What the agent is** — the Agent being evaluated, the underlying model, and how it's configured
+    - **How it was tested** — which behavioral Harnesses were run (Security, Safety, Reliability, or custom) and what each one measures
+    - **How it scored** — overall Trust Score, per-Harness breakdown, and pass/fail result
+    - **Where it failed** — specific failure patterns with severity ratings and probe-level scores
+    - **What to fix** — actionable mitigations for each identified issue
+    - **Whether it's ready for deployment** — a final recommendation based on the results
 
-dome = Dome(
-    api_key="your-vijil-api-key",
-    agent_id="your-agent-id"
-)
+    <Warning>
+    The score reflects **what the Harness exercised**, not a guarantee that every possible failure is impossible.
+    </Warning>
+    
+    You can also export the **Trust Report** as a PDF document.
+  </Step>
 
-safe_input = dome.guard_input(user_message)
-safe_output = dome.guard_output(agent_response)
-```
+  <Step title="Configure Dome">
+      <Badge color="yellow">Coming Soon</Badge>
+  </Step>
 
+  <Step title="Configure Dome in your Application">
+      <Badge color="yellow">Coming Soon</Badge>
+  </Step>
+</Steps>
 
-## Next steps
+## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Account setup" icon="user-plus" href="/owner-guide/getting-started/account-setup">
-    Workspace, access, and team
+  <Card title="Define Personas" icon="user-round-pen" href="/owner-guide/simulate-environment/personas">
+      Further define specific user Personas.
   </Card>
-  <Card title="Run evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
-    Deeper evaluation workflows
+  <Card title="Define Policies" icon="scroll-text" href="/owner-guide/simulate-environment/policies">
+      Organizational rules followed by an Agent.
   </Card>
 </CardGroup>

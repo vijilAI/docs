@@ -1,0 +1,234 @@
+---
+title: "MCP"
+description: "This guide walks through setting up the Vijil MCP server so Claude Code can interact with your Vijil Console deployment. By the end you will have Claude Code listing your agents, running evaluations, and retrieving results — all through natural language.
+"
+---
+
+## Install
+
+Install the [`vijil-mcp`](https://pypi.org/project/vijil-mcp/) package.
+
+<CodeGroup>
+```bash title="pip"
+pip install vijil-mcp
+```
+
+```bash title="pipx" 
+pipx install vijil-mcp
+```
+</CodeGroup>
+
+
+This also installs `vijil-console` (the CLI) as a dependency. Verify both:
+
+
+```bash
+vijil --help
+
+vijil-mcp --help
+```
+
+
+
+## Initialize the CLI
+
+Point the CLI at your Vijil Console deployment:
+
+```bash
+vijil init --url https://console-api.example.com
+```
+
+
+## Login to Vijil Console
+
+```bash
+vijil login
+```
+You will be prompted for your email and password. On success the CLI stores your JWT token and automatically selects your team if you belong to exactly one.
+
+If you belong to multiple teams, select one:
+
+```bash
+vijil team list
+
+vijil team use <team_id>
+```
+
+## Configure Claude Code
+
+Create a `.mcp.json` file in your project root:
+
+```json
+{
+
+  "mcpServers": {
+
+    "vijil": {
+
+      "type": "stdio",
+
+      "command": "vijil-mcp"
+
+    }
+
+  }
+
+}
+```
+
+
+
+This tells Claude Code to launch `vijil-mcp` as a local subprocess and discover its tools.
+
+> **Tip:** Add `.mcp.json` to your project's `.gitignore` if you don't want to share it, or commit it so your whole team gets the Vijil tools automatically.
+
+For global access across all projects, add to `~/.claude.json` instead:
+
+```json
+{
+
+  "mcpServers": {
+
+    "vijil": {
+
+      "type": "stdio",
+
+      "command": "vijil-mcp"
+
+    }
+
+  }
+
+}
+```
+## Verify the Setup
+
+
+Start Claude Code in the directory with `.mcp.json` and ask:
+
+
+
+> "Check my Vijil setup"
+
+Claude will call the `vijil_status` tool and confirm the CLI is configured, authenticated, and has a team selected. If anything is missing, it will tell you what to fix.
+
+## Register an Agent
+
+Ask Claude to create an agent configuration pointing at the AI model you want to evaluate:
+
+> "Create a new agent called 'My Chat Agent' using gpt-4 at https://api.openai.com/v1/chat/completions with API key sk-..."
+
+Claude will call `agent_create` with the right parameters and show you the created agent including its ID. Copy that ID for the next steps.
+
+## List Agents
+
+> "List my agents"
+
+Claude will call `agent_list` and show agent IDs, names, models, and creation dates.
+
+## List Available Harnesses
+
+Harnesses are test suites that evaluate different trust dimensions:
+
+> "What harnesses are available?"
+
+Claude will call `harness_list` and show you the test suites (safety, ethics, privacy, security, toxicity, etc.).
+
+## Run an Evaluation
+
+Start a trust evaluation against your agent:
+
+> "Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete"
+
+Claude will call `eval_run` with `wait=True` and report back when the evaluation finishes, including the scores.
+
+You can also run without waiting:
+
+> "Start a safety evaluation on agent a1b2c3d4-..."
+
+## Check Evaluation Status
+
+If you did not use `wait`, check the status:
+
+> "What's the status of evaluation e5f6a7b8-...?"
+
+Claude will call `eval_status` and show whether the evaluation is running, completed, or failed.
+
+## View Evaluation Results
+
+Once the evaluation completes, retrieve the detailed results:
+
+> "Show me the detailed results for evaluation e5f6a7b8-..."
+
+Claude will call `eval_results_detail` and present the per-harness breakdowns and individual probe results.
+
+## Generate a Report
+
+Trigger on-demand report generation for the completed evaluation:
+
+> "Generate a report for evaluation e5f6a7b8-..."
+
+Claude will call `eval_report` to generate the report.
+
+## Next Steps
+
+Here are more things you can ask Claude with the Vijil MCP tools:
+
+**Custom harnesses** — create test suites tailored to your use case:
+
+> "Create a custom harness called 'My Harness' for agent a1b2c3d4-..."
+
+**Personas** — list presets and create personas for testing:
+
+> "Show me the persona presets"
+
+> "Create a persona from the 'jailbreaker' preset"
+
+**Policies** — manage compliance policies and rules:
+
+> "List my compliance policies"
+
+> "Create a policy from the GDPR preset"
+
+**DOME guardrails** — configure runtime protection:
+
+> "List my dome configurations"
+
+> "Create a dome config for agent a1b2c3d4-..."
+
+**Red team campaigns** — run adversarial attack campaigns:
+
+> "What red team tools are available?"
+
+> "Run a garak campaign against my agent at https://my-agent.com/v1"
+
+**Trust dashboard** — view aggregated trust metrics:
+
+> "Show me the trust dashboard"
+
+## How it Works Under the Hood
+
+When Claude calls a tool like `eval_run`, here's what happens:
+
+1. Claude Code sends the tool call to the `vijil-mcp` process via stdin
+
+2. `vijil-mcp` builds the CLI command: `vijil eval run --agent-id ... --harness-names '["safety"]' --json --wait`
+
+3. The CLI sends the HTTP request to your Console API (with auth, team context, etc.)
+
+4. The JSON response flows back: CLI -> `vijil-mcp` -> Claude Code
+
+5. Claude reads the JSON and presents the results in natural language
+
+The CLI handles all authentication, token refresh, and team context — the MCP server is a thin adapter.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `vijil` CLI not found in `PATH` | Run `pip install vijil-console` |
+| `vijil` CLI not configured | Run `vijil init --url <your-url>` |
+| Session expired | Run `vijil login` |
+| No team selected | Run `vijil team use <team_id>` |
+| Tools don't appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
+| Claude uses Bash instead of MCP tools | Make sure `vijil-mcp` is in your `PATH` (`which vijil-mcp`) |
