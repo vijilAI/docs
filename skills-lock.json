@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "vijil": {
+      "source": "docs.vijil.ai",
+      "sourceType": "well-known",
+      "computedHash": "ac435150e798642c3ce7c836d9d94dfe68127d0098a745bb15e54bc5babf1239"
+    }
+  }
+}
