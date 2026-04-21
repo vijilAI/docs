@@ -307,7 +307,6 @@
                   "legacy/tutorials/evaluate-agents/custom-harnesses",
                   "legacy/tutorials/evaluate-agents/local-agent-evaluation",
                   "legacy/tutorials/evaluate-agents/reports",
-                  "legacy/tutorials/evaluate-agents/cicd",
                   {
                     "group": "Examples",
                     "pages": ["tutorials/evaluate-agents/examples/playground"]
