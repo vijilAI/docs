@@ -41,15 +41,9 @@ You will **register** the agent, **run** an evaluation (built-in Trust Score har
 
 ### 1. Register your agent
 
-Open **Agents** → **+ Register Agent**.
+Click on **Agents** → ** and then proceed to click on the + Register Agent** button.
 
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-agent-registry.png" alt="Agent Registry showing registered agents with status and Trust Score" />
-</Frame>
-
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-register-agent-new.png" alt="Register Agent modal with Black Box, Grey Box, and White Box options" />
-</Frame>
+You will see three boxes: Black box, Grey box and the White box.
 
 | Level | You provide | Vijil can test |
 |-------|-------------|----------------|
@@ -69,32 +63,20 @@ For a baseline, you can skip this and use the **Trust Score** harness in the nex
 
 To test **your** personas and **org policies**, go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, agent, **personas** (who talks to the agent), and **policies** (rules it must follow); then generates test cases.
 
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-create-harness-new.png" alt="Create Harness wizard showing the four-step configuration flow" />
-</Frame>
-
 Set the harness to **Active** when you are ready. More depth: [Custom harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
 
 ### 3. Run an evaluation
 
-Open **Evaluations**. Pick the **agent** and a **harness**:
+Click on **Evaluations**. Pick the **agent** and a **harness**:
 
 - **Trust Score**: all three dimensions at once (toggle dimensions if you need a narrower run).
 - **Custom**: the harness you configured above.
-
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-evaluations.png" alt="Diamond Evaluations page showing agent selection and Trust Score dimensions" />
-</Frame>
 
 **Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
 
 ### 4. Read the Trust Report
 
 Open the report from the results list. You get a **Trust Score** (pass/fail threshold is typically **0.70**), per-harness breakdown, spec used, and remediation-oriented findings.
-
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-evaluation-report.png" alt="Trust Report showing agent evaluation results with Trust Score" />
-</Frame>
 
 | Score | Read | Typical next step |
 |-------|------|-------------------|
@@ -108,21 +90,11 @@ The score reflects **what the harness exercised**, not a guarantee that every po
 
 ### 5. Configure Dome
 
-Open **Guardrails**. **Domed** vs **Unprotected** shows coverage. **Configure Guardrails** opens **input** and **output** pipelines (e.g. security, moderation, privacy). Add guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
+Open **Guardrails**. The status **Domed** vs **Unprotected** shows coverage. 
 
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-dome-dashboard.png" alt="Dome Guardrails dashboard showing agent protection status" />
-</Frame>
+You can **Configure Guardrails** to open **input** and **output** pipelines (e.g. security, moderation, privacy). Add guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
 
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-dome-config.png" alt="Dome configuration showing input and output guards" />
-</Frame>
-
-<Frame>
-  <img src="/images/owner-guide/getting-started/quick-start/quickstart-execution-flow.png" alt="Execution Flow showing a test prompt flowing through Security, Moderation, and Privacy guards" />
-</Frame>
-
-Save when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
+Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
 
 ### 6. Wire Dome in your app
 
