@@ -1,9 +1,9 @@
 ---
 title: 'Observe Traces and Metrics'
-description: 'Monitor guardrail performance and agent traffic in real time.'
+description: 'Monitor Guardrail performance and agent traffic in real time.'
 ---
 
-The Observability Dashboard provides visibility into your protected agents, showing guardrail activity, latency metrics, and execution traces.
+The Observability Dashboard provides visibility into your protected agents, showing Guardrail activity, latency metrics, and execution traces.
 
 ## Accessing Telemetry
 
@@ -21,27 +21,27 @@ The dashboard has three main sections:
 Summary cards at the top show aggregate statistics:
 
 **Input Guardrails:**
-- **Flagged Requests**: Number and percentage of requests that triggered input guards
-- **Errors**: Count of processing errors in input guards
+- **Flagged Requests**: Number and percentage of requests that triggered input Guards
+- **Errors**: Count of processing errors in input Guards
 
 **Output Guardrails:**
-- **Flagged Responses**: Number and percentage of responses that triggered output guards
-- **Errors**: Count of processing errors in output guards
+- **Flagged Responses**: Number and percentage of responses that triggered output Guards
+- **Errors**: Count of processing errors in output Guards
 
 ### 2. Time Series Charts
 
-Four charts visualize guardrail activity over time:
+Four charts visualize Guardrail activity over time:
 
 | Chart | What It Shows |
 |-------|---------------|
 | **Input Flagged Requests Over Time** | Bar chart comparing flagged vs. total input requests |
 | **Output Flagged Responses Over Time** | Bar chart comparing flagged vs. total output responses |
-| **Input Latency Distribution** | Latency percentiles (P50, P90, P95, P99) for input guards |
-| **Output Latency Distribution** | Latency percentiles (P50, P90, P95, P99) for output guards |
+| **Input Latency Distribution** | Latency percentiles (P50, P90, P95, P99) for input Guards |
+| **Output Latency Distribution** | Latency percentiles (P50, P90, P95, P99) for output Guards |
 
 ### 3. Execution Traces & Logs
 
-Real-time monitoring of individual guardrail executions:
+Real-time monitoring of individual Guardrail executions:
 
 **Traces**: Detailed execution logs for each request, showing:
 - Request ID
@@ -81,14 +81,14 @@ All times display in UTC.
 ### Flagged Requests/Responses
 
 The bar charts show two series:
-- **Red bars**: Requests/responses flagged by guardrails
+- **Red bars**: Requests/responses flagged by Guardrails
 - **Dark bars**: Total requests/responses
 
 Hover over any bar to see exact counts and timestamps.
 
 A high flag rate may indicate:
 - Active threats being blocked
-- Overly sensitive guard configuration (false positives)
+- Overly sensitive Guard configuration (false positives)
 - User behavior patterns that need attention
 
 ### Latency Distribution
@@ -106,22 +106,22 @@ Monitor P99 latency to understand worst-case user experience. Spikes in P99 may 
 
 ## Execution Traces
 
-The Traces panel shows recent guardrail executions. Click any trace to view:
+The Traces panel shows recent Guardrail executions. Click any trace to view:
 
 - **Request ID**: Unique identifier for the request
 - **Timestamp**: When the request was processed
-- **Guards Executed**: Which guards ran and in what order
-- **Detection Results**: Whether each guard flagged the content
-- **Timing Breakdown**: How long each guard took
+- **Guards Executed**: Which Guards ran and in what order
+- **Detection Results**: Whether each Guard flagged the content
+- **Timing Breakdown**: How long each Guard took
 
 Use traces to debug:
 - Why specific requests were flagged
-- Which guards are slowest
-- How guards interact in your pipeline
+- Which Guards are slowest
+- How Guards interact in your pipeline
 
 ## Logs Panel
 
-The Logs panel shows streaming log output from your guardrails.
+The Logs panel shows streaming log output from your Guardrails.
 
 ### Filtering Logs
 
@@ -144,7 +144,7 @@ Toggle **Real-time Updates** to enable or disable automatic log streaming. Disab
 
 - **Low flag rate** (< 5%) with consistent traffic
 - **Stable latency** without significant P99 spikes
-- **Few errors** in guardrail processing
+- **Few errors** in Guardrail processing
 
 ### Warning Signs
 
@@ -152,7 +152,7 @@ Toggle **Real-time Updates** to enable or disable automatic log streaming. Disab
 |---------|----------------|--------|
 | High flag rate (> 20%) | Attack in progress or config too sensitive | Review flagged content, adjust thresholds |
 | Increasing flag rate | Emerging threat or behavior change | Investigate new patterns |
-| Latency spikes | Resource constraints or complex inputs | Review guard performance, consider parallel execution |
+| Latency spikes | Resource constraints or complex inputs | Review Guard performance, consider parallel execution |
 | Error spikes | Guard failures or backend issues | Check logs for specific errors |
 
 ## Exporting Data
@@ -171,6 +171,6 @@ Export options are available through the API.
     Integrate Dome into your agent
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
-    Adjust guard configuration
+    Adjust Guard configuration
   </Card>
 </CardGroup>

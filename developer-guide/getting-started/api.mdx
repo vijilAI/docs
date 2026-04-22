@@ -203,7 +203,7 @@ Response:
 
 ## List Available Harnesses
 
-Harnesses are test suites that evaluate different trust dimensions. List the standard harnesses:
+Harnesses are test suites that evaluate different trust dimensions. List the standard Harnesses:
 
 ```bash
 curl -s "$VIJIL_URL/harnesses/?team_id=$TEAM_ID" \
@@ -257,7 +257,7 @@ Required fields:
 
 - `team_id` — UUID of the team
 
-- `harness_names` — list of harness names to run (at least one)
+- `harness_names` — list of Harness names to run (at least one)
 
 Optional fields:
 
@@ -313,7 +313,7 @@ Response:
 
 When polling, the `status` field progresses through: `starting` -> `pending` -> `running` -> `completed` -> `saving` -> `saved`. It may also be `failed` or `canceled`.
 
-When the status is `completed`, the `scores` field contains per-harness scores:
+When the status is `completed`, the `scores` field contains per-Harness scores:
 
 ```json
 {
@@ -339,7 +339,7 @@ curl -s "$VIJIL_URL/evaluation-results/$EVAL_ID/results?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-This returns the detailed results JSON including per-harness breakdowns, individual probe results, and analysis.
+This returns the detailed results JSON including per-Harness breakdowns, individual Probe results, and analysis.
 
 ## Download the Report
 
@@ -365,13 +365,13 @@ curl -s "$VIJIL_URL/evaluations/$EVAL_ID/pdf?team_id=$TEAM_ID" \
 
 ## Next Steps
 
-- **Custom harnesses** — create test suites tailored to your use case with `POST /custom-harnesses/`
+- **Custom Harnesses** — create test suites tailored to your use case with `POST /custom-harnesses/`
 
 - **Personas** — define user archetypes for testing with `POST /personas/` or copy from presets with `POST /personas/from-preset/{preset_id}`
 
 - **Policies** — manage compliance policies and rules with `POST /policies/`
 
-- **DOME guardrails** — configure runtime protection with `POST /dome-configs`
+- **DOME Guardrails** — configure runtime protection with `POST /dome-configs`
 
 - **Red team campaigns** — run adversarial attack campaigns with `POST /redteam/campaigns`
 

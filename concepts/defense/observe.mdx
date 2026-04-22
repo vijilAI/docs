@@ -5,13 +5,13 @@ description: "Telemetry, metrics, and logging for production agent visibility."
 
 ## Why Observability?
 
-Defense without observability is flying blind. You need to know what's happening with your protected agents, not just that guardrails are running, but what they're catching, how often, and what patterns are emerging.
+Defense without observability is flying blind. You need to know what is happening with your protected agents, not just that Guardrails are running, but what they are catching, how often, and what patterns are emerging.
 
 Dome includes built-in telemetry that captures the full picture of agent behavior in production. This data serves three purposes:
 
-1. **Operational visibility**: Are your guardrails working? What's getting blocked? What's the latency impact?
+1. **Operational visibility**: Are your Guardrails working? What is getting blocked? What is the latency impact?
 2. **Security monitoring**: Are you seeing attack patterns? Anomalous behavior? Escalating threats?
-3. **Continuous improvement**: What's happening in production that evaluation didn't anticipate?
+3. **Continuous improvement**: What is happening in production that evaluation did not anticipate?
 
 ## Telemetry
 
@@ -55,7 +55,7 @@ Full traces of LLM and tool execution:
 }
 ```
 
-Traces let you see exactly what happened in each interaction—which guards ran, what the LLM did, which tools were called, and how long each step took.
+Traces let you see exactly what happened in each interaction—which Guards ran, what the LLM did, which tools were called, and how long each step took.
 
 ### Instrumentation
 
@@ -95,31 +95,31 @@ Dome aggregates telemetry into operational metrics:
 
 | Metric | Description |
 |--------|-------------|
-| `inputs_scanned` | Total inputs processed by input guardrails |
-| `inputs_blocked` | Inputs blocked by guards |
-| `inputs_redacted` | Inputs modified by redaction guards |
-| `outputs_scanned` | Total outputs processed by output guardrails |
-| `outputs_blocked` | Outputs blocked by guards |
-| `outputs_redacted` | Outputs modified by redaction guards |
+| `inputs_scanned` | Total inputs processed by input Guardrails |
+| `inputs_blocked` | Inputs blocked by Guards |
+| `inputs_redacted` | Inputs modified by redaction Guards |
+| `outputs_scanned` | Total outputs processed by output Guardrails |
+| `outputs_blocked` | Outputs blocked by Guards |
+| `outputs_redacted` | Outputs modified by redaction Guards |
 | `block_rate` | Percentage of interactions blocked |
 
 ### Latency Metrics
 
 | Metric | Description |
 |--------|-------------|
-| `input_guardrail_p50` | Median input guardrail latency |
-| `input_guardrail_p99` | 99th percentile input guardrail latency |
-| `output_guardrail_p50` | Median output guardrail latency |
-| `output_guardrail_p99` | 99th percentile output guardrail latency |
+| `input_guardrail_p50` | Median input Guardrail latency |
+| `input_guardrail_p99` | 99th percentile input Guardrail latency |
+| `output_guardrail_p50` | Median output Guardrail latency |
+| `output_guardrail_p99` | 99th percentile output Guardrail latency |
 | `total_overhead_ms` | Total latency added by Dome |
 
 ### Guard-Level Metrics
 
 | Metric | Description |
 |--------|-------------|
-| `guard.{name}.triggers` | How often this guard triggers |
+| `guard.{name}.triggers` | How often this Guard triggers |
 | `guard.{name}.confidence_avg` | Average confidence when triggered |
-| `guard.{name}.latency_p50` | Median guard execution time |
+| `guard.{name}.latency_p50` | Median Guard execution time |
 
 Metrics are available via API, dashboard, and can be exported to your observability stack (Datadog, Prometheus, etc.).
 
@@ -129,7 +129,7 @@ Dome generates structured logs for every significant event:
 
 ### Detection Logs
 
-When a guard detects a threat:
+When a Guard detects a threat:
 
 ```json
 {
@@ -169,7 +169,7 @@ Logs can be shipped to your SIEM, log aggregator, or stored in Vijil for analysi
 The Dome dashboard provides real-time visibility:
 
 - **Overview**: Block rates, latency, active agents
-- **Guard performance**: Which guards are triggering, at what rates
+- **Guard performance**: Which Guards are triggering, at what rates
 - **Threat timeline**: Detection events over time
 - **Drill-down**: From metric to trace to individual interaction
 
@@ -177,7 +177,7 @@ The Dome dashboard provides real-time visibility:
 
 <CardGroup cols={2}>
   <Card title="Observe Traces" icon="chart-line" href="/owner-guide/protect-in-production/observability">
-    Monitor guardrail performance
+    Monitor Guardrail performance
   </Card>
   <Card title="How Defense Works" icon="git-merge" href="/concepts/defense/introduction">
     The defense architecture

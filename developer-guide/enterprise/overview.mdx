@@ -3,13 +3,13 @@ title: 'Self-Host Vijil'
 description: 'Deploy Vijil in your own infrastructure for data residency, compliance, or air-gapped environments.'
 ---
 
-Most teams use Vijil's cloud platform at [console.vijil.ai](https://console.vijil.ai). But some organizations need to run Vijil in their own infrastructure—for data residency requirements, regulatory compliance, or environments without internet access.
+Most teams use Vijil's cloud platform at [console.Vijil.ai](https://console.vijil.ai). But some organizations need to run Vijil in their own infrastructure—for data residency requirements, regulatory compliance, or environments without internet access.
 
-This section covers self-hosted deployment. If you're evaluating whether self-hosting is right for you, start with the qualifying questions below.
+This section covers self-hosted deployment. If you are evaluating whether self-hosting is right for you, start with the qualifying questions below.
 
 ## Is Self-Hosting Right for You?
 
-Self-hosting adds operational complexity. Consider it when you have specific requirements that the cloud platform can't meet:
+Self-hosting adds operational complexity. Consider it when you have specific requirements that the cloud platform cannot meet:
 
 | Requirement | Cloud Platform | Self-Hosted |
 |-------------|----------------|-------------|
@@ -21,7 +21,7 @@ Self-hosting adds operational complexity. Consider it when you have specific req
 | Compliance with internal security policies | Depends | Yes |
 
 <Note>
-If your primary concern is data privacy, note that the cloud platform doesn't store your agent's responses—only evaluation metadata. Contact [contact@vijil.ai](mailto:contact@vijil.ai) to discuss your specific requirements before committing to self-hosting.
+If your primary concern is data privacy, note that the cloud platform does not store your agent's responses—only evaluation metadata. Contact [contact@Vijil.ai](mailto:contact@vijil.ai) to discuss your specific requirements before committing to self-hosting.
 </Note>
 
 ## System Architecture
@@ -34,9 +34,9 @@ Vijil consists of three main components that run in your Kubernetes cluster:
 
 | Component | Purpose | Resource Requirements |
 |-----------|---------|----------------------|
-| **Diamond** | Evaluation engine. Sends probes to agents, analyzes responses, generates Trust Scores. | CPU-intensive during evaluations |
-| **Dome** | Runtime protection. Intercepts agent inputs/outputs and applies guardrails. | Low latency required |
-| **Console** | Web UI. Manage agents, view results, configure guardrails. | Standard web application |
+| **Diamond** | Evaluation engine. Sends Probes to agents, analyzes responses, generates Trust Scores. | CPU-intensive during evaluations |
+| **Dome** | Runtime protection. Intercepts agent inputs/outputs and applies Guardrails. | Low latency required |
+| **Console** | Web UI. Manage agents, view results, configure Guardrails. | Standard web application |
 
 ### Data Stores
 
@@ -89,17 +89,17 @@ Fully isolated with no internet connectivity:
 - **LLM Access**: Requires on-premises LLM or private endpoints
 - **Support**: Offline documentation, scheduled support windows
 
-## What's Involved
+## What is Involved
 
 A typical self-hosted deployment takes 2–4 weeks:
 
 1. **Prerequisites** (Week 1) — Provision infrastructure, configure networking
 2. **Deployment** (Week 2) — Install Vijil components, configure data stores
 3. **Integration** (Week 3) — Connect Auth0, test agent connectivity
-4. **Validation** (Week 4) — Run test evaluations, verify guardrail functionality
+4. **Validation** (Week 4) — Run test evaluations, verify Guardrail functionality
 
 <Warning>
-Self-hosted deployments require an enterprise agreement. Contact [contact@vijil.ai](mailto:contact@vijil.ai) to discuss pricing and support terms before beginning infrastructure work.
+Self-hosted deployments require an enterprise agreement. Contact [contact@Vijil.ai](mailto:contact@vijil.ai) to discuss pricing and support terms before beginning infrastructure work.
 </Warning>
 
 ## Next Steps

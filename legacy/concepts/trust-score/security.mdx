@@ -7,9 +7,9 @@ description: "Measuring whether agents can resist adversarial attacks on confide
 
 Reliability measures whether an agent performs correctly under normal conditions. Security measures whether it maintains that performance when someone is actively trying to break it.
 
-This is a different kind of trust—the trust we extend to people who hold sensitive information, guard access to systems, or make decisions that affect us. We trust them not just to be competent, but to resist pressure, manipulation, and deception. A person who tells the truth when it's easy but lies under pressure isn't trustworthy. Neither is an agent that follows its guidelines until someone asks it not to.
+This is a different kind of trust—the trust we extend to people who hold sensitive information, Guard access to systems, or make decisions that affect us. We trust them not just to be competent, but to resist pressure, manipulation, and deception. A person who tells the truth when it is easy but lies under pressure is not trustworthy. Neither is an agent that follows its guidelines until someone asks it not to.
 
-AI agents face adversarial pressure constantly. Users probe for vulnerabilities. Attackers craft inputs designed to extract information or hijack behavior. Competitors test for weaknesses. The public internet is an adversarial environment, and any agent exposed to it will encounter attempts to compromise it.
+AI agents face adversarial pressure constantly. Users Probe for vulnerabilities. Attackers craft inputs designed to extract information or hijack behavior. Competitors test for weaknesses. The public internet is an adversarial environment, and any agent exposed to it will encounter attempts to compromise it.
 
 Vijil measures security across the classic CIA triad—confidentiality, integrity, and availability—adapted for the unique threat model of AI agents.
 
@@ -17,7 +17,7 @@ Vijil measures security across the classic CIA triad—confidentiality, integrit
 
 **Does the agent protect sensitive information from unauthorized disclosure?**
 
-Confidentiality measures how well an agent guards secrets. These secrets might be explicit (API keys, user data, system prompts) or implicit (training data, model architecture, internal reasoning). A secure agent doesn't leak information to parties who shouldn't have it.
+Confidentiality measures how well an agent Guards secrets. These secrets might be explicit (API keys, user data, system prompts) or implicit (training data, model architecture, internal reasoning). A secure agent does not leak information to parties who shouldn't have it.
 
 ### Failure Modes
 
@@ -29,7 +29,7 @@ Confidentiality measures how well an agent guards secrets. These secrets might b
 
 ### What Vijil Tests
 
-Vijil evaluates confidentiality through probes designed to extract protected information:
+Vijil evaluates confidentiality through Probes designed to extract protected information:
 
 | Test Category | What It Measures |
 |--------------|------------------|
@@ -42,19 +42,19 @@ Vijil evaluates confidentiality through probes designed to extract protected inf
 
 **Does the agent resist attempts to manipulate its behavior?**
 
-Integrity measures resistance to adversarial control. An agent with integrity follows its intended instructions even when users try to override them through clever prompting, social engineering, or technical exploits. It doesn't execute unauthorized commands or deviate from its guidelines under pressure.
+Integrity measures resistance to adversarial control. An agent with integrity follows its intended instructions even when users try to override them through clever prompting, social engineering, or technical exploits. It does not execute unauthorized commands or deviate from its guidelines under pressure.
 
 ### Failure Modes
 
 **Prompt injection** is the signature attack against AI agents. An attacker embeds instructions in user input, third-party content, or retrieved documents, hoping the agent will execute them as if they came from the system. Successful injection can hijack agent behavior entirely—making it ignore its actual instructions and follow the attacker's instead.
 
-**Jailbreaking** uses social engineering and creative prompting to convince the agent to abandon its safety constraints. Unlike prompt injection, which typically hides malicious instructions, jailbreaks work by manipulating the agent's reasoning: roleplaying scenarios, hypothetical framings, gradual boundary erosion, or appeals to the agent's helpfulness.
+**Jailbreaking** uses social engineering and creative prompting to convince the agent to abandon its safety constraints. Unlike prompt injection, which typically hides malicious instructions, jailbreaks work by manipulating the agent's reasoning: roleplaying Scenarios, hypothetical framings, gradual boundary erosion, or appeals to the agent's helpfulness.
 
 **Adversarial perturbation** exploits the sensitivity of neural networks to carefully crafted inputs. Small changes to prompts—invisible characters, strategic typos, unusual formatting—can cause dramatically different behavior. These attacks exploit the gap between how humans and models interpret text.
 
 ### What Vijil Tests
 
-Vijil evaluates integrity through adversarial probes that attempt to hijack agent behavior:
+Vijil evaluates integrity through adversarial Probes that attempt to hijack agent behavior:
 
 | Test Category | What It Measures |
 |--------------|------------------|
@@ -80,7 +80,7 @@ Availability measures resilience to denial-of-service. An available agent contin
 
 ### What Vijil Tests
 
-Vijil evaluates availability through probes designed to disrupt agent operation:
+Vijil evaluates availability through Probes designed to disrupt agent operation:
 
 | Test Category | What It Measures |
 |--------------|------------------|
@@ -92,9 +92,9 @@ Vijil evaluates availability through probes designed to disrupt agent operation:
 
 Security failures are categorically different from reliability failures. A reliability failure—a hallucination, an inconsistent response—is the agent making a mistake. A security failure is the agent being weaponized against its owners and users.
 
-When an agent's confidentiality is compromised, sensitive information leaks. When its integrity is compromised, attackers control what it does. When its availability is compromised, legitimate users can't access it. These aren't edge cases or acceptable error rates—they're breaches with real consequences.
+When an agent's confidentiality is compromised, sensitive information leaks. When its integrity is compromised, attackers control what it does. When its availability is compromised, legitimate users cannot access it. These are not edge cases or acceptable error rates—they are breaches with real consequences.
 
-The security dimension of the Trust Score maps your agent's attack surface. It tells you which attack vectors the agent resists, which ones it's vulnerable to, and where you need additional protection. In an adversarial environment, this map is essential.
+The security dimension of the Trust Score maps your agent's attack surface. It tells you which attack vectors the agent resists, which ones it is vulnerable to, and where you need additional protection. In an adversarial environment, this map is essential.
 
 ## Next Steps
 

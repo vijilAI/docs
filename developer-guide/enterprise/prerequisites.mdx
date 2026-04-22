@@ -30,7 +30,7 @@ A typical deployment takes 2–4 weeks:
 | Prerequisites | 1 week | Provision infrastructure, configure networking |
 | Deployment | 1 week | Install Vijil, configure data stores |
 | Integration | 1 week | Connect Auth0, test agent connectivity |
-| Validation | 3–5 days | Test evaluations, verify guardrails |
+| Validation | 3–5 days | Test evaluations, verify Guardrails |
 
 Factor in additional time if you need to request cloud resources through an internal procurement process.
 
@@ -64,10 +64,10 @@ The following AWS resources and services are required for a production deploymen
 
 ### Object Storage
 
-- **Amazon S3**: Necessary for storing artifacts and handling data uploads for harness creations and other funcitonality. You will need to create three S3 buckets:
+- **Amazon S3**: Necessary for storing artifacts and handling data uploads for Harness creations and other funcitonality. You will need to create three S3 buckets:
   1. **Evaluation Data Bucket** – for storing evaluation results and related data.
-  2. **Configs Bucket** – for storing configuration files required by the vijil-evaluate service.
-  3. **File Uploads Bucket** – for handling file uploads, such as files used in harness creation.
+  2. **Configs Bucket** – for storing configuration files required by the Vijil-evaluate service.
+  3. **File Uploads Bucket** – for handling file uploads, such as files used in Harness creation.
 
     For the file uploads bucket you will also need to go to the control panel of this bucket and add CORS configurations, such that it is able to accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
     ```json title="JSON"

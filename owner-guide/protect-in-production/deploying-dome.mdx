@@ -1,18 +1,18 @@
 ---
 title: 'Deploy Dome'
-description: 'Overview of integrating Dome guardrails into your AI agent.'
+description: 'Overview of integrating Dome Guardrails into your AI agent.'
 ---
 
-Dome protects your AI agent by filtering requests and responses through configurable guardrails. Deploying Dome requires integrating the Dome SDK into your agent code.
+Dome protects your AI agent by filtering requests and responses through configurable Guardrails. Deploying Dome requires integrating the Dome SDK into your agent code.
 
 ## What Developers Need
 
 To deploy Dome, your development team will:
 
 1. **Install the SDK**: Add `vijil-dome` to your Python dependencies
-2. **Wrap LLM calls**: Insert guard checks before and after your agent's LLM interactions
-3. **Configure guards**: Load configuration from the Vijil Console or define it in code
-4. **Handle blocked content**: Return safe responses when guards trigger
+2. **Wrap LLM calls**: Insert Guard checks before and after your agent's LLM interactions
+3. **Configure Guards**: Load configuration from the Vijil Console or define it in code
+4. **Handle blocked content**: Return safe responses when Guards trigger
 
 ## Integration Pattern
 
@@ -42,14 +42,14 @@ def protected_chat(user_message: str) -> str:
 
 ## Configuration Sync
 
-When you configure guardrails in the Console, your developers can pull that configuration directly into code using `Dome.create_from_vijil_agent()`. This keeps your security policies in sync between the Console UI and deployed agents.
+When you configure Guardrails in the Console, your developers can pull that configuration directly into code using `Dome.create_from_vijil_agent()`. This keeps your security policies in sync between the Console UI and deployed agents.
 
 ## Framework Support
 
 Dome integrates with popular agent frameworks:
 - **LangChain / LangGraph**: Use `GuardrailRunnable` in your chains
 - **Google ADK**: Register Dome callbacks with your agent
-- **Custom agents**: Wrap any LLM client with guard calls
+- **Custom agents**: Wrap any LLM client with Guard calls
 
 ## Next Steps
 
@@ -61,6 +61,6 @@ Dome integrates with popular agent frameworks:
     Complete deployment instructions for developers
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
-    Set up guard policies in the Console
+    Set up Guard policies in the Console
   </Card>
 </CardGroup>

@@ -7,7 +7,7 @@ description: 'Why teams use Vijil for trust evidence, then register an Agent, ru
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides, then walks through the **Console**: register an agent, run an evaluation, read your [Trust Report](#read-the-trust-report), and configure **[Dome](concepts/welcome#build-ship-run-evolve)** guardrails.
+This page explains how Vijil helps both sides, then walks through the **Console**: register an agent, run an evaluation, read your [Trust Report](#read-the-trust-report), and configure **[Dome](concepts/welcome#build-ship-run-evolve)** Guardrails.
 
 <Warning>
     This guide assumes you have Vijil Console deployed. See [how to deploy Vijil Console in your environment](#).
@@ -37,13 +37,13 @@ If you want to integrate via the Vijil API and using a code library, use the [De
 | **Pressure** | Delivery speed | Risk reduction |
 | **Question** | “Can we ship?” | “Can I defend approving this?” |
 
-**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
+**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined Harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
 
 Vijil measures **reliability**, **security**, and **safety**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
 ## Console walkthrough
 
-You will **register** the agent, **run** an evaluation (built-in Trust Score harness or a custom harness), **read** the report, then **protect** the agent with Dome.
+You will **register** the agent, **run** an evaluation (built-in Trust Score Harness or a custom Harness), **read** the report, then **protect** the agent with Dome.
 
 ### 1. Register your agent
 
@@ -76,20 +76,20 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
     | **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
     | **White Box** | Full config and source | Deeper audit-style analysis |
 
-Set the harness to **Active** when you are ready. More depth: [Custom harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
+Set the Harness to **Active** when you are ready. More depth: [Custom Harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
 
 ### 3. Run an evaluation
 
-Click on **Evaluations**. Pick the **agent** and a **harness**:
+Click on **Evaluations**. Pick the **agent** and a **Harness**:
 
 - **Trust Score**: all three dimensions at once (toggle dimensions if you need a narrower run).
-- **Custom**: the harness you configured above.
+- **Custom**: the Harness you configured above.
 
 **Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
 
 ### 4. Read the Trust Report
 
-Open the report from the results list. You get a **Trust Score** (pass/fail threshold is typically **0.70**), per-harness breakdown, spec used, and remediation-oriented findings.
+Open the report from the results list. You get a **Trust Score** (pass/fail threshold is typically **0.70**), per-Harness breakdown, spec used, and remediation-oriented findings.
 
 | Score | Read | Typical next step |
 |-------|------|-------------------|
@@ -98,7 +98,7 @@ Open the report from the results list. You get a **Trust Score** (pass/fail thre
 | **Below 0.50** | Fail | Remediate before production |
 
 <Warning>
-The score reflects **what the harness exercised**, not a guarantee that every possible failure is impossible.
+The score reflects **what the Harness exercised**, not a guarantee that every possible failure is impossible.
 </Warning>
 
     3. Press **Register Agent**
@@ -108,7 +108,7 @@ The score reflects **what the harness exercised**, not a guarantee that every po
 
 Open **Guardrails**. The status **Domed** vs **Unprotected** shows coverage. 
 
-You can **Configure Guardrails** to open **input** and **output** pipelines (e.g. security, moderation, privacy). Add guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
+You can **Configure Guardrails** to open **input** and **output** pipelines (e.g. security, moderation, privacy). Add Guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
 
 Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
 
@@ -123,7 +123,7 @@ Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Obser
     - **What the agent is** — the Agent being evaluated, the underlying model, and how it's configured
     - **How it was tested** — which behavioral Harnesses were run (Security, Safety, Reliability, or custom) and what each one measures
     - **How it scored** — overall Trust Score, per-Harness breakdown, and pass/fail result
-    - **Where it failed** — specific failure patterns with severity ratings and probe-level scores
+    - **Where it failed** — specific failure patterns with severity ratings and Probe-level scores
     - **What to fix** — actionable mitigations for each identified issue
     - **Whether it's ready for deployment** — a final recommendation based on the results
 

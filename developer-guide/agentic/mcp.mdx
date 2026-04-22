@@ -6,7 +6,7 @@ description: "This guide walks through setting up the Vijil MCP server so Claude
 
 ## Install
 
-Install the [`vijil-mcp`](https://pypi.org/project/vijil-mcp/) package.
+Install the [`Vijil-mcp`](https://pypi.org/project/vijil-mcp/) package.
 
 <CodeGroup>
 ```bash title="pip"
@@ -80,7 +80,7 @@ Create a `.mcp.json` file in your project root:
 
 This tells Claude Code to launch `vijil-mcp` as a local subprocess and discover its tools.
 
-> **Tip:** Add `.mcp.json` to your project's `.gitignore` if you don't want to share it, or commit it so your whole team gets the Vijil tools automatically.
+> **Tip:** Add `.mcp.json` to your project's `.gitignore` if you do not want to share it, or commit it so your whole team gets the Vijil tools automatically.
 
 For global access across all projects, add to `~/.claude.json` instead:
 
@@ -130,7 +130,7 @@ Claude will call `agent_list` and show agent IDs, names, models, and creation da
 
 Harnesses are test suites that evaluate different trust dimensions:
 
-> "What harnesses are available?"
+> "What Harnesses are available?"
 
 Claude will call `harness_list` and show you the test suites (safety, ethics, privacy, security, toxicity, etc.).
 
@@ -150,7 +150,7 @@ You can also run without waiting:
 
 If you did not use `wait`, check the status:
 
-> "What's the status of evaluation e5f6a7b8-...?"
+> "What is the status of evaluation e5f6a7b8-...?"
 
 Claude will call `eval_status` and show whether the evaluation is running, completed, or failed.
 
@@ -160,7 +160,7 @@ Once the evaluation completes, retrieve the detailed results:
 
 > "Show me the detailed results for evaluation e5f6a7b8-..."
 
-Claude will call `eval_results_detail` and present the per-harness breakdowns and individual probe results.
+Claude will call `eval_results_detail` and present the per-Harness breakdowns and individual Probe results.
 
 ## Generate a Report
 
@@ -174,9 +174,9 @@ Claude will call `eval_report` to generate the report.
 
 Here are more things you can ask Claude with the Vijil MCP tools:
 
-**Custom harnesses** — create test suites tailored to your use case:
+**Custom Harnesses** — create test suites tailored to your use case:
 
-> "Create a custom harness called 'My Harness' for agent a1b2c3d4-..."
+> "Create a custom Harness called 'My Harness' for agent a1b2c3d4-..."
 
 **Personas** — list presets and create personas for testing:
 
@@ -190,11 +190,11 @@ Here are more things you can ask Claude with the Vijil MCP tools:
 
 > "Create a policy from the GDPR preset"
 
-**DOME guardrails** — configure runtime protection:
+**DOME Guardrails** — configure runtime protection:
 
-> "List my dome configurations"
+> "List my Dome configurations"
 
-> "Create a dome config for agent a1b2c3d4-..."
+> "Create a Dome config for agent a1b2c3d4-..."
 
 **Red team campaigns** — run adversarial attack campaigns:
 
@@ -230,5 +230,5 @@ The CLI handles all authentication, token refresh, and team context — the MCP 
 | `vijil` CLI not configured | Run `vijil init --url <your-url>` |
 | Session expired | Run `vijil login` |
 | No team selected | Run `vijil team use <team_id>` |
-| Tools don't appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
+| Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
 | Claude uses Bash instead of MCP tools | Make sure `vijil-mcp` is in your `PATH` (`which vijil-mcp`) |

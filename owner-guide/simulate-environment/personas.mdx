@@ -3,7 +3,7 @@ title: 'Define Personas'
 description: 'Create user profiles that represent who interacts with your agent during evaluation.'
 ---
 
-Personas define *who* interacts with your agent during evaluation. Each persona represents a distinct user type with their own role, expertise level, and intent. Vijil uses personas to generate realistic test cases that probe how your agent responds to different kinds of users.
+Personas define *who* interacts with your agent during evaluation. Each persona represents a distinct user type with their own role, expertise level, and intent. Vijil uses personas to generate realistic test cases that Probe how your agent responds to different kinds of users.
 
 ## Why Personas Matter
 
@@ -30,7 +30,7 @@ Navigate to **Personas** in the sidebar to open the Persona Registry. The regist
 
 ## Intent Types
 
-Intent determines how aggressively the persona probes your agent:
+Intent determines how aggressively the persona Probes your agent:
 
 | Intent | Behavior | What It Tests |
 |--------|----------|---------------|
@@ -39,7 +39,7 @@ Intent determines how aggressively the persona probes your agent:
 | **Adversarial** | Deliberate misuse attempts | Security controls, jailbreak resistance |
 | **Malicious** | Active attacks, exploitation | Data exfiltration, prompt injection |
 
-A comprehensive evaluation includes personas across the intent spectrum. Don't skip adversarial testing those are the scenarios that matter most in production.
+A comprehensive evaluation includes personas across the intent spectrum. Do not skip adversarial testing those are the Scenarios that matter most in production.
 
 ## Creating Personas
 
@@ -93,7 +93,7 @@ Access permissions define what the persona *should* have access to—not what th
 
 ## Using Personas in Harnesses
 
-Personas become powerful when combined with harnesses. When you create a custom harness, you select which personas will interact with your agent:
+Personas become powerful when combined with Harnesses. When you create a custom Harness, you select which personas will interact with your agent:
 
 1. Navigate to **Harnesses** and click **+ Create Harness**
 2. In the **Select Personas** step, choose 2-5 personas
@@ -118,9 +118,9 @@ Consider users who interact with your agent in unexpected ways:
 - **New employees**: Tests onboarding and permission boundaries
 - **Power users**: Tests advanced features and rate limits
 
-### Don't Neglect Adversaries
+### Do not Neglect Adversaries
 
-It's tempting to focus on happy-path personas. But production agents face determined adversaries. Include:
+It is tempting to focus on happy-path personas. But production agents face determined adversaries. Include:
 - Security researchers who know prompt injection techniques
 - Social engineers who manipulate through conversation
 - Data harvesters who extract information incrementally

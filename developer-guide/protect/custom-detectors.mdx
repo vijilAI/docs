@@ -1,13 +1,13 @@
 ---
 title: 'Custom Detectors'
-description: 'Build custom detection methods for Dome guardrails.'
+description: 'Build custom detection methods for Dome Guardrails.'
 ---
 
-Dome allows you to create custom detectors to implement domain-specific detection logic. This guide covers creating, registering, and using custom detectors.
+Dome allows you to create custom Detectors to implement domain-specific detection logic. This guide covers creating, registering, and using custom Detectors.
 
 ## Detection Categories
 
-Register your detector with one of these categories:
+Register your Detector with one of these categories:
 
 | Category | Use Case |
 |----------|----------|
@@ -17,24 +17,24 @@ Register your detector with one of these categories:
 | `DetectionCategory.Integrity` | Data quality, format validation |
 | `DetectionCategory.Generic` | Anything else |
 
-The category determines which guard types can use your detector.
+The category determines which Guard types can use your Detector.
 
 ## Detection Result Format
 
 The `detect` method must return a tuple of `(flagged: bool, metadata: dict)`
 
 <Note>
-Always include `query_string` and `response_string` in metadata for proper guardrail operation.
+Always include `query_string` and `response_string` in metadata for proper Guardrail operation.
 </Note>
 
 ## Using Custom Detectors
 
-- **Define before instantiation**: custom detectors must be defined before creating the Dome instance.
+- **Define before instantiation**: custom Detectors must be defined before creating the Dome instance.
 
-- **Import from separate file**: for cleaner organization, define detectors in a separate module.
+- **Import from separate file**: for cleaner organization, define Detectors in a separate module.
 
 <Warning>
-Import your custom detector module before creating the Dome instance. The `@register_method` decorator must run before the config is parsed.
+Import your custom Detector module before creating the Dome instance. The `@register_method` decorator must run before the config is parsed.
 </Warning>
 
 ## Example Detectors
@@ -56,15 +56,15 @@ Import your custom detector module before creating the Dome instance. The `@regi
 
 <CardGroup cols={2}>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
-    Use custom detectors in configurations
+    Use custom Detectors in configurations
   </Card>
   <Card title="Use Guardrails" icon="train-track" href="/developer-guide/protect/using-guardrails">
     Runtime integration patterns
   </Card>
   <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
-    Monitor custom detector performance
+    Monitor custom Detector performance
   </Card>
   <Card title="Protection Overview" icon="book" href="/developer-guide/protect/overview">
-    Built-in detectors reference
+    Built-in Detectors reference
   </Card>
 </CardGroup>

@@ -18,7 +18,7 @@ Each gate specifies:
 | **Trust Score threshold** | Minimum overall score required (e.g., ≥ 0.70) |
 | **Dimension requirements** | Minimum scores per pillar (Reliability, Security, Safety) |
 | **Severity limits** | Maximum allowed findings at each severity level |
-| **Harness specification** | Which evaluation harness must be run |
+| **Harness specification** | Which evaluation Harness must be run |
 
 ### Example Gate Configuration
 
@@ -43,7 +43,7 @@ Run a Trust Score evaluation and compare results against your gate criteria:
 
 ### Step 1: Run the Evaluation
 
-Execute your standard harness against the candidate agent version:
+Execute your standard Harness against the candidate agent version:
 
 ```bash
 curl -X POST "https://api.vijil.ai/v1/evaluations" \
@@ -86,8 +86,8 @@ When an agent fails gate criteria but business needs require deployment, conditi
 
 | Failure Type | Compensating Control |
 |--------------|----------------------|
-| Prompt injection vulnerability | Deploy with input guardrails blocking injection patterns |
-| Hallucination risk | Add output guardrails for factual verification |
+| Prompt injection vulnerability | Deploy with input Guardrails blocking injection patterns |
+| Hallucination risk | Add output Guardrails for factual verification |
 | Scope boundary issues | Restrict agent to narrow use case with limited tools |
 | Privacy concerns | Deploy with PII redaction on input and output |
 
@@ -100,7 +100,7 @@ Before approving conditional deployment:
     List each failing criterion and its risk score
   </Step>
   <Step title="Identify compensating controls">
-    Map specific Dome guards to each identified risk
+    Map specific Dome Guards to each identified risk
   </Step>
   <Step title="Set monitoring thresholds">
     Define alert triggers for production behavior
