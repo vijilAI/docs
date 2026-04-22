@@ -18,10 +18,6 @@ A customer support agent for a healthcare company needs different evaluation tha
 
 Navigate to **Harnesses** in the sidebar to open the Harness Registry.
 
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/harness-registry.webp" alt="Harness Registry showing harnesses with agent, personas, policies, and status" />
-</Frame>
-
 The registry displays all harnesses in your workspace:
 
 | Column | What It Shows |
@@ -39,20 +35,11 @@ Click **+ Create Harness** to open the creation wizard. The wizard guides you th
 
 ### Step 1: Basic Information
 
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/create-harness-step1.webp" alt="Create Harness wizard Step 1 showing Basic Info form" />
-</Frame>
-
-**Basic Info:**
 - **Name**: Descriptive identifier (e.g., "Security Evaluation Suite", "Customer Support Compliance")
 - **Description**: What this harness tests and why
 - **Status**: Start with Draft, change to Active when ready for evaluations
 
 ### Step 2: Select Agent
-
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/create-harness-step2.webp" alt="Create Harness wizard Step 2 showing agent selection" />
-</Frame>
 
 Choose which registered agent this harness evaluates. The list shows each agent's model and hub configuration to help you identify the correct target.
 
@@ -61,10 +48,6 @@ Only agents with status **Active** appear in the selection list. Register and ac
 </Note>
 
 ### Step 3: Select Personas
-
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/create-harness-step3.webp" alt="Create Harness wizard Step 3 showing persona selection with Preset and Custom columns" />
-</Frame>
 
 Select personas that represent who will interact with your agent during evaluation. The interface presents two columns:
 
@@ -83,11 +66,7 @@ Select multiple personas to generate diverse test cases. For comprehensive cover
 
 ### Step 4: Select Policies
 
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/create-harness-step4.webp" alt="Create Harness wizard Step 4 showing policy selection" />
-</Frame>
-
-Select policies that define the rules your agent must follow. Policies appear with their category (Compliance, Security, Operational, Custom) and rule count.
+Select **policies** that define the rules your agent must follow. Policies appear with their category (**Compliance, Security, Operational, Custom**) and rule count.
 
 Vijil uses selected policies to generate test cases that verify your agent respects each constraint. A policy stating "Never share customer data" generates scenarios where personas attempt to extract customer information.
 
@@ -97,24 +76,16 @@ Click **Create Harness** to save your configuration.
 
 After creation, the harness detail page shows your complete configuration and generated test cases.
 
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/harness-detail-header.webp" alt="Harness detail page showing agent, personas, policies, and description" />
-</Frame>
-
 The header displays:
-- **Agent** — The target agent with model details
-- **Personas** — Count and list of selected personas
-- **Policies** — Count and list of selected policies
-- **Status** — Current lifecycle state
-- **Updated** — Last modification date
+- **Agent**: The target agent with model details
+- **Personas**: Count and list of selected personas
+- **Policies**: Count and list of selected policies
+- **Status**: Current lifecycle state
+- **Updated**: Last modification date
 
 ## Generated Test Cases
 
 Vijil analyzes your personas and policies to generate targeted test cases. Each test case combines a persona's perspective with policy constraints.
-
-<Frame>
-  <img src="/images/owner-guide/simulate-environment/custom-harnesses/harness-detail.webp" alt="Generated test cases showing Trust Coverage, Taxonomy, and individual test cases" />
-</Frame>
 
 ### Trust Coverage
 
