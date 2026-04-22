@@ -121,7 +121,7 @@
           },
           {
             "group": "Agents",
-            "pages": ["owner-guide/register-agents/registering-agents"]
+            "pages": ["owner-guide/agents/overview", "owner-guide/agents/registering-agents"]
           },
           {
             "group": "Build an Evaluation Environment",
@@ -166,9 +166,7 @@
           },
           {
             "group": "Deploy Vijil",
-            "pages": [
-              "developer-guide/deploy-vijil/deploy-vijil-console"
-            ]
+            "pages": ["developer-guide/deploy-vijil/deploy-vijil-console"]
           },
           {
             "group": "Agentic Workflow",
