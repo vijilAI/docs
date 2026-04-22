@@ -780,9 +780,9 @@ In the Vijil-side dev account that owns `vijil-artifacts-bucket`, add or update 
     }
   ]
 }
-```## Step 4: Helm Install
+```
 
-This policy does not make the bucket public; it only allows the specific principals listed in `Principal.AWS`. After this policy is in place and the customer staging nodegroup role has the identity policy above, Diamond evaluations in the customer staging cluster can download detector configs and write results to `Vijil-artifacts-bucket` just like the Vijil dev environment.
+This policy does not make the bucket public; it only allows the specific principals listed in `Principal.AWS`. After this policy is in place and the customer staging nodegroup role has the identity policy above, Diamond evaluations in the customer staging cluster can download detector configs and write results to `vijil-artifacts-bucket` just like the Vijil dev environment.
 
 ---
 
@@ -893,9 +893,9 @@ If `EXTERNAL-IP` shows `<pending>`, wait a moment and re-run.
 
 ## Step 4.5: Deploy Darwin (Evolution Engine)
 
-Darwin is the evolution engine. It runs in its own namespace (`Vijil-Darwin`) and is deployed separately from the `Vijil-console` Helm chart.
+Darwin is the evolution engine. It runs in its own namespace (`vijil-darwin`) and is deployed separately from the `vijil-console` Helm chart.
 
-The Console chart routes `/evolution/...` API traffic to `service-Darwin.Vijil-Darwin.svc.cluster.local`. Console starts fine without Darwin, but any `/evolution` calls will return `502` or `504` until Darwin is running.
+The Console chart routes `/evolution/...` API traffic to `service-darwin.vijil-darwin.svc.cluster.local`. Console starts fine without Darwin, but any `/evolution` calls will return `502` or `504` until Darwin is running.
 
 ```bash
 # From the vijil-darwin repo root

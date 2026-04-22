@@ -3,7 +3,7 @@ title: "Guardrail"
 description: "Configurable pipelines that orchestrate Guards into complete protection policies."
 ---
 
-A Guardrail is a configured pipeline of Guards that implements your protection policy. If Guards are the individual security checks, Guardrails are the security checkpoint they define which checks happen, in what order, and what to do with the results.
+A Guardrail is a configured pipeline of [Guards](/concepts/defense/guard) that implements your protection policy. If Guards are the individual security checks, Guardrails are the security checkpoint they define which checks happen, in what order, and what to do with the results.
 
 Vijil Dome allows users to assemble and configure Guardrails, which are designed to scan data exchanged with LLMs, knowledge bases, or other agents. Dome supports several types of Guardrails:
 
@@ -19,7 +19,7 @@ Guardrails consist of a set of [Guards](/concepts/defense/guard) and how they sh
 
 ## Setting Up Guards and Detectors
 
-Users can configure Guards by selecting and combining different Detectors based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
+Users can configure Guards by selecting and combining different [Detectors](/concepts/evaluation-components/detector) based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
 
 {/* vale off */}
 ![Guardrail-composition | 80%](/images/legacy/guardrail_composition.webp)

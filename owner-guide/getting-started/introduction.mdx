@@ -7,7 +7,7 @@ description: 'Why teams use Vijil for trust evidence, then register an Agent, ru
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides, then walks through the **Console**: register an agent, run an evaluation, read your [Trust Report](#read-the-trust-report), and configure **[Dome](concepts/welcome#build-ship-run-evolve)** Guardrails.
+This page explains how Vijil helps both sides, then walks through the **Console**: [register an agent](/owner-guide/register-agents/registering-agents), [run an evaluation](/owner-guide/run-evaluations/running-evaluations), read your [Trust Report](/owner-guide/getting-started/trust-report), and configure **Dome** Guardrails
 
 <Warning>
     This guide assumes you have Vijil Console deployed. See [how to deploy Vijil Console in your environment](#).
@@ -37,9 +37,9 @@ If you want to integrate via the Vijil API and using a code library, use the [De
 | **Pressure** | Delivery speed | Risk reduction |
 | **Question** | “Can we ship?” | “Can I defend approving this?” |
 
-**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined Harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
+**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined [Harness](/concepts/evaluation-components/harness), not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
 
-Vijil measures **reliability**, **security**, and **safety**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
+Vijil measures **[reliability](/concepts/trust-score/reliability)**, **[security](/concepts/trust-score/security)**, and **[safety](/concepts/trust-score/safety)**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
 ## Console walkthrough
 
@@ -47,7 +47,7 @@ You will **register** the agent, **run** an evaluation (built-in Trust Score Har
 
 ### 1. Register your agent
 
-Click on **Agents** → ** and then proceed to click on the + Register Agent** button.
+Click on **Agents** →  and then proceed to click on the **+ Register Agent** button.
 
 You will see three boxes: Black box, Grey box and the White box.
 
@@ -104,7 +104,7 @@ The score reflects **what the Harness exercised**, not a guarantee that every po
     3. Press **Register Agent**
     
     <Tip>More details on [Registering Agents](/owner-guide/register-agents/registering-agents).</Tip>
-  </Step>
+  
 
 Open **Guardrails**. The status **Domed** vs **Unprotected** shows coverage. 
 
