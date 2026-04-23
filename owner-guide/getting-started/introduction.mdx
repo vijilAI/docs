@@ -7,7 +7,7 @@ description: 'Why teams use Vijil for trust evidence, then register an Agent, ru
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides, then walks through the **Console**: [register an agent](/owner-guide/register-agents/registering-agents), [run an evaluation](/owner-guide/run-evaluations/running-evaluations), read your [Trust Report](/owner-guide/getting-started/trust-report), and configure **Dome** Guardrails
+This page explains how Vijil helps both sides, then walks through the **Console**: register an agent, run an evaluation, read your [Trust Report](#read-the-trust-report), and configure **[Dome](concepts/welcome#build-ship-run-evolve)** guardrails.
 
 <Warning>
     This guide assumes you have Vijil Console deployed. See [how to deploy Vijil Console in your environment](#).
@@ -37,31 +37,11 @@ If you want to integrate via the Vijil API and using a code library, use the [De
 | **Pressure** | Delivery speed | Risk reduction |
 | **Question** | “Can we ship?” | “Can I defend approving this?” |
 
-**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined [Harness](/concepts/evaluation-components/harness), not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
+**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
 
-Vijil measures **[reliability](/concepts/trust-score/reliability)**, **[security](/concepts/trust-score/security)**, and **[safety](/concepts/trust-score/safety)**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
+Vijil measures **reliability**, **security**, and **safety**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
-## Console walkthrough
-
-You will **register** the agent, **run** an evaluation (built-in Trust Score Harness or a custom Harness), **read** the report, then **protect** the agent with Dome.
-
-### 1. Register your agent
-
-Click on **Agents** →  and then proceed to click on the **+ Register Agent** button.
-
-You will see three boxes: Black box, Grey box and the White box.
-
-| Level | You provide | Vijil can test |
-|-------|-------------|----------------|
-| **Black Box** | Description, endpoint, credentials | Input/output behavior |
-| **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
-| **White Box** | Full config and source | Deeper audit-style analysis |
-
-For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit; then **Register Agent**.
-
-<Tip>
-If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
-</Tip>
+## Working with Vijil Console
 
 First you will need to **register** an Agent, then **run** an [Evaluation](/concepts/evaluation-components/introduction) (with a built-in [Trust Score Harness](/concepts/evaluation-components/harness) or a [custom Harness](/concepts/evaluation-components/harness)), **read** the [Trust Report](#read-the-trust-report), then **[Protect](/owner-guide/protect-in-production/configuring-guardrails)** the agent with Dome.
 
@@ -76,45 +56,38 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
     | **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
     | **White Box** | Full config and source | Deeper audit-style analysis |
 
-Set the Harness to **Active** when you are ready. More depth: [Custom Harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
+    For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit; then **Register Agent**.
 
-### 3. Run an evaluation
-
-Click on **Evaluations**. Pick the **agent** and a **Harness**:
-
-- **Trust Score**: all three dimensions at once (toggle dimensions if you need a narrower run).
-- **Custom**: the Harness you configured above.
-
-**Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
-
-### 4. Read the Trust Report
-
-Open the report from the results list. You get a **Trust Score** (pass/fail threshold is typically **0.70**), per-Harness breakdown, spec used, and remediation-oriented findings.
-
-| Score | Read | Typical next step |
-|-------|------|-------------------|
-| **≥ 0.70** | Pass | Ship with normal monitoring |
-| **0.50–0.69** | Marginal | Strongly consider Dome and extra monitoring |
-| **Below 0.50** | Fail | Remediate before production |
-
-<Warning>
-The score reflects **what the Harness exercised**, not a guarantee that every possible failure is impossible.
-</Warning>
+    <Tip>
+      If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
+    </Tip>
 
     3. Press **Register Agent**
     
     <Tip>More details on [Registering Agents](/owner-guide/register-agents/registering-agents).</Tip>
-  
+  </Step>
 
-Open **Guardrails**. The status **Domed** vs **Unprotected** shows coverage. 
+  <Step title="Custom Harness">
 
-You can **Configure Guardrails** to open **input** and **output** pipelines (e.g. security, moderation, privacy). Add Guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
+    <Badge color="gray">Optional Step.</Badge>
+   
+     For a baseline, you can skip this and use the Trust Score harness in the next step. 
+     
+     To test your [Personas](/owner-guide/simulate-environment/personas) and organizational [Policies](/owner-guide/simulate-environment/policies), go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, a selected **Agent**, **Personas** (who talks to the agent), and **Policies** (rules it must follow); then generates test cases. 
+     
+     Set the **[Harness](/concepts/evaluation-components/harness)** to **<Badge color="green">ACTIVE</Badge>** when you are ready.
+  </Step>
 
-Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
+  <Step title="Run an evaluation">
+
+    Open **Tests** in the **Console**. Pick the **Agent** and a [Harness](/concepts/evaluation-components/harness):
+    
+    - Trust Score: all **[three Dimensions](/concepts/trust-score/introduction)** at once (toggle down Dimensions if you need a narrower run).
+    
+    - Custom: the **[Harness](/concepts/evaluation-components/harness)** you configured above.
 
     **Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
   </Step>
-
   <Step title="Read the Trust Report">
     Open the report from the results list. You get a **Trust Score** (pass/fail threshold is **70**), per-Harness breakdown, spec used, and remediation-oriented findings.
 
@@ -123,7 +96,7 @@ Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Obser
     - **What the agent is** — the Agent being evaluated, the underlying model, and how it's configured
     - **How it was tested** — which behavioral Harnesses were run (Security, Safety, Reliability, or custom) and what each one measures
     - **How it scored** — overall Trust Score, per-Harness breakdown, and pass/fail result
-    - **Where it failed** — specific failure patterns with severity ratings and Probe-level scores
+    - **Where it failed** — specific failure patterns with severity ratings and probe-level scores
     - **What to fix** — actionable mitigations for each identified issue
     - **Whether it's ready for deployment** — a final recommendation based on the results
 
