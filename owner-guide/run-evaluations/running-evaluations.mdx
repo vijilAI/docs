@@ -3,7 +3,7 @@ title: 'Run Evaluations'
 description: 'Test your AI agents with Diamond to measure trustworthiness.'
 ---
 
-Evaluations test your AI agent against targeted scenarios to measure its trustworthiness. Diamond, Vijil's evaluation engine, sends probes to your agent and analyzes responses to produce a Trust Score.
+Evaluations test your AI agent against targeted [Scenarios](/concepts/evaluation-components/scenario) to measure its trustworthiness. Diamond, Vijil's evaluation engine, sends [Probes](/concepts/evaluation-components/probe) to your agent and analyzes responses to produce a [Trust Score](/concepts/trust-score/introduction).
 
 ## Diamond Evaluations
 
@@ -25,7 +25,7 @@ The agent table shows all registered agents in your workspace:
 | **Agent Name** | Identifier from registration |
 | **Status** | Active or Draft |
 
-Select the agent you want to evaluate by clicking its row. Only agents with status **Active** can be evaluated.
+Select the agent you want to evaluate by clicking its row. Only agents with status <Badge color="green">Active</Badge> can be evaluated.
 
 <Tip>
 Use the search box to filter agents by name, model, or hub when you have many registered agents.
@@ -33,7 +33,7 @@ Use the search box to filter agents by name, model, or hub when you have many re
 
 ### Select Harness
 
-Choose what to test by selecting a harness type:
+Choose what to test by selecting a Harness type:
 
 **Trust Score**: Vijil's standard evaluation across three dimensions:
 - **Reliability**: Correctness, consistency, robustness
@@ -42,17 +42,17 @@ Choose what to test by selecting a harness type:
 
 Each dimension has a toggle. Enable all three for comprehensive evaluation, or select specific dimensions to focus on particular concerns.
 
-**Custom**: Your configured harnesses that combine specific personas and policies. Custom harnesses appear here when you've created them in the Harness Registry with status **Active**.
+**Custom**: Your configured Harnesses that combine specific personas and policies. Custom Harnesses appear here when you've created them in the Harness Registry with status <Badge color="green">Active</Badge>.
 
 ### Run Evaluation
 
-Once you've selected an agent and configured your harness:
+Once you've selected an agent and configured your Harness:
 
 1. Verify your agent selection in the left panel
-2. Confirm harness settings in the right panel
+2. Confirm Harness settings in the right panel
 3. Click **Run Evaluation**
 
-The evaluation starts immediately. Diamond sends probes to your agent based on the selected harness and records responses for analysis.
+The evaluation starts immediately. Diamond sends Probes to your agent based on the selected Harness and records responses for analysis.
 
 ## Monitoring Progress
 
@@ -72,11 +72,11 @@ Running evaluations appear in the **Evaluation Results** table:
 | Status | Meaning |
 |--------|---------|
 | **PENDING** | Queued, waiting to start |
-| **RUNNING** | Actively sending probes and collecting responses |
+| **RUNNING** | Actively sending Probes and collecting responses |
 | **COMPLETED** | Finished successfully, results available |
 | **FAILED** | Encountered an error, check agent connectivity |
 
-Evaluations typically complete in 5-30 minutes depending on the harness size and your agent's rate limits.
+Evaluations typically complete in 5-30 minutes depending on the Harness size and your agent's rate limits.
 
 ## Viewing Results
 
@@ -88,7 +88,7 @@ When an evaluation completes, access the results through the **Actions** column:
 The Trust Report provides:
 - Overall Trust Score with pass/fail status
 - Per-dimension breakdown
-- Detailed findings for each probe category
+- Detailed findings for each Probe category
 - Deployment recommendations
 
 See [Understand Results](/owner-guide/run-evaluations/understanding-results) for detailed guidance on interpreting findings.
@@ -123,7 +123,7 @@ You can run multiple evaluations against the same agent. Each evaluation creates
 
 **Test after changes**: Any modification to your agent—prompt updates, model changes, tool additions—can affect behavior. Re-evaluate to verify.
 
-**Use appropriate harnesses**: The Trust Score harness tests general behaviors. For domain-specific requirements, create custom harnesses with relevant personas and policies.
+**Use appropriate Harnesses**: The Trust Score Harness tests general behaviors. For domain-specific requirements, create custom Harnesses with relevant personas and policies.
 
 **Monitor for regressions**: Compare Trust Scores across evaluations. A declining score indicates problems introduced by recent changes.
 
@@ -137,7 +137,7 @@ You can run multiple evaluations against the same agent. Each evaluation creates
     Learn about the standard evaluation
   </Card>
   <Card title="Custom Harnesses" icon="ruler" href="/owner-guide/simulate-environment/custom-harnesses">
-    Build targeted evaluation scenarios
+    Build targeted evaluation Scenarios
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
     Add runtime protection with Dome

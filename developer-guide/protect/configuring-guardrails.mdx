@@ -1,9 +1,9 @@
 ---
 title: 'Configure Guardrails'
-description: 'Detailed configuration options for Dome guards and detectors.'
+description: 'Detailed configuration options for Dome Guards and Detectors.'
 ---
 
-Dome's configuration system lets you precisely control which guards run, how they execute, and what detectors they use. This guide covers all configuration options.
+Dome's configuration system lets you precisely control which Guards run, how they execute, and what Detectors they use. This guide covers all configuration options.
 
 ## Configuration Hierarchy
 
@@ -26,17 +26,17 @@ Each level has its own configuration options that can be customized.
 | `input-guards` | List | [] | Guards to run on input |
 | `output-guards` | List | [] | Guards to run on output |
 | `input-early-exit` | Boolean | True | Stop on first input flag |
-| `input-run-parallel` | Boolean | False | Run input guards in parallel |
+| `input-run-parallel` | Boolean | False | Run input Guards in parallel |
 | `output-early-exit` | Boolean | True | Stop on first output flag |
-| `output-run-parallel` | Boolean | False | Run output guards in parallel |
+| `output-run-parallel` | Boolean | False | Run output Guards in parallel |
 
 ### Execution Modes
 
-- **Early Exit (default)**: Stops processing when the first guard flags content. Faster for rejecting clearly malicious input.
+- **Early Exit (default)**: Stops processing when the first Guard flags content. Faster for rejecting clearly malicious input.
 
-- **Complete Execution**: Runs all guards regardless of flags. Useful for comprehensive logging.
+- **Complete Execution**: Runs all Guards regardless of flags. Useful for comprehensive logging.
 
-**Parallel Execution**: Runs guards simultaneously for lower latency.
+**Parallel Execution**: Runs Guards simultaneously for lower latency.
 
 ## Guard Configuration
 
@@ -48,7 +48,7 @@ Each level has its own configuration options that can be customized.
 | `moderation` | Harmful content | Toxicity, profanity, hate speech |
 | `privacy` | Sensitive data | PII detection, secrets |
 | `integrity` | Data quality | Format validation (experimental) |
-| `generic` | Custom logic | User-defined detectors |
+| `generic` | Custom logic | User-defined Detectors |
 
 ### Guard Options
 
@@ -56,13 +56,13 @@ Each level has its own configuration options that can be customized.
 |--------|------|---------|-------------|
 | `type` | String | Required | Guard category |
 | `methods` | List | Required | Detectors to use |
-| `early-exit` | Boolean | True | Stop on first detector flag |
-| `run-parallel` | Boolean | False | Run detectors in parallel |
+| `early-exit` | Boolean | True | Stop on first Detector flag |
+| `run-parallel` | Boolean | False | Run Detectors in parallel |
 | `blocked-response` | String | Default | Custom block message |
 
 ## Detector Configuration
 
-Here are some of the available detectors:
+Here are some of the available Detectors:
 
 **Security Detectors:**
 
@@ -102,7 +102,7 @@ Here are some of the available detectors:
     Runtime integration patterns
   </Card>
   <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
-    Build your own detectors
+    Build your own Detectors
   </Card>
   <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
     Monitoring and tracing

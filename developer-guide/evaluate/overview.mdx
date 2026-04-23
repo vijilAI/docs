@@ -10,19 +10,19 @@ Agents' evaluation is at the core of Vijil.
 </Note>
 
 
-Your agent works in demos. Your unit tests pass. But how do you know it won't hallucinate facts, leak customer data, or comply with malicious instructions when it encounters inputs you didn't anticipate?
+Your agent works in demos. Your unit tests pass. But how do you know it will not hallucinate facts, leak customer data, or comply with malicious instructions when it encounters inputs you did not anticipate?
 
-Diamond is Vijil's evaluation platform. It sends hundreds of adversarial probes to your agent (prompt injections, jailbreak attempts, data exfiltration payload, etc.) and measures how your agent responds. You get a quantified Trust Score and specific findings you can fix before deployment.
+Diamond is Vijil's evaluation platform. It sends hundreds of adversarial Probes to your agent (prompt injections, jailbreak attempts, data exfiltration payload, etc.) and measures how your agent responds. You get a quantified Trust Score and specific findings you can fix before deployment.
 
 ## How Evaluation Works
 
-Diamond sends test probes to your agent and analyzes the responses:
+Diamond sends test Probes to your agent and analyzes the responses:
 
-<img src="/images/developer-guide/evaluate/overview/evaluation-flow.svg" alt="Diamond evaluation flow showing harness, scenarios, probes, agent, detectors, and Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+<img src="/images/developer-guide/evaluate/overview/evaluation-flow.svg" alt="Diamond evaluation flow showing Harness, Scenarios, Probes, agent, Detectors, and Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
 
 | Component | Purpose |
 |-----------|---------|
-| **Harness** | Collection of scenarios to run (e.g., `trust_score`, `security`) |
+| **Harness** | Collection of Scenarios to run (e.g., `trust_score`, `security`) |
 | **Scenario** | Testing context with personas and policies |
 | **Probe** | Individual test case sent to your agent |
 | **Detector** | Analyzes agent responses to identify failures |
@@ -73,7 +73,7 @@ Add `_Small` suffix (e.g., `security_Small`) for faster iterations during develo
     Use cloud provider integration for deployed agents, or LocalAgentExecutor for local development
   </Step>
   <Step title="Select harnesses">
-    Start with `trust_score` for comprehensive coverage, or specific harnesses for targeted testing
+    Start with `trust_score` for comprehensive coverage, or specific Harnesses for targeted testing
   </Step>
   <Step title="Run evaluation">
     Execute via Python client, REST API, or console
@@ -82,7 +82,7 @@ Add `_Small` suffix (e.g., `security_Small`) for faster iterations during develo
     Review Trust Score, dimension scores, and individual failures
   </Step>
   <Step title="Remediate issues">
-    Fix vulnerabilities, improve prompts, add guardrails
+    Fix vulnerabilities, improve prompts, add Guardrails
   </Step>
   <Step title="Re-evaluate">
     Confirm fixes and track improvement
@@ -110,6 +110,6 @@ Control the evaluation pace to avoid overwhelming your agent or hitting API limi
     Configure cloud platform integrations
   </Card>
   <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
-    Create targeted evaluation scenarios
+    Create targeted evaluation Scenarios
   </Card>
 </CardGroup>

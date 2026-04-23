@@ -1,6 +1,6 @@
 ---
 title: 'Detection Methods'
-description: 'Detailed list of every built-in detector, grouped by category. Each entry
+description: 'Detailed list of every built-in Detector, grouped by category. Each entry
 shows the method name used in TOML/dict configuration, the underlying model
 or service, and all configurable parameters.'
 ---
@@ -8,7 +8,7 @@ or service, and all configurable parameters.'
 
 ## Security
 
-Detectors that identify adversarial inputs such as prompt injections,
+[Detectors](/concepts/evaluation-components/detector) that identify adversarial inputs such as prompt injections,
 jailbreak attempts, and encoded/obfuscated payloads.
 
 ### `prompt-injection-deberta-v3-base`
@@ -50,7 +50,7 @@ tokens natively, so sliding windows only activate for very long inputs.
 | `window_stride` | `int` | `4096` | Token step size between sliding windows |
 
 - **Class**: `MBertPromptInjectionModel`
-- **Model**: [vijil/vijil_dome_prompt_injection_detection](https://huggingface.co/vijil/vijil_dome_prompt_injection_detection)
+- **Model**: [Vijil/vijil_dome_prompt_injection_detection](https://huggingface.co/vijil/vijil_dome_prompt_injection_detection)
 
 ### `prompt-injection-mbert-safeguard`
 
@@ -81,7 +81,7 @@ Note on `max_tokens`: `gpt-oss-safeguard-20b` is a reasoning model that
 consumes part of its token budget on internal reasoning before emitting any
 assistant content. Setting `max_tokens` too low (e.g. 8) causes the
 response to hit `finish_reason=length` with an empty `content` field,
-which the detector silently classifies as safe. Keep this generous.
+which the Detector silently classifies as safe. Keep this generous.
 </Tip>
 
 - **Class**: `PImbertSafeguard`
@@ -89,7 +89,7 @@ which the detector silently classifies as safe. Keep this generous.
 
 ### `prompt-injection-mbert-hybrid`
 
-Two-stage detector: ModernBERT classifies first, and low-confidence
+Two-stage Detector: ModernBERT classifies first, and low-confidence
 predictions are escalated to [GPT-OSS-Safeguard-20B](https://huggingface.co/openai/gpt-oss-safeguard-20b). ~5ms average latency,
 near-100% accuracy, API cost only on uncertain examples. Accepts all
 parameters from both `prompt-injection-mbert` and
@@ -116,7 +116,7 @@ If `GROQ_API_KEY` is not set, the hybrid mode silently falls back to
 fast-only classification instead of failing.
 
 - **Class**: `PImbertHybrid`
-- **Model**: [vijil/vijil_dome_prompt_injection_detection](https://huggingface.co/vijil/vijil_dome_prompt_injection_detection)
+- **Model**: [Vijil/vijil_dome_prompt_injection_detection](https://huggingface.co/vijil/vijil_dome_prompt_injection_detection)
 - **Requires**: the env var named by `api_key_name` (defaults to `GROQ_API_KEY`); optional — falls back to fast-only if absent
 
 ### `security-promptguard`
@@ -193,7 +193,7 @@ separately.
 
 ### `encoding-heuristics`
 
-Rule-based detector for encoded or obfuscated payloads (base64, ROT13, hex,
+Rule-based Detector for encoded or obfuscated payloads (base64, ROT13, hex,
 URL encoding, Unicode tricks, etc.).
 
 | Parameter | Type | Default | Description |
@@ -250,7 +250,7 @@ tokens natively.
 | `window_stride` | `int` | `4096` | Token step size between sliding windows |
 
 - **Class**: `MBertToxicContentModel`
-- **Model**: [vijil/vijil_dome_toxic_content_detection](https://huggingface.co/vijil/vijil_dome_toxic_content_detection)
+- **Model**: [Vijil/vijil_dome_toxic_content_detection](https://huggingface.co/vijil/vijil_dome_toxic_content_detection)
 
 ### `moderation-mbert-safeguard`
 
@@ -279,14 +279,14 @@ truncation a rare safety net.
 > consumes part of its token budget on internal reasoning before emitting any
 > assistant content. Setting `max_tokens` too low (e.g. 8) causes the
 > response to hit `finish_reason=length` with an empty `content` field,
-> which the detector silently classifies as safe. Keep this generous.
+> which the Detector silently classifies as safe. Keep this generous.
 
 - **Class**: `ModerationMbertSafeguard`
 - **Requires**: the env var named by `api_key_name` (defaults to `GROQ_API_KEY`)
 
 ### `moderation-mbert-hybrid`
 
-Two-stage detector: ModernBERT classifies first, and low-confidence
+Two-stage Detector: ModernBERT classifies first, and low-confidence
 predictions are escalated to GPT-OSS-Safeguard-20B. ~5ms average latency,
 near-100% accuracy, API cost only on uncertain examples. Accepts all
 parameters from both `moderation-mbert` and `moderation-mbert-safeguard`.
@@ -312,7 +312,7 @@ If `GROQ_API_KEY` is not set, the hybrid mode silently falls back to
 fast-only classification instead of failing.
 
 - **Class**: `ModerationMbertHybrid`
-- **Model**: [vijil/vijil_dome_toxic_content_detection](https://huggingface.co/vijil/vijil_dome_toxic_content_detection)
+- **Model**: [Vijil/vijil_dome_toxic_content_detection](https://huggingface.co/vijil/vijil_dome_toxic_content_detection)
 - **Requires**: the env var named by `api_key_name` (defaults to `GROQ_API_KEY`); optional — falls back to fast-only if absent
 
 ### `moderations-oai-api`
@@ -362,7 +362,7 @@ LLM-based moderation classification via LiteLLM.
 
 ### `moderation-flashtext`
 
-Keyword ban-list detector using FlashText for fast matching.
+Keyword ban-list Detector using FlashText for fast matching.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -383,7 +383,7 @@ detect counterfactual bias (whether varying only the protected class in a
 prompt produces different outputs) — that requires comparing pairs of
 prompt-response outputs and is out of scope.
 
-When given a `DomePayload` with both `prompt` and `response`, the detector
+When given a `DomePayload` with both `prompt` and `response`, the Detector
 reconstructs the training format (`prompt [SEP] response`). When only `text`
 is set, it is treated as the prompt half with an empty response. Inputs
 longer than `max_length` are split into multiple `[SEP]`-centered chunks;
@@ -395,7 +395,7 @@ any chunk flagged flags the whole input, and the max score wins.
 | `max_length` | `int` | `512` | Maximum tokens per chunk |
 
 - **Class**: `StereotypeEEOCFast`
-- **Model**: [vijil/stereotype-eeoc-detector](https://huggingface.co/vijil/stereotype-eeoc-detector)
+- **Model**: [vijil/stereotype-eeoc-Detector](https://huggingface.co/vijil/stereotype-eeoc-detector)
 
 ### `stereotype-eeoc-safeguard`
 
@@ -425,7 +425,7 @@ truncation a rare safety net.
 consumes part of its token budget on internal reasoning before emitting any
 assistant content. Setting `max_tokens` too low (e.g. 8) causes the
 response to hit `finish_reason=length` with an empty `content` field,
-which the detector silently classifies as safe. Keep this generous.
+which the Detector silently classifies as safe. Keep this generous.
 </Tip>
 
 
@@ -434,7 +434,7 @@ which the detector silently classifies as safe. Keep this generous.
 
 ### `stereotype-eeoc-hybrid`
 
-Two-stage detector: ModernBERT classifies first, and low-confidence
+Two-stage Detector: ModernBERT classifies first, and low-confidence
 predictions are escalated to GPT-OSS-Safeguard-20B. ~5ms average latency,
 near-100% accuracy, API cost only on uncertain examples. Accepts all
 parameters from both `stereotype-eeoc-fast` and `stereotype-eeoc-safeguard`.
@@ -458,7 +458,7 @@ If `GROQ_API_KEY` is not set, the hybrid mode silently falls back to
 fast-only classification instead of failing.
 
 - **Class**: `StereotypeEEOCHybrid`
-- **Model**: [vijil/stereotype-eeoc-detector](https://huggingface.co/vijil/stereotype-eeoc-detector)
+- **Model**: [Vijil/stereotype-eeoc-Detector](https://huggingface.co/vijil/stereotype-eeoc-detector)
 - **Requires**: the env var named by `api_key_name` (defaults to `GROQ_API_KEY`); optional — falls back to fast-only if absent
 
 ---
@@ -488,7 +488,7 @@ Pattern-based secret and credential detection (API keys, tokens, etc.).
 |-----------|------|---------|-------------|
 | `censor` | `bool` | `True` | Censor detected secrets in the response |
 
-Includes 25 detector plugins: ArtifactoryDetector, AWSKeyDetector,
+Includes 25 Detector plugins: ArtifactoryDetector, AWSKeyDetector,
 AzureStorageKeyDetector, BasicAuthDetector, CloudantDetector,
 DiscordBotTokenDetector, GitHubTokenDetector, GitLabTokenDetector,
 IbmCloudIamDetector, IbmCosHmacDetector, IPPublicDetector, JwtTokenDetector,
@@ -563,7 +563,7 @@ LLM-based fact-checking with reference context.
 
 ## Generic
 
-Flexible detectors that can be customised for arbitrary use cases.
+Flexible Detectors that can be customised for arbitrary use cases.
 
 ### `generic-llm`
 
@@ -601,24 +601,24 @@ Policy-based content classification using GPT-OSS-Safeguard.
 
 ## Sliding Window Behaviour
 
-HuggingFace-based detectors (DeBERTa, ModernBERT, PromptGuard) use a sliding
+HuggingFace-based Detectors (DeBERTa, ModernBERT, PromptGuard) use a sliding
 window to handle inputs longer than their `max_length`. Key points:
 
 - **Fast path**: inputs that fit in a single window are processed unchanged.
 - **Overlap**: `window_stride` < usable window size creates overlapping windows,
   ensuring content at boundaries is not missed.
 - **Aggregation**: any window flagged as unsafe causes the entire input to be
-  flagged (*any-positive* strategy). For score-based detectors, the maximum
+  flagged (*any-positive* strategy). For score-based Detectors, the maximum
   score across windows is reported.
 - **Batch processing**: `detect_batch()` flattens all chunks from all inputs
   into a single pipeline call, then re-aggregates results per input.
 
-The `window_stride` parameter is configurable per detector via TOML or dict
+The `window_stride` parameter is configurable per Detector via TOML or dict
 config.
 
 ## Configuration
 
-Parameters are passed under the method name in your guard configuration:
+Parameters are passed under the method name in your Guard configuration:
 
 ### TOML
 

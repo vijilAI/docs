@@ -1,22 +1,22 @@
 ---
 title: 'Protection Overview'
-description: 'Guard your agent at runtime with Dome guardrails.'
+description: 'Guard your agent at runtime with Dome Guardrails.'
 ---
 
-Evaluation catches vulnerabilities you know to test for. But attackers will try things you didn't anticipate like new prompt injection techniques, novel encoding tricks, social engineering patterns that emerge after your last evaluation.
+Evaluation catches vulnerabilities you know to test for. But attackers will try things you did not anticipate like new prompt injection techniques, novel encoding tricks, social engineering patterns that emerge after your last evaluation.
 
-Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable guardrails, and blocks attacks before they reach your agent or your users. When Diamond identifies vulnerabilities you can't immediately fix, Dome provides defense-in-depth while you remediate.
+Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable Guardrails, and blocks attacks before they reach your agent or your users. When Diamond identifies vulnerabilities you cannot immediately fix, Dome provides defense-in-depth while you remediate.
 
 ## How Dome Works
 
-Dome wraps your agent with configurable guardrails:
+Dome wraps your agent with configurable Guardrails:
 
-<img src="/images/developer-guide/protect/overview/defense-flow.svg" alt="Dome defense flow showing input guardrail, agent, and output guardrail" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+<img src="/images/developer-guide/protect/overview/defense-flow.svg" alt="Dome defense flow showing input Guardrail, agent, and output Guardrail" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
 
 | Component | Purpose |
 |-----------|---------|
-| **Guardrail** | Pipeline of guards (input or output) |
-| **Guard** | Group of detectors of one type |
+| **Guardrail** | Pipeline of Guards (input or output) |
+| **Guard** | Group of Detectors of one type |
 | **Detector** | Individual detection method |
 
 ## Protection Types
@@ -54,7 +54,7 @@ Prevent exposure of sensitive data:
 
 ## Quick Start
 
-You can protect your agents with default guards. The default configuration includes:
+You can protect your agents with default Guards. The default configuration includes:
 - **Input**: Prompt injection detection, encoding heuristics, moderation
 - **Output**: Moderation, PII detection
 
@@ -69,7 +69,7 @@ Every scan process returns a comprehensive result object describing whether the 
 When content is flagged:
 - A signal specifies the content was rejected (is_safe becomes false)
 - It provides a safe fallback message
-- The trace shows which detector flagged it and why
+- The trace shows which Detector flagged it and why
 
 ## Framework Integrations
 
@@ -77,7 +77,7 @@ Dome is designed to be integrable with popular frameworks and runtimes. You can 
 
 ## Performance Options
 
-You can configure protection controls to stop processing when the first guard flags content, or run guards concurrently for maximum efficiency and parallel execution.
+You can configure protection controls to stop processing when the first Guard flags content, or run Guards concurrently for maximum efficiency and parallel execution.
 
 <Card title="Work in Progress" icon="pickaxe" badge="Private preview">
   The programmatic protection capabilities are currently in private preview and subject to change.
@@ -87,7 +87,7 @@ You can configure protection controls to stop processing when the first guard fl
 
 <CardGroup cols={2}>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
-    Detailed guard configuration options
+    Detailed Guard configuration options
   </Card>
   <Card title="Use Guardrails" icon="train-track" href="/developer-guide/protect/using-guardrails">
     Runtime patterns and best practices
