@@ -121,7 +121,10 @@
           },
           {
             "group": "Agents",
-            "pages": ["owner-guide/register-agents/registering-agents"]
+            "pages": [
+              "owner-guide/register-agents/what-is-an-agent",
+              "owner-guide/register-agents/registering-agents"
+            ]
           },
           {
             "group": "Build an Evaluation Environment",

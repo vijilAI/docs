@@ -1,0 +1,66 @@
+---
+title: 'What is an Agent'
+description: 'An overview of AI agents and how to test them with Vijil.'
+---
+
+An AI agent is an autonomous system that uses artificial intelligence to achieve specific goals. Unlike standard software that follows rigid rules, an agent can observe its environment, make decisions, and take actions to complete tasks.
+
+## Types of Agents
+
+Agents come in different forms depending on their complexity and the tasks they handle:
+
+<Card title="Single-Purpose Agents" icon="text-align-start" horizontal>
+Designed to do one specific task very well, such as answering customer support questions or scheduling meetings.
+</Card>
+
+<Card title="Orchestrator Agents" icon="text-align-start" horizontal>
+These agents act as managers. They break down complex problems and delegate tasks to other sub-agents.
+</Card>
+
+<Card title="Multimodal Agents" icon="text-align-start" horizontal>
+ Agents that can process and generate different types of data, such as text, images, and audio.
+</Card>
+
+<Card title="Autonomous Agents" icon="text-align-start" horizontal>
+ Highly independent agents that can run continuously, adapt to new information, and learn over time without human intervention.
+</Card>
+
+## Approaches to Developing Agents
+
+Building an agent involves giving it the right tools and instructions:
+
+1. **Prompt Engineering**: The simplest approach. You give a large language model (LLM) detailed instructions and examples of how to behave.
+2. **Retrieval-Augmented Generation (RAG)**: The agent connects to a database to search for facts and use them in its answers. This reduces hallucinations.
+3. **Tool Use and APIs**: You give the agent access to external tools (like calculators, web browsers, or your company's APIs) so it can perform actions in the real world.
+4. **Agent Frameworks**: Developers often use frameworks like LangChain or AutoGen to build complex systems where multiple agents work together.
+
+## Approaches to Testing Agents
+
+Testing agents is difficult because their outputs are not always predictable. This is where **Vijil** comes in. Vijil provides a comprehensive platform to evaluate and protect your agents.
+
+Here are common ways to test agents:
+
+- **Manual Testing**: Having humans chat with the agent to see if it behaves well. This is slow and doesn't scale.
+- **Unit Testing**: Testing individual parts of the agent's code. This misses issues that only happen when the whole system runs together.
+- **Automated Evaluation (Vijil's Approach)**: Vijil uses an automated environment to test your agents against a wide range of scenarios, edge cases, and adversarial attacks.
+
+Vijil measures your agent's performance and assigns a [Trust Score](/concepts/trust-score/introduction). This score helps you understand if the agent is safe, secure, and reliable enough for production.
+
+## Managing Your Agents as an Owner
+
+As an Agent Owner, your focus is on the business value and safety of the agent. You need to ensure that the agent follows company policies and provides a good user experience.
+
+Vijil gives you the tools to:
+
+- **Set Policies**: Define what the agent is allowed and not allowed to do. Learn more about [Policies](/owner-guide/simulate-environment/policies).
+- **Define Personas**: Test how the agent reacts to different types of users. Learn more about [Personas](/owner-guide/simulate-environment/personas).
+
+## Next Steps
+
+Now that you understand what an agent is, you can register your first agent.
+
+<CardGroup cols={2}>
+  <Card title="Registering Agents" icon="bot-message-square" href="/owner-guide/register-agents/registering-agents">
+    Learn how to add your agent to Vijil for testing.
+  </Card>
+</CardGroup>
