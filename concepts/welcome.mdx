@@ -5,7 +5,7 @@ description: 'The trust layer for AI agents measure reliability, security, and s
 
 Agents often stall before production: security and compliance need **proof**, not demos. Vijil turns that into **measurable trust**, systematic evaluation, runtime protection, and a feedback loop from real behavior.
 
-**Trust Score** summarizes how an agent performs across **[reliability](/concepts/trust-score/reliability)**, **[security](/concepts/trust-score/security)**, and **[safety](/concepts/trust-score/safety)**; so reviews can reference evidence instead of opinions. Under that umbrella, **Diamond** probes behavior in depth, while **Dome** enforces guardrails at runtime.
+**[Trust Score](/concepts/trust-score/introduction)** summarizes how an agent performs across **[reliability](/concepts/trust-score/reliability)**, **[security](/concepts/trust-score/security)**, and **[safety](/concepts/trust-score/safety)**; so reviews can reference evidence instead of opinions. Under that umbrella, **Diamond** probes behavior in depth, while **Dome** enforces **[Guardrails](/concepts/defense/guardrail)** at runtime.
 
 ## How Vijil Measures Trust
 
@@ -19,20 +19,20 @@ Start with the full model in [Trust Score](/concepts/trust-score/introduction).
 
 ## Build, Ship, Run, Evolve
 
-Agent prototypes are everywhere—but most don't make it to
+Agent prototypes are everywhere—but most do not make it to
 production. To scale AI, enterprises face a critical choice: ship
 fast or ship resilient.
 
-- Agent prototypes are everywhere—but most don't make it to
+- Agent prototypes are everywhere—but most do not make it to
 production
 
 - Shipping fast increases failure rates and elevates risk; without
 objective trust evidence, agents are in security limbo
 
-- Generic red-teaming and guardrails don't ensure agents are
+- Generic red-teaming and [Guardrail](/concepts/defense/guardrail) do not ensure agents are
 safe for their specific context
 
-- Failure insights don't feed back into development, leaving the
+- Failure insights do not feed back into development, leaving the
 trust gap open
 
 <img src="/images/concepts/what-is-vijil/vijil_lifecycle.webp" alt="Vijil lifecycle: Ship with Diamond, Run with Dome" style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}} className="theme-aware-image" />
@@ -44,7 +44,7 @@ answerable question with an audit-ready Trust Score.
 
 **Vijil Dome**
 Enforces policies to protect and monitor agents at runtime
-through embedded guardrails, blocking attacks in real-time and
+through embedded Guardrails, blocking attacks in real-time and
 logging detailed telemetry.
 
 ## Continue with Vijil
@@ -53,12 +53,12 @@ Pick where you work and what you need next:
 
 <CardGroup cols={1}>
   <Card title="Concepts" icon="book-open-text" href="/concepts/trust-score/introduction">
-    You want the mental model - Trust Score, evaluation components (Harness, Scenarios, Probes), and Defense (Guards, Guardrails, Detectors).
+    You want the mental model - [Trust Score](concepts/trust-score/introduction), evaluation components ([Harness](/concepts/evaluation-components/harness), [Scenario](/concepts/evaluation-components/scenario), [Probe](/concepts/evaluation-components/probe)), and Defense ([Guards](/concepts/defense/guard), [Guardrails](/concepts/defense/guardrail), [Detectors](/concepts/defense/detector)).
 
     **Start here** → [Trust Score](/concepts/trust-score/introduction), then explore this tab for deeper topics and the [Glossary](/concepts/glossary).
   </Card>
   <Card title="Agent Owner's Guide" icon="building-2" href="/owner-guide/getting-started/introduction">
-    You use the Vijil console to register agents, run evaluations, configure Dome, and report to stakeholders.
+    You use the Vijil console to [register agents](/owner-guide/register-agents/registering-agents), [run evaluations](/owner-guide/run-evaluations/running-evaluations), configure Dome, and report to stakeholders.
 
     **Start here** → [Get started](/owner-guide/getting-started/introduction) in the console.
   </Card>
@@ -72,7 +72,7 @@ Pick where you work and what you need next:
 ### Quick Resources
 
 - **Evaluate in the UI** → [Get started](/owner-guide/getting-started/introduction)
-- **Protect in production** → [Configuring guardrails](/owner-guide/protect-in-production/configuring-guardrails)
+- **Protect in production** → [Configuring Guardrails](/owner-guide/protect-in-production/configuring-guardrails)
 
 ## Coming Soon
 
@@ -80,7 +80,7 @@ Two additional products are currently in development and will expand the Vijil p
 
 <CardGroup cols={2}>
   <Card title="Depot" icon="box" badge="Coming Soon">
-    A catalog of hardened models and building blocks—guardrail models tuned for agent safety, hardened LLMs optimized for specific tasks, and pre-validated components that reduce months of security work to days.
+    A catalog of hardened models and building blocks—[Guardrail](/concepts/defense/guardrail) models tuned for agent safety, hardened LLMs optimized for specific tasks, and pre-validated components that reduce months of security work to days.
   </Card>
   <Card title="Darwin" icon="dna" badge="Coming Soon">
     Continuous improvement powered by reinforcement learning over production telemetry. Darwin learns from real-world failures, edge cases, and behavior drift to keep your agents resilient over time.

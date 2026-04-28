@@ -1,6 +1,6 @@
 ---
 title: 'Observability'
-description: 'Monitor Dome guardrails with OpenTelemetry, tracing, and logging.'
+description: 'Monitor Dome Guardrails with OpenTelemetry, tracing, and logging.'
 ---
 
 Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup.
@@ -17,8 +17,8 @@ Install the [OpenTelemetry](https://opentelemetry.io/) support version of Dome u
 
 In your Weave dashboard, you'll see:
 - All `guard_input` and `guard_output` calls
-- Individual guard execution within each guardrail
-- Detector-level details for each guard
+- Individual Guard execution within each Guardrail
+- Detector-level details for each Guard
 
 ### AgentOps
 
@@ -34,15 +34,15 @@ You can instrument Dome with your tracer, meter, and handlers configuration via 
 
 ### Full Example with Jaeger
 
-Specify your tracer provider and inject it into Dome's instrument method. All guard calls will then create spans in Jaeger.
+Specify your tracer provider and inject it into Dome's instrument method. All Guard calls will then create spans in Jaeger.
 
 ## Tracing
 
 When instrumented with a tracer, Dome creates spans for:
 
 - **Guardrail execution**: Top-level span for `guard_input` / `guard_output`
-- **Guard execution**: Nested span for each guard in the guardrail
-- **Detector execution**: Nested span for each detector in the guard
+- **Guard execution**: Nested span for each Guard in the Guardrail
+- **Detector execution**: Nested span for each Detector in the Guard
 
 Each span includes:
 - Input and output data
@@ -91,7 +91,7 @@ Dome logs to Python loggers under `vijil.dome`. You can add standard handlers to
 
 ### Log Levels
 
-| Level | What's Logged |
+| Level | What is Logged |
 |-------|---------------|
 | `DEBUG` | Initialization details, parameters |
 | `INFO` | Inputs and outputs from each component |
@@ -122,7 +122,7 @@ You can set up alerts for anomalies like high block rates or high latency direct
 1. **Always instrument in production**: Visibility is essential for security
 2. **Set appropriate log levels**: Use INFO for production, DEBUG for troubleshooting
 3. **Monitor block rates**: Sudden increases may indicate attacks
-4. **Track latency**: Ensure guards don't impact user experience
+4. **Track latency**: Ensure Guards do not impact user experience
 5. **Alert on errors**: Guard failures should be investigated immediately
 
 <Card title="Work in Progress" icon="pickaxe" badge="Private preview">

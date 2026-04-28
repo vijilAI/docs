@@ -1,9 +1,9 @@
 ---
 title: 'Configure Guardrails'
-description: 'Set up runtime protection for your AI agents with Dome guardrails.'
+description: 'Set up runtime protection for your AI agents with Dome Guardrails.'
 ---
 
-Dome provides runtime protection for your AI agents by filtering requests and responses through configurable guardrails. While Diamond evaluates agent behavior before deployment, Dome defends agents in production.
+Dome provides runtime protection for your AI agents by filtering requests and responses through configurable Guardrails. While Diamond evaluates agent behavior before deployment, Dome defends agents in production.
 
 ## How Dome Works
 
@@ -13,9 +13,9 @@ Dome interposes between users and your agent, inspecting traffic in both directi
 User Request → Dome (Input Guards) → Your Agent → Dome (Output Guards) → User Response
 ```
 
-**Input guards** filter incoming requests before they reach your agent, blocking prompt injection attempts, detecting malicious content, and enforcing content policies.
+**Input Guards** filter incoming requests before they reach your agent, blocking prompt injection attempts, detecting malicious content, and enforcing content policies.
 
-**Output guards** filter outgoing responses before they reach users, preventing data leakage, redacting sensitive information, and ensuring compliance with content guidelines.
+**Output Guards** filter outgoing responses before they reach users, preventing data leakage, redacting sensitive information, and ensuring compliance with content guidelines.
 
 ## Accessing Guardrails
 
@@ -26,21 +26,21 @@ Navigate to **Guardrails** in the sidebar to view all registered agents and thei
 | **Agent Name** | Identifier from registration |
 | **Status** | Active or Draft |
 | **Defend** | Protection status: Unprotected or Domed |
-| **Configure** | Access guardrail configuration |
+| **Configure** | Access Guardrail configuration |
 | **Monitor** | View observability dashboard |
 
 Click the **Configure** icon (gear) to open the Dome Configuration page.
 
 ## Adding Guards
 
-Click the **+** button in either the Input Guards or Output Guards section to add a new guard. Select a guard type from the dropdown:
+Click the **+** button in either the Input Guards or Output Guards section to add a new Guard. Select a Guard type from the dropdown:
 - **Security**: Detect adversarial inputs
 - **Moderation**: Filter harmful content
 - **Privacy**: Protect sensitive data
 
 ## Security Guards
 
-Security guards protect against adversarial inputs designed to manipulate your agent.
+Security Guards protect against adversarial inputs designed to manipulate your agent.
 
 | Threat | Description |
 |--------|-------------|
@@ -49,15 +49,15 @@ Security guards protect against adversarial inputs designed to manipulate your a
 | **Encoded Attacks** | Malicious content hidden in encodings (Base64, Unicode) |
 | **Adversarial Suffixes** | Appended strings that trigger unsafe behavior |
 
-**Underlying detectors:**
+**Underlying Detectors:**
 - `encoding-heuristics`: Detects encoded content that may hide malicious payloads
 - `prompt-injection-mbert`: ML model trained to identify injection attempts
 
-Enable security guards on inputs for customer-facing agents, agents with access to sensitive data or tools, and any agent exposed to untrusted users.
+Enable security Guards on inputs for customer-facing agents, agents with access to sensitive data or tools, and any agent exposed to untrusted users.
 
 ## Moderation Guards
 
-Moderation guards filter content that violates usage policies or community standards.
+Moderation Guards filter content that violates usage policies or community standards.
 
 | Category | Examples |
 |----------|----------|
@@ -66,15 +66,15 @@ Moderation guards filter content that violates usage policies or community stand
 | **Sexual Content** | Explicit or inappropriate material |
 | **Self-Harm** | Content promoting self-injury |
 
-**Underlying detectors:**
+**Underlying Detectors:**
 - `moderation-flashtext`: Fast keyword-based detection
 - `moderation-deberta`: ML model for nuanced content classification
 
-Enable moderation guards on inputs to block requests for harmful content, and on outputs to prevent inappropriate responses.
+Enable moderation Guards on inputs to block requests for harmful content, and on outputs to prevent inappropriate responses.
 
 ## Privacy Guards
 
-Privacy guards detect and protect personally identifiable information (PII).
+Privacy Guards detect and protect personally identifiable information (PII).
 
 | PII Type | Examples |
 |----------|----------|
@@ -83,40 +83,40 @@ Privacy guards detect and protect personally identifiable information (PII).
 | **SSN / Credit Cards** | 123-45-6789, 4111-1111-1111-1111 |
 | **Addresses / Names** | Physical addresses, personal names |
 
-**Underlying detector:**
+**Underlying Detector:**
 - `privacy-presidio`: Microsoft Presidio-based entity recognition
 
-Enable privacy guards on inputs to detect when users share sensitive information, and on outputs to prevent PII leakage.
+Enable privacy Guards on inputs to detect when users share sensitive information, and on outputs to prevent PII leakage.
 
 ## Execution Settings
 
-Each guard has configurable execution settings.
+Each Guard has configurable execution settings.
 
 ### Early Exit
 
-When enabled, processing stops if this guard flags the input. The request is blocked without executing subsequent guards.
+When enabled, processing stops if this Guard flags the input. The request is blocked without executing subsequent Guards.
 
 - **Enable** when a detection should definitively block the request
 - **Disable** when you need comprehensive logging of all detections
 
 ### Execution Mode
 
-**Serial**: Guards execute in sequence. Use when guard order matters or later guards depend on earlier transformations.
+**Serial**: Guards execute in sequence. Use when Guard order matters or later Guards depend on earlier transformations.
 
-**Parallel**: Guards execute simultaneously. Use when guards are independent and you want lower latency.
+**Parallel**: Guards execute simultaneously. Use when Guards are independent and you want lower latency.
 
 ## Guard Pipeline
 
-The order of guards determines the execution pipeline. Use the Execution Flow panel to visualize how requests flow through your guards.
+The order of Guards determines the execution pipeline. Use the Execution Flow panel to visualize how requests flow through your Guards.
 
 ## Testing Configuration
 
-Use the Execution Flow panel to test your guardrail pipeline before deploying.
+Use the Execution Flow panel to test your Guardrail pipeline before deploying.
 
 1. Select **Input Flow** or **Output Flow** from the dropdown
 2. Enter test content in the text area
 3. Click **Send** to execute the pipeline
-4. Review which guards triggered and what actions were taken
+4. Review which Guards triggered and what actions were taken
 
 **Test cases to try:**
 
@@ -130,7 +130,7 @@ My email is test@example.com and my phone is 555-123-4567.
 
 ## Saving and Exporting
 
-After configuring guards, click **Save Configuration**. The agent's status changes from **Unprotected** to **Domed** once guardrails are active.
+After configuring Guards, click **Save Configuration**. The agent's status changes from **Unprotected** to **Domed** once Guardrails are active.
 
 Use the toolbar to:
 - **View Code**: See configuration as code for developers
@@ -139,9 +139,9 @@ Use the toolbar to:
 
 ## Best Practices
 
-- **Start with security**: Enable security guards on inputs for any externally-accessible agent
-- **Layer defenses**: Use multiple guard types; an attacker who bypasses one may be caught by another
-- **Test before deploying**: Verify guards behave as expected using the Execution Flow panel
+- **Start with security**: Enable security Guards on inputs for any externally-accessible agent
+- **Layer defenses**: Use multiple Guard types; an attacker who bypasses one may be caught by another
+- **Test before deploying**: Verify Guards behave as expected using the Execution Flow panel
 - **Monitor after deployment**: Review metrics to identify false positives and missed detections
 
 ## Next Steps
@@ -151,7 +151,7 @@ Use the toolbar to:
     Integrate Dome into your agent code
   </Card>
   <Card title="Observe Traces" icon="chart-line" href="/owner-guide/protect-in-production/observability">
-    Monitor guardrail performance
+    Monitor Guardrail performance
   </Card>
   <Card title="Protection Overview" icon="shield-half" href="/developer-guide/protect/overview">
     Complete SDK reference for developers

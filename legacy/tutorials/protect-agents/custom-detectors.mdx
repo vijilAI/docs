@@ -6,7 +6,7 @@ Dome makes it easy to create and define your own detection methods to use in Gua
 
 <CodeGroup>
 ```python title="Python" icon="python"
-from vijil_dome.detectors import (
+from vijil_dome.Detectors import (
     DetectionCategory,
     DetectionResult,
     DetectionMethod,
@@ -14,7 +14,7 @@ from vijil_dome.detectors import (
 )
 
 # Custom logic - block queries that are under a minimum number of characters or over a maximum number of characters
-CUSTOM_LENGTH_DETECTOR = "custom-length-detector"
+CUSTOM_LENGTH_DETECTOR = "custom-length-Detector"
 
 
 # You must register the detection method with one of five categories - Security, Moderation, Privacy, Integrity or Generic
@@ -47,5 +47,5 @@ class CustomLengthDetector(DetectionMethod):
 You can now use `custom-length-detector` in your Dome configuration.
 
 <Warning>
-Make sure you define your custom detection logic before you instantiate your configuration. Alternatively, you can define it in another file and import the class before loading your config. This is to ensure that the `register_method` decorator can register your detector before it gets used.
+Make sure you define your custom detection logic before you instantiate your configuration. Alternatively, you can define it in another file and import the class before loading your config. This is to ensure that the `register_method` decorator can register your Detector before it gets used.
 </Warning>

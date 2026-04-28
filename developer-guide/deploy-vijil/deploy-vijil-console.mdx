@@ -263,7 +263,7 @@ aws acm wait certificate-validated --certificate-arn $CERT_ARN
 
 ### IAM Policy for S3
 
-Create a scoped S3 policy for your app data bucket. If you're deploying to multiple environments, use distinct policy names (e.g. `VijilConsoleS3Access` for prod, `VijilConsoleS3AccessStaging` for staging) to avoid conflicts.
+Create a scoped S3 policy for your app data bucket. If you are deploying to multiple environments, use distinct policy names (e.g. `VijilConsoleS3Access` for prod, `VijilConsoleS3AccessStaging` for staging) to avoid conflicts.
 
 ```bash
 export S3_BUCKET=vijil-console-data-prod  # adjust per environment
@@ -299,7 +299,7 @@ echo "S3 policy ARN: $S3_POLICY_ARN"
 
 ### S3 Access for Pods
 
-There are two supported approaches. **EKS Pod Identity (Option A)** and **Node IAM Role (Option B)**. EKS Pod Identity is recommended, it's what the current dev environment uses and scopes credentials to specific service accounts rather than all pods on a node.
+There are two supported approaches. **EKS Pod Identity (Option A)** and **Node IAM Role (Option B)**. EKS Pod Identity is recommended, it is what the current dev environment uses and scopes credentials to specific service accounts rather than all pods on a node.
 
 #### Option A: EKS Pod Identity (recommended)
 
@@ -488,9 +488,9 @@ kubectl run ecr-test \
 
 Build and push images to your own registry, then override `*.image.repository` in your values file (see [Step 3](#step-3-helm-values-and-secrets)).
 
-### Bedrock AgentCore (Diamond / custom harness)
+### Bedrock AgentCore (Diamond / custom Harness)
 
-The Diamond evaluation page and custom harness workflows call the Bedrock AgentCore API. Attach a scoped policy to the same IAM principal your Console pods use for AWS access. If you used Pod Identity, attach it to the Pod Identity role. If you used the node IAM role, attach it to that.
+The Diamond evaluation page and custom Harness workflows call the Bedrock AgentCore API. Attach a scoped policy to the same IAM principal your Console pods use for AWS access. If you used Pod Identity, attach it to the Pod Identity role. If you used the node IAM role, attach it to that.
 
 ```bash
 # If using Pod Identity, set BEDROCK_ROLE to your Pod Identity role name (e.g. VijilConsoleS3Role)
@@ -540,17 +540,17 @@ aws iam attach-role-policy \
   --policy-arn $BEDROCK_POLICY_ARN
 ```
 
-The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fetch the agent card when creating custom harnesses. If you created the policy before this was added, add a new policy version that includes `bedrock-agentcore:GetAgentCard` in the `BedrockAgentCoreData` statement and run `aws iam create-policy-version --policy-arn <policy-arn> --policy-document file://policy.json --set-as-default`.
+The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fetch the agent card when creating custom Harnesses. If you created the policy before this was added, add a new policy version that includes `bedrock-agentcore:GetAgentCard` in the `BedrockAgentCoreData` statement and run `aws iam create-policy-version --policy-arn <policy-arn> --policy-document file://policy.json --set-as-default`.
 
 ### Staging / Non-Dev: Custom Harness AgentCore Runtime
 
-In dev, a custom harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime doesn't exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
+In dev, a custom Harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime does not exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
 
 **Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a--vijils-ecr-cross-account-pull).
 
 #### Step 1: Create the execution role
 
-The runtime runs the harness container under an IAM role that Bedrock AgentCore assumes. Create a role with (a) a trust policy allowing `bedrock-agentcore.amazonaws.com`, and (b) permissions for ECR pull (your account + Vijil’s 266735823956), S3 for your app bucket, and CloudWatch Logs.
+The runtime runs the Harness container under an IAM role that Bedrock AgentCore assumes. Create a role with (a) a trust policy allowing `bedrock-agentcore.amazonaws.com`, and (b) permissions for ECR pull (your account + Vijil’s 266735823956), S3 for your app bucket, and CloudWatch Logs.
 
 Replace `STAGING_ACCOUNT_ID` with your account ID (e.g. 565393042914 for staging). Run in the staging account:
 
@@ -666,7 +666,7 @@ echo "Role ARN: $ROLE_ARN"
 
 #### Step 2: Create the AgentCore runtime
 
-Use the same VPC subnets and security group as your EKS. Container image: Vijil’s harness agent in dev ECR (`vijil-harness-agent-agentcore`). Environment variables should match dev except the bucket; the following snippet uses the same set as dev with the staging bucket.
+Use the same VPC subnets and security group as your EKS. Container image: Vijil’s Harness agent in dev ECR (`vijil-harness-agent-agentcore`). Environment variables should match dev except the bucket; the following snippet uses the same set as dev with the staging bucket.
 
 ```bash
 # Replace with your own subnet IDs and EKS node security group
@@ -693,7 +693,7 @@ The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTO
 
 ### Diamond Artifacts S3 Access (staging / customer accounts)
 
-The Diamond evaluation engine downloads detector configs from a `vijil-artifacts-bucket` that lives in Vijil's dev account. In any non-dev account, your EKS nodes need cross-account read access to that bucket.
+The Diamond evaluation engine downloads Detector configs from a `vijil-artifacts-bucket` that lives in Vijil's dev account. In any non-dev account, your EKS nodes need cross-account read access to that bucket.
 
 There are two parts:
 
@@ -780,7 +780,7 @@ In the Vijil-side dev account that owns `vijil-artifacts-bucket`, add or update 
     }
   ]
 }
-```## Step 4: Helm Install
+```
 
 This policy does not make the bucket public; it only allows the specific principals listed in `Principal.AWS`. After this policy is in place and the customer staging nodegroup role has the identity policy above, Diamond evaluations in the customer staging cluster can download detector configs and write results to `vijil-artifacts-bucket` just like the Vijil dev environment.
 
