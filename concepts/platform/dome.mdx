@@ -1,0 +1,19 @@
+---
+title: 'Dome'
+description: 'Runtime protection product that intercepts inputs and outputs through Guardrails built from Guards and Detectors.'
+---
+
+- Introduce Dome as Vijil's runtime protection layer for production agents. It intercepts agent inputs and outputs in real time, filtering harmful content, detecting anomalies, and enforcing policies with sub-300ms latency. Mention the multi-layer approach: pattern matching, ML classifiers, embeddings, and LLM evaluation.
+
+## Defense Components
+
+- One short paragraph introducing the defense hierarchy — Guardrail → Guard → Detector — before the subsections.
+- Cards for Defense Components
+
+## Observability
+
+- Describe what Dome exposes for monitoring production agents
+- **Execution traces** — full traces of LLM and tool calls with guard results and latency
+- **Metrics** — inputs/outputs scanned, block/redaction rates, guard-level trigger rates, p50/p99 latency
+- **Logs** — detection logs (when guards trigger) and audit logs (for compliance)
+- **Dashboard** — real-time overview with threat timeline and per-guard drill-down]*
