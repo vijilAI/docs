@@ -3,74 +3,43 @@ title: "Console"
 description: "The Vijil Console for managing Agents, Evaluations, and runtime protection configurations."
 ---
 
-- Introduce the Console as the web-based management interface for the Vijil platform. It is the central hub for registering agents, running evaluations with Diamond, and configuring runtime protection with Dome.
-- It serves both technical and non-technical team members (e.g., security leads, compliance officers)
-
-## Where to Start
-
-- 3 cards for Registering an Agent, Running an Evaluation and Creating a Custom Harness
-- Describe the main point of registering agents in the Console. Cover the three visibility levels and what each implies about how much information Vijil has about the agent's internals:
-- **Black Box** — only the endpoint is known
-- **Grey Box** — system prompt and tool definitions are provided
-- **White Box** — full access including model weights or architecture details
-
-## Trust Reports
-
-- Describe the Trust Report that Diamond generates and the Console displays. Cover what the report contains:
-- Agent details and testing methodology
-- Overall Trust Score (pass threshold: \> 70)
-- Actionable mitigations and deployment recommendations
-
-Explain who typically reads these reports and why (e.g., stakeholder sign-off, compliance audit)
-
-\*\*FRENDE ODAVDE JE TEKST ŠTO SAM PISALA\*\*
-
-## **Introducing the Console**
-
 The Console is the web-based management interface of the Vijil platform. It acts as the central hub where teams interact with all major components of the system which brings together evaluation, protection, and continuous improvement into a single user friendly experience.
 
 Through the Console, users can:
 
-- Register and manage AI agents
-- Run structured evaluations using Diamond
-- Configure runtime protections with Dome
+- [Register and manage AI agents](/owner-guide/register-agents/registering-agents)
+- [Run structured evaluations using Diamond](/developer-guide/evaluate/running-evaluations)
+- [Configure runtime protections with Dome](/developer-guide/protect/configuring-guardrails)
 
 Instead of operating as separate tools, these features are integrated into one single environment, which makes it easier to oversee the entire agent lifecycle, starting from development and ending on deployment and/or beyond.
 
 On the other hand, the Console is designed for both technical and non-technical users. Engineers and developers use it to configure and adjust agents, and later run some evaluations, while security leads, compliance officers, and stakeholders rely on it to review results and make necessary decisions. This system of shared interface ensures that everything is in line across teams and reduces time consumption in the decision making part.
 
-\
-**Starting Point**
+## Starting with Vijil Console
 
-When users first enter the Console, they are then guided by three primary things, typically presented as cards:
+<Card title="Register an Agent" icon="bot">
+  Start by Registering an Agent
+</Card>
 
-- **Registering an Agent**
-- **Running an Evaluation**
-- **Creating a Custom Harness**
+<Card title="Run an Evaluation" icon="flask-conical">
+  Proceed by Running an Evaluation
+</Card>
 
-These represent the core workflows you need to begin working with the platform.
-
-### **How to Register an Agent?**
-
-Registering an agent is the first and most important step. Registering an Agent allows Vijil to understand how to interact with the system and determine the depth of analysis it can perform.
-
-The main concept here is **visibility level**, which helps define how much internal information about the agent is available to Vijil:
-
-- **Black Box** - Only the external endpoint is known. Vijil interacts with the agent strictly through inputs and outputs, without any insight into internal logic. This type of approach is useful when dealing with third-party or restricted systems but it does limit the depth of analysis.
-- **Grey Box** - The visibility is provided partially, such as the system prompt and tool definitions. This allows Vijil to perform more precise and context-aware evaluations, which then result in improved findings.
-- **White Box** - Full transparency is available, including model architecture or weights. This enables comprehensive analysis and allows Vijil to deeply inspect behavior, identify liabilities, and generate precise recommendations.
+<Card title="Create a Custom Harness" icon="shield-ellipsis">
+  Further configure your evaluation environment with Custom Harnesses
+</Card>
 
 ## **Trust Reports**
 
 After running an evaluation with **Diamond**, the results are compiled into a **Trust Report**, which is displayed directly in the **Console**.
 
-This report serves as a structured, audit-ready summary of the agent’s performance and risk profile. It typically includes:
+This report serves as a structured, audit-ready summary of the agent’s performance and risk profile, including:
 
 - **Agent details and testing methodology**\
-   A clear overview of what was tested, how the evaluation was done, and which scenarios or policies were applied in the process.
+  A clear overview of what was tested, how the evaluation was done, and which scenarios or policies were applied in the process.
 - **Overall Trust Score**
 
-A numerical score used to assess the agent’s reliability, security, and overall safety. In general, a score above 70 suggests the agent is ready or at least nearly ready for deployment.
+A numerical score used to assess the agent’s reliability, security, and overall safety. In general, a score **above 70** suggests the Agent is ready or at least nearly ready for deployment.
 
 - **Clear steps to reduce risks and prepare for deployment** \
   A specific guide on how to improve the agent, address vulnerabilities, and safely move towards production.
@@ -87,5 +56,3 @@ Trust Reports are not just for engineers—they are designed for multiple stakeh
 - **Stakeholders and executives** review them for final sign-off
 
 Because the reports are standardized and easy to understand, they help overcome the gap between technical evaluation and decision-making. They provide evidence needed to move agents out of “_security limbo_” and into production.
-
-\*\*\*mislila sam da dodam još možda nešto o Dome-u i Diamond-u, ako misliš da je to ok javi\*\*\

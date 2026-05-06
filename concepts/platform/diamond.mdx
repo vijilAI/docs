@@ -3,18 +3,6 @@ title: "Diamond"
 description: "Evaluation product that sends adversarial Probes and returns a Trust Score across Reliability, Security, and Safety."
 ---
 
-- Introduce Diamond. It tests agents against hundreds of adversarial Scenarios and returns a Trust Score with detailed findings in a few minutes. Emphasize that it is context-specific; tests are generated based on the agent's purpose, user personas, and org policies, rather than a generic checklist.
-
-## The Trust Score
-
-- Briefly explain what is a Trust Score and create cards to the Dimensions of trust.
-
-## Evaluation Components
-
-- One short paragraph introducing the evaluation hierarchy — Harness → Scenario → Probe → Detector before the subsections. Then create cards to the Trust Score Components
-
-## **Diamond**
-
 Diamond is Vijil’s evaluation engine, e.g., the part of the platform responsible for putting your agent to the test before it ever reaches production.
 
 Instead of relying on generic checks, Diamond actively challenges the agent by sending **results from stress tests,** inputs that simulate real risks like prompt injection, unsafe requests, or edge-case failures. The goal is simply to expose weaknesses early, in a controlled environment.
@@ -40,7 +28,7 @@ Observe the Trust Score as if it were built on three dimensions:
 - **Security**\
   Can the agent handle malicious behavior effectively? This includes testing how well it responds to prompt injection, prevents data leaks, and resists attempts to manipulate or exploit the system. 
 - **Safety**\
-   Does the agent stay within acceptable boundaries? This includes avoiding harmful content, respecting policies, and not taking any unauthorized actions.
+  Does the agent stay within acceptable boundaries? This includes avoiding harmful content, respecting policies, and not taking any unauthorized actions.
 
 Each of these dimensions contributes to the final score and giving teams a more complete picture so it is not just _if_ something is wrong, but _where_.
 
@@ -66,5 +54,3 @@ Here’s how that hierarchy translates into an actual evaluation process:
   Detectors analyze the agent’s responses. They check if something went wrong, for example a policy violation, a hallucination, or a security issue and then record the results.
 
 If you want to create a short conclusion, it would be that these components allow Diamond to go beyond the superficial testing and find out how the agent behaves under pressure.
-
-\
