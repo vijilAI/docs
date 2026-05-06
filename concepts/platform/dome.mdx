@@ -3,8 +3,6 @@ title: "Dome"
 description: "Runtime protection product that intercepts inputs and outputs through Guardrails built from Guards and Detectors."
 ---
 
-Dome is Vijil’s protection layer, basically the part of the platform that watches over your agent once it’s live in production.
-
 Instead of testing behavior in advance (like Diamond), Dome works in real time. It sits between the user and the agent, intercepting both **inputs and outputs** as they happen. This allows Dome to filter harmful content, detect suspicious patterns, and strengthen policies without slowing things down (latency stays under ~300ms).
 
 What makes Dome effective is its **multi-layer approach**. That means that Dome doesn’t rely on just one method, but combines these things:
@@ -34,22 +32,3 @@ You don’t need to configure everything from scratch, but if you try to underst
   Detectors are the ones who actually evaluate the data. They analyze inputs and outputs and decide whether something should be marked, blocked, or modified.
 
 When you put together these components, they allow Dome to apply protection.
-
-## **Observability**
-
-Dome doesn’t just protect your agent but it also makes it easier to understand what’s happening in production.
-
-This gives teams clear overview into how the agent behaves, what gets flagged, and from where potential risks are coming.
-
-Here’s what you can monitor everything:
-
-- **Execution traces**\
-  Full, step-by-step traces of LLM responses and tool calls, including which guards were triggered and how long each step took.
-- **Metrics**\
-  High-level numbers that show system behavior, like how many inputs and outputs were scanned, how often something was blocked or redacted, trigger rates per guard, and latency (p50/p99).
-- **Logs**\
-  Detailed records of events:
-  - detection logs (when and why a guard was triggered)
-  - audit logs (useful for compliance and reviews)
-- **Dashboard**\
-  A real-time view of everything happening in production. You can follow a threat timeline, see patterns over time, and get to the bottom of a specific guard to understand what’s going on.
