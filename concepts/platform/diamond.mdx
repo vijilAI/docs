@@ -1,0 +1,56 @@
+---
+title: "Diamond"
+description: "Evaluation product that sends adversarial Probes and returns a Trust Score across Reliability, Security, and Safety."
+---
+
+Diamond is Vijil’s evaluation engine - the part of the platform responsible for putting your Agent to the test before it ever reaches production.
+
+Instead of relying on generic checks, Diamond actively challenges the agent by sending **results from stress tests,** inputs that simulate real risks like prompt injection, unsafe requests, or edge-case failures. The goal is simply to expose weaknesses early, in a controlled environment.
+
+Based on how the agent responds, Diamond then produces a **Trust Score** that shows its overall readiness in three important areas: 
+
+- Reliability 
+- Security 
+- Safety
+
+## **The Trust Score**
+
+At a high level, the Trust Score is a single, easy-to-understand number that answers to a particularly complicated question: _“Can this agent be trusted in the real world?”_
+
+Behind that number is a combination of structured testing and analysis, but what matters here is that it gives teams a clear signal. If an agent is ready to move forward, or if it still needs more work.
+
+### **Dimensions of Trust**
+
+Observe the Trust Score as if it were built on three dimensions:
+
+- **Reliability**\
+  Does the agent constantly do what it’s supposed to do? This includes handling tasks in a correct way, producing stable and predictable outputs.
+- **Security**\
+  Can the agent handle malicious behavior effectively? This includes testing how well it responds to prompt injection, prevents data leaks, and resists attempts to manipulate or exploit the system. 
+- **Safety**\
+  Does the agent stay within acceptable boundaries? This includes avoiding harmful content, respecting policies, and not taking any unauthorized actions.
+
+Each of these dimensions contributes to the final score and giving teams a more complete picture so it is not just _if_ something is wrong, but _where_.
+
+## **Evaluation Components**
+
+To make sure that all of this works, Diamond organizes evaluations into a structured hierarchy. You don’t really need to think about it all the time, but it does help to understand how the system breaks things down:
+
+**Harness → Scenario → Probe → Detector**
+
+Each layer adds more details, going from high-level testing setups down to individual checks on agent behavior.
+
+### **Trust Score Components**
+
+Here’s how that hierarchy translates into an actual evaluation process:
+
+- **Harness**\
+  This is the top-level setup for an evaluation. What it does, is that defines the overall testing environment meaning what kind of agent is being tested, under which conditions, and what are the goals in there.
+- **Scenario**\
+  Scenarios represent realistic situations which the agent can encounter. For example, a customer support request, a malicious input, or a policy-sensitive interaction.
+- **Probe**\
+  Probes are the actual inputs sent to the agent. These prompts are designed to test unusual or difficult scenarios that help identify potential failures and reveal weaknesses in the system. 
+- **Detector**\
+  Detectors analyze the agent’s responses. They check if something went wrong, for example a policy violation, a hallucination, or a security issue and then record the results.
+
+If you want to create a short conclusion, it would be that these components allow Diamond to go beyond the superficial testing and find out how the agent behaves under pressure.

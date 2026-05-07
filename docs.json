@@ -54,7 +54,19 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": ["concepts/welcome"]
+            "pages": [
+              "concepts/welcome",
+              {
+                "group": "Platform",
+                "icon": "box",
+                "expanded": true,
+                "pages": [
+                  "concepts/platform/console",
+                  "concepts/platform/diamond",
+                  "concepts/platform/dome"
+                ]
+              }
+            ]
           },
           {
             "group": "Trust Score",
@@ -406,5 +418,8 @@
   },
   "styling": {
     "eyebrows": "breadcrumbs"
+  },
+  "interaction": {
+    "drilldown": false
   }
 }

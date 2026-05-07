@@ -1,0 +1,56 @@
+---
+title: "Console"
+description: "The Vijil Console for managing Agents, Evaluations, and runtime protection configurations."
+---
+
+The Console is the web-based management interface of the Vijil platform. It acts as the central hub where teams interact with all major components of the system which brings together evaluation, protection, and continuous improvement into a single user friendly experience.
+
+Through the Console, users can:
+
+- [Register and manage AI agents](/owner-guide/register-agents/registering-agents)
+- [Run structured evaluations using Diamond](/developer-guide/evaluate/running-evaluations)
+- [Configure runtime protections with Dome](/developer-guide/protect/configuring-guardrails)
+
+Instead of operating as separate tools, these features are integrated into one single environment, which makes it easier to oversee the entire agent lifecycle, starting from development and ending on deployment and/or beyond.
+
+On the other hand, the Console is designed for both technical and non-technical users. Engineers and developers use it to configure and adjust agents, and later run some evaluations, while security leads, compliance officers, and stakeholders rely on it to review results and make necessary decisions. This system of shared interface ensures that everything is in line across teams and reduces time consumption in the decision making part.
+
+## Starting with Vijil Console
+
+<Card title="Register an Agent" icon="bot" href="/owner-guide/register-agents/registering-agents.mdx" cta="Start by Registering an Agent">
+</Card>
+
+<Card title="Run an Evaluation" icon="flask-conical" href="/owner-guide/run-evaluations/running-evaluations" cta="Proceed by Running an Evaluation">
+</Card>
+
+<Card title="Create a Custom Harness" icon="shield-ellipsis" href="/owner-guide/simulate-environment/custom-harnesses" cta="Further configure your evaluation environment with Custom Harnesses">
+  Further configure your evaluation environment with Custom Harnesses
+</Card>
+
+## **Trust Reports**
+
+After running an evaluation with **Diamond**, the results are compiled into a **Trust Report**, which is displayed directly in the **Console**.
+
+This report serves as a structured, audit-ready summary of the agent’s performance and risk profile, including:
+
+- **Agent details and testing methodology**\
+  A clear overview of what was tested, how the evaluation was done, and which scenarios or policies were applied in the process.
+- **Overall Trust Score**
+
+A numerical score used to assess the agent’s reliability, security, and overall safety. In general, a score **above 70** suggests the Agent is ready or at least nearly ready for deployment.
+
+- **Clear steps to reduce risks and prepare for deployment** \
+  A specific guide on how to improve the agent, address vulnerabilities, and safely move towards production.
+
+The Trust Score itself reflects performance across important points such as reliability, security, and safety, and by doing that, it helps teams understand strengths and weaknesses.
+
+### **Who Uses Trust Reports and Why**
+
+Trust Reports are not just for engineers—they are designed for multiple stakeholders:
+
+- **Security teams** use them to identify vulnerabilities and ensure resilience against attacks
+- **Compliance officers** rely on them for audit documentation and regulatory alignment
+- **Product and business leaders** use them to decide whether an agent is ready for deployment
+- **Stakeholders and executives** review them for final sign-off
+
+Because the reports are standardized and easy to understand, they help overcome the gap between technical evaluation and decision-making. They provide evidence needed to move agents out of “_security limbo_” and into production.
