@@ -1,16 +1,16 @@
 ---
-title: 'Welcome to Vijil'
-description: 'The trust layer for AI agents measure reliability, security, and safety, then ship with evidence.'
+title: "Welcome to Vijil"
+description: "The trust layer for AI agents measure reliability, security, and safety, then ship with evidence."
 ---
 
 Agents often stall before production: security and compliance need **proof**, not demos. Vijil turns that into **measurable trust**, systematic evaluation, runtime protection, and a feedback loop from real behavior.
 
-**[Trust Score](/concepts/trust-score/introduction)** summarizes how an agent performs across **[reliability](/concepts/trust-score/reliability)**, **[security](/concepts/trust-score/security)**, and **[safety](/concepts/trust-score/safety)**; so reviews can reference evidence instead of opinions. Under that umbrella, **Diamond** probes behavior in depth, while **Dome** enforces **[Guardrails](/concepts/defense/guardrail)** at runtime.
+[**Trust Score**](/concepts/trust-score/introduction) summarizes how an agent performs across [**reliability**](/concepts/trust-score/reliability), [**security**](/concepts/trust-score/security), and [**safety**](/concepts/trust-score/safety); so reviews can reference evidence instead of opinions. Under that umbrella, **Diamond** probes behavior in depth, while **Dome** enforces [**Guardrails**](/concepts/defense/guardrail) at runtime.
 
 ## How Vijil Measures Trust
 
 | Dimension | Question | Learn more |
-|-----------|----------|------------|
+| --- | --- | --- |
 | **Reliability** | Does the agent do the right thing, consistently, under stress? | [Reliability](/concepts/trust-score/reliability) |
 | **Security** | Can it resist abuse and protect sensitive data? | [Security](/concepts/trust-score/security) |
 | **Safety** | Does it stay within policy and avoid harmful outcomes? | [Safety](/concepts/trust-score/safety) |
@@ -19,33 +19,23 @@ Start with the full model in [Trust Score](/concepts/trust-score/introduction).
 
 ## Build, Ship, Run, Evolve
 
-Agent prototypes are everywhere—but most do not make it to
-production. To scale AI, enterprises face a critical choice: ship
-fast or ship resilient.
+Agent prototypes are everywhere—but most do not make it to production. To scale AI, enterprises face a critical choice: ship fast or ship resilient.
 
-- Agent prototypes are everywhere—but most do not make it to
-production
+- Agent prototypes are everywhere—but most do not make it to production
+- Shipping fast increases failure rates and elevates risk; without objective trust evidence, agents are in security limbo
+- Generic red-teaming and [Guardrail](/concepts/defense/guardrail) do not ensure agents are safe for their specific context
+- Failure insights do not feed back into development, leaving the trust gap open
 
-- Shipping fast increases failure rates and elevates risk; without
-objective trust evidence, agents are in security limbo
+<img
+  src="/images/concepts/what-is-vijil/vijil_lifecycle.webp"
+  alt="Vijil lifecycle: Ship with Diamond, Run with Dome"
+  style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}}
+  className="theme-aware-image"
+/>
 
-- Generic red-teaming and [Guardrail](/concepts/defense/guardrail) do not ensure agents are
-safe for their specific context
+**Vijil Diamond** Automates evaluation based on custom bespoke policies for business context and personas. Turns 'is this safe?' into an answerable question with an audit-ready Trust Score.
 
-- Failure insights do not feed back into development, leaving the
-trust gap open
-
-<img src="/images/concepts/what-is-vijil/vijil_lifecycle.webp" alt="Vijil lifecycle: Ship with Diamond, Run with Dome" style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}} className="theme-aware-image" />
-
-**Vijil Diamond**
-Automates evaluation based on custom bespoke policies for
-business context and personas. Turns 'is this safe?' into an
-answerable question with an audit-ready Trust Score.
-
-**Vijil Dome**
-Enforces policies to protect and monitor agents at runtime
-through embedded Guardrails, blocking attacks in real-time and
-logging detailed telemetry.
+**Vijil Dome** Enforces policies to protect and monitor agents at runtime through embedded Guardrails, blocking attacks in real-time and logging detailed telemetry.
 
 ## Continue with Vijil
 
@@ -57,11 +47,13 @@ Pick where you work and what you need next:
 
     **Start here** → [Trust Score](/concepts/trust-score/introduction), then explore this tab for deeper topics and the [Glossary](/concepts/glossary).
   </Card>
+
   <Card title="Agent Owner's Guide" icon="building-2" href="/owner-guide/getting-started/introduction">
     You use the Vijil console to [register agents](/owner-guide/register-agents/registering-agents), [run evaluations](/owner-guide/run-evaluations/running-evaluations), configure Dome, and report to stakeholders.
 
     **Start here** → [Get started](/owner-guide/getting-started/introduction) in the console.
   </Card>
+
   <Card title="Agent Developer's Guide" icon="code" href="/developer-guide/getting-started/introduction">
     You integrate Vijil via SDKs & APIs, frameworks (e.g. LangChain, ADK), and production wiring.
 
@@ -82,7 +74,256 @@ Two additional products are currently in development and will expand the Vijil p
   <Card title="Depot" icon="box" badge="Coming Soon">
     A catalog of hardened models and building blocks—[Guardrail](/concepts/defense/guardrail) models tuned for agent safety, hardened LLMs optimized for specific tasks, and pre-validated components that reduce months of security work to days.
   </Card>
+
   <Card title="Darwin" icon="dna" badge="Coming Soon">
     Continuous improvement powered by reinforcement learning over production telemetry. Darwin learns from real-world failures, edge cases, and behavior drift to keep your agents resilient over time.
   </Card>
 </CardGroup>
+
+**FRENDE ODAVDE POČINJE ONO ŠTO SAM JA PISALA ZA OVAJ TASK (ovo gore ne znam iz kog razloga stoji zato nisam ni obrisala ništa)**
+
+# **Getting Started with MCP in Vijil (Hands-On Guide)**
+
+If you’re new to **MCP**, don’t worry, because you don’t need to understand every detail to start using it.
+
+We created a guide that focuses on the practical side: 
+
+- how to get **MCP** working with **Vijil** and how it actually helps you when building or testing AI agents.
+
+**MCP (Model Context Protocol)** is basically a standard way for AI agents and tools to communicate with each other. Instead of building custom integrations every time, **MCP** gives you a shared structure for exposing tools, APIs, and workflows to an AI system. 
+
+In the Vijil ecosystem, **MCP** is used to connect AI assistants and developer tools with the **Vijil** Console and APIs. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+# **What You’re Actually Setting Up**
+
+When you configure **MCP** with **Vijil**, you’re basically making a connection between:
+
+- your AI assistant (like Claude Code)
+- and the Vijil platform
+
+Once they are successfully connected, the assistant can directly interact with Vijil through tools and commands.
+
+That means you can do things like:
+
+- list agents
+- launch evaluations
+- review Trust Scores
+- Check evaluation results
+- Create red-team campaigns
+
+and all that without manually clicking through the Console every time. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+\
+
+**Headsup Before You Start**
+
+You’ll need a few things first:
+
+- Python 3.10\+
+- A Vijil account with API access
+- Claude Code or another MCP-compatible client
+- Access to your Vijil Console environment ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+To get started, follow this simple 5-step guide. 
+
+# **Step 1: Install the MCP Server**
+
+The easiest way to get started is through pip.
+
+pip install vijil-console-mcp
+
+This installs:
+
+- The MCP server
+- and the Vijil CLI are automatically installed as a dependency. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+If you like the isolated installs more, you can also use:
+
+pipx install vijil-console-mcp
+
+\
+
+# **Step 2: Connect to Your Vijil Environment**
+
+Now you need to tell the CLI where your Vijil Console API lives.
+
+Run: vijil init --url [https://console-api.example.com](https://console-api.example.com)
+
+If you don’t include the URL, Vijil will prompt you interactively.
+
+Here is an example:
+
+vijil init
+
+\
+
+The CLI verifies the connection before saving the configuration, which helps catch setup mistakes early. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+# **Step 3: Authenticate**
+
+Next, you should log in to your Vijil account:
+
+vijil login
+
+\
+
+You’ll be prompted for:
+
+- email
+- password
+
+If your account belongs to multiple teams, select the active one:
+
+vijil team list
+
+vijil team use \<team\_id\>
+
+\
+
+At this point, your local environment is connected to Vijil and ready to provide tools through MCP. ([<u>PyP</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+# **Step 4: Add MCP Configuration**
+
+Now create a file called:
+
+.mcp.json
+
+\
+
+Place it in your project root.
+
+Add this configuration:
+
+{
+
+  "mcpServers": {
+
+    "vijil": {
+
+      "type": "stdio",
+
+      "command": "vijil-mcp"
+
+    }
+
+  }
+
+}
+
+\
+
+This tells your AI assistant:
+
+“Whenever you need Vijil tools, start the vijil-mcp process locally.”
+
+And that’s it. There’s no need for complex networking or server deployment. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+\
+
+# **Step 5: Start Using Vijil Tools**
+
+Open Claude Code (or your MCP-compatible client) inside the project directory.
+
+If everything is configured correctly, the Vijil tools should appear automatically.
+
+You can now ask things like:
+
+- List my agents
+- Run a safety evaluation on my support agent
+- Show the latest Trust Score
+- Create a red-team campaign
+
+\
+
+How does this look behind the scene:
+
+1. your assistant calls the MCP server
+2. the MCP server runs Vijil CLI commands
+3. the CLI communicates with the Vijil Console API
+4. results are returned back to the assistant ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+The nice part is that you don’t have to set all of this up manually. 
+
+# **Understanding the Flow**
+
+A lot of developers get confused in all of this because “MCP server” sounds like some hosted backend service.
+
+In this setup, it’s actually much simpler, and at the same time, we did our best to explain everything in detail.
+
+The **MCP** server runs locally on your machine, and your assistant starts it automatically when needed. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+The flow looks like this:
+
+Claude Code
+
+     ↓
+
+vijil-mcp
+
+     ↓
+
+Vijil CLI
+
+     ↓
+
+Vijil Console API
+
+\
+
+So when you ask:
+
+“Run an evaluation”
+
+Your assistant is really triggering Vijil commands through that chain.
+
+# **Common Problems (and Easy Fixes)**
+
+## **“vijil CLI not found”**
+
+Install the CLI again:
+
+pip install vijil-console
+
+\
+
+## **“Vijil CLI not configured”**
+
+Run initialization again:
+
+vijil init
+
+\
+
+## **“Session expired”**
+
+Log in again:
+
+vijil login
+
+\
+
+## **Tools don’t appear in Claude Code**
+
+Usually this means:
+
+- .mcp.json is missing
+- or Claude Code needs to be restarted
+
+Make sure the file is in the project root. ([<u>PyPI</u>](https://pypi.org/project/vijil-console-mcp/?utm_source=chatgpt.com))
+
+# **Why is this Important?**
+
+Without **MCP**, developers often have to build custom integrations between assistants and internal tools.
+
+With **MCP**, tool integration becomes easier because there’s a standardized way to expose and use tools. 
+
+For Vijil specifically, it means you can:
+
+- interact with evaluations faster
+- automate trust workflows
+- Access agent operations directly from your AI assistant
+- Reduce manual work that repeats itself
+
+With **MCP**, there’s less need to switch between dashboards, terminals, and APIs since the assistant becomes part of the workflow. 
+
+\
