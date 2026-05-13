@@ -187,7 +187,10 @@
           },
           {
             "group": "Agentic Workflow",
-            "pages": ["developer-guide/agentic/mcp"]
+            "pages": [
+              "developer-guide/agentic/quickstart",
+              "developer-guide/agentic/tools"
+            ]
           },
           {
             "group": "Evaluate Agents",

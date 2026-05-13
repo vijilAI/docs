@@ -1,0 +1,864 @@
+---
+title: "Use MCP Tools"
+description: "Complete reference for all tools exposed by the Vijil MCP server, organized by workflow."
+---
+
+All tools listed here are available to Claude Code once `vijil-mcp` is configured. Claude discovers them automatically via the MCP protocol — you do not call them directly.
+
+<Info>
+Advanced tools (`genome_*`, `evolution_*`, `proposal_*`, `scan_*`, `dimensions_*`, `demographics_*`, `inventory_*`) are available in the server but not covered here. Ask Claude about them by name if you need them.
+</Info>
+
+---
+
+## Status and Authentication
+
+| Tool | Description |
+|------|-------------|
+| `vijil_status` | Check CLI configuration and authentication state |
+| `auth_change_password` | Change your account password |
+| `team_list` | List teams your account belongs to |
+| `team_use` | Switch the active team context |
+
+### `vijil_status`
+
+Checks whether the CLI is configured, authenticated, and has an active team selected. Claude calls this automatically when you ask it to verify your setup.
+
+<Prompt description="Check my Vijil setup">
+Check my Vijil setup
+</Prompt>
+
+### `auth_change_password`
+
+Change your account password.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `current_password` | str | Current account password |
+| `new_password` | str | New account password |
+
+<Prompt description="Change my Vijil password">
+Change my Vijil password
+</Prompt>
+
+### `team_list`
+
+List all teams your account belongs to.
+
+<Prompt description="List my Vijil teams">
+List my Vijil teams
+</Prompt>
+
+### `team_use`
+
+Switch the active team for all subsequent tool calls.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `team_id` | str | UUID of the team to activate |
+
+<Prompt description="Switch to team c58aea71-…">
+Switch to team c58aea71-…
+</Prompt>
+
+---
+
+## Agents
+
+[Agent](/owner-guide/register-agents/what-is-an-agent) tools create and manage the AI model configurations that Vijil evaluates or protects.
+
+| Tool | Description |
+|------|-------------|
+| `agent_create` | Create a new Agent configuration |
+| `agent_list` | List Agent configurations |
+| `agent_get` | Get a specific Agent |
+| `agent_update` | Update an Agent configuration |
+| `agent_archive` | Archive an Agent |
+| `agent_lifecycle` | Set the Agent trust lifecycle stage |
+| `agent_import` | Import an Agent from a URL or file |
+| `agent_validate_import` | Validate an import without creating the Agent |
+| `agent_eval_config` | Get the evaluation configuration for an Agent |
+| `agent_dome_configs` | Get the Dome configuration bound to an Agent |
+
+### `agent_create`
+
+Create a new Agent configuration.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_name` | str | Display name for the Agent |
+| `model_name` | str | Model identifier (e.g. `gpt-4o`, `claude-sonnet-4-20250514`) |
+| `agent_url` | str | Endpoint the Agent is reachable at |
+| `api_key` | str | API key for the Agent's provider |
+| `agent_system_prompt` | str | System prompt the Agent uses |
+| `rate_limit_requests_per_minute` | int | API request rate limit |
+| `mcp_config` | str | MCP proxy configuration (JSON) |
+
+<Prompt description="Create an agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions">
+Create an agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions
+</Prompt>
+
+### `agent_list`
+
+List Agent configurations for the active team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `statuses` | list[str] | Filter by status (defaults to non-archived) |
+| `limit` | int | Maximum number of results |
+| `offset` | int | Number of results to skip |
+| `include_scores` | bool | Include the latest evaluation scores |
+
+<Prompt description="List my agents with their latest trust scores">
+List my agents with their latest trust scores
+</Prompt>
+
+### `agent_get`
+
+Get a specific Agent by ID.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Agent UUID |
+| `include_scores` | bool | Include the latest evaluation scores |
+
+<Prompt description="Get the details for agent a1b2c3d4-…">
+Get the details for agent a1b2c3d4-…
+</Prompt>
+
+### `agent_update`
+
+Update an existing Agent configuration.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Agent UUID |
+| `agent_name` | str | New display name |
+| `model_name` | str | New model identifier |
+| `agent_url` | str | New endpoint URL |
+| `api_key` | str | New API key |
+| `agent_system_prompt` | str | New system prompt |
+| `status` | str | Agent status (`draft`, `active`, `deprecated`, `archived`, …) |
+| `access_level` | str | `black_box`, `grey_box`, or `white_box` |
+| `purpose` | str | Agent purpose description |
+
+<Prompt description="Update agent a1b2c3d4-… to use gpt-4o-mini">
+Update agent a1b2c3d4-… to use gpt-4o-mini
+</Prompt>
+
+### `agent_archive`
+
+Archive an Agent so it no longer appears in default listings.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | str | Agent UUID |
+
+<Prompt description="Archive agent a1b2c3d4-…">
+Archive agent a1b2c3d4-…
+</Prompt>
+
+### `agent_lifecycle`
+
+Set the Agent's trust lifecycle stage.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | str | Agent UUID |
+| `trust_stage` | str | One of `registered`, `tested`, `hardened`, `trusted`, `optimized`, `adapted` |
+
+<Prompt description="Mark agent a1b2c3d4-… as tested">
+Mark agent a1b2c3d4-… as tested
+</Prompt>
+
+### `agent_import`
+
+Import an Agent from a remote URL (black box), an agent card file (grey box), or source code (white box).
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_url` | str | Remote Agent endpoint URL (black box) |
+| `agent_card` | str | Agent configuration JSON string (grey box) |
+| `source_code` | str | Source code files JSON string (white box) |
+| `framework` | str | Framework identifier |
+| `entry_point` | str | Main file path (white box) |
+| `override_name` | str | Override the imported Agent name |
+| `api_key` | str | API key for the Agent |
+
+<Prompt description="Import the agent at https://api.example.com/v1/chat/completions">
+Import the agent at https://api.example.com/v1/chat/completions
+</Prompt>
+
+### `agent_validate_import`
+
+Validate an import payload without creating the Agent. Accepts the same parameters as `agent_import`.
+
+<Prompt description="Validate importing the agent at https://api.example.com/v1/chat/completions before creating it">
+Validate importing the agent at https://api.example.com/v1/chat/completions before creating it
+</Prompt>
+
+### `agent_eval_config`
+
+Get the evaluation configuration for an Agent.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | str | Agent UUID |
+
+### `agent_dome_configs`
+
+Get the [Dome](/developer-guide/protect/overview) configuration bound to an Agent.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Agent UUID |
+
+<Prompt description="Show me the Dome configuration for agent a1b2c3d4-…">
+Show me the Dome configuration for agent a1b2c3d4-…
+</Prompt>
+
+---
+
+## Harnesses
+
+[Harness](/concepts/evaluation-components/harness) tools manage the test suites that define which [Probes](/concepts/evaluation-components/probe) are sent to your Agent during evaluation.
+
+| Tool | Description |
+|------|-------------|
+| `harness_list` | List standard Harnesses |
+| `harness_custom_create` | Create a custom Harness |
+| `harness_custom_list` | List custom Harnesses |
+| `harness_custom_get` | Get a custom Harness |
+| `harness_custom_prompts` | Get Probes from a custom Harness |
+| `harness_custom_cancel` | Cancel a Harness being generated |
+| `harness_custom_delete` | Delete a custom Harness |
+
+### `harness_list`
+
+List standard Harnesses available for evaluations (`safety`, `security`, `reliability`, `privacy`, `toxicity`, `ethics`).
+
+<Prompt description="What Harnesses are available?">
+What Harnesses are available?
+</Prompt>
+
+### `harness_custom_create`
+
+Create a custom Harness for a specific Agent. Vijil generates Probes based on the Agent's purpose and any [Personas](/owner-guide/simulate-environment/personas) or [Policies](/owner-guide/simulate-environment/policies) you attach.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | str | Harness display name (required) |
+| `agent_id` | str | Agent ID to generate Probes for (required) |
+| `description` | str | Harness description |
+| `persona_ids` | str | Persona IDs to include (JSON array) |
+| `policy_ids` | str | Policy IDs to include (JSON array) |
+| `system_prompt` | str | Agent description or system prompt for generation |
+
+<Prompt description="Create a custom Harness called 'Support Bot Harness' for agent a1b2c3d4-…">
+Create a custom Harness called 'Support Bot Harness' for agent a1b2c3d4-…
+</Prompt>
+
+### `harness_custom_list`
+
+List custom Harnesses for the active team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Filter by Agent ID |
+| `status` | str | Filter by status |
+| `limit` | int | Maximum number of results |
+| `offset` | int | Number of results to skip |
+
+<Prompt description="List my custom Harnesses">
+List my custom Harnesses
+</Prompt>
+
+### `harness_custom_get`
+
+Get a specific custom Harness by ID.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `harness_id` | str | Harness UUID |
+
+### `harness_custom_prompts`
+
+Get the generated Probes for a custom Harness.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `harness_id` | str | Harness UUID |
+
+<Prompt description="Show me the prompts in custom Harness h1i2j3k4-…">
+Show me the prompts in custom Harness h1i2j3k4-…
+</Prompt>
+
+### `harness_custom_cancel`
+
+Cancel a Harness that is still being generated.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `harness_id` | str | Harness UUID |
+
+### `harness_custom_delete`
+
+Delete a custom Harness.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `harness_id` | str | Harness UUID |
+
+---
+
+## Evaluations
+
+Evaluation tools run [Trust Score](/concepts/trust-score/introduction) evaluations and retrieve results.
+
+| Tool | Description |
+|------|-------------|
+| `eval_run` | Start an evaluation |
+| `eval_status` | Check evaluation status |
+| `eval_results_detail` | Get full evaluation results |
+| `eval_list` | List evaluations |
+| `eval_report` | Generate a Trust Report |
+| `eval_logs` | Get evaluation logs |
+| `eval_cancel` | Cancel a running evaluation |
+| `eval_delete` | Delete an evaluation |
+| `eval_results_list` | List completed evaluations |
+| `eval_list_all` | List all team evaluations |
+| `eval_summary_get` | Get an evaluation summary |
+| `eval_summary_by_agent` | Get latest summaries per Agent |
+| `eval_summary_delete` | Delete an evaluation summary |
+
+### `eval_run`
+
+Start a trust evaluation against an Agent.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | UUID of the Agent to evaluate (required) |
+| `harness_names` | str | JSON array of Harness names (required) — e.g. `'["safety","security"]'` |
+| `sample_size` | int | Probes to run per Harness (1–1000); omit to run all |
+| `harness_type` | str | `standard` (default) or `custom` |
+| `wait` | bool | Poll until the evaluation completes |
+
+<Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with sample size 50 and wait for it to complete">
+Run a safety and security evaluation on agent a1b2c3d4-… with sample size 50 and wait for it to complete
+</Prompt>
+
+### `eval_status`
+
+Check the status of an evaluation.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `evaluation_id` | str | Evaluation UUID |
+
+Status values progress through `starting` → `pending` → `running` → `completed` → `saving` → `saved`. May also be `failed` or `canceled`.
+
+<Prompt description="What is the status of evaluation e5f6a7b8-…?">
+What is the status of evaluation e5f6a7b8-…?
+</Prompt>
+
+### `eval_results_detail`
+
+Get the full results for a completed evaluation — Trust Scores per Harness, per-Probe results, and identified failure patterns.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `evaluation_id` | str | Evaluation UUID |
+
+<Prompt description="Show me the detailed results for evaluation e5f6a7b8-…">
+Show me the detailed results for evaluation e5f6a7b8-…
+</Prompt>
+
+### `eval_list`
+
+List evaluation summaries for the active team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Filter by Agent ID |
+| `status` | str | Filter by status (`running`, `completed`, `failed`, `cancelled`) |
+| `harness_type` | str | Filter by Harness type (`standard` or `custom`) |
+| `limit` | int | Maximum number of results |
+| `offset` | int | Number of results to skip |
+
+<Prompt description="List my completed evaluations for agent a1b2c3d4-…">
+List my completed evaluations for agent a1b2c3d4-…
+</Prompt>
+
+### `eval_report`
+
+Generate a [Trust Report](/developer-guide/evaluate/understanding-results) for a completed evaluation.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `evaluation_id` | str | Evaluation UUID |
+| `force_regenerate` | bool | Regenerate even if a cached report exists |
+
+<Prompt description="Generate a report for evaluation e5f6a7b8-…">
+Generate a report for evaluation e5f6a7b8-…
+</Prompt>
+
+### `eval_logs`
+
+Get execution logs for an evaluation.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `evaluation_id` | str | Evaluation UUID |
+
+### `eval_cancel`
+
+Cancel a running evaluation.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `evaluation_id` | str | Evaluation UUID |
+
+### `eval_delete`
+
+Delete an evaluation and its results.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `evaluation_id` | str | Evaluation UUID |
+
+---
+
+## Protect
+
+[Dome](/developer-guide/protect/overview) tools manage Guardrail configurations that intercept your Agent's inputs and outputs at runtime using [Guards](/concepts/defense/guard) and [Detectors](/concepts/defense/detector).
+
+| Tool | Description |
+|------|-------------|
+| `dome_default_config` | Get the default Dome configuration template |
+| `dome_config_create` | Create a Dome configuration |
+| `dome_config_list` | List Dome configurations |
+| `dome_config_get` | Get a specific configuration |
+| `dome_config_update` | Replace a configuration |
+| `dome_config_patch` | Set the Dome instance URL |
+| `dome_config_apply` | Apply a configuration to the Dome instance |
+| `dome_config_delete` | Delete a configuration |
+| `dome_detect` | Submit content for on-demand detection |
+| `dome_detect_status` | Check detection status |
+
+### `dome_default_config`
+
+Get the default Dome configuration to use as a starting template.
+
+<Prompt description="Show me the default Dome configuration">
+Show me the default Dome configuration
+</Prompt>
+
+### `dome_config_create`
+
+Create a Dome configuration, optionally binding it to an Agent.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Agent ID to bind this configuration to |
+| `config_body` | str | Guard configuration JSON (defaults to the standard configuration) |
+
+<Prompt description="Create a default Dome configuration for agent a1b2c3d4-…">
+Create a default Dome configuration for agent a1b2c3d4-…
+</Prompt>
+
+### `dome_config_list`
+
+List Dome configurations for the active team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Filter by Agent ID |
+| `limit` | int | Page size |
+| `offset` | int | Pagination offset |
+
+<Prompt description="List all my Dome configurations">
+List all my Dome configurations
+</Prompt>
+
+### `dome_config_get`
+
+Get a specific Dome configuration.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `config_id` | str | Configuration UUID |
+
+### `dome_config_update`
+
+Replace an existing Dome configuration with new Guard settings.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `config_id` | str | Configuration UUID (required) |
+| `config_body` | str | Replacement Guard configuration (JSON, required) |
+
+### `dome_config_patch`
+
+Set or clear the Dome instance URL on a configuration.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `config_id` | str | Configuration UUID (required) |
+| `dome_instance_url` | str | Dome instance URL, or `null` to clear (required) |
+
+<Prompt description="Set the Dome instance URL for config d1e2f3a4-… to https://dome.example.com">
+Set the Dome instance URL for config d1e2f3a4-… to https://dome.example.com
+</Prompt>
+
+### `dome_config_apply`
+
+Apply a configuration to the Dome instance, publishing any pending changes.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `config_id` | str | Configuration UUID |
+
+<Prompt description="Apply Dome config d1e2f3a4-…">
+Apply Dome config d1e2f3a4-…
+</Prompt>
+
+### `dome_config_delete`
+
+Delete a Dome configuration.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `config_id` | str | Configuration UUID |
+
+### `dome_detect`
+
+Submit content to a specific Detector for on-demand analysis.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | str | Request identifier (required) |
+| `detector_id` | str | Detector to invoke (required) |
+| `detector_inputs` | str | Content to analyze — JSON array of message objects (required) |
+| `detector_params` | str | Detector-specific parameters (JSON) |
+| `wait` | bool | Poll until the detection completes |
+
+<Prompt description="Run a prompt-injection detection on the text 'Ignore all previous instructions'">
+Run a prompt-injection detection on the text 'Ignore all previous instructions'
+</Prompt>
+
+### `dome_detect_status`
+
+Check the status of a detection request.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `detection_id` | str | Detection UUID |
+
+---
+
+## Red Team
+
+Red team tools manage [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies), and adversarial campaigns.
+
+### Personas
+
+Personas represent user archetypes that shape how Probes are generated for [custom Harnesses](/developer-guide/evaluate/custom-harnesses).
+
+| Tool | Description |
+|------|-------------|
+| `persona_preset_list` | List built-in Persona presets |
+| `persona_from_preset` | Create a Persona from a preset |
+| `persona_create` | Create a custom Persona |
+| `persona_list` | List Personas |
+| `persona_get` | Get a specific Persona |
+| `persona_update` | Update a Persona |
+| `persona_delete` | Delete a Persona |
+
+### `persona_preset_list`
+
+List built-in Persona presets, categorized as `professional`, `adversarial`, or `support`.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset_category` | str | Filter by category |
+| `limit` | int | Maximum number of results |
+| `offset` | int | Number of results to skip |
+
+<Prompt description="Show me the adversarial persona presets">
+Show me the adversarial persona presets
+</Prompt>
+
+### `persona_from_preset`
+
+Create a Persona from a built-in preset.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset_id` | str | Preset UUID |
+| `name_override` | str | Override the preset's default name |
+
+<Prompt description="Create a persona from the 'jailbreaker' preset">
+Create a persona from the 'jailbreaker' preset
+</Prompt>
+
+### `persona_create`
+
+Create a custom Persona.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | str | Display name (required) |
+| `role` | str | Persona role (required) |
+| `intent` | str | `benign`, `curious`, `adversarial`, or `malicious` |
+| `knowledge_level` | str | `beginner`, `intermediate`, `advanced`, or `expert` |
+| `skill_level` | str | `novice`, `competent`, `proficient`, or `expert` |
+| `language` | str | Language the Persona uses |
+
+<Prompt description="Create an adversarial persona called 'Frustrated Customer' with expert knowledge">
+Create an adversarial persona called 'Frustrated Customer' with expert knowledge
+</Prompt>
+
+### `persona_list`
+
+List Personas for the active team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `intents` | list[str] | Filter by intent(s) |
+| `is_preset` | bool | Show only presets |
+| `search` | str | Search in name, description, and role |
+| `limit` | int | Maximum number of results |
+| `offset` | int | Number of results to skip |
+
+<Prompt description="List all adversarial personas">
+List all adversarial personas
+</Prompt>
+
+---
+
+### Policies
+
+Policies define the rules and constraints Agents must follow. Attaching Policies to a custom Harness generates Probes that test compliance.
+
+| Tool | Description |
+|------|-------------|
+| `policy_preset_list` | List built-in Policy presets |
+| `policy_from_preset` | Create a Policy from a preset |
+| `policy_create` | Create a custom Policy |
+| `policy_list` | List Policies |
+| `policy_get` | Get a specific Policy |
+| `policy_activate` | Activate a draft Policy |
+| `policy_patch` | Update a Policy |
+| `policy_delete` | Delete a Policy |
+| `policy_add_rule` | Add a rule to a Policy |
+| `policy_rule_list` | List rules in a Policy |
+
+### `policy_preset_list`
+
+List built-in Policy presets.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `category` | str | Filter by category |
+| `limit` | int | Maximum number of results |
+| `offset` | int | Number of results to skip |
+
+<Prompt description="Show me the available compliance policy presets">
+Show me the available compliance policy presets
+</Prompt>
+
+### `policy_from_preset`
+
+Copy a preset Policy into your team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset_id` | str | Preset UUID |
+| `name_override` | str | Override the preset's default name |
+
+<Prompt description="Create a GDPR compliance policy from the preset">
+Create a GDPR compliance policy from the preset
+</Prompt>
+
+### `policy_create`
+
+Create a Policy from text.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | str | Policy display name (required) |
+| `category` | str | `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom` (required) |
+| `description` | str | Policy description |
+| `source_text` | str | Full policy text |
+
+<Prompt description="Create a privacy policy stating that the agent must not repeat or store personal data">
+Create a privacy policy stating that the agent must not repeat or store personal data
+</Prompt>
+
+### `policy_list`
+
+List Policies for the active team.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `category` | str | Filter by category |
+| `status` | str | Filter by status |
+| `search` | str | Search in name and description |
+| `limit` | int | Maximum number of results |
+
+<Prompt description="List my active compliance policies">
+List my active compliance policies
+</Prompt>
+
+### `policy_activate`
+
+Activate a draft Policy so it can be used in Harness generation.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `policy_id` | str | Policy UUID |
+
+### `policy_add_rule`
+
+Add a structured rule to a Policy.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `policy_id` | str | Policy UUID (required) |
+| `rule_type` | str | `permission`, `prohibition`, `obligation`, or `recommendation` (required) |
+| `action` | str | Action the rule governs (required) |
+| `natural_language` | str | Human-readable rule statement (required) |
+| `consequence` | str | Consequence definition (JSON, required) |
+
+<Prompt description="Add a rule to policy p1q2r3s4-… that prohibits sharing customer PII with third parties">
+Add a rule to policy p1q2r3s4-… that prohibits sharing customer PII with third parties
+</Prompt>
+
+---
+
+### Red Team Campaigns
+
+Red team campaigns run adversarial attack sequences using tools such as [Garak](https://github.com/NVIDIA/garak), [PromptFoo](https://www.promptfoo.dev/), and [PyRIT](https://github.com/Azure/PyRIT).
+
+| Tool | Description |
+|------|-------------|
+| `redteam_tools` | List available red team tools |
+| `redteam_run` | Start a campaign |
+| `redteam_status` | Check campaign status |
+| `redteam_results` | Get campaign results |
+| `redteam_list` | List campaigns |
+| `redteam_logs` | Get campaign logs |
+| `redteam_cancel` | Cancel a campaign |
+| `redteam_delete` | Delete a campaign |
+
+### `redteam_tools`
+
+List available red team tools and their supported attack categories.
+
+<Prompt description="What red team tools are available?">
+What red team tools are available?
+</Prompt>
+
+### `redteam_run`
+
+Create and start a red team campaign.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `tool` | str | `diamond_security`, `promptfoo`, `garak`, `pyrit`, or `unknown` (required) |
+| `purpose` | str | Agent purpose description, used for context-aware attacks (required) |
+| `categories` | str | Attack categories to test (JSON array, required) |
+| `agent_id` | str | Agent ID (resolves the endpoint URL automatically) |
+| `agent_url` | str | Target Agent endpoint URL (if not using `agent_id`) |
+| `agent_api_key` | str | API key for the target Agent |
+| `agent_model_name` | str | Model name if the Agent is an LLM gateway |
+| `num_tests` | int | Number of test cases per category |
+| `wait` | bool | Poll until the campaign completes |
+
+<Prompt description="Run a garak red team campaign against agent a1b2c3d4-… with the purpose 'customer support chatbot' testing jailbreaks and prompt injection, with 20 tests per category, and wait for it to finish">
+Run a garak red team campaign against agent a1b2c3d4-… with the purpose 'customer support chatbot' testing jailbreaks and prompt injection, with 20 tests per category, and wait for it to finish
+</Prompt>
+
+### `redteam_status`
+
+Check the status of a campaign.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `campaign_id` | str | Campaign UUID |
+
+### `redteam_results`
+
+Get the results of a completed campaign.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `campaign_id` | str | Campaign UUID |
+
+<Prompt description="Show me the results of red team campaign c1d2e3f4-…">
+Show me the results of red team campaign c1d2e3f4-…
+</Prompt>
+
+---
+
+## Telemetry
+
+Telemetry tools surface aggregated trust metrics and the observability data emitted by Dome-protected Agents.
+
+| Tool | Description |
+|------|-------------|
+| `dashboard_show` | Show the Trust Dashboard |
+| `telemetry_metric_total` | Get the total value of a counter metric |
+| `telemetry_counter_series` | Get a counter metric time series |
+| `telemetry_latency_metric` | Get latency percentiles over time |
+
+### `dashboard_show`
+
+Display the aggregated Trust Dashboard for the active team — latest [Trust Scores](/concepts/trust-score/introduction), evaluation history, and protection status across all Agents.
+
+<Prompt description="Show me the trust dashboard">
+Show me the trust dashboard
+</Prompt>
+
+### `telemetry_metric_total`
+
+Get the total value of a counter metric over a time range.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `metric_name` | str | Metric name (required) |
+| `time_range` | str | `15m`, `30m`, `1h`, `2h`, `6h`, `1d`, `7d`, `30d` |
+| `evaluation_id` | str | Filter by evaluation ID |
+| `agent_configuration_id` | str | Filter by Agent ID |
+
+<Prompt description="Show me the total request count for the last 24 hours">
+Show me the total request count for the last 24 hours
+</Prompt>
+
+### `telemetry_counter_series`
+
+Get a time series for a counter metric.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `metric_name` | str | Metric name (required) |
+| `time_range` | str | Time range |
+| `evaluation_id` | str | Filter by evaluation ID |
+| `agent_configuration_id` | str | Filter by Agent ID |
+
+### `telemetry_latency_metric`
+
+Get latency percentiles over time for a metric.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `metric_name` | str | Metric name (required) |
+| `time_range` | str | Time range |
+| `time_window` | str | Aggregation window (e.g. `1m`, `5m`, `15m`) |
+| `percentiles` | str | Comma-separated percentiles (default: `0.5,0.9,0.95,0.99`) |
+| `evaluation_id` | str | Filter by evaluation ID |
+| `agent_configuration_id` | str | Filter by Agent ID |
+
+<Prompt description="Show me p50 and p99 latency for the last hour">
+Show me p50 and p99 latency for the last hour
+</Prompt>
