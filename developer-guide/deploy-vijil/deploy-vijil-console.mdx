@@ -40,7 +40,7 @@ Before starting, review the full list of AWS resources and external services thi
 | Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond--custom-harness) |
 | AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging--non-dev-custom-harness-agentcore-runtime) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
-| GROQ API Key | Yes | Customer (from Groq) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
+| LLM API Key | Yes | Customer (Groq, OpenAI, Anthropic, or local) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
 | Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-45-deploy-darwin-evolution-engine) |
 | Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
 
@@ -768,10 +768,19 @@ secrets:
   vijil-console:
     POSTGRES_PASSWORD: "the-rds-password-you-set-in-step-1.3"
     SECRET_KEY: "$(openssl rand -hex 32)"  # generate once and store securely
-    GROQ_API_KEY: "your-groq-api-key"
+
+    # LLM provider for report generation and Diamond evaluations.
+    # Default provider is Groq. To use a different provider, set
+    # REPORTS_LLM_PROVIDER (groq | openai | anthropic | local) and
+    # REPORTS_MODEL (e.g. gpt-4o, claude-sonnet-4-20250514).
+    GROQ_API_KEY: "your-groq-api-key"           # default provider
+    # OPENAI_API_KEY: "sk-..."                  # if using openai
+    # ANTHROPIC_API_KEY: "sk-ant-..."           # if using anthropic
 
   vijil-diamond:
-    GROQ_API_KEY: "your-groq-api-key"
+    GROQ_API_KEY: "your-groq-api-key"           # must match provider above
+    # OPENAI_API_KEY: "sk-..."
+    # ANTHROPIC_API_KEY: "sk-ant-..."
 ```
 
 <Danger>
