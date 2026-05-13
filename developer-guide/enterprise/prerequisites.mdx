@@ -60,16 +60,9 @@ The following AWS resources and services are required for a production deploymen
   - **Amazon RDS for PostgreSQL** – suitable for smaller-scale or non-production deployments.
   - Any other PostgreSQL solution you want that your EKS cluster has permission to access
 
-- **Amazon OpenSearch Service**: Provides search and analytics capabilities (Elasticsearch-compatible). Required for indexing and querying evaluation data.
-
 ### Object Storage
 
-- **Amazon S3**: Necessary for storing artifacts and handling data uploads for Harness creations and other funcitonality. You will need to create three S3 buckets:
-  1. **Evaluation Data Bucket** – for storing evaluation results and related data.
-  2. **Configs Bucket** – for storing configuration files required by the `vijil-evaluate` service.
-  3. **File Uploads Bucket** – for handling file uploads, such as files used in [Harness](/concepts/evaluation-components/harness) creation.
-
-    For the file uploads bucket you will also need to go to the control panel of this bucket and add CORS configurations, such that it is able to accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
+- **Amazon S3**: A single S3 bucket for storing evaluation artifacts, configuration files, Diamond resources, and file uploads. You will also need to add CORS configurations to the bucket so that it can accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
     ```json title="JSON"
     [
       {

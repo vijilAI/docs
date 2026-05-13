@@ -19,9 +19,9 @@ Before you start, make sure you have the following tools installed and configure
 | Domain + DNS | A registered domain with a Route 53 hosted zone (or another DNS provider) |
 | Container images | Access to Vijil's ECR, or `vijil-console` and `vijil-console-frontend` built and pushed to your own registry |
 
-## What You'll Need
+## Resource Checklist
 
-Before starting, review the full list of AWS resources and external services this guide will walk you through creating. Items marked **Vijil coordination** require Vijil to update access policies on their side — request this early.
+Before starting, review the full list of AWS resources and external services this guide will walk you through creating. Items marked **Vijil + Customer** or **Vijil** require Vijil to update access policies on their side — request this early.
 
 <Warning>
 **Two steps require Vijil's involvement** before you can proceed:
@@ -40,7 +40,6 @@ Before starting, review the full list of AWS resources and external services thi
 | Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond--custom-harness) |
 | AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging--non-dev-custom-harness-agentcore-runtime) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
-| Discover IAM + Pod Identity | If Discover enabled | Customer | [Step 2: Discover](#discover-cloud-inventory-scanning) |
 | GROQ API Key | Yes | Customer (from Groq) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
 | Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-45-deploy-darwin-evolution-engine) |
 | Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
@@ -727,7 +726,7 @@ The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTO
 **Vijil action required.** Vijil must copy Diamond evaluation artifacts (~4.5 MB, 38 files) to your S3 bucket before evaluations can run.
 </Warning>
 
-The Diamond evaluation engine downloads detector configs, harness definitions, and small model weights from S3 at startup. These artifacts are versioned and live under a `diamond/{RESOURCE_VERSION}/` prefix.
+The Diamond evaluation engine downloads detector configs, harness definitions, and small model weights from S3 at startup. These artifacts are versioned and live under a `diamond/{RESOURCE_VERSION}/` prefix, where `RESOURCE_VERSION` is a version string managed by Vijil (e.g. `v1.2.0`) that matches the deployed Diamond release. You do not need to set this value — the application reads it automatically.
 
 **What gets copied:**
 
