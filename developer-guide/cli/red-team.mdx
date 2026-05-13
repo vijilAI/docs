@@ -1,0 +1,396 @@
+---
+title: "Red Team"
+description: "Manage Personas, Policies, and run adversarial red team campaigns."
+---
+
+Red teaming goes beyond standard [Harnesses](/concepts/evaluation-components/harness) by simulating realistic adversarial users. [Personas](/owner-guide/simulate-environment/personas) define who is attacking, [Policies](/owner-guide/simulate-environment/policies) define the rules [Agents](/owner-guide/register-agents/what-is-an-agent) must follow, and red team campaigns execute multi-strategy attack sequences.
+
+## Personas
+
+Personas represent user archetypes — from benign customers to malicious attackers — that shape how [Probes](/concepts/evaluation-components/probe) are generated for [custom Harnesses](/developer-guide/evaluate/custom-harnesses).
+
+| Command | Description |
+|---------|-------------|
+| `vijil persona preset-list` | List built-in Persona presets |
+| `vijil persona from-preset` | Create a Persona from a preset |
+| `vijil persona create` | Create a custom Persona |
+| `vijil persona list` | List Personas |
+| `vijil persona get` | Get a specific Persona |
+| `vijil persona update` | Update a Persona |
+| `vijil persona delete` | Delete a Persona |
+
+### `vijil persona preset-list`
+
+List built-in Persona presets. Presets are categorized as `professional`, `adversarial`, or `support`.
+
+```bash
+vijil persona preset-list
+vijil persona preset-list --preset-category adversarial
+```
+
+| Flag | Description |
+|------|-------------|
+| `--preset-category` | Filter by category: `professional`, `adversarial`, `support` |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+### `vijil persona from-preset`
+
+Create a Persona from a preset.
+
+```bash
+vijil persona from-preset <preset_id>
+vijil persona from-preset <preset_id> --name-override "Custom Attacker"
+```
+
+| Flag | Description |
+|------|-------------|
+| `--name-override` | Override the preset's default name |
+| `--json` | Output as JSON |
+
+### `vijil persona create`
+
+Create a custom Persona.
+
+```bash
+vijil persona create \
+  --name "Frustrated Customer" \
+  --role "End user" \
+  --intent adversarial \
+  --knowledge-level intermediate
+```
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Persona display name (required) |
+| `--role` | Persona role (required) |
+| `--role-description` | Extended role description |
+| `--intent` | `benign`, `curious`, `adversarial`, or `malicious` |
+| `--knowledge-level` | `beginner`, `intermediate`, `advanced`, or `expert` |
+| `--skill-level` | `novice`, `competent`, `proficient`, or `expert` |
+| `--language` | Language the Persona uses |
+| `--tags` | Tags (JSON array) |
+| `--json` | Output as JSON |
+
+### `vijil persona list`
+
+List Personas for the active team.
+
+```bash
+vijil persona list
+vijil persona list --intents adversarial,malicious
+```
+
+| Flag | Description |
+|------|-------------|
+| `--intents` | Filter by intent(s): `benign`, `curious`, `adversarial`, `malicious` |
+| `--is-preset` | Show only presets |
+| `--search` | Search in name, description, and role |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+### `vijil persona get`
+
+Get a specific Persona.
+
+```bash
+vijil persona get <persona_id> --json
+```
+
+### `vijil persona update`
+
+Update a Persona.
+
+```bash
+vijil persona update <persona_id> --intent malicious --skill-level expert
+```
+
+Accepts the same flags as `vijil persona create`.
+
+### `vijil persona delete`
+
+Delete a Persona.
+
+```bash
+vijil persona delete <persona_id>
+vijil persona delete <persona_id> --yes   # skip confirmation
+```
+
+---
+
+## Policies
+
+Policies define the rules and constraints agents must follow. Attaching Policies to a [custom Harness](/developer-guide/evaluate/custom-harnesses) generates Probes that specifically test compliance.
+
+| Command | Description |
+|---------|-------------|
+| `vijil policy preset-list` | List built-in Policy presets |
+| `vijil policy from-preset` | Create a Policy from a preset |
+| `vijil policy create` | Create a custom Policy |
+| `vijil policy list` | List Policies |
+| `vijil policy get` | Get a specific Policy |
+| `vijil policy activate` | Activate a Policy |
+| `vijil policy patch` | Update a Policy |
+| `vijil policy delete` | Delete a Policy |
+| `vijil policy add-rule` | Add a rule to a Policy |
+| `vijil policy rule-list` | List rules in a Policy |
+
+### `vijil policy preset-list`
+
+List built-in Policy presets.
+
+```bash
+vijil policy preset-list
+vijil policy preset-list --category compliance
+```
+
+| Flag | Description |
+|------|-------------|
+| `--category` | Filter by category |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+### `vijil policy from-preset`
+
+Copy a preset Policy into your team.
+
+```bash
+vijil policy from-preset <preset_id>
+vijil policy from-preset <preset_id> --name-override "GDPR Policy"
+```
+
+### `vijil policy create`
+
+Create a Policy from text.
+
+```bash
+vijil policy create \
+  --name "Data Handling Policy" \
+  --category privacy \
+  --source-text "The agent must not store or repeat personal data..."
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--name` | Policy display name | Yes |
+| `--category` | `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom` | Yes |
+| `--description` | Policy description | |
+| `--source-text` | Full policy text | |
+| `--tags` | Tags (JSON array) | |
+| `--json` | Output as JSON | |
+
+### `vijil policy list`
+
+List Policies for the active team.
+
+```bash
+vijil policy list
+vijil policy list --category security --status active
+```
+
+| Flag | Description |
+|------|-------------|
+| `--category` | Filter by category |
+| `--status` | Filter by status |
+| `--search` | Search in name and description |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+### `vijil policy get`
+
+Get a specific Policy.
+
+```bash
+vijil policy get <policy_id> --json
+```
+
+### `vijil policy activate`
+
+Activate a draft Policy so it can be used in Harness generation.
+
+```bash
+vijil policy activate <policy_id>
+```
+
+### `vijil policy patch`
+
+Update Policy metadata.
+
+```bash
+vijil policy patch <policy_id> \
+  --name "Updated Policy Name" \
+  --status active
+```
+
+| Flag | Description |
+|------|-------------|
+| `--name` | New name |
+| `--description` | New description |
+| `--category` | New category |
+| `--status` | `draft`, `active`, or `archived` |
+| `--source-text` | New policy text |
+| `--tags` | Tags (JSON array) |
+| `--json` | Output as JSON |
+
+### `vijil policy delete`
+
+Delete a Policy.
+
+```bash
+vijil policy delete <policy_id>
+vijil policy delete <policy_id> --yes
+```
+
+### `vijil policy add-rule`
+
+Add a structured rule to a Policy.
+
+```bash
+vijil policy add-rule <policy_id> \
+  --rule-type prohibition \
+  --action "share" \
+  --natural-language "The agent must not share customer PII with third parties." \
+  --consequence '{}'
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--rule-type` | `permission`, `prohibition`, `obligation`, or `recommendation` | Yes |
+| `--action` | Action the rule governs | Yes |
+| `--natural-language` | Human-readable rule statement | Yes |
+| `--consequence` | Consequence definition (JSON object) | Yes |
+| `--target` | Target entity | |
+| `--assignee` | Assignee entity | |
+| `--category` | Rule category | |
+| `--json` | Output as JSON | |
+
+### `vijil policy rule-list`
+
+List rules within a Policy.
+
+```bash
+vijil policy rule-list --policy-id <policy_id>
+```
+
+| Flag | Description |
+|------|-------------|
+| `--policy-id` | Filter by policy ID |
+| `--status` | Filter by rule status |
+| `--category` | Filter by category |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+---
+
+## Red Team Campaigns
+
+Red team campaigns run adversarial attack sequences against your Agent using dedicated tools such as Garak, PromptFoo, and PyRIT.
+
+| Command | Description |
+|---------|-------------|
+| `vijil redteam tools` | List available red team tools |
+| `vijil redteam run` | Start a campaign |
+| `vijil redteam status` | Check campaign status |
+| `vijil redteam results` | Get campaign results |
+| `vijil redteam logs` | Get campaign logs |
+| `vijil redteam list` | List campaigns |
+| `vijil redteam cancel` | Cancel a running campaign |
+| `vijil redteam delete` | Delete a campaign |
+
+### `vijil redteam tools`
+
+List available red team tools and their supported attack categories.
+
+```bash
+vijil redteam tools --json
+```
+
+### `vijil redteam run`
+
+Create and start a red team campaign.
+
+```bash
+vijil redteam run \
+  --tool garak \
+  --agent-id "$AGENT_ID" \
+  --purpose "Customer support chatbot" \
+  --categories '["jailbreak", "prompt_injection"]' \
+  --num-tests 20 \
+  --wait
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--tool` | `diamond_security`, `promptfoo`, `garak`, `pyrit`, or `unknown` | Yes |
+| `--purpose` | Agent purpose description (used for context-aware attacks) | Yes |
+| `--categories` | Attack categories to test (JSON array) | Yes |
+| `--agent-id` | Agent ID (resolves the endpoint URL automatically) | |
+| `--agent-url` | Target Agent endpoint URL (if not using `--agent-id`) | |
+| `--agent-api-key` | API key for the target Agent | |
+| `--agent-model-name` | Model name if the Agent is an LLM gateway | |
+| `--num-tests` | Number of test cases per category | |
+| `--strategies` | Evaluation strategies (JSON array, tool-specific) | |
+| `--custom-plugins` | Custom plugin names (JSON array, for `CUSTOM` category) | |
+| `--provider-config` | Provider-specific configuration (JSON object) | |
+| `--wait` | Poll until the campaign completes | |
+| `--json` | Output as JSON | |
+
+Save the campaign ID from the output:
+
+```bash
+export CAMPAIGN_ID="c1d2e3f4-..."
+```
+
+### `vijil redteam status`
+
+Check the status of a campaign.
+
+```bash
+vijil redteam status <campaign_id> --json
+```
+
+### `vijil redteam results`
+
+Get the results of a completed campaign.
+
+```bash
+vijil redteam results <campaign_id> --json
+```
+
+### `vijil redteam logs`
+
+Get execution logs for a campaign.
+
+```bash
+vijil redteam logs <campaign_id> --json
+```
+
+### `vijil redteam list`
+
+List all red team campaigns for the active team.
+
+```bash
+vijil redteam list --json
+```
+
+### `vijil redteam cancel`
+
+Cancel a running campaign.
+
+```bash
+vijil redteam cancel <campaign_id>
+```
+
+### `vijil redteam delete`
+
+Delete a campaign.
+
+```bash
+vijil redteam delete <campaign_id>
+vijil redteam delete <campaign_id> --yes
+```
