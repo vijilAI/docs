@@ -101,13 +101,25 @@ The following AWS resources and services are required for a production deploymen
 
 ## Summary Table
 
-| Dependency         | AWS Service                | Purpose                                 |
-|--------------------|---------------------------|-----------------------------------------|
-| Compute            | EKS                       | Run Vijil Evaluate workloads            |
-| Relational DB      | Aurora/RDS (PostgreSQL)   | Persistent application data             |
-| Search/Analytics   | OpenSearch                | Indexing and querying evaluation data   |
-| Object Storage     | S3                        | Store artifacts, logs, and backups      |
+| Dependency | AWS Service / Provider | Purpose | Who Creates It |
+|---|---|---|---|
+| Compute | EKS | Run Vijil workloads | Customer |
+| Relational DB | Aurora/RDS (PostgreSQL) | Persistent application data | Customer |
+| Object Storage | S3 | Evaluation artifacts, configs, file uploads | Customer |
+| TLS Certificate | ACM | HTTPS for console and API domains | Customer |
+| DNS | Route 53 | Domain routing for console and API | Customer |
+| Container Images | ECR (cross-account) | Pull Vijil container images | **Vijil + Customer** |
+| Diamond Artifacts | S3 (copy to customer bucket) | Evaluation harnesses, detector configs, model weights | **Vijil** copies to customer S3 |
+| AI Runtime | Bedrock AgentCore | Custom harness execution | Customer |
+| Block Storage | EBS CSI Driver | Persistent volumes for telemetry | Customer |
+| Pod AWS Access | EKS Pod Identity | Scoped AWS credentials for pods | Customer |
+| LLM API Key | Groq | Diamond evaluation and report generation | Customer (from Groq) |
+| Evolution Engine | Darwin (separate Helm chart) | Agent evolution (optional) | Customer |
+
+<Warning>
+Items marked **Vijil + Customer** or **Vijil** require coordination with the Vijil team. Request ECR access and Diamond artifact copies early to avoid blocking your deployment.
+</Warning>
 
 > **Note:** All resources should be provisioned in the same AWS region for optimal performance and cost efficiency.
 
-Once these pre-requisites and dependencies are in place, you can proceed to the deployment steps.
+Once these pre-requisites and dependencies are in place, you can proceed to the [deployment steps](/developer-guide/deploy-vijil/deploy-vijil-console).

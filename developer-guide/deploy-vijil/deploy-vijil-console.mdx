@@ -19,6 +19,32 @@ Before you start, make sure you have the following tools installed and configure
 | Domain + DNS | A registered domain with a Route 53 hosted zone (or another DNS provider) |
 | Container images | Access to Vijil's ECR, or `vijil-console` and `vijil-console-frontend` built and pushed to your own registry |
 
+## What You'll Need
+
+Before starting, review the full list of AWS resources and external services this guide will walk you through creating. Items marked **Vijil coordination** require Vijil to update access policies on their side — request this early.
+
+<Warning>
+**Two steps require Vijil's involvement** before you can proceed:
+1. **ECR Pull Access** (Step 2) — Vijil must grant your AWS account pull access to their container registry
+2. **Diamond Artifacts** (Step 2) — Vijil must copy Diamond evaluation artifacts (~4.5 MB) to your S3 bucket
+</Warning>
+
+| Resource | Required? | Who Creates It | Guide Section |
+|---|---|---|---|
+| VPC + subnets | Yes | Customer | [Step 1: VPC](#vpc) |
+| EKS Cluster (OIDC enabled) | Yes | Customer | [Step 1: EKS](#eks-cluster) |
+| RDS PostgreSQL | Yes | Customer | [Step 1: RDS](#rds-postgresql) |
+| S3 Bucket | Yes | Customer | [Step 1: S3](#s3-bucket) |
+| ACM Certificate | Yes | Customer | [Step 1: ACM](#acm-certificate) |
+| ECR Cross-Account Pull | Yes (if using Vijil ECR) | **Vijil + Customer** | [Step 2: ECR](#ecr-pull-access) |
+| Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond--custom-harness) |
+| AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging--non-dev-custom-harness-agentcore-runtime) |
+| Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
+| Discover IAM + Pod Identity | If Discover enabled | Customer | [Step 2: Discover](#discover-cloud-inventory-scanning) |
+| GROQ API Key | Yes | Customer (from Groq) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
+| Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-45-deploy-darwin-evolution-engine) |
+| Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
+
 ## Architecture Overview
 
 <img src="/images/developer-guide/deploy-vijil/vijil-console-architecture-showing-vpc-subnets-nlb-eks-and-rd.webp" alt="Vijil Console Architecture showing VPC, subnets, NLB, EKS, and RDS" style={{maxWidth: '700px', margin: '2rem auto', display: 'block'}} />
@@ -400,6 +426,10 @@ The EBS CSI driver deploys two controller replicas across AZs. Verify they show 
 
 ### ECR Pull Access
 
+<Warning>
+**Vijil action required.** Before you can pull images, Vijil must run `put-registry-policy` in their account to grant your AWS account pull access. Request this before starting Step 2.
+</Warning>
+
 #### Option A: Vijil's ECR (cross-account pull)
 
 Vijil's images live in account `266735823956` (region `us-west-2`). Two steps are required: one run by Vijil's side, one by yours.
@@ -691,98 +721,30 @@ aws bedrock-agentcore-control create-agent-runtime \
 The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTOM_HARNESS_AGENT_RUNTIME_ARN` in your values (e.g. `my-values.yaml`) to the returned `agentRuntimeArn`.
 
 
-### Diamond Artifacts S3 Access (staging / customer accounts)
+### Diamond Artifacts
 
-The Diamond evaluation engine downloads Detector configs from a `vijil-artifacts-bucket` that lives in Vijil's dev account. In any non-dev account, your EKS nodes need cross-account read access to that bucket.
+<Warning>
+**Vijil action required.** Vijil must copy Diamond evaluation artifacts (~4.5 MB, 38 files) to your S3 bucket before evaluations can run.
+</Warning>
 
-There are two parts:
+The Diamond evaluation engine downloads detector configs, harness definitions, and small model weights from S3 at startup. These artifacts are versioned and live under a `diamond/{RESOURCE_VERSION}/` prefix.
 
-1. Identity policy on the staging EKS nodegroup role (staging account)
-2. Bucket policy on `vijil-artifacts-bucket` (dev account) that trusts the staging role
+**What gets copied:**
 
-#### Step 1: Identity policy on your node role
-
-In the customer (staging) account, attach an inline policy to the EKS nodegroup role so it can list and read/write the artifacts bucket in the Vijil dev account. Replace `CLUSTER_NAME` and `NODEGROUP_NAME` as needed if you do not already know the node role name.
-```bash
-export AWS_PROFILE=your-staging-profile
-export AWS_REGION=us-west-2
-
-# Resolve node role (if you don't have it already)
-CLUSTER_NAME="vijil-staging-eks"
-NODEGROUP_NAME="standard-workers"
-
-NODE_ROLE=$(aws eks describe-nodegroup \
-  --cluster-name "$CLUSTER_NAME" \
-  --nodegroup-name "$NODEGROUP_NAME" \
-  --query 'nodegroup.nodeRole' --output text | awk -F/ '{print $NF}')
-
-cat > /tmp/staging-diamond-artifacts-s3.json <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "ListArtifactsBucket",
-      "Effect": "Allow",
-      "Action": [
-        "s3:ListBucket"
-      ],
-      "Resource": "arn:aws:s3:::vijil-artifacts-bucket"
-    },
-    {
-      "Sid": "ObjectsInArtifactsBucket",
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject"
-      ],
-      "Resource": "arn:aws:s3:::vijil-artifacts-bucket/*"
-    }
-  ]
-}
-EOF
-
-aws iam put-role-policy \
-  --role-name "$NODE_ROLE" \
-  --policy-name StagingDiamondArtifactsS3Access \
-  --policy-document file:///tmp/staging-diamond-artifacts-s3.json
+```
+diamond/{RESOURCE_VERSION}/
+├── harnesses/           # Standard trust score harnesses (safety/, security/, reliability/)
+├── detector_configs/    # YAML detector configs (strongreject, refusal, etc.)
+├── weights/             # Small model weights (~2 MB)
+├── garak/resources/     # Garak redteam resources
+└── mitigations/         # Mitigation data/mapping
 ```
 
-This does not grant access by itself; the Vijil-side bucket account must also trust this role.
+**How it works:**
 
-#### Step 2: Bucket policy on Vijil's side
-
-In the Vijil-side dev account that owns `vijil-artifacts-bucket`, add or update the bucket policy so it trusts the customer staging nodegroup role. Replace `STAGING_ACCOUNT_ID` and `NODE_ROLE_NAME` with your values (for example, `STAGING_ACCOUNT_ID=565393042914` and `NODE_ROLE_NAME=eksctl-vijil-staging-eks-nodegroup-NodeInstanceRole-a9C7smGsfmFa).
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowStagingEksNodegroupAccess",
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": [
-          "arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_NODE_ROLE_NAME"
-        ]
-      },
-      "Action": [
-        "s3:DeleteObject*",
-        "s3:GetBucket*",
-        "s3:List*",
-        "s3:PutBucketPolicy",
-        "s3:GetObject"
-      ],
-      "Resource": [
-        "arn:aws:s3:::vijil-artifacts-bucket",
-        "arn:aws:s3:::vijil-artifacts-bucket/*"
-      ]
-    }
-  ]
-}
-```
-
-This policy does not make the bucket public; it only allows the specific principals listed in `Principal.AWS`. After this policy is in place and the customer staging nodegroup role has the identity policy above, Diamond evaluations in the customer staging cluster can download detector configs and write results to `vijil-artifacts-bucket` just like the Vijil dev environment.
+1. **Vijil** runs `aws s3 sync` from their internal artifacts bucket to your S3 bucket.
+2. **You** set `RESOURCE_BUCKET_NAME` to your own bucket (the same bucket as `S3_BUCKET_NAME`). No separate artifacts bucket or cross-account IAM is needed — your existing S3 policy already covers your own bucket.
+3. If using the `install` block in your Helm values, `install.aws.s3Bucket` automatically sets both `S3_BUCKET_NAME` and `RESOURCE_BUCKET_NAME` to the same value. No extra configuration required.
 
 ---
 

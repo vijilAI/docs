@@ -182,7 +182,15 @@
           {
             "group": "Deploy Vijil",
             "pages": [
-              "developer-guide/deploy-vijil/deploy-vijil-console"
+              "developer-guide/deploy-vijil/deploy-vijil-console",
+              {
+                "group": "Self-Hosted (Enterprise)",
+                "pages": [
+                  "developer-guide/enterprise/overview",
+                  "developer-guide/enterprise/prerequisites",
+                  "developer-guide/enterprise/self-hosted"
+                ]
+              }
             ]
           },
           {
