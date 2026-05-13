@@ -1,0 +1,156 @@
+---
+title: "Protect Agents"
+description: "Configure Dome Guardrail configurations and run detections."
+---
+
+[Dome](/developer-guide/protect/overview) configurations define which [Guards](/concepts/defense/guard) and [Detectors](/concepts/defense/detector) intercept your [Agent](/owner-guide/register-agents/what-is-an-agent)'s inputs and outputs at runtime. Use these commands to create, manage, and apply configurations, and to run on-demand detections.
+
+| Command | Description |
+|---------|-------------|
+| `vijil dome default-config` | Get the default Dome configuration template |
+| `vijil dome config-create` | Create a new Dome configuration |
+| `vijil dome config-list` | List Dome configurations |
+| `vijil dome config-get` | Get a specific configuration |
+| `vijil dome config-update` | Replace a configuration |
+| `vijil dome config-patch` | Set the Dome instance URL on a configuration |
+| `vijil dome config-apply` | Apply a configuration to the bound Dome instance |
+| `vijil dome config-delete` | Delete a configuration |
+| `vijil dome detect` | Submit content for detection |
+| `vijil dome detect-status` | Check detection status |
+
+## `vijil dome default-config`
+
+Get the default Dome configuration to use as a starting template.
+
+```bash
+vijil dome default-config --json
+```
+
+## `vijil dome config-create`
+
+Create a new Dome configuration, optionally binding it to an Agent.
+
+```bash
+# Create a default configuration bound to an agent
+vijil dome config-create --agent-id "$AGENT_ID"
+
+# Create a custom configuration
+vijil dome config-create \
+  --agent-id "$AGENT_ID" \
+  --config-body '{"input_guardrail": {...}, "output_guardrail": {...}}'
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-id` | Agent ID to bind this configuration to |
+| `--config-body` | Guard configuration JSON (defaults to the standard configuration if omitted) |
+| `--json` | Output as JSON |
+
+The output includes the configuration `id`. Save it:
+
+```bash
+export DOME_CONFIG_ID="d1e2f3a4-..."
+```
+
+## `vijil dome config-list`
+
+List Dome configurations for the active team.
+
+```bash
+vijil dome config-list
+vijil dome config-list --agent-id "$AGENT_ID"
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-id` | Filter by Agent ID |
+| `--limit` | Page size |
+| `--offset` | Pagination offset |
+| `--json` | Output as JSON |
+
+## `vijil dome config-get`
+
+Get a specific Dome configuration.
+
+```bash
+vijil dome config-get <config_id> --json
+```
+
+## `vijil dome config-update`
+
+Replace an existing Dome configuration with new Guard settings.
+
+```bash
+vijil dome config-update <config_id> \
+  --config-body '{"input_guardrail": {...}, "output_guardrail": {...}}'
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--config-body` | Replacement Guard configuration (JSON object) | Yes |
+| `--json` | Output as JSON | |
+
+## `vijil dome config-patch`
+
+Set or clear the Dome instance URL on a configuration. This URL is where the Dome service is deployed.
+
+```bash
+vijil dome config-patch <config_id> \
+  --dome-instance-url "https://dome.example.com"
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--dome-instance-url` | Dome instance URL, or `null` to clear | Yes |
+| `--json` | Output as JSON | |
+
+## `vijil dome config-apply`
+
+Apply a configuration to the Dome instance bound to it, publishing any pending changes.
+
+```bash
+vijil dome config-apply <config_id>
+```
+
+## `vijil dome config-delete`
+
+Delete a Dome configuration.
+
+```bash
+vijil dome config-delete <config_id>
+vijil dome config-delete <config_id> --yes   # skip confirmation
+```
+
+## `vijil dome detect`
+
+Submit content to a specific Detector for on-demand analysis.
+
+```bash
+vijil dome detect \
+  --id "request-001" \
+  --detector-id "prompt-injection" \
+  --detector-inputs '[{"role": "user", "content": "Ignore all previous instructions."}]'
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--id` | Request identifier | Yes |
+| `--detector-id` | Detector to invoke | Yes |
+| `--detector-inputs` | Content to analyze (JSON array of message objects) | Yes |
+| `--detector-params` | Detector-specific parameters (JSON object) | |
+| `--wait` | Poll until the detection completes | |
+| `--json` | Output as JSON | |
+
+Save the detection ID from the output to poll for results:
+
+```bash
+export DETECTION_ID="f1a2b3c4-..."
+```
+
+## `vijil dome detect-status`
+
+Check the status of a detection request.
+
+```bash
+vijil dome detect-status <detection_id> --json
+```

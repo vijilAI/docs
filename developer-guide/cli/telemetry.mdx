@@ -1,0 +1,138 @@
+---
+title: "Telemetry"
+description: "Query the Trust Dashboard and observability telemetry."
+---
+
+These commands surface aggregated trust metrics and the raw observability data (traces, logs, counters) emitted by your [Dome](/developer-guide/protect/overview)-protected [Agents](/owner-guide/register-agents/what-is-an-agent).
+
+## Trust Dashboard
+
+### `vijil dashboard show`
+
+Display the aggregated Trust Dashboard for the active team. The dashboard shows the latest [Trust Scores](/concepts/trust-score/introduction), evaluation history, and protection status across all Agents.
+
+```bash
+vijil dashboard show
+vijil dashboard show --json
+```
+
+---
+
+## Telemetry
+
+Telemetry commands query the Grafana-backed observability stack. Dome-instrumented Agents emit traces and logs automatically; these commands let you inspect them without leaving the CLI.
+
+| Command | Description |
+|---------|-------------|
+| `vijil telemetry traces` | Search traces |
+| `vijil telemetry trace-get` | Get a trace by ID |
+| `vijil telemetry logs` | Get logs |
+| `vijil telemetry counter-series` | Get a counter metric time series |
+| `vijil telemetry metric-total` | Get a counter metric total |
+| `vijil telemetry latency-metric` | Get latency percentiles over time |
+
+### `vijil telemetry traces`
+
+Search traces emitted by Dome-instrumented Agents.
+
+```bash
+vijil telemetry traces --time-range 1h
+vijil telemetry traces --agent-configuration-id "$AGENT_ID" --limit 50 --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--time-range` | Window to search: `15m`, `30m`, `1h`, `2h`, `6h`, `1d`, `7d`, `30d` |
+| `--agent-configuration-id` | Filter by Agent ID |
+| `--service-name` | Filter by root service |
+| `--min-duration-ms` | Lower bound on trace duration (ms) |
+| `--max-duration-ms` | Upper bound on trace duration (ms) |
+| `--query` | Advanced TraceQL query |
+| `--limit` | Maximum number of traces |
+| `--json` | Output as JSON |
+
+### `vijil telemetry trace-get`
+
+Get a single trace by ID.
+
+```bash
+vijil telemetry trace-get <trace_id> --json
+```
+
+### `vijil telemetry logs`
+
+Get logs from Dome-instrumented Agents.
+
+```bash
+vijil telemetry logs --time-range 1h --level error
+vijil telemetry logs --evaluation-id "$EVAL_ID" --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--time-range` | Window to pull logs for: `15m`, `30m`, `1h`, `2h`, `6h`, `1d`, `7d`, `30d` |
+| `--agent-configuration-id` | Filter by Agent ID |
+| `--evaluation-id` | Filter by evaluation ID |
+| `--probe-id` | Filter by Probe ID |
+| `--test-id` | Filter by test ID |
+| `--service-name` | Filter by service name label |
+| `--level` | Filter by log level |
+| `--search` | Substring search |
+| `--logql` | Advanced LogQL expression (overrides generated selector) |
+| `--limit` | Maximum log lines |
+| `--direction` | Return order (`forward` or `backward`) |
+| `--json` | Output as JSON |
+
+### `vijil telemetry counter-series`
+
+Get a time series for a counter metric.
+
+```bash
+vijil telemetry counter-series <metric_name> --time-range 1h --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--time-range` | Time range: `15m`, `30m`, `1h`, `2h`, `6h`, `1d`, `7d`, `30d` |
+| `--evaluation-id` | Filter by evaluation ID |
+| `--agent-configuration-id` | Filter by Agent ID |
+| `--json` | Output as JSON |
+
+### `vijil telemetry metric-total`
+
+Get the total value of a counter metric over a time range.
+
+```bash
+vijil telemetry metric-total <metric_name> --time-range 1d --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--time-range` | Time range |
+| `--evaluation-id` | Filter by evaluation ID |
+| `--agent-configuration-id` | Filter by Agent ID |
+| `--probe-id` | Filter by Probe ID |
+| `--test-id` | Filter by test ID |
+| `--json` | Output as JSON |
+
+### `vijil telemetry latency-metric`
+
+Get latency percentiles over time for a metric.
+
+```bash
+vijil telemetry latency-metric <metric_name> \
+  --time-range 1h \
+  --percentiles "0.5,0.95,0.99" \
+  --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--time-range` | Time range |
+| `--time-window` | Aggregation window (e.g. `1m`, `5m`, `15m`) |
+| `--percentiles` | Comma-separated percentiles (default: `0.5,0.9,0.95,0.99`) |
+| `--evaluation-id` | Filter by evaluation ID |
+| `--agent-configuration-id` | Filter by Agent ID |
+| `--probe-id` | Filter by Probe ID |
+| `--test-id` | Filter by test ID |
+| `--json` | Output as JSON |

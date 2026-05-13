@@ -1,0 +1,269 @@
+---
+title: "Evaluate Agents"
+description: "Manage Harnesses and run trust Evaluations against Agents."
+---
+
+Evaluations send adversarial [Probes](/concepts/evaluation-components/probe) to your Agent and return a [Trust Score](/concepts/trust-score/introduction). [Harnesses](/concepts/evaluation-components/harness) define which Probes are sent.
+
+## Harnesses
+
+| Command | Description |
+|---------|-------------|
+| `vijil harness list` | List standard Harnesses |
+| `vijil harness custom-create` | Create a custom Harness |
+| `vijil harness custom-list` | List custom Harnesses |
+| `vijil harness custom-get` | Get a custom Harness |
+| `vijil harness custom-prompts` | Get prompts from a custom Harness |
+| `vijil harness custom-cancel` | Cancel a Harness being generated |
+| `vijil harness custom-delete` | Delete a custom Harness |
+
+### `vijil harness list`
+
+List standard Harnesses available for Evaluations.
+
+```bash
+vijil harness list
+vijil harness list --json
+```
+
+Standard Harnesses include `safety`, `security`, `reliability`, `privacy`, `toxicity`, and `ethics`.
+
+### `vijil harness custom-create`
+
+Create a custom Harness for a specific [Agent](/owner-guide/register-agents/what-is-an-agent). Vijil generates Probes based on the Agent's purpose and any [Personas](/owner-guide/simulate-environment/personas) or [Policies](/owner-guide/simulate-environment/policies) you attach.
+
+```bash
+vijil harness custom-create \
+  --name "Customer Support Harness" \
+  --agent-id "$AGENT_ID"
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--name` | Harness display name | Yes |
+| `--agent-id` | Agent ID to generate Probes for | Yes |
+| `--description` | Harness description | |
+| `--persona-ids` | Persona IDs to include (JSON array) | |
+| `--policy-ids` | Policy IDs to include (JSON array) | |
+| `--system-prompt` | Agent description or system prompt for generation | |
+| `--json` | Output as JSON | |
+
+### `vijil harness custom-list`
+
+List custom Harnesses for the active team.
+
+```bash
+vijil harness custom-list
+vijil harness custom-list --agent-id "$AGENT_ID" --status completed
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-id` | Filter by Agent ID |
+| `--status` | Filter by status |
+| `--limit` | Maximum number of results (default 10) |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+### `vijil harness custom-get`
+
+Get a specific custom Harness by ID.
+
+```bash
+vijil harness custom-get <harness_id>
+```
+
+### `vijil harness custom-prompts`
+
+Retrieve the generated Probes for a custom Harness.
+
+```bash
+vijil harness custom-prompts <harness_id> --json
+```
+
+### `vijil harness custom-cancel`
+
+Cancel a Harness that is still being generated.
+
+```bash
+vijil harness custom-cancel <harness_id>
+```
+
+### `vijil harness custom-delete`
+
+Delete a custom Harness.
+
+```bash
+vijil harness custom-delete <harness_id>
+vijil harness custom-delete <harness_id> --yes   # skip confirmation
+```
+
+---
+
+## Evaluations
+
+| Command | Description |
+|---------|-------------|
+| `vijil eval run` | Start an Evaluation |
+| `vijil eval status` | Check Evaluation status |
+| `vijil eval results-detail` | Get full Evaluation results |
+| `vijil eval list` | List Evaluations |
+| `vijil eval report` | Generate a Trust Report |
+| `vijil eval logs` | Get Evaluation logs |
+| `vijil eval cancel` | Cancel a running Evaluation |
+| `vijil eval delete` | Delete an Evaluation |
+| `vijil eval results-list` | List completed Evaluations |
+| `vijil eval list-all` | List all team Evaluations |
+| `vijil eval summary-get` | Get an Evaluation summary |
+| `vijil eval summary-by-agent` | Get latest summaries per Agent |
+| `vijil eval summary-delete` | Delete an Evaluation summary |
+
+### `vijil eval run`
+
+Start a trust evaluation against an Agent.
+
+```bash
+vijil eval run \
+  --agent-id "$AGENT_ID" \
+  --harness-names '["safety", "security"]' \
+  --sample-size 50 \
+  --wait
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--agent-id` | UUID of the Agent to evaluate | Yes |
+| `--harness-names` | JSON array of Harness names to run | Yes |
+| `--sample-size` | Probes to run per Harness (1–1000); omit to run all | |
+| `--harness-type` | `standard` (default) or `custom` | |
+| `--evaluation-id` | Use a specific UUID for the evaluation | |
+| `--wait` | Poll until the evaluation completes | |
+| `--json` | Output as JSON | |
+
+<Tip>
+Use `--sample-size 10` for fast iteration during development. Run the full Harness before releasing to production.
+</Tip>
+
+### `vijil eval status`
+
+Check the status of an evaluation.
+
+```bash
+vijil eval status <evaluation_id>
+```
+
+Status values progress through: `starting` → `pending` → `running` → `completed` → `saving` → `saved`. The status may also be `failed` or `canceled`.
+
+```bash
+vijil eval status <evaluation_id> --json
+```
+
+### `vijil eval results-detail`
+
+Get the full results for a completed evaluation.
+
+```bash
+vijil eval results-detail <evaluation_id>
+vijil eval results-detail <evaluation_id> --json | jq '.scores'
+```
+
+Returns Trust Scores per Harness, per-Probe results, and identified failure patterns.
+
+### `vijil eval list`
+
+List evaluation summaries for the active team.
+
+```bash
+vijil eval list
+vijil eval list --agent-id "$AGENT_ID" --status completed
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-id` | Filter by Agent ID |
+| `--status` | Filter by status (`running`, `completed`, `failed`, `cancelled`) |
+| `--harness-type` | Filter by Harness type (`standard` or `custom`) |
+| `--tested-by` | Filter by tool that ran the evaluation |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--json` | Output as JSON |
+
+### `vijil eval report`
+
+Generate a [Trust Report](/developer-guide/evaluate/understanding-results) for a completed evaluation.
+
+```bash
+vijil eval report <evaluation_id>
+vijil eval report <evaluation_id> --force-regenerate
+```
+
+| Flag | Description |
+|------|-------------|
+| `--force-regenerate` | Regenerate even if a cached report exists |
+| `--json` | Output as JSON |
+
+### `vijil eval logs`
+
+Get execution logs for an evaluation.
+
+```bash
+vijil eval logs <evaluation_id> --json
+```
+
+### `vijil eval cancel`
+
+Cancel a running evaluation.
+
+```bash
+vijil eval cancel <evaluation_id>
+```
+
+### `vijil eval delete`
+
+Delete an evaluation and its results.
+
+```bash
+vijil eval delete <evaluation_id>
+vijil eval delete <evaluation_id> --yes   # skip confirmation
+```
+
+### `vijil eval results-list`
+
+List completed Evaluations with results.
+
+```bash
+vijil eval results-list --limit 20 --json
+```
+
+### `vijil eval list-all`
+
+List all Evaluations across the team without filtering.
+
+```bash
+vijil eval list-all --json
+```
+
+### `vijil eval summary-get`
+
+Get the summary for a specific Evaluation.
+
+```bash
+vijil eval summary-get <evaluation_id> --json
+```
+
+### `vijil eval summary-by-agent`
+
+Get the latest Evaluation summary for each Agent in the team.
+
+```bash
+vijil eval summary-by-agent --json
+```
+
+### `vijil eval summary-delete`
+
+Delete an Evaluation summary.
+
+```bash
+vijil eval summary-delete <evaluation_id>
+vijil eval summary-delete <evaluation_id> --yes
+```
