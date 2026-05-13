@@ -1,0 +1,222 @@
+---
+title: "Get started with MCP"
+description: "Connect Claude Code to your Vijil Console and run your first trust evaluation through natural language."
+---
+
+The Vijil MCP server exposes your Console as tools that [Claude Code](https://claude.ai/code) can call directly. Instead of writing CLI commands or API requests, you describe what you want in plain English and Claude handles the rest.
+
+<Info>
+[`vijil-mcp`](https://pypi.org/project/vijil-mcp/) installs `vijil-console` as a dependency. You get both the MCP server and the CLI in a single install.
+</Info>
+
+## Prerequisites
+
+- [Python 3.8](https://www.python.org/downloads/) or later
+- [Claude Code](https://claude.ai/code) installed
+- A [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment and its API gateway URL
+- An API key for the AI model you want to evaluate
+
+## Steps
+
+<Steps>
+  <Step title="Install">
+    Install `vijil-mcp`:
+
+    <CodeGroup>
+    ```bash pip
+    pip install vijil-mcp
+    ```
+
+    ```bash pipx
+    pipx install vijil-mcp
+    ```
+    </CodeGroup>
+
+    Verify both components are available:
+
+    ```bash
+    vijil --help
+    vijil-mcp --help
+    ```
+  </Step>
+
+  <Step title="Configure the CLI">
+    `vijil-mcp` reads its credentials from the same configuration the CLI uses. Point the CLI at your Console API gateway:
+
+    ```bash
+    vijil auth init --url https://console-api.example.com
+    ```
+
+    Log in with your account credentials:
+
+    ```bash
+    vijil auth login
+    ```
+
+    You will be prompted for your email and password. The CLI stores your token in `~/.vijil/config.yaml`.
+
+    If you belong to multiple teams, select one:
+
+    ```bash
+    vijil team list
+    vijil team use <team_id>
+    ```
+
+    <Tip>
+    You only need to do this once. `vijil-mcp` inherits the stored credentials automatically on every start.
+    </Tip>
+  </Step>
+
+  <Step title="Connect Claude Code">
+    Create a `.mcp.json` file in your project root:
+
+    ```json
+    {
+      "mcpServers": {
+        "vijil": {
+          "type": "stdio",
+          "command": "vijil-mcp"
+        }
+      }
+    }
+    ```
+
+    This tells Claude Code to launch `vijil-mcp` as a local subprocess and discover its tools automatically.
+
+    <Tip>
+    For access across all projects, add the same block to `~/.claude.json` instead. Add `.mcp.json` to your `.gitignore` if you do not want to commit it, or commit it so your whole team gets the Vijil tools automatically.
+    </Tip>
+  </Step>
+
+  <Step title="Verify the Connection">
+    Start Claude Code in the directory containing `.mcp.json` and ask:
+
+    <Prompt description="Check my Vijil setup">
+    Check my Vijil setup
+    </Prompt>
+
+    Claude calls the `vijil_status` tool, which confirms the CLI is configured, authenticated, and has a team selected. If anything is missing, Claude tells you exactly what to fix before you continue.
+  </Step>
+
+  <Step title="Register an Agent">
+    Tell Claude about the model you want to evaluate:
+
+    <Prompt description="Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with my OpenAI API key sk-…">
+    Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with my OpenAI API key sk-…
+    </Prompt>
+
+    Claude calls `agent_create` and shows you the new [Agent](/owner-guide/register-agents/what-is-an-agent) including its ID. Note that ID — you will use it in the next steps.
+
+    To see all registered Agents at any time:
+
+    <Prompt description="List my agents">
+    List my agents
+    </Prompt>
+  </Step>
+
+  <Step title="Run an Evaluation">
+    Start a trust evaluation and wait for it to finish:
+
+    <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete">
+    Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete
+    </Prompt>
+
+    Claude calls `eval_run` with `wait=True`, polls every 5 seconds, and reports back when the evaluation finishes — including the per-[Harness](/concepts/evaluation-components/harness) scores.
+
+    <Tip>
+    Ask for a sample size of 10 for fast iteration during development. Run the full Harness (~1,250 [Probes](/concepts/evaluation-components/probe) for `security`) before releasing to production.
+    </Tip>
+
+    To start an evaluation without waiting, omit the instruction to wait:
+
+    <Prompt description="Start a safety evaluation on agent a1b2c3d4-…">
+    Start a safety evaluation on agent a1b2c3d4-…
+    </Prompt>
+  </Step>
+
+  <Step title="View the Results">
+    Once the evaluation completes, retrieve the full results:
+
+    <Prompt description="Show me the detailed results for evaluation e5f6a7b8-…">
+    Show me the detailed results for evaluation e5f6a7b8-…
+    </Prompt>
+
+    Claude calls `eval_results_detail` and presents your [Trust Score](/concepts/trust-score/introduction), per-Harness breakdowns, and individual Probe results with identified failure patterns.
+  </Step>
+
+  <Step title="Generate a Report">
+    Trigger a Trust Report for the completed evaluation:
+
+    <Prompt description="Generate a report for evaluation e5f6a7b8-…">
+    Generate a report for evaluation e5f6a7b8-…
+    </Prompt>
+
+    Claude calls `eval_report`. Download the [Trust Report](/developer-guide/evaluate/understanding-results) as HTML or PDF from the Console.
+  </Step>
+</Steps>
+
+## What to Ask Next
+
+The Vijil MCP server covers the full evaluation and protection workflow. Here are more things you can ask Claude:
+
+**Custom Harnesses** — generate test suites tailored to your Agent:
+
+<Prompt description="Create a custom Harness called 'Support Bot Harness' for agent a1b2c3d4-…">
+Create a custom Harness called 'Support Bot Harness' for agent a1b2c3d4-…
+</Prompt>
+
+**Personas** — add realistic user archetypes to shape Probe generation:
+
+<Prompt description="Show me the adversarial persona presets">
+Show me the adversarial persona presets
+</Prompt>
+
+<Prompt description="Create a persona from the 'jailbreaker' preset">
+Create a persona from the 'jailbreaker' preset
+</Prompt>
+
+**Policies** — define the compliance rules your Agent must follow:
+
+<Prompt description="Create a GDPR compliance policy from the preset">
+Create a GDPR compliance policy from the preset
+</Prompt>
+
+**Dome Guardrails** — configure runtime protection:
+
+<Prompt description="Create a default Dome config for agent a1b2c3d4-…">
+Create a default Dome config for agent a1b2c3d4-…
+</Prompt>
+
+**Red Team Campaigns** — run adversarial attack sequences:
+
+<Prompt description="Run a garak red team campaign against my agent at https://my-agent.example.com/v1 with the purpose 'customer support chatbot'">
+Run a garak red team campaign against my agent at https://my-agent.example.com/v1 with the purpose 'customer support chatbot'
+</Prompt>
+
+**Trust Dashboard** — view aggregated trust metrics:
+
+<Prompt description="Show me the trust dashboard">
+Show me the trust dashboard
+</Prompt>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="MCP Tools Reference" icon="wrench" href="/developer-guide/agentic/tools">
+    Complete list of all MCP tools with parameters and example prompts
+  </Card>
+  <Card title="CLI Quickstart" icon="terminal" href="/developer-guide/cli/quickstart">
+    Use the CLI directly for scripted or CI/CD workflows
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `vijil` not found in `PATH` | Run `pip install vijil-mcp` |
+| CLI not configured | Run `vijil auth init --url <your-url>` |
+| Session expired | Run `vijil auth login` |
+| No team selected | Run `vijil team use <team_id>` |
+| Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
+| Claude uses Bash instead of MCP tools | Confirm `vijil-mcp` is in your `PATH`: run `which vijil-mcp` |
