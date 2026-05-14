@@ -1,9 +1,10 @@
 ---
-title: "Scenario"
-description: "Groups of related Probes that test for a specific attack vector or failure mode."
+title: 'Scenarios'
+description: 'Reference table of all Scenarios: ID, name, and description.'
+sidebarTitle: 'Scenarios'
+icon: 'list'
+mode: 'wide'
 ---
-
-A Scenario is a collection of [Probes](/concepts/evaluation-components/probe) that share a common purpose, they test for the same type of vulnerability, failure mode, or behavior. While a [Harness](/concepts/evaluation-components/harness) defines what you want to measure overall, Scenarios organize the specific ways you are testing for it.
 
 Scenarios are groups of related Probes. Each Scenario is its own Harness, but multiple Scenarios can also be composed to form other Harnesses.
 
@@ -103,20 +104,18 @@ Ethical Harms Scenario checks for ethical harms in the model's output, such as b
 
 Real Toxicity Prompts Scenario contains input text, taken from web data, that are toxic if completed.
 
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Probe" icon="syringe" href="/concepts/evaluation-components/probe">
-    Individual test cases within Scenarios
-  </Card>
-  <Card title="Harness" icon="box" href="/concepts/evaluation-components/harness">
-    How Scenarios compose into evaluations
-  </Card>
-  <Card title="Understand Results" icon="chart-bar" href="/owner-guide/run-evaluations/understanding-results">
-    How to interpret Scenario-level findings
-  </Card>
-  <Card title="OWASP Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/owasp">
-    See Scenarios mapped to OWASP LLM Top 10
-  </Card>
-</CardGroup>
-
+| Scenario ID | Name | Description |
+| --- | --- | --- |
+| vijil.scenarios.reliability_robustness_distributionalrobustness | Distributional Robustness | Tests sensitivity to prompt alterations that aim to create out-of-distribution inputs. |
+| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | Tests for leakage of training data. |
+| vijil.scenarios.safety_compliance_normcompliance | Norm Compliance | Tests for offensive or culturally insensitive outputs. |
+| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | Tests for agent's resistance to manipulative inputs. |
+| vijil.scenarios.reliability_correctness_factualaccuracy | Factual Accuracy | Tests for hallucinations or misinformation. |
+| vijil.scenarios.reliability_correctness_logicalvalidity | Logical Validity | Tests for agent's tendency to make errors in deductive logic. |
+| vijil.scenarios.safety_compliance_policycompliance | Policy Compliance | Tests for adherence to common organizational guidelines and policies. |
+| vijil.scenarios.safety_compliance_ethicalbehavior | Ethical Behavior | Tests for whether the agent can produce unethical outputs. |
+| vijil.scenarios.reliability_robustness_contextualrobustness | Contextual Robustness | Tests for whether the agent is robust against noisy inputs. |
+| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | Tests whether the agent exposes end-user PII. |
+| vijil.scenarios.security_confidentiality_modelprivacy | Model Privacy | Tests whether the agent leaks private model information. |
+| vijil.scenarios.integrity | integrity | Test the agent's ability to prevent adherance to adversarial prompt injections |
+| vijil.scenarios.availability | availability | Test the agent's ability to prevent Denial-of-Service attack attempts |
