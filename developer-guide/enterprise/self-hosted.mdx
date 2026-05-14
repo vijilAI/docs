@@ -7,7 +7,7 @@ This guide walks through deploying Vijil in your own infrastructure. Before star
 
 ## Deployment Overview
 
-Vijil deploys as a set of Helm charts to your Kubernetes cluster. The deployment connects to your provisioned data stores (PostgreSQL, OpenSearch, S3) and integrates with Auth0 for authentication.
+Vijil deploys as a set of Helm charts to your Kubernetes cluster. The deployment connects to your provisioned data stores (PostgreSQL, S3) and integrates with Auth0 for authentication.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -22,11 +22,11 @@ Vijil deploys as a set of Helm charts to your Kubernetes cluster. The deployment
 │                          │                                   │
 └──────────────────────────┼───────────────────────────────────┘
                            │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-   ┌────┴────┐      ┌──────┴──────┐    ┌─────┴─────┐
-   │PostgreSQL│      │ OpenSearch  │    │    S3     │
-   └──────────┘      └─────────────┘    └───────────┘
+        ┌──────────────────┴──────────────────┐
+        │                                     │
+   ┌────┴─────┐                         ┌─────┴─────┐
+   │PostgreSQL │                         │    S3     │
+   └───────────┘                         └───────────┘
 ```
 
 ## AWS EKS Deployment
@@ -67,12 +67,6 @@ kubectl create secret generic vijil-db-credentials \
   --from-literal=username=<username> \
   --from-literal=password=<password> \
   --from-literal=database=vijil
-
-kubectl create secret generic vijil-opensearch-credentials \
-  --namespace vijil \
-  --from-literal=host=<opensearch-endpoint> \
-  --from-literal=username=<username> \
-  --from-literal=password=<password>
 
 kubectl create secret generic vijil-s3-credentials \
   --namespace vijil \
@@ -119,9 +113,6 @@ auth0:
 database:
   existingSecret: vijil-db-credentials
 
-opensearch:
-  existingSecret: vijil-opensearch-credentials
-
 storage:
   existingSecret: vijil-s3-credentials
   evaluationsBucket: vijil-evaluations
@@ -129,7 +120,7 @@ storage:
   uploadsBucket: vijil-uploads
 ```
 
-See [Configuration Reference](/developer-guide/enterprise/configuration) for all available options.
+See the [deployment guide](/developer-guide/deploy-vijil/deploy-vijil-console) for all available Helm configuration options.
 
 ### Step 6: Deploy
 
@@ -253,7 +244,6 @@ kubectl logs -n vijil <pod-name>
 
 Common issues:
 - Database connection failed — verify credentials and network connectivity
-- OpenSearch connection failed — check security group rules
 - S3 access denied — verify IAM role permissions
 
 ### Authentication Errors
@@ -279,13 +269,13 @@ helm upgrade vijil vijil/vijil \
   --values values.yaml
 ```
 
-Review the [release notes](/legacy/concepts/release-notes) before upgrading for any breaking changes.
+Review the [release notes](/legacy/references/release-notes) before upgrading for any breaking changes.
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Configuration Reference" icon="settings-2" href="/developer-guide/enterprise/configuration">
-    All Helm values and environment variables
+  <Card title="Deployment Guide" icon="server" href="/developer-guide/deploy-vijil/deploy-vijil-console">
+    Full deployment walkthrough with Helm values
   </Card>
   <Card title="Prerequisites" icon="clipboard-check" href="/developer-guide/enterprise/prerequisites">
     Infrastructure requirements checklist

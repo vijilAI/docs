@@ -2,13 +2,12 @@
 title: "Deploying Vijil with Helm"
 description: ""
 ---
-Now that you have provisioned an EKS cluster and ensured connectivity to the required AWS resources—**PostgreSQL** (Aurora or RDS), **OpenSearch/Elasticsearch**, and **S3**—you are ready to deploy **Vijil** using Vijil's Helm chart.
+Now that you have provisioned an EKS cluster and ensured connectivity to the required AWS resources—**PostgreSQL** (Aurora or RDS) and **S3**—you are ready to deploy **Vijil** using Vijil's Helm chart.
 
 ## Prerequisites
 
 - An **EKS cluster** with the necessary IAM permissions and networking configuration.
 - Access to a PostgreSQL-compatible database (**Aurora or RDS**).
-- Access to an **OpenSearch or Elasticsearch** domain.
 - **S3** buckets for object storage.
 - An **Auth0** application for authenticating with all APIs
 - Access to the private **`vijil-eks`** GitHub repository. If you do not have access, please contact the Vijil team.
@@ -32,7 +31,7 @@ The `README.md` in the repository contains the most up-to-date and detailed depl
 
 3. **Configure Your Values**
 
-Prepare a `values.yaml` and `secrets.yaml` file with the necessary configuration for your environment. This includes database connection strings, OpenSearch endpoints, S3 bucket names, and any other required secrets or settings. There are examples in the `vijil-eks` repository for you to follow.
+Prepare a `values.yaml` and `secrets.yaml` file with the necessary configuration for your environment. This includes database connection strings, S3 bucket names, and any other required secrets or settings. There are examples in the `vijil-eks` repository for you to follow.
 
 4. **Install the Helm Chart**
 

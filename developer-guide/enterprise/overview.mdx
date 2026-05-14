@@ -43,7 +43,6 @@ Vijil consists of three main components that run in your Kubernetes cluster:
 | Store | Purpose | Options |
 |-------|---------|---------|
 | **PostgreSQL** | Application data, evaluation results, configuration | Amazon Aurora, RDS, or self-managed |
-| **OpenSearch** | Search and analytics for evaluation data | Amazon OpenSearch or self-managed Elasticsearch |
 | **Object Storage** | Artifacts, configs, file uploads | S3, GCS, Azure Blob, or MinIO |
 
 ### External Dependencies
@@ -61,7 +60,7 @@ Deploying Vijil requires coordination across teams:
 |------|------------------|
 | **Kubernetes Admin** | Create cluster, configure networking, manage deployments |
 | **Cloud IAM Admin** | Create service accounts, configure permissions for AWS/GCP/Azure resources |
-| **Database Admin** | Provision PostgreSQL and OpenSearch, configure backups |
+| **Database Admin** | Provision PostgreSQL, configure backups |
 | **Security/Network** | Configure VPC, security groups, firewall rules, TLS certificates |
 | **Auth0 Admin** | Create application, configure SSO integration |
 
@@ -110,9 +109,6 @@ Self-hosted deployments require an enterprise agreement. Contact [contact@vijil.
   </Card>
   <Card title="Deployment Guide" icon="server" href="/developer-guide/enterprise/self-hosted">
     Step-by-step installation instructions
-  </Card>
-  <Card title="Configuration" icon="settings-2" href="/developer-guide/enterprise/configuration">
-    Helm values and environment variables
   </Card>
   <Card title="Contact Sales" icon="phone-outgoing" href="mailto:contact@vijil.ai">
     Discuss enterprise pricing and support
