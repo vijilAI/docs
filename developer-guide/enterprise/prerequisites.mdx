@@ -10,7 +10,7 @@ This page helps you assess readiness for a self-hosted Vijil deployment. Complet
 Self-hosted deployment requires coordination across multiple teams. Verify you have access to people with these skills:
 
 | Skill Area | Required For | Can You Access? |
-|------------|--------------|-----------------|
+| --- | --- | --- |
 | Kubernetes administration | Cluster setup, Helm deployments, troubleshooting | Required |
 | Cloud IAM (AWS/GCP/Azure) | Service accounts, role policies, cross-service permissions | Required |
 | Database administration | PostgreSQL provisioning, backup configuration | Required |
@@ -18,21 +18,8 @@ Self-hosted deployment requires coordination across multiple teams. Verify you h
 | Auth0 administration | Application setup, SSO configuration | Required |
 
 <Note>
-In smaller organizations, one platform engineer may cover multiple areas. The critical factor is having someone with permissions to provision each resource type.
+  In smaller organizations, one platform engineer may cover multiple areas. The critical factor is having someone with permissions to provision each resource type.
 </Note>
-
-## Timeline Expectations
-
-A typical deployment takes 2–4 weeks:
-
-| Phase | Duration | Activities |
-|-------|----------|------------|
-| Prerequisites | 1 week | Provision infrastructure, configure networking |
-| Deployment | 1 week | Install Vijil, configure data stores |
-| Integration | 1 week | Connect Auth0, test agent connectivity |
-| Validation | 3–5 days | Test evaluations, verify Guardrails |
-
-Factor in additional time if you need to request cloud resources through an internal procurement process.
 
 ## Infrastructure Requirements
 
@@ -63,30 +50,30 @@ The following AWS resources and services are required for a production deploymen
 ### Object Storage
 
 - **Amazon S3**: A single S3 bucket for storing evaluation artifacts, configuration files, Diamond resources, and file uploads. You will also need to add CORS configurations to the bucket so that it can accept signed URL file uploads from your browser. Below is an example of what to add in an AWS S3 bucket's CORS configuration (it will be very similar in the cloud storage equivalents of other cloud providers):
-    ```json title="JSON"
-    [
-      {
-          "AllowedHeaders": [
-              "*"
-          ],
-          "AllowedMethods": [
-              "GET",
-              "PUT",
-              "POST",
-              "HEAD"
-          ],
-          "AllowedOrigins": [
-              "https://*.yourdomain.com"
-          ],
-          "ExposeHeaders": [
-              "ETag",
-              "x-amz-request-id",
-              "x-amz-id-2"
-          ],
-          "MaxAgeSeconds": 3000
-      }
-    ]
-    ```
+  ```json title="JSON"
+  [
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "GET",
+            "PUT",
+            "POST",
+            "HEAD"
+        ],
+        "AllowedOrigins": [
+            "https://*.yourdomain.com"
+        ],
+        "ExposeHeaders": [
+            "ETag",
+            "x-amz-request-id",
+            "x-amz-id-2"
+        ],
+        "MaxAgeSeconds": 3000
+    }
+  ]
+  ```
 
 ### Authentication
 
@@ -95,13 +82,13 @@ The following AWS resources and services are required for a production deploymen
 ## Summary Table
 
 | Dependency | AWS Service / Provider | Purpose | Who Creates It |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Compute | EKS | Run Vijil workloads | Customer |
 | Relational DB | Aurora/RDS (PostgreSQL) | Persistent application data | Customer |
 | Object Storage | S3 | Evaluation artifacts, configs, file uploads | Customer |
 | TLS Certificate | ACM | HTTPS for console and API domains | Customer |
 | DNS | Route 53 | Domain routing for console and API | Customer |
-| Container Images | ECR (cross-account) | Pull Vijil container images | **Vijil + Customer** |
+| Container Images | ECR (cross-account) | Pull Vijil container images | **Vijil \+ Customer** |
 | Diamond Artifacts | S3 (copy to customer bucket) | Evaluation harnesses, detector configs, model weights | **Vijil** copies to customer S3 |
 | AI Runtime | Bedrock AgentCore | Custom harness execution | Customer |
 | Block Storage | EBS CSI Driver | Persistent volumes for telemetry | Customer |
@@ -110,7 +97,7 @@ The following AWS resources and services are required for a production deploymen
 | Evolution Engine | Darwin (separate Helm chart) | Agent evolution (optional) | Customer |
 
 <Warning>
-Items marked **Vijil + Customer** or **Vijil** require coordination with the Vijil team. Request ECR access and Diamond artifact copies early to avoid blocking your deployment.
+  Items marked **Vijil \+ Customer** or **Vijil** require coordination with the Vijil team. Request ECR access and Diamond artifact copies early to avoid blocking your deployment.
 </Warning>
 
 > **Note:** All resources should be provisioned in the same AWS region for optimal performance and cost efficiency.
