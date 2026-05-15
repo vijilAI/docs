@@ -15,7 +15,6 @@ Self-hosted deployment requires coordination across multiple teams. Verify you h
 | Cloud IAM (AWS/GCP/Azure) | Service accounts, role policies, cross-service permissions | Required |
 | Database administration | PostgreSQL provisioning, backup configuration | Required |
 | Network/Security | VPC configuration, security groups, TLS certificates | Required |
-| Auth0 administration | Application setup, SSO configuration | Required |
 
 <Note>
   In smaller organizations, one platform engineer may cover multiple areas. The critical factor is having someone with permissions to provision each resource type.
@@ -74,10 +73,6 @@ The following AWS resources and services are required for a production deploymen
     }
   ]
   ```
-
-### Authentication
-
-- **Auth0** - You will require an Auth0 account and the ability to create an Auth0 application in your tenant
 
 ## Summary Table
 

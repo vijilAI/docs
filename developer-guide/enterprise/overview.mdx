@@ -53,7 +53,6 @@ Vijil consists of three main components that run in your Kubernetes cluster:
 
 | Service | Purpose | Required |
 | --- | --- | --- |
-| **Auth0** | User authentication and SSO | Yes |
 | **LLM Providers** | Your agents' underlying models | Depends on your agents |
 
 ## Roles and Permissions
@@ -66,7 +65,6 @@ Deploying Vijil requires coordination across teams:
 | **Cloud IAM Admin** | Create service accounts, configure permissions for AWS/GCP/Azure resources |
 | **Database Admin** | Provision PostgreSQL, configure backups |
 | **Security/Network** | Configure VPC, security groups, firewall rules, TLS certificates |
-| **Auth0 Admin** | Create application, configure SSO integration |
 
 <Tip>
   In smaller organizations, one platform engineer may cover multiple roles. The key is ensuring someone has permissions to provision each resource type.
@@ -98,7 +96,7 @@ A typical self-hosted deployment invovles:
 
 1. **Prerequisites** — Provision infrastructure, configure networking
 2. **Deployment** — Install Vijil components, configure data stores
-3. **Integration** — Connect Auth0, test agent connectivity
+3. **Integration** — Test agent connectivity
 4. **Validation** — Run test evaluations, verify Guardrail functionality
 
 <Warning>

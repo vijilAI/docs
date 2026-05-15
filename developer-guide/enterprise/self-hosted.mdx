@@ -7,7 +7,7 @@ This guide walks through deploying Vijil in your own infrastructure. Before star
 
 ## Deployment Overview
 
-Vijil deploys as a set of Helm charts to your Kubernetes cluster. The deployment connects to your provisioned data stores (PostgreSQL, S3) and integrates with Auth0 for authentication.
+Vijil deploys as a set of Helm charts to your Kubernetes cluster. The deployment connects to your provisioned data stores (PostgreSQL, S3).
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -105,11 +105,6 @@ dome:
 console:
   replicas: 2
 
-auth0:
-  domain: your-tenant.auth0.com
-  clientId: <client-id>
-  audience: https://api.vijil.your-company.com
-
 database:
   existingSecret: vijil-db-credentials
 
@@ -200,7 +195,7 @@ Create a DNS record pointing `vijil.your-company.com` to your ingress load balan
 
 ### Test Console Access
 
-Navigate to `https://vijil.your-company.com` and verify you can log in through Auth0.
+Navigate to `https://vijil.your-company.com` and verify you can log in.
 
 ### Test Evaluation
 
@@ -248,9 +243,8 @@ Common issues:
 
 ### Authentication Errors
 
-- Verify Auth0 domain and client ID in values.yaml
-- Check that callback URLs are configured in Auth0
-- Ensure Auth0 application is set to "Regular Web Application"
+- Verify API key is valid and has the correct permissions
+- Check that the console is accessible and responding
 
 ### Evaluation Failures
 
