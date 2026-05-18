@@ -18,6 +18,7 @@ Before you start, make sure you have the following tools installed and configure
 | [`helm`](https://helm.sh/docs/intro/install/) | ≥ 3.8 |
 | Domain + DNS | A registered domain with a Route 53 hosted zone (or another DNS provider) |
 | Container images | Access to Vijil's ECR, or `vijil-console` and `vijil-console-frontend` built and pushed to your own registry |
+| Helm chart | Distributed as an OCI artifact from Vijil's ECR (same access as container images) |
 
 ## Resource Checklist
 
@@ -166,10 +167,11 @@ eksctl create cluster \
   --vpc-public-subnets=$PUBLIC_SUBNET_1,$PUBLIC_SUBNET_2 \
   --with-oidc \
   --nodegroup-name standard-workers \
-  --node-type m5.large \
-  --nodes 2 \
+  --node-type r5.xlarge \
+  --node-volume-size 200 \
+  --nodes 3 \
   --nodes-min 2 \
-  --nodes-max 4 \
+  --nodes-max 8 \
   --managed
 
 # Verify
@@ -178,9 +180,23 @@ kubectl get nodes
 
 <Note>
 **`--with-oidc` is required.** It enables the OIDC provider used by the EBS CSI driver's IRSA configuration. Do not omit it.
-
-**Node sizing:** `m5.large` is a reasonable starting point. If pods are OOMKilled or evicted for resources, scale up to `r5.xlarge` (what the dev environment currently uses).
 </Note>
+
+#### Cluster Sizing Guidance
+
+Vijil Console deploys 8 service pods plus telemetry (Grafana, Loki, Mimir, Tempo), a database migration job, and creates on-demand job pods for evaluations (Diamond), red-teaming, and scanning in separate namespaces.
+
+| Profile | Node Type | Nodes | vCPU Total | Memory Total | Use Case |
+|---------|-----------|-------|------------|--------------|----------|
+| **Minimum** | `m5.xlarge` | 2 | 8 vCPU | 32 GiB | Small teams, light evaluation load |
+| **Recommended** | `r5.xlarge` | 3 | 12 vCPU | 96 GiB | Production use with concurrent evaluations |
+| **Dev reference** | `r5.xlarge` | 6 | 24 vCPU | 192 GiB | Vijil's own dev cluster (headroom for testing) |
+
+**Why memory-optimized (r5)?** Evaluation and red-team jobs are memory-intensive. `r5` instances provide a better $/GiB ratio than general-purpose `m5` for this workload.
+
+**Disk:** 200 GiB gp3 per node (default 80 GiB is tight when telemetry PVCs and container images accumulate). Set via `--node-volume-size 200` in eksctl.
+
+**Autoscaling:** Enable Cluster Autoscaler or Karpenter. Set `--nodes-min` to your baseline and `--nodes-max` high enough to absorb burst evaluation jobs. Each Diamond/red-team job runs as a separate pod — 5 concurrent evaluations means 5 extra pods.
 
 ### RDS PostgreSQL
 
@@ -258,6 +274,24 @@ aws s3api put-public-access-block \
   --bucket $S3_BUCKET \
   --public-access-block-configuration \
     BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
+Add a CORS configuration so the bucket can accept signed-URL file uploads from the browser:
+
+```bash
+cat > /tmp/s3-cors.json <<'EOF'
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "PUT", "POST", "HEAD"],
+    "AllowedOrigins": ["https://*.yourdomain.com"],
+    "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2"],
+    "MaxAgeSeconds": 3000
+  }
+]
+EOF
+
+aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file:///tmp/s3-cors.json
 ```
 
 ### ACM Certificate
@@ -426,12 +460,12 @@ The EBS CSI driver deploys two controller replicas across AZs. Verify they show 
 ### ECR Pull Access
 
 <Warning>
-**Vijil action required.** Before you can pull images, Vijil must run `put-registry-policy` in their account to grant your AWS account pull access. Request this before starting Step 2.
+**Vijil action required.** Before you can pull container images or the Helm chart, Vijil must run `put-registry-policy` in their account to grant your AWS account pull access. Request this before starting Step 2. The registry-level policy covers all repositories, so a single setup grants access to both container images and the Helm chart (OCI artifact).
 </Warning>
 
 #### Option A: Vijil's ECR (cross-account pull)
 
-Vijil's images live in account `266735823956` (region `us-west-2`). Two steps are required: one run by Vijil's side, one by yours.
+Vijil's images and Helm chart live in account `266735823956` (region `us-west-2`). Two steps are required: one run by Vijil's side, one by yours.
 
 **Step 1 - Vijil side** (run in account `266735823956`): Grant your account pull access on the ECR registry.
 
@@ -837,11 +871,15 @@ Why the nginx NLB must be internal: false for public deployments: The React fron
 ## Step 4: Helm Install
 
 ```bash
-# From helm_charts/vijil-console/
-helm install vijil-console . \
+# Authenticate Helm with Vijil's ECR (one-time per session)
+aws ecr get-login-password --region us-west-2 \
+  | helm registry login --username AWS --password-stdin 266735823956.dkr.ecr.us-west-2.amazonaws.com
+
+# Install from ECR (replace VERSION with the chart version, e.g. 1.0.0)
+helm install vijil-console \
+  oci://266735823956.dkr.ecr.us-west-2.amazonaws.com/vijil-console --version VERSION \
   --namespace vijil-console \
   --create-namespace \
-  -f values.yaml \
   -f values/secrets/secrets.yaml \
   -f my-values.yaml \
   --set telemetry.enabled=true
