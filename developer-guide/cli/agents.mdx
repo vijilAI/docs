@@ -1,0 +1,176 @@
+---
+title: "Manage Agents"
+description: "Create and manage Agent configurations."
+---
+
+[Agent](/owner-guide/register-agents/what-is-an-agent) configurations tell Vijil how to reach the model you want to evaluate or protect.
+
+| Command | Description |
+|---------|-------------|
+| `vijil agent create` | Create a new Agent configuration |
+| `vijil agent list` | List Agent configurations |
+| `vijil agent get` | Get a specific Agent |
+| `vijil agent update` | Update an Agent configuration |
+| `vijil agent archive` | Archive an Agent |
+| `vijil agent lifecycle` | Update the Agent trust lifecycle stage |
+| `vijil agent import` | Import an Agent from a URL or file |
+| `vijil agent validate-import` | Validate an Agent import without creating it |
+| `vijil agent eval-config` | Get the evaluation configuration for an Agent |
+| `vijil agent dome-configs` | Get the Dome configuration for an Agent |
+
+## `vijil agent create`
+
+Create a new Agent configuration.
+
+```bash
+export OPENAI_API_KEY="sk-..."
+
+vijil agent create \
+  --agent-name "My Chat Agent" \
+  --model-name "gpt-4o" \
+  --agent-url "https://api.openai.com/v1/chat/completions" \
+  --api-key "$OPENAI_API_KEY"
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-name` | Display name for the Agent |
+| `--model-name` | Model identifier (e.g. `gpt-4o`, `claude-sonnet-4-20250514`) |
+| `--agent-url` | Endpoint the Agent is reachable at |
+| `--api-key` | API key for the Agent's provider |
+| `--agent-system-prompt` | System prompt the Agent uses |
+| `--rate-limit-requests-per-minute` | API request rate limit |
+| `--hub` | Provider hub identifier |
+| `--mcp-config` | MCP proxy configuration (JSON object) |
+| `--json` | Output as JSON |
+
+The output includes the new Agent's `id`. Use it in subsequent commands.
+
+## `vijil agent list`
+
+List Agent configurations for the active team.
+
+```bash
+vijil agent list
+vijil agent list --include-scores --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--statuses` | Filter by status (defaults to non-archived) |
+| `--limit` | Maximum number of results |
+| `--offset` | Number of results to skip |
+| `--include-scores` | Sideload the latest evaluation scores onto each Agent |
+| `--json` | Output as JSON |
+
+## `vijil agent get`
+
+Get a specific Agent configuration by ID.
+
+```bash
+vijil agent get <agent_id>
+vijil agent get <agent_id> --include-scores --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--include-scores` | Sideload the latest evaluation scores onto the Agent |
+| `--json` | Output as JSON |
+
+## `vijil agent update`
+
+Update an existing Agent configuration.
+
+```bash
+vijil agent update <agent_id> \
+  --agent-name "Renamed Agent" \
+  --model-name "gpt-4o-mini"
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-name` | New display name |
+| `--model-name` | New model identifier |
+| `--agent-url` | New endpoint URL |
+| `--api-key` | New API key |
+| `--agent-system-prompt` | New system prompt |
+| `--status` | Agent status (`draft`, `active`, `deprecated`, `archived`, …) |
+| `--access-level` | `black_box`, `grey_box`, or `white_box` |
+| `--purpose` | Agent purpose description |
+| `--rate-limit-requests-per-minute` | New rate limit |
+| `--json` | Output as JSON |
+
+## `vijil agent archive`
+
+Archive an Agent configuration so it no longer appears in default listings.
+
+```bash
+vijil agent archive <agent_id>
+```
+
+| Flag | Description |
+|------|-------------|
+| `--json` | Output as JSON |
+
+## `vijil agent lifecycle`
+
+Advance or set the Agent's trust lifecycle stage.
+
+```bash
+vijil agent lifecycle <agent_id> --trust-stage tested
+```
+
+| Flag | Description | Required |
+|------|-------------|----------|
+| `--trust-stage` | One of `registered`, `tested`, `hardened`, `trusted`, `optimized`, `adapted` | Yes |
+| `--json` | Output as JSON | |
+
+## `vijil agent import`
+
+Import an Agent from a remote URL (black box), an Agent card file (grey box), or source code (white box).
+
+```bash
+# Black box — import from a live endpoint
+vijil agent import --agent-url "https://api.example.com/v1/chat/completions"
+
+# Grey box — import from an agent card JSON file
+vijil agent import --agent-card '{"name": "My Agent", ...}'
+```
+
+| Flag | Description |
+|------|-------------|
+| `--agent-url` | Remote Agent endpoint URL (black box) |
+| `--agent-card` | Agent configuration JSON (grey box, JSON object) |
+| `--source-code` | Source code files (white box, JSON object) |
+| `--framework` | Framework identifier |
+| `--entry-point` | Main file path (white box) |
+| `--override-name` | Override the imported Agent name |
+| `--api-key` | API key for the Agent |
+| `--rate-limit-requests-per-minute` | Rate limit |
+| `--json` | Output as JSON |
+
+### `vijil agent validate-import`
+
+Validate an import payload without creating the Agent. Accepts the same flags as `vijil agent import`.
+
+```bash
+vijil agent validate-import --agent-url "https://api.example.com/v1/chat/completions"
+```
+
+## `vijil agent eval-config`
+
+Get the evaluation configuration associated with an Agent.
+
+```bash
+vijil agent eval-config <agent_id>
+vijil agent eval-config <agent_id> --json
+```
+
+## `vijil agent dome-configs`
+
+Get the [Dome](/developer-guide/protect/overview) configuration bound to an Agent.
+
+```bash
+vijil agent dome-configs <agent_id>
+vijil agent dome-configs <agent_id> --json
+```
