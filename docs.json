@@ -180,7 +180,16 @@
           },
           {
             "group": "Deploy Vijil",
-            "pages": ["developer-guide/deploy-vijil/deploy-vijil-console"]
+            "pages": [
+              "developer-guide/deploy-vijil/deploy-vijil-console"
+            ]
+          },
+          {
+            "group": "Agentic Workflow",
+            "pages": [
+              "developer-guide/agentic/quickstart",
+              "developer-guide/agentic/tools"
+            ]
           },
           {
             "group": "Evaluate Agents",
@@ -203,10 +212,6 @@
               "developer-guide/protect/observability",
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
-          },
-          {
-            "group": "Agentic Workflow",
-            "pages": ["developer-guide/agentic/mcp"]
           },
           {
             "group": "CLI",
