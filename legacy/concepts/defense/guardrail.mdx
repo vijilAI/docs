@@ -1,40 +1,40 @@
 ---
 title: "Guardrail"
-description: "Configurable pipelines that orchestrate guards into complete protection policies."
+description: "Configurable pipelines that orchestrate Guards into complete protection policies."
 ---
 
 ## What is a Guardrail?
 
-A guardrail is a configured pipeline of guards that implements your protection policy. If guards are the individual security checks, guardrails are the security checkpoint—they define which checks happen, in what order, and what to do with the results.
+A Guardrail is a configured pipeline of Guards that implements your protection policy. If Guards are the individual security checks, Guardrails are the security checkpoint—they define which checks happen, in what order, and what to do with the results.
 
-You don't deploy individual guards; you deploy guardrails. A guardrail bundles together the guards you need, configures their thresholds and actions, and orchestrates their execution on every request.
+You do not deploy individual Guards; you deploy Guardrails. A Guardrail bundles together the Guards you need, configures their thresholds and actions, and orchestrates their execution on every request.
 
 ## Guardrail Types
 
-Dome supports guardrails at different points in the agent interaction:
+Dome supports Guardrails at different points in the agent interaction:
 
 ### Input Guardrails
 
-Input guardrails filter requests before they reach your agent:
+Input Guardrails filter requests before they reach your agent:
 
 ```python
 "input-guards": ["prompt-injection", "pii-detection", "topic-filter"]
 ```
 
-Input guardrails protect your agent from:
+Input Guardrails protect your agent from:
 - Adversarial attacks (injection, jailbreaks)
 - Sensitive data that shouldn't be processed
 - Off-topic requests outside the agent's scope
 
 ### Output Guardrails
 
-Output guardrails filter responses before they reach users:
+Output Guardrails filter responses before they reach users:
 
 ```python
 "output-guards": ["toxicity", "pii-redaction", "hallucination-check"]
 ```
 
-Output guardrails protect users from:
+Output Guardrails protect users from:
 - Harmful or inappropriate content
 - Leaked sensitive information
 - Responses that violate content policies
@@ -43,17 +43,17 @@ Output guardrails protect users from:
 
 <Note>Coming soon</Note>
 
-Retrieval guardrails filter content from RAG pipelines—protecting against poisoned documents, irrelevant retrievals, and sensitive data in your knowledge base.
+Retrieval Guardrails filter content from RAG pipelines—protecting against poisoned documents, irrelevant retrievals, and sensitive data in your knowledge base.
 
 ### Execution Guardrails
 
 <Note>Coming soon</Note>
 
-Execution guardrails filter tool calls and agent actions—ensuring your agent doesn't call unauthorized APIs, access forbidden resources, or take actions outside its permitted scope.
+Execution Guardrails filter tool calls and agent actions—ensuring your agent does not call unauthorized APIs, access forbidden resources, or take actions outside its permitted scope.
 
 ## Guardrail Configuration
 
-A complete guardrail configuration specifies guards and their settings:
+A complete Guardrail configuration specifies Guards and their settings:
 
 ```python
 from vijil import DomeClient
@@ -100,25 +100,25 @@ guardrail = dome.create_guardrail(config)
 
 ## Execution Flow
 
-When a guardrail runs:
+When a Guardrail runs:
 
 1. **Input arrives**: User request enters the pipeline
-2. **Input guards execute**: Each guard in `input-guards` runs (in parallel where possible)
-3. **Actions applied**: Block, redact, or pass based on guard results
+2. **Input Guards execute**: Each Guard in `input-guards` runs (in parallel where possible)
+3. **Actions applied**: Block, redact, or pass based on Guard results
 4. **Agent processes**: If not blocked, filtered input reaches your agent
-5. **Output guards execute**: Each guard in `output-guards` runs on the response
+5. **Output Guards execute**: Each Guard in `output-guards` runs on the response
 6. **Actions applied**: Block, redact, or pass the response
 7. **Response returned**: Filtered output goes to the user
 
-If any guard with `action: block` triggers, the pipeline stops and returns an error response. Guards with `action: redact` modify the content and continue.
+If any Guard with `action: block` triggers, the pipeline stops and returns an error response. Guards with `action: redact` modify the content and continue.
 
 ## Guard Ordering
 
-Guards within a guardrail can run in parallel or sequence:
+Guards within a Guardrail can run in parallel or sequence:
 
-**Parallel execution** (default): All guards run simultaneously. Fastest, but all guards run even if one would block.
+**Parallel execution** (default): All Guards run simultaneously. Fastest, but all Guards run even if one would block.
 
-**Sequential execution**: Guards run in order. First blocking guard stops the pipeline. Saves compute but adds latency.
+**Sequential execution**: Guards run in order. First blocking Guard stops the pipeline. Saves compute but adds latency.
 
 ```python
 config = {
@@ -127,11 +127,11 @@ config = {
 }
 ```
 
-For most use cases, parallel execution with blocking guards is the right choice—you want fast responses and comprehensive detection.
+For most use cases, parallel execution with blocking Guards is the right choice—you want fast responses and comprehensive detection.
 
 ## Scan Results
 
-Every guardrail execution returns a `ScanResult`:
+Every Guardrail execution returns a `ScanResult`:
 
 ```python
 result = guardrail.scan(input_text)
@@ -164,16 +164,16 @@ The trace provides debugging visibility:
 
 ## Guardrail Templates
 
-Dome provides pre-configured guardrail templates for common use cases:
+Dome provides pre-configured Guardrail templates for common use cases:
 
 | Template | Guards Included | Use Case |
 |----------|-----------------|----------|
 | `customer-support` | Injection, PII, toxicity, topic restriction | Customer-facing chatbots |
 | `internal-assistant` | Injection, secrets detection, data leakage | Internal enterprise assistants |
 | `content-moderation` | Toxicity, sexual content, violence, misinformation | Content generation platforms |
-| `high-security` | All security guards, strict thresholds | Sensitive applications |
+| `high-security` | All security Guards, strict thresholds | Sensitive applications |
 
-Templates are starting points—customize thresholds and add guards based on your specific requirements.
+Templates are starting points—customize thresholds and add Guards based on your specific requirements.
 
 ## Next Steps
 
@@ -182,7 +182,7 @@ Templates are starting points—customize thresholds and add guards based on you
     Understand individual protection types
   </Card>
   <Card title="Detector" icon="microscope" href="/concepts/defense/detector">
-    The detection engines inside guards
+    The detection engines inside Guards
   </Card>
   <Card title="Configure Guardrails" icon="sliders" href="/owner-guide/protect-in-production/configuring-guardrails">
     Set up Dome for your agent

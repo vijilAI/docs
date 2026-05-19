@@ -80,7 +80,7 @@ Create a `.mcp.json` file in your project root:
 
 This tells Claude Code to launch `vijil-mcp` as a local subprocess and discover its tools.
 
-> **Tip:** Add `.mcp.json` to your project's `.gitignore` if you don't want to share it, or commit it so your whole team gets the Vijil tools automatically.
+> **Tip:** Add `.mcp.json` to your project's `.gitignore` if you do not want to share it, or commit it so your whole team gets the Vijil tools automatically.
 
 For global access across all projects, add to `~/.claude.json` instead:
 
@@ -116,13 +116,17 @@ Claude will call the `vijil_status` tool and confirm the CLI is configured, auth
 
 Ask Claude to create an agent configuration pointing at the AI model you want to evaluate:
 
-> "Create a new agent called 'My Chat Agent' using gpt-4 at https://api.openai.com/v1/chat/completions with API key sk-..."
+<Prompt description="Create a new agent called 'My Chat Agent' using gpt-4 at https://api.openai.com/v1/chat/completions with API key sk-...">
+Create a new agent called 'My Chat Agent' using gpt-4 at https://api.openai.com/v1/chat/completions with API key sk-...
+</Prompt>
 
 Claude will call `agent_create` with the right parameters and show you the created agent including its ID. Copy that ID for the next steps.
 
 ## List Agents
 
-> "List my agents"
+<Prompt description="List my agents">
+List my agents
+</Prompt>
 
 Claude will call `agent_list` and show agent IDs, names, models, and creation dates.
 
@@ -130,7 +134,9 @@ Claude will call `agent_list` and show agent IDs, names, models, and creation da
 
 Harnesses are test suites that evaluate different trust dimensions:
 
-> "What harnesses are available?"
+<Prompt description="What harnesses are available?">
+What harnesses are available?
+</Prompt>
 
 Claude will call `harness_list` and show you the test suites (safety, ethics, privacy, security, toxicity, etc.).
 
@@ -138,19 +144,25 @@ Claude will call `harness_list` and show you the test suites (safety, ethics, pr
 
 Start a trust evaluation against your agent:
 
-> "Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete"
+<Prompt description="Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete">
+Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete
+</Prompt>
 
 Claude will call `eval_run` with `wait=True` and report back when the evaluation finishes, including the scores.
 
 You can also run without waiting:
 
-> "Start a safety evaluation on agent a1b2c3d4-..."
+<Prompt description="Start a safety evaluation on agent a1b2c3d4-...">
+Start a safety evaluation on agent a1b2c3d4-...
+</Prompt>
 
 ## Check Evaluation Status
 
 If you did not use `wait`, check the status:
 
-> "What's the status of evaluation e5f6a7b8-...?"
+<Prompt description="What is the status of evaluation e5f6a7b8-...?">
+What is the status of evaluation e5f6a7b8-...?
+</Prompt>
 
 Claude will call `eval_status` and show whether the evaluation is running, completed, or failed.
 
@@ -158,15 +170,19 @@ Claude will call `eval_status` and show whether the evaluation is running, compl
 
 Once the evaluation completes, retrieve the detailed results:
 
-> "Show me the detailed results for evaluation e5f6a7b8-..."
+<Prompt description="Show me the detailed results for evaluation e5f6a7b8-...">
+Show me the detailed results for evaluation e5f6a7b8-...
+</Prompt>
 
-Claude will call `eval_results_detail` and present the per-harness breakdowns and individual probe results.
+Claude will call `eval_results_detail` and present the per-Harness breakdowns and individual Probe results.
 
 ## Generate a Report
 
 Trigger on-demand report generation for the completed evaluation:
 
-> "Generate a report for evaluation e5f6a7b8-..."
+<Prompt description="Generate a report for evaluation e5f6a7b8-...">
+Generate a report for evaluation e5f6a7b8-...
+</Prompt>
 
 Claude will call `eval_report` to generate the report.
 
@@ -174,37 +190,57 @@ Claude will call `eval_report` to generate the report.
 
 Here are more things you can ask Claude with the Vijil MCP tools:
 
-**Custom harnesses** — create test suites tailored to your use case:
+**Custom Harnesses** — create test suites tailored to your use case:
 
-> "Create a custom harness called 'My Harness' for agent a1b2c3d4-..."
+<Prompt description="Create a custom harness called 'My Harness' for agent a1b2c3d4-...">
+Create a custom harness called 'My Harness' for agent a1b2c3d4-...
+</Prompt>
 
 **Personas** — list presets and create personas for testing:
 
-> "Show me the persona presets"
+<Prompt description="Show me the persona presets">
+Show me the persona presets
+</Prompt>
 
-> "Create a persona from the 'jailbreaker' preset"
+<Prompt description="Create a persona from the 'jailbreaker' preset">
+Create a persona from the 'jailbreaker' preset
+</Prompt>
 
 **Policies** — manage compliance policies and rules:
 
-> "List my compliance policies"
+<Prompt description="List my compliance policies">
+List my compliance policies
+</Prompt>
 
-> "Create a policy from the GDPR preset"
+<Prompt description="Create a policy from the GDPR preset">
+Create a policy from the GDPR preset
+</Prompt>
 
-**DOME guardrails** — configure runtime protection:
+**DOME Guardrails** — configure runtime protection:
 
-> "List my dome configurations"
+<Prompt description="List my Dome configurations">
+List my Dome configurations
+</Prompt>
 
-> "Create a dome config for agent a1b2c3d4-..."
+<Prompt description="Create a Dome config for agent a1b2c3d4-...">
+Create a Dome config for agent a1b2c3d4-...
+</Prompt>
 
 **Red team campaigns** — run adversarial attack campaigns:
 
-> "What red team tools are available?"
+<Prompt description="What red team tools are available?">
+What red team tools are available?
+</Prompt>
 
-> "Run a garak campaign against my agent at https://my-agent.com/v1"
+<Prompt description="Run a garak campaign against my agent at https://my-agent.com/v1">
+Run a garak campaign against my agent at https://my-agent.com/v1
+</Prompt>
 
 **Trust dashboard** — view aggregated trust metrics:
 
-> "Show me the trust dashboard"
+<Prompt description="Show me the trust dashboard">
+Show me the trust dashboard
+</Prompt>
 
 ## How it Works Under the Hood
 
@@ -230,5 +266,5 @@ The CLI handles all authentication, token refresh, and team context — the MCP 
 | `vijil` CLI not configured | Run `vijil init --url <your-url>` |
 | Session expired | Run `vijil login` |
 | No team selected | Run `vijil team use <team_id>` |
-| Tools don't appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
+| Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
 | Claude uses Bash instead of MCP tools | Make sure `vijil-mcp` is in your `PATH` (`which vijil-mcp`) |

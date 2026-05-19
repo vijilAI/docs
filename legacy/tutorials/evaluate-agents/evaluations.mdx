@@ -13,7 +13,7 @@ In the left sidebar, click on **Evaluations** (clipboard icon) to view all evalu
 1. On the Evaluations page, click **Create Evaluation**.
 2. Select the agent to evaluate. If the agent you want is not yet in the list, click **Add Agent**.
 3. Select the Harnesses you want to run. See [Harnesses](/core-concepts/components/harness) for more information.
-4. Once you have selected an agent, you can configure some of it's runtime parameters like temperature and maximum completion tokens in the **Run Configuration** section.
+4. Once you have selected an agent, you can configure some of it is runtime parameters like temperature and maximum completion tokens in the **Run Configuration** section.
 5. Optionally, enter a name for your evaluation, then click **Create**.
 
 ## Python Client
@@ -32,7 +32,7 @@ client.evaluations.create(
     model_hub="openai",
     model_name="gpt-4o-mini",
     model_params={"temperature": 0},
-    harnesses=["security"],
+    Harnesses=["security"],
     harness_params={"is_lite": False}
 )
 # If successful, returns dictionary with the following format:

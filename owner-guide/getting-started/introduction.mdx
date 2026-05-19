@@ -41,27 +41,7 @@ If you want to integrate via the Vijil API and using a code library, use the [De
 
 Vijil measures **reliability**, **security**, and **safety**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
-## Console walkthrough
-
-You will **register** the agent, **run** an evaluation (built-in Trust Score harness or a custom harness), **read** the report, then **protect** the agent with Dome.
-
-### 1. Register your agent
-
-Click on **Agents** → ** and then proceed to click on the + Register Agent** button.
-
-You will see three boxes: Black box, Grey box and the White box.
-
-| Level | You provide | Vijil can test |
-|-------|-------------|----------------|
-| **Black Box** | Description, endpoint, credentials | Input/output behavior |
-| **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
-| **White Box** | Full config and source | Deeper audit-style analysis |
-
-For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit; then **Register Agent**.
-
-<Tip>
-If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
-</Tip>
+## Working with Vijil Console
 
 First you will need to **register** an Agent, then **run** an [Evaluation](/concepts/evaluation-components/introduction) (with a built-in [Trust Score Harness](/concepts/evaluation-components/harness) or a [custom Harness](/concepts/evaluation-components/harness)), **read** the [Trust Report](#read-the-trust-report), then **[Protect](/owner-guide/protect-in-production/configuring-guardrails)** the agent with Dome.
 
@@ -76,45 +56,38 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
     | **Grey Box** | Model / MCP / A2A configuration | Issues tied to composition |
     | **White Box** | Full config and source | Deeper audit-style analysis |
 
-Set the harness to **Active** when you are ready. More depth: [Custom harnesses](/owner-guide/simulate-environment/custom-harnesses), [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies).
+    For most agents, start with **Black Box**: name, description, **Draft** status, **Agent URL**, access key, and rate limit; then **Register Agent**.
 
-### 3. Run an evaluation
-
-Click on **Evaluations**. Pick the **agent** and a **harness**:
-
-- **Trust Score**: all three dimensions at once (toggle dimensions if you need a narrower run).
-- **Custom**: the harness you configured above.
-
-**Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
-
-### 4. Read the Trust Report
-
-Open the report from the results list. You get a **Trust Score** (pass/fail threshold is typically **0.70**), per-harness breakdown, spec used, and remediation-oriented findings.
-
-| Score | Read | Typical next step |
-|-------|------|-------------------|
-| **≥ 0.70** | Pass | Ship with normal monitoring |
-| **0.50–0.69** | Marginal | Strongly consider Dome and extra monitoring |
-| **Below 0.50** | Fail | Remediate before production |
-
-<Warning>
-The score reflects **what the harness exercised**, not a guarantee that every possible failure is impossible.
-</Warning>
+    <Tip>
+      If the agent uses sub-agents or MCP tools, use **Grey Box** fields so Vijil can exercise the full graph.
+    </Tip>
 
     3. Press **Register Agent**
     
     <Tip>More details on [Registering Agents](/owner-guide/register-agents/registering-agents).</Tip>
   </Step>
 
-Open **Guardrails**. The status **Domed** vs **Unprotected** shows coverage. 
+  <Step title="Custom Harness">
 
-You can **Configure Guardrails** to open **input** and **output** pipelines (e.g. security, moderation, privacy). Add guards, choose **early exit** where it makes sense, and use **Execution Flow** with sample prompts to verify behavior.
+    <Badge color="gray">Optional Step.</Badge>
+   
+     For a baseline, you can skip this and use the Trust Score harness in the next step. 
+     
+     To test your [Personas](/owner-guide/simulate-environment/personas) and organizational [Policies](/owner-guide/simulate-environment/policies), go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, a selected **Agent**, **Personas** (who talks to the agent), and **Policies** (rules it must follow); then generates test cases. 
+     
+     Set the **[Harness](/concepts/evaluation-components/harness)** to **<Badge color="green">ACTIVE</Badge>** when you are ready.
+  </Step>
 
-Click **Save** when the pipeline matches your policy. Ongoing monitoring: [Observability](/owner-guide/protect-in-production/observability).
+  <Step title="Run an evaluation">
+
+    Open **Tests** in the **Console**. Pick the **Agent** and a [Harness](/concepts/evaluation-components/harness):
+    
+    - Trust Score: all **[three Dimensions](/concepts/trust-score/introduction)** at once (toggle down Dimensions if you need a narrower run).
+    
+    - Custom: the **[Harness](/concepts/evaluation-components/harness)** you configured above.
 
     **Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
   </Step>
-
   <Step title="Read the Trust Report">
     Open the report from the results list. You get a **Trust Score** (pass/fail threshold is **70**), per-Harness breakdown, spec used, and remediation-oriented findings.
 

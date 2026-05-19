@@ -3,9 +3,9 @@ title: "How Evaluation Works"
 description: "The architecture of systematic agent testing: from test definition through execution to trust scoring."
 ---
 
-The Trust Score measures reliability, security, and safety. But how do you actually test for these properties? You can't just ask an agent *"**are you trustworthy?**"*. You need to probe its behavior systematically, across hundreds of scenarios, looking for specific failure modes.
+The [Trust Score](/concepts/trust-score/introduction) measures [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety). But how do you actually test for these properties? You cannot just ask an agent *"**are you trustworthy?**"*. You need to [Probe](/concepts/evaluation-components/probe) its behavior systematically, across hundreds of [Scenarios](concepts/evaluation-components/scenario), looking for specific failure modes.
 
-Vijil’s evaluation service consists of Harnesses, Scenarios, Probes, and Detectors:
+Vijil’s evaluation service consists of [Harnesses](concepts/evaluation-components/harness), [Scenarios](concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector):
 ![Vijil Evaluation components](/images/legacy/Harness-scenario-probe-detector.webp)
 
 At the lowest level, [Detectors](/concepts/evaluation-components/detector) scan model responses for undesirable features and register responses with those features as successful attacks on the model. For example, a Detector may be designed to look for fake Python packages.

@@ -1,6 +1,6 @@
 ---
 title: 'Custom Harnesses'
-description: 'Create targeted evaluations with custom harnesses, personas, and policies.'
+description: 'Create targeted evaluations with custom Harnesses, personas, and policies.'
 ---
 
 While Vijil has a variety of pre-configured [Harnesses](/concepts/evaluation-components/harness) that you can select from, you can also create your own Harnesses in order to obtain a trust score specific to your organization and agent.
@@ -39,19 +39,19 @@ To view the prompts in a custom Harness, click on its row in the **Harnesses** t
 
 ## Create a Custom Harness via API
 
-You can programmatically create custom harnesses using the Vijil client API. 
+You can programmatically create custom Harnesses using the Vijil client API. 
 
 ### Policy Document(s)
 
-You can create a custom policy adherence Harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you do not provide a policy file, Vijil will create a harness based only on the provided system prompt. To specify that you want a policy adherence harness, you need to specify the `category` argument as `["AGENT_POLICY"]`.
+You can create a custom policy adherence Harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you do not provide a policy file, Vijil will create a Harness based only on the provided system prompt. To specify that you want a policy adherence Harness, you need to specify the `category` argument as `["AGENT_POLICY"]`.
 
-You can use the `harnesses.create` API function to create a Harness to test adherence against frameworks like NIST AI RMF. After creation, you can check the status of the harness creation job. The `harness_config_version` starts at 1.0.0 for any new Harness name. If you create another Harness with the same name, Vijil automatically increments the Harness version.
+You can use the `harnesses.create` API function to create a Harness to test adherence against frameworks like NIST AI RMF. After creation, you can check the status of the Harness creation job. The `harness_config_version` starts at 1.0.0 for any new Harness name. If you create another Harness with the same name, Vijil automatically increments the Harness version.
 
 Once the Harness is created, you can pass its ID when running an evaluation with the API.
 
 ### Knowledge Base (Enterprise Only)
 
-If you are developing a RAG agent and would like to generate a custom test Harness to evaluate generation and retrieval capabilities based on a set of document chunks, upload the documents that you would like to base the evaluation on into a GCP storage bucket. When creating the harness via the API, set the `category` parameter to `["KNOWLEDGE_BASE"]`.
+If you are developing a RAG agent and would like to generate a custom test Harness to evaluate generation and retrieval capabilities based on a set of document chunks, upload the documents that you would like to base the evaluation on into a GCP storage bucket. When creating the Harness via the API, set the `category` parameter to `["KNOWLEDGE_BASE"]`.
 
 ### Tool Calling Agent (Enterprise Only)
 
@@ -71,10 +71,10 @@ You can also create a Harness that contains multiple components. For example, yo
 
 <CardGroup cols={2}>
   <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
-    Execute custom harness evaluations
+    Execute custom Harness evaluations
   </Card>
   <Card title="Understand Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
-    Analyze custom harness results
+    Analyze custom Harness results
   </Card>
   <Card title="Personas" icon="users" href="/owner-guide/simulate-environment/personas">
     Learn more about personas

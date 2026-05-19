@@ -5,9 +5,9 @@ description: 'Integrate evaluation and protection into your development workflow
 
 ## The Problem with Testing Agents
 
-Traditional software testing catches bugs. But agents fail in ways that don't look like bugs, they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
+Traditional software testing catches bugs. But agents fail in ways that do not look like bugs, they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
 
-This guide shows you how to catch those failures before deployment. You'll learn to evaluate agents against adversarial scenarios, integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations didn't anticipate.
+This guide shows you how to catch those failures before deployment. You'll learn to evaluate agents against adversarial [Scenarios](/concepts/evaluation-components/scenario), integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations did not anticipate.
 
 <Info>
 If you manage agents through a web Console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
@@ -17,9 +17,9 @@ If you manage agents through a web Console rather than code, see the [Agent Owne
 
 Vijil provides two products that work together:
 
-**Diamond** evaluates your agent by sending hundreds of adversarial probes and measuring how it responds. You get a Trust Score, a quantified measure of reliability, security, and safety, plus specific findings you can fix.
+**Diamond** evaluates your agent by sending hundreds of adversarial Probes and measuring how it responds. You get a Trust Score, a quantified measure of reliability, security, and safety, plus specific findings you can fix.
 
-**Dome** protects your agent at runtime by intercepting inputs and outputs. When Diamond identifies vulnerabilities you can't immediately fix, Dome blocks the attack patterns in production.
+**Dome** protects your agent at runtime by intercepting inputs and outputs. When Diamond identifies vulnerabilities you cannot immediately fix, Dome blocks the attack patterns in production.
 
 ## Three Developer Workflows
 
@@ -56,11 +56,11 @@ Agents fail across three dimensions. Vijil tests all of them:
 
 | Dimension | What It Measures | Example Failures |
 |-----------|------------------|------------------|
-| **Reliability** | Does the agent do what it's supposed to do? | Hallucinations, task failures, inconsistent responses |
+| **Reliability** | Does the agent do what it is supposed to do? | Hallucinations, task failures, inconsistent responses |
 | **Security** | Can the agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
 | **Safety** | Does the agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
 
-Each evaluation produces a **Trust Score** (0–1) with breakdowns by dimension. The score tells you where your agent is strong, where it's vulnerable, and whether it meets your deployment threshold.
+Each evaluation produces a **Trust Score** (0–1) with breakdowns by dimension. The score tells you where your agent is strong, where it is vulnerable, and whether it meets your deployment threshold.
 
 ## Time to First Trust Score
 

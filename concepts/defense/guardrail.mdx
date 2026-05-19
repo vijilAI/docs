@@ -1,9 +1,9 @@
 ---
 title: "Guardrail"
-description: "Configurable pipelines that orchestrate guards into complete protection policies."
+description: "Configurable pipelines that orchestrate Guards into complete protection policies."
 ---
 
-A guardrail is a configured pipeline of guards that implements your protection policy. If guards are the individual security checks, guardrails are the security checkpoint they define which checks happen, in what order, and what to do with the results.
+A Guardrail is a configured pipeline of [Guards](/concepts/defense/guard) that implements your protection policy. If Guards are the individual security checks, Guardrails are the security checkpoint they define which checks happen, in what order, and what to do with the results.
 
 Vijil Dome allows users to assemble and configure Guardrails, which are designed to scan data exchanged with LLMs, knowledge bases, or other agents. Dome supports several types of Guardrails:
 
@@ -12,17 +12,17 @@ Vijil Dome allows users to assemble and configure Guardrails, which are designed
 - **Retrieval Guardrails** (coming soon): To protect requests to and from retrievers.
 - **Execution Guardrails** (coming soon): To protect requests to and from external agents and tools.
 {/* vale off */}
-![guardrail-position | 80%](/images/legacy/guardrails_workflow.webp)
+![Guardrail-position | 80%](/images/legacy/guardrails_workflow.webp)
 {/* vale off */}
 
 Guardrails consist of a set of [Guards](/concepts/defense/guard) and how they should be executed. These Guards are fully configurable and customizable.
 
 ## Setting Up Guards and Detectors
 
-Users can configure Guards by selecting and combining different Detectors based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
+Users can configure Guards by selecting and combining different [Detectors](/concepts/evaluation-components/detector) based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
 
 {/* vale off */}
-![guardrail-composition | 80%](/images/legacy/guardrail_composition.webp)
+![Guardrail-composition | 80%](/images/legacy/guardrail_composition.webp)
 {/* vale off */}
 
 ### Example Configuration
@@ -70,10 +70,10 @@ Here is an example of how you can set up Guards and Detectors (see the [Configur
 ### Scan Results
 
 The output from Dome's `scan` functions is a `ScanResult` object. It contains the following fields
-- `flagged`: boolean value that indicates if the guardrail has flagged the data that was passed through it. If this is true, it means the input is in violation of the policy the guardrail aims to enforce. This value will always be the opposite of the value returned from the ScanResult's `.is_safe()` method.
-- `response_string`: a string that contains the guardrail's response message. This can be the original input if there was nothing wrong with it, a sanitized version of the input, or a message indicating that the input was blocked, along with the methods that blocked it.
-- `exec_time`: float. the time it took for the guardrail to scan the input, measured in milliseconds
-- `trace`: a dictionary. This contains the execution information for every guard in the guardrail. This includes whether or not they were flagged, their individual execution times, and debugging information for each detector in the guard.
+- `flagged`: boolean value that indicates if the Guardrail has flagged the data that was passed through it. If this is true, it means the input is in violation of the policy the Guardrail aims to enforce. This value will always be the opposite of the value returned from the ScanResult's `.is_safe()` method.
+- `response_string`: a string that contains the Guardrail's response message. This can be the original input if there was nothing wrong with it, a sanitized version of the input, or a message indicating that the input was blocked, along with the methods that blocked it.
+- `exec_time`: float. the time it took for the Guardrail to scan the input, measured in milliseconds
+- `trace`: a dictionary. This contains the execution information for every Guard in the Guardrail. This includes whether or not they were flagged, their individual execution times, and debugging information for each Detector in the Guard.
 
 ## Next Steps
 
@@ -82,7 +82,7 @@ The output from Dome's `scan` functions is a `ScanResult` object. It contains th
     Understand individual protection types
   </Card>
   <Card title="Detector" icon="microscope" href="/concepts/defense/detector">
-    The detection engines inside guards
+    The detection engines inside Guards
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
     Set up Dome for your agent

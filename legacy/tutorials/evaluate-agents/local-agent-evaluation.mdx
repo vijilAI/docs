@@ -94,7 +94,7 @@ vijil.local_agents.evaluate(
     agent_name="My Agent", # This is the name of your agent to use in the evaluation
     evaluation_name="Evaluating my agent on Ethics", # The name of your evaluation
     agent=local_agent, # The LocalAgentExecutor you created earlier
-    harnesses=["ethics_Small"], # The harnesses you wish to run
+    Harnesses=["ethics_Small"], # The Harnesses you wish to run
     rate_limit=30, # Maximum number of requests in the interval to send to your agent
     rate_limit_interval=1, # The size of the interval for the rate_limit (in minutes)
 )
@@ -125,7 +125,7 @@ evaluation = vijil.evaluations.create(
     name="Test local agent",
     api_key_name=api_key_name,
     model_url=f"{server.url}/v1",
-    harnesses=["trust_score"],
+    Harnesses=["trust_score"],
 )
 
 # Wait for a bit to let the evaluation start
@@ -141,7 +141,7 @@ while True:
         break
     time.sleep(5)
 
-# Don't forget to shut down the server when you're done :)
+# Do not forget to shut down the server when you are done :)
 vijil.agents.deregister(server, api_key_name)
 ```
 </CodeGroup>

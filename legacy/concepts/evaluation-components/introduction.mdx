@@ -5,9 +5,9 @@ description: "The architecture of systematic agent testing: from test definition
 
 ## From Trust to Testing
 
-The Trust Score measures reliability, security, and safety. But how do you actually test for these properties? You can't just ask an agent "are you trustworthy?"—you need to probe its behavior systematically, across hundreds of scenarios, looking for specific failure modes.
+The Trust Score measures reliability, security, and safety. But how do you actually test for these properties? You cannot just ask an agent "are you trustworthy?"—you need to Probe its behavior systematically, across hundreds of Scenarios, looking for specific failure modes.
 
-Vijil's evaluation architecture is designed for this kind of systematic testing. It's a pipeline that flows down from abstract test definitions to concrete prompts, across through agent interaction, and back up through analysis to a Trust Score.
+Vijil's evaluation architecture is designed for this kind of systematic testing. It is a pipeline that flows down from abstract test definitions to concrete prompts, across through agent interaction, and back up through analysis to a Trust Score.
 
 <img src="/images/legacy/concepts/evaluation-components/introduction/evaluation-flow.svg" alt="Evaluation flow: Harness to Scenario to Probe to Prompt, then to Agent, then Response to Detector to Pass Rate to Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
 
@@ -20,35 +20,35 @@ The flow has three phases:
 - **Prompt** → The actual text sent to the agent
 
 **Execution** (bottom, horizontal): The agent interaction
-- **Prompt → Agent → Response**: The probe's prompt goes to your agent; you get back a response
+- **Prompt → Agent → Response**: The Probe's prompt goes to your agent; you get back a response
 
 **Aggregation** (right side, ascending): What did we learn?
 - **Response** → The agent's output to analyze
 - **Detector** → Analyzes the response for specific patterns or behaviors
-- **Pass Rate** → The percentage of probes the agent handled correctly
+- **Pass Rate** → The percentage of Probes the agent handled correctly
 - **Trust Score** → The final measure of trustworthiness
 
 ## Why This Architecture?
 
 The pipeline exists because trust evaluation has competing requirements.
 
-**Coverage vs. specificity**: You need broad coverage—hundreds of test cases across multiple attack vectors—but you also need to understand exactly what failed and why. The hierarchy gives you both: aggregate scores at the top, individual probe results at the bottom.
+**Coverage vs. specificity**: You need broad coverage—hundreds of test cases across multiple attack vectors—but you also need to understand exactly what failed and why. The hierarchy gives you both: aggregate scores at the top, individual Probe results at the bottom.
 
-**Standardization vs. customization**: Standard harnesses ensure consistent, comparable results. But every agent is different—different system prompts, different use cases, different risk profiles. Custom harnesses let you test for your specific concerns while maintaining the same evaluation infrastructure.
+**Standardization vs. customization**: Standard Harnesses ensure consistent, comparable results. But every agent is different—different system prompts, different use cases, different risk profiles. Custom Harnesses let you test for your specific concerns while maintaining the same evaluation infrastructure.
 
-**Reusability**: Scenarios and probes can be composed into multiple harnesses. A prompt injection scenario appears in both the security harness and the OWASP LLM Top 10 harness. You don't duplicate tests; you compose them.
+**Reusability**: Scenarios and Probes can be composed into multiple Harnesses. A prompt injection Scenario appears in both the security Harness and the OWASP LLM Top 10 Harness. You do not duplicate tests; you compose them.
 
 ## The Components
 
 | Component | Role | Example |
 |-----------|------|---------|
-| **Harness** | Defines what you're measuring | `security`, `owasp_llm_top_10`, `trust_score` |
+| **Harness** | Defines what you are measuring | `security`, `owasp_llm_top_10`, `trust_score` |
 | **Scenario** | Groups tests by attack vector | Prompt injection, Hallucination, Jailbreaking |
 | **Probe** | Individual test case | "Embed instruction X in fake email" |
 | **Prompt** | Text sent to agent | The actual prompt string |
 | **Response** | Agent's output | What the agent returned |
 | **Detector** | Analyzes response | Check for trigger string, classify toxicity |
-| **Pass Rate** | Aggregated results | 94% of probes passed |
+| **Pass Rate** | Aggregated results | 94% of Probes passed |
 | **Trust Score** | Final metric | 0-100 score across dimensions |
 
 ## Reading Results
@@ -56,9 +56,9 @@ The pipeline exists because trust evaluation has competing requirements.
 Results are available at every level of the hierarchy. You can:
 
 - See the overall Trust Score
-- Drill into harness scores (reliability: 92, security: 87, safety: 95)
-- Examine scenario pass rates (prompt injection: 78%, hallucination: 96%)
-- View individual probe results with the exact prompt, response, and detection evidence
+- Drill into Harness scores (reliability: 92, security: 87, safety: 95)
+- Examine Scenario pass rates (prompt injection: 78%, hallucination: 96%)
+- View individual Probe results with the exact prompt, response, and detection evidence
 
 This drill-down is how you move from "my agent scored 87" to "my agent is vulnerable to base64-encoded prompt injections in customer support contexts."
 

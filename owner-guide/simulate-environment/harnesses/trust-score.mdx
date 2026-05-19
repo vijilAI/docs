@@ -3,7 +3,7 @@ title: "Trust Score Harness"
 description: "Evaluate your agent across reliability, security, and safety dimensions."
 ---
 
-The Trust Score harness provides a comprehensive evaluation of your agent across the three dimensions of trustworthy AI: Reliability, Security, and Safety. This is Vijil's standard evaluation, designed to quantify how much you can trust your agent in production.
+The Trust Score Harness provides a comprehensive evaluation of your agent across the three dimensions of trustworthy AI: Reliability, Security, and Safety. This is Vijil's standard evaluation, designed to quantify how much you can trust your agent in production.
 
 ## The Three Dimensions
 
@@ -36,7 +36,7 @@ The Trust Score measures agent behavior across three complementary dimensions:
   </Card>
 </CardGroup>
 
-Each dimension contains subcategories that probe specific behaviors:
+Each dimension contains subcategories that Probe specific behaviors:
 
 ### Reliability
 
@@ -70,7 +70,7 @@ The evaluation interface has two panels:
 
 **1. Select Agent**: Choose which registered agent to evaluate. The table shows agent name and status. Only agents with status **Active** appear in the list.
 
-**2. Select Harness**: Choose between **Trust Score** (standard evaluation) or **Custom** (your configured harnesses). When Trust Score is selected, you see the three dimensions with toggles.
+**2. Select Harness**: Choose between **Trust Score** (standard evaluation) or **Custom** (your configured Harnesses). When Trust Score is selected, you see the three dimensions with toggles.
 
 ### Configuring Dimensions
 
@@ -113,11 +113,11 @@ The Trust Report provides a complete record of the evaluation with actionable fi
 
 - **Executive Summary**: High-level overview stating whether the agent passed or failed, with the overall Trust Score.
 
-- **Agent Specification**: Configuration details including agent URL, model, rate limits, and which harnesses were evaluated.
+- **Agent Specification**: Configuration details including agent URL, model, rate limits, and which Harnesses were evaluated.
 
-- **Evaluation Results**: The Trust Score with pass/fail status and per-harness breakdown showing scores for each dimension.
+- **Evaluation Results**: The Trust Score with pass/fail status and per-Harness breakdown showing scores for each dimension.
 
-- **Detailed Analysis**: Specific findings for each harness, identifying which probes passed or failed and why.
+- **Detailed Analysis**: Specific findings for each Harness, identifying which Probes passed or failed and why.
 
 - **Conclusion**: Deployment recommendation based on the results.
 
@@ -130,11 +130,11 @@ The Trust Score ranges from **0 to 1**:
 | ≥ 0.70 | **PASSED** | Agent meets trustworthiness threshold        |
 | < 0.70 | **FAILED** | Agent requires remediation before deployment |
 
-A passing score indicates the agent handled probes within acceptable bounds. A failing score identifies specific failure modes to address before production deployment.
+A passing score indicates the agent handled Probes within acceptable bounds. A failing score identifies specific failure modes to address before production deployment.
 
 <Warning>
-  The Trust Score quantifies known risks based on the probes executed. It does not guarantee absence
-  of all vulnerabilities—only that your agent performed acceptably against the tested scenarios.
+  The Trust Score quantifies known risks based on the Probes executed. It does not guarantee absence
+  of all vulnerabilities—only that your agent performed acceptably against the tested Scenarios.
 </Warning>
 
 ### Deployment Recommendations
@@ -144,7 +144,7 @@ The report concludes with a deployment recommendation:
 **For passing agents:**
 
 - Deploy with standard monitoring
-- Consider enabling Dome guardrails for additional runtime protection
+- Consider enabling Dome Guardrails for additional runtime protection
 - Schedule periodic re-evaluation to catch regressions
 
 **For failing agents:**
@@ -163,7 +163,7 @@ The report concludes with a deployment recommendation:
 
 **Track scores over time**: Compare Trust Scores across evaluations to identify trends. Regressions indicate problems introduced by recent changes.
 
-**Combine with custom harnesses**: The Trust Score tests general behaviors. Custom harnesses test your specific policies and user scenarios. Use both for comprehensive coverage.
+**Combine with custom Harnesses**: The Trust Score tests general behaviors. Custom Harnesses test your specific policies and user Scenarios. Use both for comprehensive coverage.
 
 ## Next Steps
 

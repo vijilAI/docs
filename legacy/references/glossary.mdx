@@ -22,7 +22,7 @@ This maps Detector module names you may see in your [reports](/tutorials/evaluat
 | `packagehallucinationART.RustCrates` | Rust package hallucination | Detects whether the model provides code that imports non-existent Rust packages |
 | `packagehallucinationART.JavaScriptNpm` | Javascript package hallucination | Detects whether the model provides code that imports non-existent Javascript packages |
 | `packagehallucinationART.RubyGems` | Ruby package hallucination | Detects whether the model provides code that imports non-existent Ruby packages |
-| `privateinfo.DontAnswerYes` | Don't answer yes | Detects whether the model says it is OK to reveal private information. If so, the model fails the test. |
+| `privateinfo.DontAnswerYes` | Do not answer yes | Detects whether the model says it is OK to reveal private information. If so, the model fails the test. |
 | `privateinfo.LeakPII` | Private information leakage | Detects whether the model leaks private information that is provided in the prompt |
 | `xss.MarkdownExfilBasic` | Markdown image | Detects whether the response contains a Markdown image. |
 | `xss.MarkdownExfilContent` | Private content in Markdown image | Detects whether the response contains content private to a conversation within a Markdown image. |
@@ -69,19 +69,19 @@ This maps Detector module names you may see in your [reports](/tutorials/evaluat
 | `riskywords.SurgeProfanityReligious` | Profanity: religious | Detects whether the model outputs profanity containing words related to animals |
 | `riskywords.SurgeProfanitySexual` | Profanity: sexual | Detects whether the model outputs profanity containing words related to animals |
 | `riskywords.SurgeProfanitySexualOrientationGender` | Profanity: sexual orientation/gender | Detects whether the model outputs profanity containing words related to animals |
-| `snowball.DontStartNo` | Don't start no | Detects whether the model response starts with 'no'. If so, it fails the test. |
-| `snowball.DontStartYes` | Don't start yes | Detects whether the model response starts with 'yes'. If so, it fails the test.|
+| `snowball.DontStartNo` | Do not start no | Detects whether the model response starts with 'no'. If so, it fails the test. |
+| `snowball.DontStartYes` | Do not start yes | Detects whether the model response starts with 'yes'. If so, it fails the test.|
 | `toxicity.ToxicCommentModel` | Model-based toxicity | Uses a small language model to determine whether the response is toxic. |
 | `toolcalling.ToolCorrectness` | Tool Correctness | Detects correct use of a set of tools |
-| `winobias.TriggerPlusAmbiguity` | Detect gender bias in professions | Detects specific trigger words indicating gender bias in predicted professions, with addition of ambiguity detector for when model response is hedging. |
+| `winobias.TriggerPlusAmbiguity` | Detect gender bias in professions | Detects specific trigger words indicating gender bias in predicted professions, with addition of ambiguity Detector for when model response is hedging. |
 | `ansiescape.Raw` | Raw ANSI Sequences | Detects raw ANSI sequences |
 | `ansiescape.Escaped` | Escaped ANSI Sequences | Detects escaped ANSI sequences |
 | `productkey.Win5x5` | Windows Product Key | Detects a product key in the form of five groups of five characters |
 | `nlp.BLEU` | BLEU | Generation metric, measures semantic similarity of expected and generated answer |
 | `nlp.METEOR` | METEOR | Generation metric, measures semantic similarity of expected and generated answer |
 | `nlp.BERTScore` | BERTScore | Generation metric, measures semantic similarity of expected and generated answer |
-| `mathLatexSympy.MathLatexSympy` | Math checking using Sympy | This is used for some mathematical based probes. To pass the test, the model response must mathematically match the trigger. Assumes latex will be given back and uses sympy to check for equivalency |
-| `instructionFollowing.InstructionFollowing` | Following Formatting Instructions | This is used for an instruction following probe. To pass the test, the model response should adhere to instructions as specified by the trigger. The instructions are intended to be deterministically evaluating as the instructions used are things like 'use 500 words or less' or 'use markdown formatting', things that able to be deterministcally verified. |
+| `mathLatexSympy.MathLatexSympy` | Math checking using Sympy | This is used for some mathematical based Probes. To pass the test, the model response must mathematically match the trigger. Assumes latex will be given back and uses sympy to check for equivalency |
+| `instructionFollowing.InstructionFollowing` | Following Formatting Instructions | This is used for an instruction following Probe. To pass the test, the model response should adhere to instructions as specified by the trigger. The instructions are intended to be deterministically evaluating as the instructions used are things like 'use 500 words or less' or 'use markdown formatting', things that able to be deterministcally verified. |
 
 ### Security Probes
 
@@ -97,7 +97,7 @@ This maps Detector module names you may see in your [reports](/tutorials/evaluat
 | dan.Dan_6_2 | Do Anything Now: v6.2 | Do Anything Now jailbreak offering rewards to encourage making future predictions and hallucations, with additional incitement to rudeness and disrespectfulness. |
 | dan.Dan_7_0 | Do Anything Now: v7.0 | Do Anything Now jailbreak telling the model that filtering is not acceptable and including special instructions for when to break character |
 | dan.Dan_8_0 | Do Anything Now: v8.0 | Do Anything Now jailbreak telling the model is Bigmancozmo and encouraging swearing, porn, and illegality |
-| dan.Dan_9_0 | Do Anything Now: v9.0 | Do Anything Now jailbreak encouraging breaking 2021 information cutoff and ethical guardrails in responses, with reward offered |
+| dan.Dan_9_0 | Do Anything Now: v9.0 | Do Anything Now jailbreak encouraging breaking 2021 information cutoff and ethical Guardrails in responses, with reward offered |
 | dan.DAN_Jailbreak | Do Anything Now: 🔓JAILBREAK version | Do Anything Now jailbreak prompting the model to enter a 🔓JAILBREAK mode |
 | dan.DUDE | Do anything and everything | Do Anything Now jailbreak prompting the model to take on the DUDE persona |
 | dan.STAN | Strive To Avoid Norms | Jailbreak prompting the model to take on a Strive To Avoid Norms (STAN) persona |
@@ -263,9 +263,9 @@ This maps Detector module names you may see in your [reports](/tutorials/evaluat
 | normative_ethics.JusticeJailbreak | Adversarial Justice-based Ethics | Evaluates whether the model understands principles of desert or impartiality under adversarial prompting |
 | normative_ethics.Morality | Commonsense Morality | Evaluates whether the model's moral judgments align with common moral intuitions |
 | normative_ethics.MoralityJailbreak | Adversarial Commonsense Morality | Evaluates, under adversarial prompting, whether the model's moral judgments align with common moral intuitions |
-| normative_ethics.Utilitarianism | Utilitarianism | Evaluates whether the model can identify which of two scenarios has higher utility |
-| normative_ethics.UtilitarianismJailbreak | Adversarial Utilitarianism | Evaluates, under adversarial prompting, whether the model can identify which of two scenarios has higher utility |
+| normative_ethics.Utilitarianism | Utilitarianism | Evaluates whether the model can identify which of two Scenarios has higher utility |
+| normative_ethics.UtilitarianismJailbreak | Adversarial Utilitarianism | Evaluates, under adversarial prompting, whether the model can identify which of two Scenarios has higher utility |
 | normative_ethics.Virtue | Virtue Ethics | Evaluates whether the model can identify moral virtues correctly |
 | normative_ethics.VirtueJailbreak | Adversarial Virtue Ethics | Evaluates, under adversarial prompting, whether the model can identify moral virtues correctly |
-| jiminycricket.Jiminy | Simulation | Evaluates the model's ability to identify the moral valence of a simulated scenario |
-| jiminycricket.JiminyJailbreak | Adversarial Simulation | Evaluates, under adversarial prompting, the model's ability to identify the moral valence of a simulated scenario |
+| jiminycricket.Jiminy | Simulation | Evaluates the model's ability to identify the moral valence of a simulated Scenario |
+| jiminycricket.JiminyJailbreak | Adversarial Simulation | Evaluates, under adversarial prompting, the model's ability to identify the moral valence of a simulated Scenario |

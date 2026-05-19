@@ -1,13 +1,13 @@
 ---
 title: "Reliability"
-description: "Measuring whether agents do what they're supposed to do—correctly, consistently, and robustly."
+description: "Measuring whether agents do what they are supposed to do—correctly, consistently, and robustly."
 ---
 
 ## The Baseline Expectation
 
-Reliability is the oldest form of trust. We trust a hammer because it drives nails. We trust a calculator because it returns correct answers. We trust a database because it stores and retrieves records without corruption. This is the trust we extend to tools: they do what they're supposed to do, every time, without surprises.
+Reliability is the oldest form of trust. We trust a hammer because it drives nails. We trust a calculator because it returns correct answers. We trust a database because it stores and retrieves records without corruption. This is the trust we extend to tools: they do what they are supposed to do, every time, without surprises.
 
-AI agents inherit this expectation but struggle to meet it. Unlike traditional software, where incorrect behavior usually indicates a bug to be fixed, agents can produce incorrect outputs as a normal part of their operation. They hallucinate facts, contradict themselves across sessions, and fail unpredictably on inputs that seem similar to ones they handle well. The probabilistic nature of language models means reliability isn't a binary property—it's a distribution.
+AI agents inherit this expectation but struggle to meet it. Unlike traditional software, where incorrect behavior usually indicates a bug to be fixed, agents can produce incorrect outputs as a normal part of their operation. They hallucinate facts, contradict themselves across sessions, and fail unpredictably on inputs that seem similar to ones they handle well. The probabilistic nature of language models means reliability is not a binary property—it is a distribution.
 
 Vijil measures reliability across three sub-dimensions: correctness, consistency, and robustness. Together, these capture whether an agent can be trusted to perform its intended function.
 
@@ -19,7 +19,7 @@ Correctness measures alignment between what an agent says and what is actually t
 
 ### Failure Modes
 
-**Hallucination** is the signature failure mode of language models. An agent confidently states that a Python package exists when it doesn't, invents citations to papers that were never written, or fabricates details about people, places, and events. Hallucinations are especially dangerous because they're delivered with the same confidence as accurate information—there's no signal to the user that something is wrong.
+**Hallucination** is the signature failure mode of language models. An agent confidently states that a Python package exists when it does not, invents citations to papers that were never written, or fabricates details about people, places, and events. Hallucinations are especially dangerous because they are delivered with the same confidence as accurate information—there's no signal to the user that something is wrong.
 
 **Logical errors** occur when an agent's reasoning chain contains flaws. The agent might make arithmetic mistakes, draw invalid conclusions from premises, or fail to recognize contradictions in its own outputs. Unlike hallucinations about facts, these errors involve the reasoning process itself.
 
@@ -27,7 +27,7 @@ Correctness measures alignment between what an agent says and what is actually t
 
 ### What Vijil Tests
 
-Vijil evaluates correctness through probes designed to elicit hallucinations and logical errors:
+Vijil evaluates correctness through Probes designed to elicit hallucinations and logical errors:
 
 | Test Category | What It Measures |
 |--------------|------------------|
@@ -40,7 +40,7 @@ Vijil evaluates correctness through probes designed to elicit hallucinations and
 
 **Does the agent behave predictably across similar conditions?**
 
-Consistency measures stability of behavior. A consistent agent gives similar answers to similar questions, maintains its persona across sessions, and doesn't contradict itself within a conversation.
+Consistency measures stability of behavior. A consistent agent gives similar answers to similar questions, maintains its persona across sessions, and does not contradict itself within a conversation.
 
 ### Failure Modes
 
@@ -52,7 +52,7 @@ Consistency measures stability of behavior. A consistent agent gives similar ans
 
 ### What Vijil Tests
 
-Vijil evaluates consistency by running variations of the same probe and measuring output stability:
+Vijil evaluates consistency by running variations of the same Probe and measuring output stability:
 
 | Test Category | What It Measures |
 |--------------|------------------|
@@ -87,11 +87,11 @@ Vijil evaluates robustness through adversarial perturbations that challenge inpu
 
 ## Why Reliability Matters
 
-Reliability failures erode trust faster than almost any other kind. Users can tolerate an agent that occasionally refuses a request or takes longer than expected. What they can't tolerate is an agent that confidently gives wrong answers, behaves unpredictably, or breaks when inputs aren't perfect.
+Reliability failures erode trust faster than almost any other kind. Users can tolerate an agent that occasionally refuses a request or takes longer than expected. What they cannot tolerate is an agent that confidently gives wrong answers, behaves unpredictably, or breaks when inputs are not perfect.
 
-In enterprise deployments, unreliable agents create concrete harms: customers receive incorrect information, decisions are made on fabricated data, and users learn to distrust the agent's outputs even when they're correct. The cost isn't just the individual errors—it's the overhead of having humans verify everything the agent produces, which eliminates much of the efficiency gain agents are supposed to provide.
+In enterprise deployments, unreliable agents create concrete harms: customers receive incorrect information, decisions are made on fabricated data, and users learn to distrust the agent's outputs even when they are correct. The cost is not just the individual errors—it is the overhead of having humans verify everything the agent produces, which eliminates much of the efficiency gain agents are supposed to provide.
 
-The reliability dimension of the Trust Score gives you evidence about where your agent stands. Not a guarantee of correctness, but a map of its reliability profile: where it's strong, where it's vulnerable, and how it compares to alternatives.
+The reliability dimension of the Trust Score gives you evidence about where your agent stands. Not a guarantee of correctness, but a map of its reliability profile: where it is strong, where it is vulnerable, and how it compares to alternatives.
 
 ## Next Steps
 

@@ -8,7 +8,7 @@ Dome can be wrapped around any LLM call to Guard its inputs and outputs. Simply 
 ```python title="Python" icon="python"
 from vijil_dome import Dome
 
-# If you're using Dome in a Jupyter notebook, include these lines as well
+# If you are using Dome in a Jupyter notebook, include these lines as well
 import nest_asyncio
 nest_asyncio.apply()
 
@@ -48,7 +48,7 @@ print(prompt_guarded_client(dome, oai_client, "gpt-4o", query_1))
 print(prompt_guarded_client(dome, oai_client, "gpt-4o", query_2))
 
 # The capital of France is Paris.
-# Blocked by input guardrail at Guard:moderation_default Method:moderation-prompt-engineering
+# Blocked by input Guardrail at Guard:moderation_default Method:moderation-prompt-engineering
 ```
 </CodeGroup>
 

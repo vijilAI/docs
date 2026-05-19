@@ -115,7 +115,7 @@ parameters:
 
 ## Harnesses
 
-Class for handling harnesses API requests.
+Class for handling Harnesses API requests.
 
 parameters:
 
@@ -124,7 +124,7 @@ parameters:
 
 ### calculate_md5_base64
 
-Calculate the MD5 hash of a custom harness policy file and return it as a base64 string. Returns md5 hash of the file as a base64 string as `str`.
+Calculate the MD5 hash of a custom Harness policy file and return it as a base64 string. Returns md5 hash of the file as a base64 string as `str`.
 
 parameters:
 
@@ -133,7 +133,7 @@ parameters:
 
 ### calculate_file_size
 
-Calculate the size of a custom harness policy file in bytes. Returns size of the file in bytes as `int`.
+Calculate the size of a custom Harness policy file in bytes. Returns size of the file in bytes as `int`.
 
 parameters:
 
@@ -142,38 +142,38 @@ parameters:
 
 ### list
 
-List all harnesses. Returns list of dicts where each dict contains the metadata for a harness, or a pandas dataframe if format is "dataframe" as `List(dict) or pandas.DataFrame`.
+List all Harnesses. Returns list of dicts where each dict contains the metadata for a Harness, or a pandas dataframe if format is "dataframe" as `List(dict) or pandas.DataFrame`.
 
 parameters:
 
-- `type` (Optional[str], optional): Type of harness to list. Current supported values are "benchmark", "audit", "dimension", "custom". Defaults to None, in which case all harnesses are listed.
+- `type` (Optional[str], optional): Type of Harness to list. Current supported values are "benchmark", "audit", "dimension", "custom". Defaults to None, in which case all Harnesses are listed.
 - `format` (str, optional): Format of the returned list. Current supported values are 'dataframe', 'list'. Defaults to "dataframe".
 
 
 ### create
 
-Create a custom harness from a system prompt and an optional policy file. Returns the specified harness name, the harness id, and the status of the harness creation process as `dict`.
+Create a custom Harness from a system prompt and an optional policy file. Returns the specified Harness name, the Harness id, and the status of the Harness creation process as `dict`.
 
 parameters:
 
-- `name` (any): The name of the harness.
-- `system_prompt` (any): The system prompt for the model you're testing.
-- `category` (any): The category of the harness. Options are "AGENT_POLICY", "KNOWLEDGE_BASE", "FUNCTION_ROUTE", "PERSONA"
-- `policy_file_path` (any): The path to the policy document (pdf or txt). Applicable to an agent policy harness. Defaults to "".
-- `kb_bucket` (any): The bucket name for the knowledge base. Must be specified if you want to include a knowledge base harness. Defaults to "".
-- `input_schema` (any): The input schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to {}.
-- `output_schema` (any): The output schema to be used for harness creation. Applicable to a tool-calling agent. Defaults to {}.
-- `function_route` (any): The function route to be used for harness creation. Applicable to a tool-calling agent. Defaults to "".
-- `persona_ids` (any): The persona IDs to be used for harness creation. Applicable to a persona harness. Defaults to [].
+- `name` (any): The name of the Harness.
+- `system_prompt` (any): The system prompt for the model you are testing.
+- `category` (any): The category of the Harness. Options are "AGENT_POLICY", "KNOWLEDGE_BASE", "FUNCTION_ROUTE", "PERSONA"
+- `policy_file_path` (any): The path to the policy document (pdf or txt). Applicable to an agent policy Harness. Defaults to "".
+- `kb_bucket` (any): The bucket name for the knowledge base. Must be specified if you want to include a knowledge base Harness. Defaults to "".
+- `input_schema` (any): The input schema to be used for Harness creation. Applicable to a tool-calling agent. Defaults to {}.
+- `output_schema` (any): The output schema to be used for Harness creation. Applicable to a tool-calling agent. Defaults to {}.
+- `function_route` (any): The function route to be used for Harness creation. Applicable to a tool-calling agent. Defaults to "".
+- `persona_ids` (any): The persona IDs to be used for Harness creation. Applicable to a persona Harness. Defaults to [].
 
 
 ### get_status
 
-Get the status of a harness. Returns the status of the custom harness as `dict`.
+Get the status of a Harness. Returns the status of the custom Harness as `dict`.
 
 parameters:
 
-- `harness_id` (any): The ID of the harness.
+- `harness_id` (any): The ID of the Harness.
 
 
 ## AnalysisReports
@@ -258,22 +258,22 @@ parameters:
 
 ### list_harnesses_for_type
 
-List all harnesses of a given type(s). Returns list of harnesses as `list`.
+List all Harnesses of a given type(s). Returns list of Harnesses as `list`.
 
 parameters:
 
-- `harness_types` (List[str]): List of harness types to list.
-- `latest_version` (bool, optional): If True, will return only the latest version of each harness, defaults to True.
+- `harness_types` (List[str]): List of Harness types to list.
+- `latest_version` (bool, optional): If True, will return only the latest version of each Harness, defaults to True.
 
 
 ### get_harness_tags
 
-Given the list of harnesses, ensure they belong to the same tag group and get the tag group.
-This is to ensure they are all on the correct UI page. Returns tag group of the harnesses as `str`.
+Given the list of Harnesses, ensure they belong to the same tag group and get the tag group.
+This is to ensure they are all on the correct UI page. Returns tag group of the Harnesses as `str`.
 
 parameters:
 
-- `harness_names` (List[str]): List of harness names to get the tag group for.
+- `harness_names` (List[str]): List of Harness names to get the tag group for.
 
 
 ### create
@@ -283,14 +283,14 @@ Create a new evaluation. Returns api response containing evaluation id of the ne
 parameters:
 
 - `model_hub` (str): The model hub you want to use. Supported options are "openai", "together", "digitalocean", "custom".
-- `harness_version` (str): The version of the harness you want to use.
+- `harness_version` (str): The version of the Harness you want to use.
 - `model_name` (str, optional): The name of the model you want to use. Check the model hub's API documentation to find valid names.
 - `name` (str, optional): The name of the evaluation. If not specified, model hub will be concatenated with model name.
 - `api_key_name` (str, optional): The name of the model hub API key you want to use. If not specified, will use the first key we find for the specified model_hub.
 - `model_url` (str, optional): The URL of the model you want to use. Only required for custom model hub. Defaults to None
 - `model_params` (dict, optional): A dictionary specifying inference parameters like temperature and top_p. If none are specified, model hub defaults will be used. Defaults to {}
 - `harness_params` (dict, optional): Set optional parameters like is_lite, defaults to {}
-- `harnesses` (List[str], optional): A list of harnesses you want to include in the evaluation, defaults to []
+- `harnesses` (List[str], optional): A list of Harnesses you want to include in the evaluation, defaults to []
 
 
 ### get_status
@@ -313,7 +313,7 @@ parameters:
 
 ### get_tree
 
-Retrieve the tree of an evaluation. Returns for each probe, information about which harness and scenario it came from as `dict`.
+Retrieve the tree of an evaluation. Returns for each Probe, information about which Harness and Scenario it came from as `dict`.
 
 parameters:
 
@@ -333,7 +333,7 @@ parameters:
 ### summarize
 
 Return summary dataframe of the evaluation results, aggregated at every level
-(overall evaluation, dimension, scenario, probe). Returns a dataframe with the level, level_name, and score of the evaluation as `pandas.DataFrame`.
+(overall evaluation, dimension, Scenario, Probe). Returns a dataframe with the level, level_name, and score of the evaluation as `pandas.DataFrame`.
 
 parameters:
 
@@ -350,8 +350,8 @@ parameters:
 - `evaluation_id` (str): The unique ID of the evaluation
 - `limit` (int, optional): The maximum number of prompts to include in description. Defaults to 1000.
 - `format` (str, optional): The format of the output. Defaults to "dataframe". Options are "dataframe" and "list".
-- `prettify` (bool, optional): If True, will remove the "vijil.probes." prefix from the probe names to make it more readable. Defaults to True.
-- `hits_only` (bool, optional): If True, will only return prompts that had undesirable responses (according to our detectors). Defaults to False.
+- `prettify` (bool, optional): If True, will remove the "Vijil.Probes." prefix from the Probe names to make it more readable. Defaults to True.
+- `hits_only` (bool, optional): If True, will only return prompts that had undesirable responses (according to our Detectors). Defaults to False.
 
 
 ### export
@@ -364,8 +364,8 @@ parameters:
 - `limit` (int, optional): The maximum number of prompts to include in the report. Defaults to 1000000.
 - `format` (str, optional): The format of the output. Defaults to "csv". Options are "csv", "parquet", "json" and "jsonl"
 - `output_dir` (str, optional): The directory to save the report. Defaults to the current directory.
-- `prettify` (bool, optional): If True, will remove the "vijil.probes." prefix from the probe names to make it more readable. Defaults to True.
-- `hits_only` (bool, optional): If True, will only return prompts that had undesirable responses (according to our detectors). Defaults to False.
+- `prettify` (bool, optional): If True, will remove the "Vijil.Probes." prefix from the Probe names to make it more readable. Defaults to True.
+- `hits_only` (bool, optional): If True, will only return prompts that had undesirable responses (according to our Detectors). Defaults to False.
 
 
 ### cancel
@@ -388,14 +388,14 @@ parameters:
 
 ### get_probes
 
-Get all probes and probe metadata for a specific evaluation.
+Get all Probes and Probe metadata for a specific evaluation.
 Returns a dict with keys results, count.
-Results array contains probes and count indicates number of probes.
+Results array contains Probes and count indicates number of Probes.
 
 ### get_probes_info
 
-Get metadata for all probes in a specific evaluation.
-Returns a list of dicts with keys: probe, name, description, scoring_function.
+Get metadata for all Probes in a specific evaluation.
+Returns a list of dicts with keys: Probe, name, description, scoring_function.
 
 parameters:
 
@@ -404,8 +404,8 @@ parameters:
 
 ### get_scenario_info
 
-Get metadata for all scenarios in a specific evaluation.
-Returns a list of dicts with keys: scenarios, name, description.
+Get metadata for all Scenarios in a specific evaluation.
+Returns a list of dicts with keys: Scenarios, name, description.
 
 parameters:
 
@@ -414,19 +414,19 @@ parameters:
 
 ### get_harness_info
 
-Get metadata for all harnesses in a specific evaluation.
-Returns a list of dicts with keys: harness, name, description.
+Get metadata for all Harnesses in a specific evaluation.
+Returns a list of dicts with keys: Harness, name, description.
 
 parameters:
 
-- `full` (bool, optional): If True, returns all harness info. If False, returns only harness, name, description. Defaults to False.
+- `full` (bool, optional): If True, returns all Harness info. If False, returns only Harness, name, description. Defaults to False.
 
 
 ### report
 
 ## Detectors
 
-Class for handling API requests to get detector metadata.
+Class for handling API requests to get Detector metadata.
 
 parameters:
 
@@ -435,21 +435,21 @@ parameters:
 
 ### get_detector_info
 
-Gets detector metadata for a specific detector id. Returns the detector metadata as `dict`.
+Gets Detector metadata for a specific Detector id. Returns the Detector metadata as `dict`.
 
 parameters:
 
-- `detector_id` (str): The unique ID of the detector
-- `version` (Optional[str], optional): The version of the detector metadata to get. Defaults to None.
+- `detector_id` (str): The unique ID of the Detector
+- `version` (Optional[str], optional): The version of the Detector metadata to get. Defaults to None.
 
 
 ### list
 
-Lists all available detectors and their metadata. Returns the detector metadata as `dict`.
+Lists all available Detectors and their metadata. Returns the Detector metadata as `dict`.
 
 parameters:
 
-- `version` (Optional[str], optional): The version of the detector metadata to get. Defaults to the latest version.
+- `version` (Optional[str], optional): The version of the Detector metadata to get. Defaults to the latest version.
 
 
 ## Detections
@@ -462,7 +462,7 @@ Refresh the API proxy dictionary cache.
 
 ### list_detectors
 
-Lists all available detectors. Returns the list of available detectors as `list`.
+Lists all available Detectors. Returns the list of available Detectors as `list`.
 
 ### create
 
@@ -470,9 +470,9 @@ Create a new detection. Returns the response from the api. if the detection crea
 
 parameters:
 
-- `detector_id` (str): The unique ID of the detector
-- `detector_inputs` (List[dict]): Input payload to the detector
-- `detector_params` (dict): Optional parameters to be passed for the detector
+- `detector_id` (str): The unique ID of the Detector
+- `detector_inputs` (List[dict]): Input payload to the Detector
+- `detector_params` (dict): Optional parameters to be passed for the Detector
 
 
 ### get_status
@@ -611,8 +611,8 @@ parameters:
 - `agent_name` (str): The name of the agent.
 - `evaluation_name` (str): The name of the evaluation.
 - `agent` (LocalAgentExecutor): The local agent executor instance.
-- `harnesses` (list): The list of harnesses to use for evaluation.
-- `harness_parameters` (dict): The parameters to pass to the harnesses.
+- `harnesses` (list): The list of Harnesses to use for evaluation.
+- `harness_parameters` (dict): The parameters to pass to the Harnesses.
 - `rate_limit` (int, optional): The maximum number of requests to the model hub per rate_limit_interval seconds. Defaults to None.
 - `rate_limit_interval` (int, optional): The interval (in seconds) over which the rate limit is applied. Defaults to None.
 - `poll_interval` (float, optional): The interval (in seconds) over which the evaluation status is polled. Defaults to 5.0.
@@ -626,7 +626,7 @@ parameters:
 
 ### get_config
 
-Get the dome config for a specific agent. Returns the dome config for the agent as `dict`.
+Get the Dome config for a specific agent. Returns the Dome config for the agent as `dict`.
 
 parameters:
 
@@ -635,25 +635,25 @@ parameters:
 
 ### get_default_config
 
-Get the default dome config. Returns the default dome config as `dict`.
+Get the default Dome config. Returns the default Dome config as `dict`.
 
 ### update_dome_config
 
-Update the dome config for a specific agent. Returns none as `None`.
+Update the Dome config for a specific agent. Returns none as `None`.
 
 parameters:
 
 - `agent_id` (str): The unique ID of the agent
-- `config` (dict): The dome config to set for the agent
+- `config` (dict): The Dome config to set for the agent
 
 
 ### delete_dome_config
 
-Delete a dome config by its ID. Returns none as `None`.
+Delete a Dome config by its ID. Returns none as `None`.
 
 parameters:
 
-- `dome_config_id` (str): The ID of the dome config to delete
+- `dome_config_id` (str): The ID of the Dome config to delete
 
 
 ## Vijil

@@ -1,21 +1,21 @@
 ---
 title: "Harness"
-description: "The top-level container that defines what you're testing and produces a score."
+description: "The top-level container that defines what you are testing and produces a score."
 ---
 
 ## What is a Harness?
 
-A harness is a collection of tests bundled together for a specific purpose. When you run an evaluation, you select one or more harnesses. Each harness produces a score and detailed results for everything it tests.
+A Harness is a collection of tests bundled together for a specific purpose. When you run an evaluation, you select one or more Harnesses. Each Harness produces a score and detailed results for everything it tests.
 
-Think of a harness like a test suite in traditional software testing. A unit test suite tests individual functions. An integration test suite tests components working together. A security test suite tests for vulnerabilities. Each suite has a different purpose and contains different tests—but they all use the same testing infrastructure.
+Think of a Harness like a test suite in traditional software testing. A unit test suite tests individual functions. An integration test suite tests components working together. A security test suite tests for vulnerabilities. Each suite has a different purpose and contains different tests—but they all use the same testing infrastructure.
 
-Vijil harnesses work the same way. The `reliability` harness tests for correctness, consistency, and robustness. The `owasp_llm_top_10` harness tests for the vulnerabilities in the OWASP LLM Top 10. The `trust_score` harness runs everything and produces a comprehensive Trust Score. Different purposes, same evaluation infrastructure.
+Vijil Harnesses work the same way. The `reliability` Harness tests for correctness, consistency, and robustness. The `owasp_llm_top_10` Harness tests for the vulnerabilities in the OWASP LLM Top 10. The `trust_score` Harness runs everything and produces a comprehensive Trust Score. Different purposes, same evaluation infrastructure.
 
 ## Types of Harnesses
 
 ### Dimension Harnesses
 
-Each trust dimension has its own harness:
+Each trust dimension has its own Harness:
 
 | Harness | What It Tests |
 |---------|---------------|
@@ -23,11 +23,11 @@ Each trust dimension has its own harness:
 | `security` | Confidentiality, integrity, availability |
 | `safety` | Containment, compliance, transparency |
 
-These harnesses map directly to the Trust Score dimensions. Run all three to get a complete Trust Score, or run individual dimensions to focus on specific concerns.
+These Harnesses map directly to the Trust Score dimensions. Run all three to get a complete Trust Score, or run individual dimensions to focus on specific concerns.
 
 ### Compliance Harnesses
 
-Compliance harnesses test against external standards:
+Compliance Harnesses test against external standards:
 
 | Harness | What It Tests |
 |---------|---------------|
@@ -35,11 +35,11 @@ Compliance harnesses test against external standards:
 | `nist_ai_rmf` | NIST AI Risk Management Framework controls |
 | `gdpr` | GDPR-relevant privacy and data handling |
 
-These harnesses are designed to produce evidence for audits and compliance reviews. Results map to specific controls or requirements in each standard.
+These Harnesses are designed to produce evidence for audits and compliance reviews. Results map to specific controls or requirements in each standard.
 
 ### Benchmark Harnesses
 
-Benchmark harnesses test against established AI evaluation benchmarks:
+Benchmark Harnesses test against established AI evaluation benchmarks:
 
 | Harness | What It Tests |
 |---------|---------------|
@@ -47,11 +47,11 @@ Benchmark harnesses test against established AI evaluation benchmarks:
 | `strongreject` | StrongREJECT jailbreak resistance benchmark |
 | `cyberseceval` | Meta's CyberSecEval security benchmark |
 
-Benchmark harnesses let you compare your agent against published results and track performance on standardized tasks.
+Benchmark Harnesses let you compare your agent against published results and track performance on standardized tasks.
 
 ### The Trust Score Harness
 
-The `trust_score` harness is a meta-harness that includes all dimension harnesses plus performance benchmarks. It produces the complete Vijil Trust Score—the single number that captures overall trustworthiness.
+The `trust_score` Harness is a meta-Harness that includes all dimension Harnesses plus performance benchmarks. It produces the complete Vijil Trust Score—the single number that captures overall trustworthiness.
 
 ```python
 # Run a complete Trust Score evaluation
@@ -66,9 +66,9 @@ evaluation = client.evaluations.create(
 
 ## Custom Harnesses
 
-Standard harnesses test for general-purpose trust. But your agent has specific characteristics—a particular system prompt, defined capabilities, a knowledge base, restricted topics. Custom harnesses let you test for these specifics.
+Standard Harnesses test for general-purpose trust. But your agent has specific characteristics—a particular system prompt, defined capabilities, a knowledge base, restricted topics. Custom Harnesses let you test for these specifics.
 
-A custom harness can:
+A custom Harness can:
 
 - Test your agent's adherence to its system prompt
 - Verify it stays within its defined capabilities
@@ -76,36 +76,36 @@ A custom harness can:
 - Probe for leakage of information from your knowledge base
 - Test compliance with your organization's specific policies
 
-Custom harnesses use the same scenarios, probes, and detectors as standard harnesses, but configured for your context.
+Custom Harnesses use the same Scenarios, Probes, and Detectors as standard Harnesses, but configured for your context.
 
 <Card title="Building Custom Harnesses" icon="hammer" href="/owner-guide/simulate-environment/custom-harnesses">
-  Learn how to create harnesses tailored to your agent
+  Learn how to create Harnesses tailored to your agent
 </Card>
 
 ## Harness Results
 
-When a harness completes, you get:
+When a Harness completes, you get:
 
-- **Overall score**: A 0-100 score for everything the harness tests
-- **Scenario breakdown**: Scores for each scenario within the harness
+- **Overall score**: A 0-100 score for everything the Harness tests
+- **Scenario breakdown**: Scores for each Scenario within the Harness
 - **Probe results**: Pass/fail for individual test cases
-- **Failure details**: Exactly which probes failed and why
+- **Failure details**: Exactly which Probes failed and why
 
-Results are hierarchical. You can see the top-level score, drill into scenarios to find problem areas, and examine individual probes to understand specific failures.
+Results are hierarchical. You can see the top-level score, drill into Scenarios to find problem areas, and examine individual Probes to understand specific failures.
 
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Scenario" icon="folder" href="/concepts/evaluation-components/scenario">
-    How probes are grouped within harnesses
+    How Probes are grouped within Harnesses
   </Card>
   <Card title="Standard Harnesses" icon="ruler" href="/owner-guide/simulate-environment/harnesses/trust-score">
-    Reference for available harnesses
+    Reference for available Harnesses
   </Card>
   <Card title="Run an Evaluation" icon="play" href="/tutorials/evaluate-agents/setup-evaluate">
-    Try harnesses on your agent
+    Try Harnesses on your agent
   </Card>
   <Card title="Custom Harnesses" icon="hammer" href="/owner-guide/simulate-environment/custom-harnesses">
-    Build harnesses for your use case
+    Build Harnesses for your use case
   </Card>
 </CardGroup>

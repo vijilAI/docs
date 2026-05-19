@@ -1,0 +1,34 @@
+---
+title: "Dome"
+description: "Runtime protection product that intercepts inputs and outputs through Guardrails built from Guards and Detectors."
+---
+
+Instead of testing behavior in advance (like Diamond), Dome works in real time. It sits between the user and the agent, intercepting both **inputs and outputs** as they happen. This allows Dome to filter harmful content, detect suspicious patterns, and strengthen policies without slowing things down (latency stays under ~300ms).
+
+What makes Dome effective is its **multi-layer approach**. That means that Dome doesn’t rely on just one method, but combines these things:
+
+- simple pattern matching
+- machine learning classifiers
+- embedding-based similarity checks
+- and LLM-based evaluation
+
+All of these components are working together just to catch different risks, whether they are some obvious types of policy violation or something that’s less obvious.
+
+## **Defense Components**
+
+Under the hood, Dome follows a clear structure for how protection is applied:
+
+**Guardrail → Guard → Detector**
+
+You don’t need to configure everything from scratch, but if you try to understand this hierarchy it makes it easier to see how decisions are made and where controls are applied.
+
+### **Defense Components**
+
+- **Guardrail**\
+  A guardrail defines _what kind of behavior you want to control_. For example, blocking sensitive data, preventing prompt injection, or enforcing content policies.
+- **Guard**\
+  Guards are the building material inside a guardrail. Each guard is focused on a specific check or rule, such as scanning for secrets, toxic language, or unusual patterns.
+- **Detector**\
+  Detectors are the ones who actually evaluate the data. They analyze inputs and outputs and decide whether something should be marked, blocked, or modified.
+
+When you put together these components, they allow Dome to apply protection.

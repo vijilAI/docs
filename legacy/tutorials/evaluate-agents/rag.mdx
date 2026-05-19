@@ -61,7 +61,7 @@ client = Vijil()
 ```
 </CodeGroup>
 
-FinanceBench already exists as an evaluation harness in Vijil Evaluate. Now we simply create an evaluation of the given LLM on this harness.
+FinanceBench already exists as an evaluation Harness in Vijil Evaluate. Now we simply create an evaluation of the given LLM on this Harness.
 
 <CodeGroup>
 ```python title="Python" icon="python"
@@ -133,7 +133,7 @@ print(f"METRICS\n{df.score[0]}")
 # ANSWER
 # PepsiCo increased its unsecured five year revolving credit agreement by $400,000,000 on May 26, 2023, going from $3,800,000,000 to $4,200,000,000.
 # METRICS
-# [{'autoredteam.detectors.nlp.BLEU': 0.0}, {'autoredteam.detectors.nlp.METEOR': 0.32258064516129037}, {'autoredteam.detectors.nlp.BERTScore': 0.5262122983517854}, {'autoredteam.detectors.llm.AnswerRelevancy': 1.0}, {'autoredteam.detectors.llm.ContextualPrecision': 1.0}, {'autoredteam.detectors.llm.ContextualRecall': 1.0}, {'autoredteam.detectors.llm.Faithfulness': 1.0}]
+# [{'autoredteam.Detectors.nlp.BLEU': 0.0}, {'autoredteam.Detectors.nlp.METEOR': 0.32258064516129037}, {'autoredteam.Detectors.nlp.BERTScore': 0.5262122983517854}, {'autoredteam.Detectors.llm.AnswerRelevancy': 1.0}, {'autoredteam.Detectors.llm.ContextualPrecision': 1.0}, {'autoredteam.Detectors.llm.ContextualRecall': 1.0}, {'autoredteam.Detectors.llm.Faithfulness': 1.0}]
 ```
 </CodeGroup>
 

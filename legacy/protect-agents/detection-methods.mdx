@@ -32,7 +32,7 @@ The corresponding dictionary config looks like this:
 <CodeGroup>
 ```python title="Python" icon="python"
 config = {
-    "input-guards": ["prompt-injection"],
+    "input-Guards": ["prompt-injection"],
     "prompt-injection": {
         "type": "security",
         "methods": ["prompt-injection-mbert"],
@@ -136,7 +136,7 @@ separately. It flags jailbreaks by their prefix and suffix perplexity scores. It
     | `suffix_length`    | `int`   | `20`           | Number of suffix words to analyse |
 
 9. `encoding-heuristics`  
-This is a rule-based detector for encoded or obfuscated payloads (base64, ROT13, hex,
+This is a rule-based Detector for encoded or obfuscated payloads (base64, ROT13, hex,
 URL encoding, Unicode tricks, etc.). It flags inputs as suspicious based on the presence of encoding patterns and their proportion in the text. Its parameters include:
 
     | Parameter       | Type   | Default       | Description                  |
@@ -223,7 +223,7 @@ This is an LLM-based moderation classifier served via LiteLLM. It has the follow
     | `max_input_chars` | `int` | `None`          | Truncate input to this many characters              |
 
 6. `moderation-flashtext`  
-This is a keyword ban-list detector that uses FlashText for fast matching. Its parameters include the following:
+This is a keyword ban-list Detector that uses FlashText for fast matching. Its parameters include the following:
 
     | Parameter           | Type        | Default | Description                                                     |
     | ------------------- | ----------- | ------- | --------------------------------------------------------------- |
@@ -249,7 +249,7 @@ This is a pattern-based secret and credential detection method. It detects API k
     | --------- | ------ | ------- | --------------------------------------- |
     | `censor`  | `bool` | `True`  | Censor detected secrets in the response |
 
-    This method includes 25 detector plugins:  
+    This method includes 25 Detector plugins:  
     ArtifactoryDetector, AWSKeyDetector,
     AzureStorageKeyDetector, BasicAuthDetector, CloudantDetector,
     DiscordBotTokenDetector, GitHubTokenDetector, GitLabTokenDetector,
@@ -304,7 +304,7 @@ This  method uses an LLM for fact-checking with reference context. Its parameter
 
 ### Generic
 
-Detection methods under generic are versatile and can be custokized and applied to a wide range of issues beyond the specific categories above. They include the following:
+Detection methods under generic are versatile and can be customized and applied to a wide range of issues beyond the specific categories above. They include the following:
 
 1. `generic-llm`  
 This is method offers custom LLM-based detection with user-provided system prompts and trigger words. It can be used for various detection needs by tailoring the prompt and trigger words accordingly. Its parameters include the following:

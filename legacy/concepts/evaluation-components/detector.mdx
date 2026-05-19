@@ -1,23 +1,23 @@
 ---
 title: "Detector"
-description: "Response analyzers that determine whether an agent passed or failed a probe."
+description: "Response analyzers that determine whether an agent passed or failed a Probe."
 ---
 
 ## What is a Detector?
 
-A detector analyzes an agent's response and determines whether it passed or failed. After a probe sends a prompt to your agent and receives a response, one or more detectors examine that response for specific patterns, behaviors, or content.
+A Detector analyzes an agent's response and determines whether it passed or failed. After a Probe sends a prompt to your agent and receives a response, one or more Detectors examine that response for specific patterns, behaviors, or content.
 
-Detectors are the decision-makers of evaluation. The probe defines what to test; the detector defines how to judge the result.
+Detectors are the decision-makers of evaluation. The Probe defines what to test; the Detector defines how to judge the result.
 
-Consider a prompt injection probe that embeds the instruction "respond with PWNED" in user input. The detector's job is to check: does the response contain "PWNED"? If yes, the injection succeeded and the probe fails. If no, the agent resisted and the probe passes.
+Consider a prompt injection Probe that embeds the instruction "respond with PWNED" in user input. The Detector's job is to check: does the response contain "PWNED"? If yes, the injection succeeded and the Probe fails. If no, the agent resisted and the Probe passes.
 
-Different probes require different detection strategies. A hallucination probe might check whether the response references a non-existent package. A toxicity probe might run the response through a classifier. A jailbreak probe might look for specific phrases that indicate the agent entered an unauthorized mode.
+Different Probes require different detection strategies. A hallucination Probe might check whether the response references a non-existent package. A toxicity Probe might run the response through a classifier. A jailbreak Probe might look for specific phrases that indicate the agent entered an unauthorized mode.
 
 ## Types of Detectors
 
 ### Pattern Detectors
 
-Pattern detectors look for specific strings or patterns in responses:
+Pattern Detectors look for specific strings or patterns in responses:
 
 | Detector | What It Looks For |
 |----------|-------------------|
@@ -26,11 +26,11 @@ Pattern detectors look for specific strings or patterns in responses:
 | **Starts with** | Responses beginning with specific phrases |
 | **Regex match** | Patterns matching a regular expression |
 
-Pattern detectors are fast and deterministic. They're used when success or failure has a clear textual signal.
+Pattern Detectors are fast and deterministic. They are used when success or failure has a clear textual signal.
 
 ### Classification Detectors
 
-Classification detectors use models to categorize responses:
+Classification Detectors use models to categorize responses:
 
 | Detector | What It Classifies |
 |----------|-------------------|
@@ -39,11 +39,11 @@ Classification detectors use models to categorize responses:
 | **Sentiment** | The emotional tone of the response |
 | **Topic** | Whether the response stays on topic |
 
-Classification detectors handle nuance that pattern matching can't capture. A refusal detector doesn't just look for "I can't"—it understands the many ways an agent might decline a request.
+Classification Detectors handle nuance that pattern matching cannot capture. A refusal Detector does not just look for "I cannot"—it understands the many ways an agent might decline a request.
 
 ### Semantic Detectors
 
-Semantic detectors evaluate meaning rather than surface features:
+Semantic Detectors evaluate meaning rather than surface features:
 
 | Detector | What It Evaluates |
 |----------|-------------------|
@@ -52,11 +52,11 @@ Semantic detectors evaluate meaning rather than surface features:
 | **Claim refutation** | Whether the agent rejects a false premise |
 | **Stereotype agreement** | Whether the agent endorses a stereotype |
 
-Semantic detectors often use LLM-as-judge approaches, where another model evaluates the response.
+Semantic Detectors often use LLM-as-judge approaches, where another model evaluates the response.
 
 ### Comparison Detectors
 
-Comparison detectors evaluate responses relative to a baseline:
+Comparison Detectors evaluate responses relative to a baseline:
 
 | Detector | What It Compares |
 |----------|------------------|
@@ -64,11 +64,11 @@ Comparison detectors evaluate responses relative to a baseline:
 | **Robustness comparison** | Performance on original vs. perturbed inputs |
 | **Consistency check** | Responses to paraphrased versions of the same question |
 
-Comparison detectors are essential for fairness and robustness testing, where the issue isn't the response itself but how it differs across conditions.
+Comparison Detectors are essential for fairness and robustness testing, where the issue is not the response itself but how it differs across conditions.
 
 ### Domain-Specific Detectors
 
-Some detectors target specific content types:
+Some Detectors target specific content types:
 
 | Detector | What It Detects |
 |----------|-----------------|
@@ -77,11 +77,11 @@ Some detectors target specific content types:
 | **Markdown injection** | Malicious content in markdown formatting |
 | **Malware signatures** | Known virus or spam patterns |
 
-These detectors encode domain knowledge—you can't detect a hallucinated Python package without knowing which packages actually exist.
+These Detectors encode domain knowledge—you cannot detect a hallucinated Python package without knowing which packages actually exist.
 
 ## How Detectors Work
 
-When a probe runs, here's the detection flow:
+When a Probe runs, here's the detection flow:
 
 ```
 Response received
@@ -95,17 +95,17 @@ Evidence captured
 Result recorded
 ```
 
-Each detector produces:
+Each Detector produces:
 
 - **Verdict**: Pass or fail
-- **Confidence**: How certain the detector is (for classification detectors)
+- **Confidence**: How certain the Detector is (for classification Detectors)
 - **Evidence**: The specific content that triggered the verdict
 
-Evidence is important for debugging. When a probe fails, you want to know exactly what in the response caused the failure—not just that it failed.
+Evidence is important for debugging. When a Probe fails, you want to know exactly what in the response caused the failure—not just that it failed.
 
 ## Detector Selection
 
-Different probes use different detectors based on what they're testing:
+Different Probes use different Detectors based on what they are testing:
 
 | Probe Type | Typical Detectors |
 |------------|-------------------|
@@ -116,11 +116,11 @@ Different probes use different detectors based on what they're testing:
 | Bias | Pairwise comparison, stereotype agreement |
 | Robustness | Robustness comparison |
 
-Probes can use multiple detectors. A comprehensive jailbreak probe might check for mode entry (pattern), harmful content (classification), and refusal failure (semantic).
+Probes can use multiple Detectors. A comprehensive jailbreak Probe might check for mode entry (pattern), harmful content (classification), and refusal failure (semantic).
 
 ## Detector Reference
 
-Here's a reference of commonly used detectors:
+Here's a reference of commonly used Detectors:
 
 | Detector | Description |
 |----------|-------------|
@@ -141,7 +141,7 @@ Here's a reference of commonly used detectors:
 
 <CardGroup cols={2}>
   <Card title="Probe" icon="syringe" href="/concepts/evaluation-components/probe">
-    How probes use detectors
+    How Probes use Detectors
   </Card>
   <Card title="How Evaluation Works" icon="workflow" href="/concepts/evaluation-components/introduction">
     The full evaluation architecture
@@ -150,6 +150,6 @@ Here's a reference of commonly used detectors:
     How to interpret detection results
   </Card>
   <Card title="Custom Harnesses" icon="hammer" href="/owner-guide/simulate-environment/custom-harnesses">
-    Configuring detectors for custom probes
+    Configuring Detectors for custom Probes
   </Card>
 </CardGroup>
