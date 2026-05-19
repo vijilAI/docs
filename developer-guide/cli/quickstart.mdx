@@ -1,0 +1,174 @@
+---
+title: "Quickstart"
+description: "Install the Vijil CLI, register an Agent, and get your first Trust Score in minutes."
+---
+
+This guide walks from a fresh installation to a completed trust evaluation. You will install the CLI, connect it to your Console deployment, register an Agent, run an evaluation, and retrieve the results.
+
+## Prerequisites
+
+- [Python 3.8](https://www.python.org/) or later
+- A [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment and its API gateway URL
+- An API key for the AI model you want to Evaluate
+
+## Steps
+
+<Steps>
+  <Step title="Install the CLI">
+    Install `vijil-console` via pip or pipx:
+
+    <CodeGroup>
+    ```bash pip
+    pip install vijil-console
+    ```
+
+    ```bash pipx
+    pipx install vijil-console
+    ```
+    </CodeGroup>
+
+    Verify the installation:
+
+    ```bash
+    vijil --help
+    ```
+  </Step>
+
+  <Step title="Configure and Log In">
+    Point the CLI at your Console API gateway:
+
+    ```bash
+    vijil auth init --url https://console-api.example.com
+    ```
+
+    Then log in with your account credentials:
+
+    ```bash
+    vijil auth login
+    ```
+
+    You will be prompted for your email and password. The CLI stores your token in `~/.vijil/config.yaml`.
+
+    If you belong to multiple teams, select the one you want to work with:
+
+    ```bash
+    vijil team list
+    vijil team use <team_id>
+    ```
+
+    <Tip>
+    Every subsequent command uses the active team automatically — you do not need to pass a team ID manually.
+    </Tip>
+  </Step>
+
+  <Step title="Register an Agent">
+    Create an [Agent](/owner-guide/register-agents/what-is-an-agent) configuration for the model you want to evaluate. Export your provider API key first to keep it out of your shell history:
+
+    ```bash
+    export OPENAI_API_KEY="sk-..."
+
+    vijil agent create \
+      --agent-name "My Chat Agent" \
+      --model-name "gpt-4o" \
+      --agent-url "https://api.openai.com/v1/chat/completions" \
+      --api-key "$OPENAI_API_KEY"
+    ```
+
+    The output includes the new Agent's `id`. Save it:
+
+    ```bash
+    export AGENT_ID="a1b2c3d4-..."
+    ```
+
+    To confirm the Agent was registered:
+
+    ```bash
+    vijil agent list
+    ```
+  </Step>
+
+  <Step title="Choose a Harness">
+    [Harnesses](/concepts/evaluation-components/harness) are test suites that cover a specific [trust dimension](/concepts/trust-score/introduction). List the available standard Harnesses:
+
+    ```bash
+    vijil harness list
+    ```
+
+    Output:
+
+    ```
+    NAME        UPDATED_AT
+    safety      1712505600
+    security    1712505600
+    reliability 1712505600
+    privacy     1712505600
+    toxicity    1712505600
+    ethics      1712505600
+    ```
+
+    For this quickstart you will run `safety` and `security`.
+  </Step>
+
+  <Step title="Run an Evaluation">
+    Start an evaluation and wait for it to complete:
+
+    ```bash
+    vijil eval run \
+      --agent-id "$AGENT_ID" \
+      --harness-names '["safety", "security"]' \
+      --sample-size 50 \
+      --wait
+    ```
+
+    `--sample-size 50` runs 50 [Probes](/concepts/evaluation-components/probe) per Harness — enough for a meaningful score in a few minutes. Omit it to run the full Harness (~1,250 Probes for `security`).
+
+    The CLI polls every 5 seconds and prints progress. When complete, it prints the evaluation ID. Save it:
+
+    ```bash
+    export EVAL_ID="e5f6a7b8-..."
+    ```
+  </Step>
+
+  <Step title="View the Results">
+    Retrieve your [Trust Score](/concepts/trust-score/introduction) and per-Harness breakdown:
+
+    ```bash
+    vijil eval results-detail "$EVAL_ID"
+    ```
+
+    This returns scores per Harness (0 to 1), individual Probe results, and identified failure patterns.
+
+    To filter with `jq`:
+
+    ```bash
+    vijil eval results-detail "$EVAL_ID" --json | jq '.scores'
+    ```
+  </Step>
+
+  <Step title="Generate a Report">
+    Trigger a [Trust Report](/developer-guide/evaluate/understanding-results) for the completed evaluation:
+
+    ```bash
+    vijil eval report "$EVAL_ID"
+    ```
+
+    The report summarizes what was tested, how the Agent scored, and where it failed. Download it as HTML or PDF from the Console.
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup Reference" icon="terminal" href="/developer-guide/cli/setup">
+    Auth and team management commands
+  </Card>
+  <Card title="Agents Reference" icon="bot" href="/developer-guide/cli/agents">
+    Create, update, and manage Agents
+  </Card>
+  <Card title="Evaluate Reference" icon="flask-conical" href="/developer-guide/cli/evaluate">
+    Harnesses, evaluations, and results
+  </Card>
+  <Card title="Protect Reference" icon="shield" href="/developer-guide/cli/protect">
+    Configure Dome Guardrails
+  </Card>
+</CardGroup>

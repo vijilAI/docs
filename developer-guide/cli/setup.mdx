@@ -1,0 +1,96 @@
+---
+title: "Setup"
+description: "Configure the CLI connection and manage team context."
+---
+
+These commands configure how the CLI connects to your [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment and which team's resources it acts on. Configuration is stored in `~/.vijil/config.yaml`.
+
+## Authentication
+
+| Command | Description |
+|---------|-------------|
+| `vijil auth init` | Configure the Console gateway URL |
+| `vijil auth login` | Log in and store credentials |
+| `vijil auth logout` | Clear stored credentials |
+| `vijil auth change-password` | Change your account password |
+
+### `vijil auth init`
+
+Configure the Vijil Console API gateway URL. Run once after installation.
+
+```bash
+vijil auth init --url https://console-api.example.com
+```
+
+| Flag | Description |
+|------|-------------|
+| `--url` | Base URL of the Vijil Console gateway |
+
+Run without `--url` to be prompted interactively. The CLI verifies connectivity before saving.
+
+### `vijil auth login`
+
+Log in and store credentials.
+
+```bash
+vijil auth login
+```
+
+| Flag | Description |
+|------|-------------|
+| `--email` | Account email |
+| `--password` | Account password |
+
+Flags are prompted interactively when not provided. On success, the CLI stores a JWT token and automatically selects your team if you belong to exactly one.
+
+### `vijil auth logout`
+
+Clear stored credentials.
+
+```bash
+vijil auth logout
+```
+
+### `vijil auth change-password`
+
+Change your account password.
+
+```bash
+vijil auth change-password \
+  --current-password "old-password" \
+  --new-password "new-password"
+```
+
+| Flag | Description |
+|------|-------------|
+| `--current-password` | Current account password |
+| `--new-password` | New account password |
+| `--json` | Output as JSON |
+
+## Team Management
+
+| Command | Description |
+|---------|-------------|
+| `vijil team list` | List teams you belong to |
+| `vijil team use` | Set the active team |
+
+### `vijil team list`
+
+List all teams your account belongs to.
+
+```bash
+vijil team list
+vijil team list --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--json` | Output as JSON |
+
+### `vijil team use`
+
+Set the active team for all subsequent commands. The team ID is injected automatically into commands that require it.
+
+```bash
+vijil team use <team_id>
+```
