@@ -1,0 +1,243 @@
+---
+title: 'Manage Agents'
+description: 'Set up the Vijil MCP server so you can register agents, run evaluations, and read results by typing plain English to Claude.'
+---
+
+By the end of this guide you will have Claude Code connected to your Vijil account. Once connected, you can type requests like these and Claude will handle everything for you:
+
+- "List my agents"
+- "Run a safety evaluation on my customer support agent"
+- "Show me the results of the last evaluation"
+
+You just describe what you want, without writing any code.
+
+## Prerequisites
+
+- [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployed with an account set up.
+- [Python 3.10 or higher](https://www.python.org/downloads/). Python is free software that runs the Vijil tools. To check, open your Terminal and type `python3 --version`.
+- [Claude Code](https://claude.ai/code) (CLI, desktop app, or VS Code Extension) installed.
+
+<Note>
+**What is a Terminal?**
+The Terminal (on Mac and Linux) or Command Prompt (on Windows) is a text-based window where you type commands directly. To open it on Mac, press <kbd>Command</kbd> + <kbd>Space</kbd>, type "Terminal", and press Enter. On Windows, press the <kbd>Windows key</kbd>, type "cmd", and press Enter.
+</Note>
+
+## Install the Vijil Tools
+
+This step installs two tools: `vijil-mcp` (which connects Claude Code to Vijil) and `vijil` (the underlying Vijil command-line tool).
+
+**Recommended: pipx**
+
+`pipx` is a program for installing command-line tools safely. It avoids the permission errors and PATH problems that `pip` can cause, so it is the easiest path if you have it. If you do not have `pipx` yet, [install it first](https://pipx.pypa.io/stable/installation/), then run:
+
+```bash
+pipx install vijil-mcp
+```
+
+**Alternative: pip**
+
+If you prefer to use `pip` directly:
+
+```bash
+pip install vijil-mcp
+```
+
+If that command is not found, try `pip3 install vijil-mcp`.
+
+---
+
+When the install finishes, confirm both tools are available:
+
+```bash
+vijil --help
+vijil-mcp --help
+```
+
+Each command should print a list of options. If you see an error instead, see the [Troubleshooting](#troubleshooting) section below.
+
+## Connect to Vijil Console
+
+Tell the Vijil tool where your Console is. Replace the URL below with the address of your Vijil Console deployment.
+
+```bash
+vijil init --url https://console-api.your-company.com
+```
+
+<Tip>
+Not sure what your Console URL is? Ask the person who set up Vijil for your organization. The URL is usually something like `https://console-api.yourcompany.com`.
+</Tip>
+
+## Login to Vijil
+
+```bash
+vijil login
+```
+
+You will be asked for your email address and password, the same ones you use to log in to the Vijil Console website. After a successful login, the tool saves your session so you do not need to log in again each time.
+
+**If you belong to more than one team**, you will need to pick which one to use:
+
+```bash
+vijil team list
+```
+
+This shows your teams with their IDs. Then select the one you want:
+
+```bash
+vijil team use <team_id>
+```
+
+Replace `<team_id>` with the ID shown in the list.
+
+## Connect Claude Code to Vijil
+
+Now you need to create a small configuration file that tells Claude Code to use the Vijil tools. 
+
+In your Terminal, navigate to the folder where you do your work, then create a file named `.mcp.json` with this exact content:
+
+```json
+{
+  "mcpServers": {
+    "vijil": {
+      "type": "stdio",
+      "command": "vijil-mcp"
+    }
+  }
+}
+```
+
+<Note>
+**What is this file?**
+This file is a short set of instructions for Claude Code. It says "when you start, also start the Vijil tool and make its capabilities available." You only need to create this file once per project folder.
+</Note>
+
+If you want Vijil available everywhere — not just one folder — add the same content to a file named `claude.json` in your home directory (`~/.claude.json` on Mac/Linux).
+
+## Verify Everything Works
+
+Start Claude Code in the same folder as your `.mcp.json` file and type:
+
+<Prompt description="Check my Vijil setup">
+Check my Vijil setup
+</Prompt>
+
+Claude will check that the tools are installed, that you are logged in, and that a team is selected. If anything is missing, it will tell you exactly what to fix.
+
+## What You Can Do Now
+
+### Register an Agent
+
+Tell Claude about the AI agent you want to evaluate. Provide its name, the model it uses, and its API endpoint and key.
+
+<Prompt description="Create a new agent called 'My Chat Agent' using gpt-4 at https://api.openai.com/v1/chat/completions with API key sk-...">
+Create a new agent called 'My Chat Agent' using gpt-4 at https://api.openai.com/v1/chat/completions with API key sk-...
+</Prompt>
+
+Claude registers the agent and shows you its ID. Keep that ID handy — you will use it when running evaluations.
+
+### See Your Agents
+
+<Prompt description="List my agents">
+List my agents
+</Prompt>
+
+Claude shows all your registered agents with their names, IDs, and the last time they were evaluated.
+
+### See Available Harnesses
+
+[Harnesses](/concepts/evaluation-components/harness) are the pre-built test suites Vijil uses to run evaluations.
+
+<Prompt description="What Harnesses are available?">
+What Harnesses are available?
+</Prompt>
+
+Claude lists the available Harnesses — safety, security, reliability, and any custom ones your team has created.
+
+### Run an Evaluation
+
+<Prompt description="Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete">
+Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete
+</Prompt>
+
+Replace `a1b2c3d4-...` with your agent's ID. Claude starts the evaluation and waits for it to finish, then shows you the results.
+
+Evaluations typically take a few minutes depending on sample size and rate limits. If you prefer not to wait, you can start one and check back:
+
+<Prompt description="Start a safety evaluation on agent a1b2c3d4-...">
+Start a safety evaluation on agent a1b2c3d4-...
+</Prompt>
+
+### Check Evaluation Status
+
+<Prompt description="What is the status of evaluation e5f6a7b8-...?">
+What is the status of evaluation e5f6a7b8-...?
+</Prompt>
+
+Claude tells you whether the evaluation is still running, completed, or failed.
+
+### Read the Results
+
+<Prompt description="Show me the detailed results for evaluation e5f6a7b8-...">
+Show me the detailed results for evaluation e5f6a7b8-...
+</Prompt>
+
+Claude presents the Trust Score breakdown per Harness, and the individual Probe findings — including what failed and why.
+
+### Generate a Report
+
+<Prompt description="Generate a report for evaluation e5f6a7b8-...">
+Generate a report for evaluation e5f6a7b8-...
+</Prompt>
+
+Claude triggers report generation. You can then open the full PDF report from your Vijil Console.
+
+## More Things You Can Ask
+
+**Set up Personas** — define the types of users who interact with your agent during evaluation:
+
+<Prompt description="Show me the persona presets">
+Show me the persona presets
+</Prompt>
+
+<Prompt description="Create a persona from the 'jailbreaker' preset">
+Create a persona from the 'jailbreaker' preset
+</Prompt>
+
+**Set up Policies** — define the compliance rules your agent must follow:
+
+<Prompt description="List my compliance policies">
+List my compliance policies
+</Prompt>
+
+<Prompt description="Create a policy from the GDPR preset">
+Create a policy from the GDPR preset
+</Prompt>
+
+**Manage Dome Guardrails** — configure runtime protection for your agent:
+
+<Prompt description="List my Dome configurations">
+List my Dome configurations
+</Prompt>
+
+<Prompt description="Create a Dome config for agent a1b2c3d4-...">
+Create a Dome config for agent a1b2c3d4-...
+</Prompt>
+
+**View the Trust Dashboard** — see aggregated trust metrics across all your agents:
+
+<Prompt description="Show me the trust dashboard">
+Show me the trust dashboard
+</Prompt>
+
+## Troubleshooting
+
+| Problem | What to Do |
+|---------|------------|
+| `pip: command not found` | Try `pip3 install vijil-mcp` instead, or use the `pipx` method above |
+| `Permission denied` during install | Use `pip install --user vijil-mcp`, or switch to the `pipx` method above |
+| `vijil: command not found` after install succeeded | Close and reopen your Terminal. If the command is still not found, try re-installing with `pipx` — it handles the PATH setup automatically |
+| `vijil` says it is not configured | Run `vijil init --url <your-console-url>` |
+| "Session expired" or login errors | Run `vijil login` |
+| "No team selected" | Run `vijil team list` then `vijil team use <team_id>` |
+| Vijil tools do not appear in Claude Code | Make sure `.mcp.json` is in the folder where you opened Claude Code, then restart Claude Code |
+| Claude uses the wrong tool or seems confused | Try rephrasing your request to be more specific, for example "Use Vijil to list my agents" |
