@@ -176,7 +176,6 @@
             "group": "Quick Start",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/cli",
               "developer-guide/getting-started/api"
             ]
           },
@@ -213,6 +212,18 @@
               "developer-guide/protect/detection-methods",
               "developer-guide/protect/observability",
               "tutorials/protect-agents/dome-containerized-deployment"
+            ]
+          },
+          {
+            "group": "CLI",
+            "pages": [
+              "developer-guide/cli/quickstart",
+              "developer-guide/cli/setup",
+              "developer-guide/cli/agents",
+              "developer-guide/cli/evaluate",
+              "developer-guide/cli/protect",
+              "developer-guide/cli/red-team",
+              "developer-guide/cli/telemetry"
             ]
           },
           {
