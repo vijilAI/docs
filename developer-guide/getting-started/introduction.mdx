@@ -21,6 +21,22 @@ Vijil provides two products that work together:
 
 **Dome** protects your agent at runtime by intercepting inputs and outputs. When Diamond identifies vulnerabilities you cannot immediately fix, Dome blocks the attack patterns in production.
 
+## Integration Methods
+
+Vijil exposes three interfaces. Choose the one that fits your workflow, or mix them:
+
+<CardGroup cols={3}>
+  <Card title="MCP" icon="plug" href="/developer-guide/agentic/quickstart">
+    **Natural language, no commands.** Connect Claude Code to your Console and evaluate agents through conversation. Best for interactive development and exploration.
+  </Card>
+  <Card title="CLI" icon="terminal" href="/developer-guide/cli/quickstart">
+    **Terminal commands.** Install `vijil-console` and run evaluations from the shell. Best for scripting, CI/CD gates, and headless automation.
+  </Card>
+  <Card title="REST API" icon="code" href="/developer-guide/getting-started/api">
+    **HTTP requests.** Call the Console API directly from any language. Best for custom integrations, dashboards, and non-Python environments.
+  </Card>
+</CardGroup>
+
 ## Three Developer Workflows
 
 Different roles use Vijil differently. This guide serves all three:
@@ -64,7 +80,9 @@ Each evaluation produces a **Trust Score** (0–1) with breakdowns by dimension.
 
 ## Time to First Trust Score
 
-You can get your first evaluation result quickly directly from the Console without any complex integration or coding required. The quickstart uses your existing agent endpoints with no modifications required.
+The fastest path is [MCP](/developer-guide/agentic/quickstart): install `vijil-mcp`, connect Claude Code, and ask it to run an evaluation, with no commands to learn. If you prefer the terminal, the [CLI quickstart](/developer-guide/cli/quickstart) takes you from install to a completed evaluation in minutes. For custom integrations or non-Python environments, the [Console API](/developer-guide/getting-started/api) accepts standard HTTP requests and returns results as JSON.
+
+All three paths require a running [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
 
 ## Integration Points
 
