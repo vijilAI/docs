@@ -1,71 +1,206 @@
 ---
 title: 'Custom Harnesses'
-description: 'Create targeted evaluations with custom Harnesses, personas, and policies.'
+description: 'Create targeted Evaluations with custom Harnesses scoped to your Agent, Personas, and Policies.'
 ---
 
-While Vijil has a variety of pre-configured [Harnesses](/concepts/evaluation-components/harness) that you can select from, you can also create your own Harnesses in order to obtain a trust score specific to your organization and agent.
+Custom Harnesses let you generate test [Probes](/concepts/evaluation-components/probe) tailored to your specific [Agent](/tutorials/manage-agents), compliance [Policies](/owner-guide/simulate-environment/policies), and user [Personas](/owner-guide/simulate-environment/personas). Vijil uses your configuration to generate adversarial Probes in the background, which you can then use in evaluations alongside or instead of standard Harnesses.
 
-## View Custom Harnesses
+## List Harnesses
 
-You can view previously created custom Harnesses by navigating to [Harnesses](https://evaluate.vijil.ai/harnesses) in the left sidebar.
+List standard Harnesses to see what is available before creating a custom one.
 
-To view the prompts in a custom Harness, click on its row in the **Harnesses** table.
+<CodeGroup>
+```bash title="CLI"
+vijil harness list
+```
+
+```bash title="API"
+curl -s "$VIJIL_URL/harnesses/?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
+
+Standard Harnesses include `safety`, `security`, `reliability`, `privacy`, `toxicity`, and `ethics`.
+
+To list your existing custom Harnesses:
+
+<CodeGroup>
+```bash title="CLI"
+vijil harness custom-list
+vijil harness custom-list --agent-id "$AGENT_ID" --status active
+```
+
+```bash title="API"
+curl -s "$VIJIL_URL/custom-harnesses/?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
 
 ## Create a Custom Harness
 
-1. In the left sidebar, navigate to [Harnesses](https://evaluate.vijil.ai/harnesses) and click **Create Harness**.
-2. Enter a Harness name and a description.
+Harness creation is asynchronous, so Vijil generates Probes in the background based on your [Agent](/tutorials/manage-agents), [Personas](/owner-guide/simulate-environment/personas), and [Policies](/owner-guide/simulate-environment/policies). The API and CLI return a Harness ID immediately; poll for status until it becomes `active`.
 
 <Tabs>
-    <Tab title="Select Prompts">
-        1. Select an existing prompt, or create a new one by pressing **Add Prompt**.
-        2. Press Create.
-    </Tab>
-    <Tab title="Generate Prompts">
-        1. Specify one more existing [Agents](/manage-agents/integrations/platform). If you do not have an existing Agent, press **Register Agent**.
-        2. Specify up to 3 **Personas**.
-        <Info>
-            Personas define structured user archetypes used to condition evaluations and analyze model behavior across demographic and contextual variations.
-        </Info>
-        3. Specify one or more Policy Requirements. You can choose existing, or upload your own.
-        <Info>
-            Specify regulatory or security frameworks to align Evaluations with compliance and policy constraints.
-        </Info>
-        4. Specify optional dimensionality tests (Reliability, Security, and Safety)
-        5. Press Create.
-    </Tab>
+  <Tab title="CLI">
+
+  ```bash
+  vijil harness custom-create \
+    --name "Customer Support Harness" \
+    --agent-id "$AGENT_ID"
+  ```
+
+  Add [Personas](/owner-guide/simulate-environment/personas) and [Policies](/owner-guide/simulate-environment/policies) to generate more targeted Probes:
+
+  ```bash
+  vijil harness custom-create \
+    --name "Customer Support Harness" \
+    --agent-id "$AGENT_ID" \
+    --persona-ids '["<persona_id>"]' \
+    --policy-ids '["<policy_id>"]' \
+    --system-prompt "You are a customer support agent for Acme Corp."
+  ```
+
+  | Flag | Description | Required |
+  |------|-------------|----------|
+  | `--name` | Harness display name | Yes |
+  | `--agent-id` | Agent ID to generate Probes for | Yes |
+  | `--description` | Harness description | |
+  | `--persona-ids` | Persona IDs to include (JSON array) | |
+  | `--policy-ids` | Policy IDs to include (JSON array) | |
+  | `--system-prompt` | Agent description or system prompt for generation | |
+  | `--json` | Output as JSON | |
+
+  </Tab>
+  <Tab title="API">
+
+  ```bash
+  curl -s -X POST "$VIJIL_URL/custom-harnesses/" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"name\": \"Customer Support Harness\",
+      \"agent_id\": \"$AGENT_ID\",
+      \"persona_ids\": [\"<persona_id>\"],
+      \"policy_ids\": [\"<policy_id>\"],
+      \"system_prompt\": \"You are a customer support agent for Acme Corp.\"
+    }"
+  ```
+
+  Response:
+
+  ```json
+  {
+    "id": "h1i2j3k4-...",
+    "name": "Customer Support Harness",
+    "status": "draft",
+    "agent_id": "a1b2c3d4-...",
+    "created_at": 1712505600
+  }
+  ```
+
+  Save the Harness ID:
+
+  ```bash
+  export HARNESS_ID="h1i2j3k4-..."
+  ```
+
+  | Field | Description | Required |
+  |-------|-------------|----------|
+  | `name` | Harness display name (max 255 chars) | Yes |
+  | `agent_id` | UUID of the Agent to generate Probes for | Yes |
+  | `description` | Harness description | |
+  | `persona_ids` | Persona IDs to include | |
+  | `policy_ids` | Policy IDs to include | |
+  | `system_prompt` | Agent description or system prompt for generation | |
+
+  </Tab>
+  <Tab title="MCP">
+
+  With the [Vijil MCP server](/developer-guide/agentic/mcp) configured, ask Claude Code:
+
+  <Prompt description="Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-...">
+  Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-...
+  </Prompt>
+
+  To include [Personas](/owner-guide/simulate-environment/personas) and [Policies](/owner-guide/simulate-environment/policies):
+
+  <Prompt description="Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-... using persona p1q2r3s4-... and policy p5q6r7s8-...">
+  Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-... using persona p1q2r3s4-... and policy p5q6r7s8-...
+  </Prompt>
+
+  </Tab>
 </Tabs>
 
+## Check Status
 
-## Create a Custom Harness via API
+Harness generation status progresses from `draft` to `active`. It may also become `failed`.
 
-You can programmatically create custom Harnesses using the Vijil client API. 
+<CodeGroup>
+```bash title="CLI"
+vijil harness custom-get <harness_id>
+```
 
-### Policy Document(s)
+```bash title="API"
+curl -s "$VIJIL_URL/custom-harnesses/$HARNESS_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
 
-You can create a custom policy adherence Harness that checks whether your model adheres to its system prompt or an organizational policy. To do this, you need a system prompt specified as a string, and an optional organizational policy provided as a `.txt` or `.pdf` file. If you do not provide a policy file, Vijil will create a Harness based only on the provided system prompt. To specify that you want a policy adherence Harness, you need to specify the `category` argument as `["AGENT_POLICY"]`.
+## View Generated Probes
 
-You can use the `harnesses.create` API function to create a Harness to test adherence against frameworks like NIST AI RMF. After creation, you can check the status of the Harness creation job. The `harness_config_version` starts at 1.0.0 for any new Harness name. If you create another Harness with the same name, Vijil automatically increments the Harness version.
+Once the Harness status is `active`, retrieve the generated Probes:
 
-Once the Harness is created, you can pass its ID when running an evaluation with the API.
+<CodeGroup>
+```bash title="CLI"
+vijil harness custom-prompts <harness_id> --json
+```
 
-### Knowledge Base (Enterprise Only)
+```bash title="API"
+curl -s "$VIJIL_URL/custom-harnesses/$HARNESS_ID/prompts" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
 
-If you are developing a RAG agent and would like to generate a custom test Harness to evaluate generation and retrieval capabilities based on a set of document chunks, upload the documents that you would like to base the evaluation on into a GCP storage bucket. When creating the Harness via the API, set the `category` parameter to `["KNOWLEDGE_BASE"]`.
+## Use in an Evaluation
 
-### Tool Calling Agent (Enterprise Only)
+Pass the Harness name with `--harness-type custom` when running an evaluation:
 
-To evaluate a tool calling agent, you need to supply input and output schemas for a function that you want to generate test prompts based on, as well as an endpoint to call that function. To specify that you want a tool calling Harness, set the `category` parameter to `["FUNCTION_ROUTE"]`.
+<CodeGroup>
+```bash title="CLI"
+vijil eval run \
+  --agent-id "$AGENT_ID" \
+  --harness-names '["Customer Support Harness"]' \
+  --harness-type custom \
+  --wait
+```
 
-In addition, provide the `function_route` variable which stores the URL required to call the function with the arguments and return the result.
+```bash title="API"
+curl -s -X POST "$VIJIL_URL/evaluations/" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"agent_id\": \"$AGENT_ID\",
+    \"team_id\": \"$TEAM_ID\",
+    \"harness_names\": [\"Customer Support Harness\"],
+    \"harness_type\": \"custom\"
+  }"
+```
+</CodeGroup>
 
-### Custom Harness with Multiple Components
+## Cancel and Delete
 
-You can also create a Harness that contains multiple components. For example, you can create a Harness that contains a knowledge base component and a tool calling agent component, or any of those components together with a policy adherence component. To do this, specify multiple values in the `category` list when making the API call.
+<CodeGroup>
+```bash title="Cancel"
+vijil harness custom-cancel <harness_id>
+```
 
-<Card title="Work in Progress" icon="pickaxe" badge="Private preview">
-  The programmatic evaluation capabilities are currently in private preview and subject to change.
-</Card>
+```bash title="Delete"
+vijil harness custom-delete <harness_id>
+vijil harness custom-delete <harness_id> --yes
+```
+</CodeGroup>
+
+Use `POST /custom-harnesses/{harness_id}/cancel` and `DELETE /custom-harnesses/{harness_id}` for the REST API equivalents.
 
 ## Next Steps
 
@@ -77,9 +212,9 @@ You can also create a Harness that contains multiple components. For example, yo
     Analyze custom Harness results
   </Card>
   <Card title="Personas" icon="users" href="/owner-guide/simulate-environment/personas">
-    Learn more about personas
+    Learn more about Personas
   </Card>
   <Card title="Policies" icon="scroll" href="/owner-guide/simulate-environment/policies">
-    Learn more about policies
+    Learn more about Policies
   </Card>
 </CardGroup>
