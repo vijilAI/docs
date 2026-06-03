@@ -116,6 +116,22 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
   </Step>
 </Steps>
 
+## Automate with MCP
+
+The [Vijil MCP server](/developer-guide/agentic/quickstart) exposes every Console action as a tool that [Claude Code](https://claude.ai/code) can call directly. Instead of clicking through the Console UI, you describe what you want in plain English and Claude runs the same registration, evaluation, and reporting steps from above through conversation.
+
+<Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete">
+Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete
+</Prompt>
+
+<Prompt description="Show me the detailed results for evaluation e5f6a7b8-…">
+Show me the detailed results for evaluation e5f6a7b8-…
+</Prompt>
+
+<Card title="MCP Quickstart" icon="plug" href="/developer-guide/agentic/quickstart">
+  Install `vijil-mcp`, connect Claude Code, and run your first evaluation in minutes.
+</Card>
+
 ## Next Steps
 
 <CardGroup cols={2}>
