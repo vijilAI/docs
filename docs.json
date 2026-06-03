@@ -135,7 +135,8 @@
             "group": "Agents",
             "pages": [
               "owner-guide/register-agents/what-is-an-agent",
-              "owner-guide/register-agents/registering-agents"
+              "owner-guide/register-agents/registering-agents",
+              "owner-guide/register-agents/mcp"
             ]
           },
           {

@@ -1,41 +1,176 @@
 ---
 title: 'Run Evaluations'
-description: 'Execute and monitor agent evaluations programmatically.'
+description: 'Start, monitor, and retrieve trust Evaluations programmatically using the CLI, REST API, or MCP.'
 ---
 
 [Vijil Evaluate](https://vijil.ai/evaluate) is a quality assurance framework that automates the testing of LLM applications. An **Evaluation** in Vijil is an automated test run where you select one or more AI agents and a test [Harness](/concepts/evaluation-components/harness) (covering [Security](/concepts/trust-score/security), [Reliability](/concepts/trust-score/reliability), and [Safety](/concepts/trust-score/safety)) to systematically assess the quality, safety, and reliability of LLM applications.
+
 ## Prerequisites
 
-Before setting up an Evaluation, you must have:
+- CLI configured and authenticated, or a Bearer token from `POST /auth/jwt/login` — see [Console API](/developer-guide/getting-started/api)
+- A registered [Agent](/tutorials/manage-agents) and its UUID
 
-- Access to your [Vijil Console](https://console.vijil.ai/) deployment
-- Pointed your CLI to your deployment using `vijil init` (if using the CLI)
-- Registered an [Agent](/tutorials/manage-agents)
+## Start an Evaluation
 
-## Setting up via Console UI
+<Tabs>
+  <Tab title="CLI">
 
-1. Navigate to the **Evaluations** section in the [Vijil Console](https://console.vijil.ai/).
-2. From the **Create Evaluation > Select Agents** section, choose one or more Agents you have previously created. If you do not have an Agent, register one first.
-3. In the **Select Harness** section, you can configure:
-    - **Trust Scores** - Choose between Security, Reliability, and Safety, or select all.
-    - **Custom** - Select your custom [Harness](/concepts/evaluation-components/harness).
-    - **Benchmarks** - Select specific benchmarks from the Trust Scores.
-    - **Garak** - Select Garak Scenarios.
-4. Under **Run Configuration**, you will see your selected Agent(s). By pressing on the dropdown <Icon icon="chevron-down" /> icon, you can configure model parameters:
-    - **Temperature** - Controls randomness (e.g., 1.0 is more creative, 0.1 is more deterministic).
-    - **Top P** - Restricts output to higher-probability tokens.
-    - **Max Completion Tokens** - Maximum number of tokens the model can generate in a single response.
-    - **Requests Timeout** - Maximum time to wait for a response from the Agent.
-5. Enter an Evaluation name in the prompt field.
-6. Press **Create**.
+  ```bash
+  vijil eval run \
+    --agent-id "$AGENT_ID" \
+    --harness-names '["safety", "security"]' \
+    --sample-size 50 \
+    --wait
+  ```
 
-<Info>
-    Evaluations can take some time to complete depending on the sample size and model responsiveness. You can monitor the progress from the Evaluations list.
-</Info>
+  | Flag | Description | Required |
+  |------|-------------|----------|
+  | `--agent-id` | UUID of the Agent to evaluate | Yes |
+  | `--harness-names` | JSON array of Harness names | Yes |
+  | `--sample-size` | Probes per Harness (1–1000); omit to run all | |
+  | `--harness-type` | `standard` (default) or `custom` | |
+  | `--wait` | Block until the evaluation completes | |
+  | `--json` | Output as JSON | |
 
-<Card title="Work in Progress" icon="pickaxe" badge="Private preview">
-  The programmatic evaluation capabilities are currently in private preview and subject to change.
-</Card>
+  <Tip>Use `--sample-size 10` for fast iteration during development. Run the full Harness before releasing to production.</Tip>
+
+  </Tab>
+  <Tab title="API">
+
+  The API returns `202 Accepted` immediately. Use the returned `evaluation_id` to poll for status.
+
+  ```bash
+  curl -s -X POST "$VIJIL_URL/evaluations/" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"agent_id\": \"$AGENT_ID\",
+      \"team_id\": \"$TEAM_ID\",
+      \"harness_names\": [\"safety\", \"security\"],
+      \"sample_size\": 50
+    }"
+  ```
+
+  Response:
+
+  ```json
+  {
+    "evaluation_id": "e5f6a7b8-...",
+    "status": "starting"
+  }
+  ```
+
+  Save the evaluation ID:
+
+  ```bash
+  export EVAL_ID="e5f6a7b8-..."
+  ```
+
+  | Field | Description | Required |
+  |-------|-------------|----------|
+  | `agent_id` | UUID of the Agent to evaluate | Yes |
+  | `team_id` | UUID of your team | Yes |
+  | `harness_names` | Array of Harness names | Yes |
+  | `sample_size` | Probes per Harness (1–1000); omit to run all | |
+  | `harness_type` | `"standard"` (default) or `"custom"` | |
+
+  </Tab>
+  <Tab title="MCP">
+
+  With the [Vijil MCP server](/developer-guide/agentic/mcp) configured, ask Claude Code in natural language:
+
+  <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete">
+  Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete
+  </Prompt>
+
+  Claude calls `eval_run` with `wait=True` and reports back Trust Scores when the evaluation finishes.
+
+  </Tab>
+</Tabs>
+
+## Check Status
+
+Status progresses through: `starting` → `pending` → `running` → `completed` → `saving` → `saved`. It may also be `failed` or `canceled`.
+
+<CodeGroup>
+```bash title="CLI"
+vijil eval status <evaluation_id>
+```
+
+```bash title="API"
+curl -s "$VIJIL_URL/evaluations/$EVAL_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
+
+When the status reaches `completed`, the response includes per-Harness Trust Scores:
+
+```json
+{
+  "evaluation_id": "e5f6a7b8-...",
+  "status": "completed",
+  "scores": {
+    "safety": 0.82,
+    "security": 0.67
+  },
+  "completed_at": 1712506200
+}
+```
+
+## Retrieve Results
+
+Get the full per-Probe breakdown once the evaluation status is `saved`.
+
+<CodeGroup>
+```bash title="CLI"
+vijil eval results-detail <evaluation_id> --json | jq '.scores'
+```
+
+```bash title="API"
+curl -s "$VIJIL_URL/evaluation-results/$EVAL_ID/results?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
+
+## Generate a Report
+
+Produce a Trust Report for sharing or archiving.
+
+<CodeGroup>
+```bash title="CLI"
+vijil eval report <evaluation_id>
+```
+
+```bash title="HTML"
+curl -s "$VIJIL_URL/evaluations/$EVAL_ID/html?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -o report.html
+```
+
+```bash title="PDF"
+curl -s "$VIJIL_URL/evaluations/$EVAL_ID/pdf?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -o report.pdf
+```
+</CodeGroup>
+
+## List and Cancel Evaluations
+
+<CodeGroup>
+```bash title="List"
+vijil eval list --agent-id "$AGENT_ID" --status completed
+```
+
+```bash title="Cancel"
+vijil eval cancel <evaluation_id>
+```
+
+```bash title="Delete"
+vijil eval delete <evaluation_id>
+```
+</CodeGroup>
+
+Use `GET /evaluations/` and `POST /evaluations/{evaluation_id}/cancel` for the REST API equivalents.
 
 ## Next Steps
 
@@ -44,9 +179,8 @@ Before setting up an Evaluation, you must have:
     Deep dive into scores and failures
   </Card>
   <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
-    Create targeted evaluations
+    Create targeted Evaluations
   </Card>
-
   <Card title="Cloud Providers" icon="cloud" href="/developer-guide/evaluate/cloud-providers">
     Configure provider integrations
   </Card>
