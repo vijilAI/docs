@@ -3,10 +3,23 @@ title: "How Evaluation Works"
 description: "The architecture of systematic agent testing: from test definition through execution to trust scoring."
 ---
 
+<Tip>
+**TL;DR:** Vijil evaluates [Agents](/owner-guide/register-agents/what-is-an-agent) using a four-layer hierarchy: [Harness](/concepts/evaluation-components/harness), [Scenario](/concepts/evaluation-components/scenario), [Probe](/concepts/evaluation-components/probe), and [Detector](/concepts/evaluation-components/detector). You select one or more Harnesses and the platform runs the full test suite automatically, with each layer narrowing scope from the overall evaluation environment down to individual response checks.
+</Tip>
+
 The [Trust Score](/concepts/trust-score/introduction) measures [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety). But how do you actually test for these properties? You cannot just ask an agent *"**are you trustworthy?**"*. You need to [Probe](/concepts/evaluation-components/probe) its behavior systematically, across hundreds of [Scenarios](concepts/evaluation-components/scenario), looking for specific failure modes.
 
 Vijil’s evaluation service consists of [Harnesses](concepts/evaluation-components/harness), [Scenarios](concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector):
 ![Vijil Evaluation components](/images/legacy/Harness-scenario-probe-detector.webp)
+
+## Evaluation Hierarchy at a Glance
+
+| Layer | What It Is | Your Role |
+|-------|-----------|-----------|
+| **[Harness](/concepts/evaluation-components/harness)** | Top-level collection of Scenarios that produces a Trust Score | Select before running |
+| **[Scenario](/concepts/evaluation-components/scenario)** | Group of related Probes targeting one failure category | Defined in the Harness |
+| **[Probe](/concepts/evaluation-components/probe)** | One or more adversarial prompts sent to your agent | Generated per Scenario |
+| **[Detector](/concepts/evaluation-components/detector)** | Response analyzer that marks a Probe as pass or fail | Runs automatically |
 
 At the lowest level, [Detectors](/concepts/evaluation-components/detector) scan model responses for undesirable features and register responses with those features as successful attacks on the model. For example, a Detector may be designed to look for fake Python packages.
 
@@ -101,4 +114,3 @@ Learn more about trust score components:
     Configurable protection pipelines
   </Card>
 </CardGroup>
-
