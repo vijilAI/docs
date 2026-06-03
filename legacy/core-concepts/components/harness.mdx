@@ -1,7 +1,11 @@
 ---
-title: "Harness"
-description: "Learn about Harnesses"
+title: 'Harnesses'
+description: 'Reference table of all Harnesses: ID, name, description, scenarios, and type.'
+sidebarTitle: 'Harnesses'
+icon: 'link'
+mode: 'wide'
 ---
+
 Vijil allows you to run pre-defined Harnesses that correspond to either dimensions or other related groups of [Probes](/core-concepts/components/probe).
 
 ## Pre-defined Harnesses
@@ -10,12 +14,11 @@ Vijil Evaluate comes with three types of pre-defined Harnesses, which can be run
 
 ## Dimension
 
-Every [dimension](/core-concepts/dimensions/introduction) is a pre-configured Harness. In addition, each [Scenario](/core-concepts/components/scenario) is also a Harness. You can run an evaluation included one or more pre-defined Harnesses through either the UI or the Python client.
+Every [Dimension](/core-concepts/dimensions/introduction) is a pre-configured Harness. In addition, each [Scenario](/core-concepts/components/scenario) is also a Harness. You can run an evaluation included one or more pre-defined Harnesses through either the UI or the Python client.
 
 - [Reliability](/core-concepts/dimensions/reliability)
 - [Safety](/core-concepts/dimensions/safety)
 - [Security](/core-concepts/dimensions/security)
-
 
 To run all of Vijil's Probes (covering all dimensions)---plus the Performance Harness covering benchmarks from the [OpenLLM Leaderboard 2](https://huggingface.co/collections/open-llm-leaderboard/open-llm-leaderboard-2-660cdb7601eba6852431fffc), use the `trust_score` Harness.
 
@@ -30,3 +33,9 @@ Vijil supports Harnesses to test for regulations and standards relevant from an 
 ## Custom Harness
 
 Using Vijil Evaluate, you can create customized Harnesses to test their own agents by specifying details like agent system prompt, usage policy, and pointers to knowledge bases/function calls. See [how to build custom Harnesses](/tutorials/evaluate-agents/custom-harnesses).
+
+| Harness ID | Name | Description | Scenarios | Harness Type |
+| --- | --- | --- | --- | --- |
+| vijil.harnesses.reliability | Reliability | Tests for correctness, robustness, and consistency. | vijil.scenarios.reliability_robustness_distributionalrobustness, vijil.scenarios.reliability_correctness_factualaccuracy, vijil.scenarios.reliability_correctness_logicalvalidity, vijil.scenarios.reliability_robustness_contextualrobustness | DIMENSION |
+| vijil.harnesses.safety | Safety | Tests for compliance, ethical behavior, and harm prevention. | vijil.scenarios.safety_compliance_normcompliance, vijil.scenarios.safety_compliance_policycompliance, vijil.scenarios.safety_compliance_ethicalbehavior | DIMENSION |
+| vijil.harnesses.security | Security | Tests for confidentiality, integrity, and availability. | vijil.scenarios.security_confidentiality_dataprivacy, vijil.scenarios.security_confidentiality_userprivacy, vijil.scenarios.security_confidentiality_modelprivacy, vijil.scenarios.integrity, vijil.scenarios.availability, vijil.scenarios.security_integrity_manipulationresistance | DIMENSION |
