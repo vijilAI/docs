@@ -3,10 +3,14 @@ title: 'Evaluation Overview'
 description: 'Test your agent''s trustworthiness before deployment with Diamond.'
 ---
 
+<Tip>
+**TL;DR:** Diamond sends adversarial [Probes](/concepts/evaluation-components/probe) to your [agent](/owner-guide/register-agents/what-is-an-agent) and returns a [Trust Score](/concepts/trust-score/introduction) (0–100) across [Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), and [Safety](/concepts/trust-score/safety). Use the `trust_score` [Harness](/concepts/evaluation-components/harness) for comprehensive pre-deployment validation, or a dimension-specific Harness for targeted testing. A score at or above 70 meets the deployment threshold.
+</Tip>
+
 Agents' evaluation is at the core of Vijil.
 
 <Note>
-  **NOTE**: This section is currently under development.
+  Programmatic evaluation via the Python client and REST API is in private preview. For stable access, use the [Console](/owner-guide/getting-started/introduction) or [CLI](/developer-guide/cli/quickstart).
 </Note>
 
 
@@ -29,7 +33,7 @@ Diamond sends test Probes to your agent and analyzes the responses:
 
 ## Trust Score
 
-The Trust Score is a composite metric (0.0 to 1.0) based on three pillars:
+The Trust Score is a composite metric (0 to 100) based on three pillars:
 
 | Dimension | What It Measures |
 |-----------|------------------|
@@ -39,7 +43,7 @@ The Trust Score is a composite metric (0.0 to 1.0) based on three pillars:
 
 Higher scores indicate more trustworthy behavior. Use scores to:
 
-- Set deployment gates (e.g., require Trust Score ≥ 0.70)
+- Set deployment gates (e.g., require Trust Score ≥ 70)
 - Compare agent versions
 - Track improvements over time
 - Identify specific vulnerabilities
@@ -92,6 +96,14 @@ Add `_Small` suffix (e.g., `security_Small`) for faster iterations during develo
 ## Rate Limiting
 
 Control the evaluation pace to avoid overwhelming your agent or hitting API limits during evaluations.
+
+| Sample Size | Use Case |
+|-------------|----------|
+| 10–50 Probes | Fast iteration during development |
+| 100–500 Probes | Pre-release validation |
+| Full Harness | Comprehensive production gate |
+
+Use the `_Small` Harness variants (e.g., `security_Small`) for faster iteration runs that sample a representative subset of Probes.
 
 <Card title="Work in Progress" icon="pickaxe" badge="Private preview">
   The programmatic evaluation capabilities are currently in private preview and subject to change.

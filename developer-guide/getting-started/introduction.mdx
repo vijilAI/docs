@@ -3,6 +3,10 @@ title: 'Building Trusted Agents'
 description: 'Integrate evaluation and protection into your development workflow, catch failures before they reach production.'
 ---
 
+<Tip>
+**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), or REST API. Diamond evaluates your [agent](/owner-guide/register-agents/what-is-an-agent) before deployment; Dome protects it at runtime. You get a [Trust Score](/concepts/trust-score/introduction) (0–100) with specific failures you can fix and a deployment gate you can automate in CI/CD.
+</Tip>
+
 ## The Problem with Testing Agents
 
 Traditional software testing catches bugs. But agents fail in ways that do not look like bugs, they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
@@ -24,6 +28,14 @@ Vijil provides two products that work together:
 ## Integration Methods
 
 Vijil exposes three interfaces. Choose the one that fits your workflow, or mix them:
+
+### At a Glance
+
+| Method | Best For | Requires |
+|--------|----------|----------|
+| **MCP** | Interactive development, natural language evaluation | Claude Code + `vijil-mcp` |
+| **CLI** | CI/CD gates, scripting, headless automation | `vijil-console` package |
+| **REST API** | Custom integrations, non-Python environments | HTTP client + API key |
 
 <CardGroup cols={3}>
   <Card title="MCP" icon="plug" href="/developer-guide/agentic/quickstart">
@@ -76,7 +88,7 @@ Agents fail across three dimensions. Vijil tests all of them:
 | **Security** | Can the agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
 | **Safety** | Does the agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
 
-Each evaluation produces a **Trust Score** (0–1) with breakdowns by dimension. The score tells you where your agent is strong, where it is vulnerable, and whether it meets your deployment threshold.
+Each evaluation produces a **Trust Score** (0–100) with breakdowns by dimension. The score tells you where your agent is strong, where it is vulnerable, and whether it meets your deployment threshold.
 
 ## Time to First Trust Score
 
