@@ -13,6 +13,21 @@ Based on how the agent responds, Diamond then produces a **Trust Score** that sh
 - Security 
 - Safety
 
+## **Red Team in Diamond**
+
+Diamond supports two complementary ways to evaluate an agent:
+
+| Mode | How It Works | Use It When |
+|------|--------------|-------------|
+| **Standard evaluations** | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). | You need a reproducible Trust Score, baseline readiness evidence, or a focused custom Harness, and produces a Trust Score. |
+| **Red Team campaigns** | Runs an adaptive, multi-wave adversarial campaign against a registered agent. Each wave generates attack seeds, launches attackers, judges transcripts, reflects on findings, and uses that feedback to plan the next wave. | You need deeper adversarial testing, want to uncover unknown vulnerabilities, or need evidence for security and risk review. |
+
+Red Team uses the agent context available in Diamond, including its purpose, policies, personas, tools, workflows, and known risks where available. Instead of sending a fixed set of Probes, it works through an iterative campaign:
+
+**Taxonomy → Attack seeds → Attackers → Judgments → Reflections → Report**
+
+The taxonomy defines the risk areas to explore. Attack seeds translate those risks into concrete goals. Attackers then run against the target agent, judgments evaluate the transcripts, reflections identify what worked and what remains uncovered, and the final report clusters vulnerabilities, policy violations, leaked artifacts, and successful strategies.
+
 ## **The Trust Score**
 
 At a high level, the Trust Score is a single, easy-to-understand number that answers to a particularly complicated question: _“Can this agent be trusted in the real world?”_
@@ -24,17 +39,17 @@ Behind that number is a combination of structured testing and analysis, but what
 Observe the Trust Score as if it were built on three dimensions:
 
 - **Reliability**\
-  Does the agent constantly do what it’s supposed to do? This includes handling tasks in a correct way, producing stable and predictable outputs.
+  Does the agent constantly do what it is supposed to do? This includes handling tasks in a correct way, producing stable and predictable outputs.
 - **Security**\
   Can the agent handle malicious behavior effectively? This includes testing how well it responds to prompt injection, prevents data leaks, and resists attempts to manipulate or exploit the system. 
 - **Safety**\
   Does the agent stay within acceptable boundaries? This includes avoiding harmful content, respecting policies, and not taking any unauthorized actions.
 
-Each of these dimensions contributes to the final score and giving teams a more complete picture so it is not just _if_ something is wrong, but _where_.
+Each of these dimensions contributes to the final score and gives teams a clearer picture, so it is not just _if_ something is wrong, but _where_.
 
 ## **Evaluation Components**
 
-To make sure that all of this works, Diamond organizes evaluations into a structured hierarchy. You don’t really need to think about it all the time, but it does help to understand how the system breaks things down:
+To make sure that all of this works, Diamond organizes evaluations into a structured hierarchy. You do not really need to think about it all the time, but it does help to understand how the system breaks things down:
 
 **Harness → Scenario → Probe → Detector**
 
@@ -42,14 +57,14 @@ Each layer adds more details, going from high-level testing setups down to indiv
 
 ### **Trust Score Components**
 
-Here’s how that hierarchy translates into an actual evaluation process:
+Here is how that hierarchy translates into an actual evaluation process:
 
 - **Harness**\
   This is the top-level setup for an evaluation. What it does, is that defines the overall testing environment meaning what kind of agent is being tested, under which conditions, and what are the goals in there.
 - **Scenario**\
   Scenarios represent realistic situations which the agent can encounter. For example, a customer support request, a malicious input, or a policy-sensitive interaction.
 - **Probe**\
-  Probes are the actual inputs sent to the agent. These prompts are designed to test unusual or difficult scenarios that help identify potential failures and reveal weaknesses in the system. 
+  Probes are the actual inputs sent to the agent. These prompts are designed to test unusual or difficult Scenarios that help identify potential failures and reveal weaknesses in the system. 
 - **Detector**\
   Detectors analyze the agent’s responses. They check if something went wrong, for example a policy violation, a hallucination, or a security issue and then record the results.
 

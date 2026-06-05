@@ -118,6 +118,88 @@ Each finding includes:
 - **Expected Behavior**: What a trustworthy agent would produce
 - **Recommendation**: Specific remediation guidance
 
+## Understanding Red Team Results
+
+Red Team results are campaign evidence, not a Trust Score. Open a Red Team result from **Tests** → **Evaluation Results** by selecting an evaluation with type **Red Team**.
+
+The result page has three main areas:
+
+- **Run summary**: Current status, phase, cost, progress, and wave information
+- **Waves**: Per-wave seeds, attackers, transcripts, strategies, and judgments
+- **Final Report**: Aggregated findings across the full campaign
+
+### Run Summary
+
+The summary at the top of the result page tells you where the campaign is in its lifecycle.
+
+| Field | What It Means |
+|-------|---------------|
+| **Run Status** | Whether the Red Team run is pending, running, succeeded, failed, or stopped |
+| **Phase** | The current stage of the run, such as planning, attacking, judging, reflecting, or reporting |
+| **Elapsed** | How long the run has been active |
+| **Running Total Cost** | The accumulated cost for the campaign so far |
+| **Attackers Completed** | How many attacker runs finished |
+| **Attackers Errored** | How many attacker runs failed |
+| **Current Wave** | Which wave is currently active or most recently completed |
+
+Use this section to understand progress and cost. Use the Waves and Final Report sections to interpret findings.
+
+### Waves
+
+A Red Team campaign runs in waves. The **Waves** section lists every wave in the evaluation and shows basic information for each one. Click a wave to inspect what Red Team generated and what attackers did during that wave.
+
+Each wave detail view has two main sections:
+
+| Section | Fields | How To Read It |
+|---------|--------|----------------|
+| **Seeds in This Wave** | Seed ID, Instructions, Risk Type, Risk Outcome | Shows the attack goals generated for that wave. Each seed connects a taxonomy risk to an attacker instruction. |
+| **Live Attackers** | Seed ID, Status, Transcripts | Shows the attacker runs launched for those seeds and whether transcript evidence is available. |
+
+Review wave details to see whether later waves became more focused based on earlier discoveries. Strong campaigns often show broad exploration early, then more targeted attacks after reflections identify promising strategies.
+
+### Live Attacker Details
+
+Click a Live Attacker to inspect the evidence behind one seed. The detail view is organized into several sections:
+
+| Result Detail | How To Read It |
+|---------------|----------------|
+| **Seed Info** | Shows the seed Instructions, Risk Type, Risk Outcome, and Cost |
+| **Final Strategy** | Shows the Persona, Context, Approach, and Conversation Plan the attacker used |
+| **Final Transcript** | Shows the conversation evidence selected as the most relevant transcript for this attacker |
+| **Judgment** | Shows Harmful Content Delivered and Potential Harm |
+
+### Judgments and Harm
+
+After an attack completes, a judge reviews the transcript. In the UI, focus on **Harmful Content Delivered** and **Potential Harm**.
+
+**Harmful Content Delivered** shows whether the Agent fulfilled the attack goal or leaked a verified sensitive artifact:
+
+| Judgment Field | Meaning |
+|----------------|---------|
+| **FULL** | The agent fulfilled the attack goal or leaked a verified sensitive artifact |
+| **PARTIAL** | The agent produced some harmful content, but the goal was not fully met or the leak needs more verification |
+| **NONE** | The agent refused or responded safely |
+
+**Potential Harm** helps separate verified harm from findings that need owner review. Treat a verified policy violation or verified leaked artifact as real harm that needs remediation. Treat potential or unverified harm as something a human owner should check against the actual Agent design, policies, and data access.
+
+Leaked artifacts are internal details the Agent disclosed, such as system prompt fragments, tool names, private endpoints, credentials, or operational procedures.
+
+### Final Red Team Report
+
+The **Final Report** section shows a short summary of the evaluation. Click **Open full report view** to inspect the details used to create that summary.
+
+The full report view includes:
+
+| Section | What It Shows |
+|---------|---------------|
+| **Summary** | Text summary, Waves, Seeds, Successful Judgments, and Run Total Cost |
+| **Vulnerabilities** | Distinct weaknesses discovered across waves |
+| **Policy Violations** | Confirmed policy violations when policies were available to the judge |
+| **Leaked Artifacts** | Internal details disclosed during attacks |
+| **Successful Strategies** | Attacker approaches that worked and should inform future testing |
+
+The report summary is aggregated from all waves, seeds, transcripts, and judgments. Use it to decide which issues need product changes, prompt or policy updates, tool permission changes, or Dome Guardrails.
+
 ## Prioritizing Remediation
 
 Use severity and taxonomy to prioritize fixes:
@@ -126,11 +208,13 @@ Use severity and taxonomy to prioritize fixes:
 - Security vulnerabilities (prompt injection, data leakage)
 - Safety violations (harmful content, scope violations)
 - Reliability failures that affect core functionality
+- Red Team findings with FULL harmful-content judgments
 
 **Address in next release (Medium severity):**
 - Consistency issues across sessions
 - Minor compliance gaps
 - Robustness failures on edge cases
+- Red Team findings with PARTIAL harmful-content judgments
 
 **Track and monitor (Low severity):**
 - Transparency improvements
