@@ -40,7 +40,7 @@ This approach works well for:
 
 **Black Box fields**:
 - **Agent Name**: A descriptive identifier
-- **Agent URL**: Where your Agent accepts requests
+- **Agent URL**: Remote Agent endpoint URL 
 - **Use A2A Protocol**: Enable Agent to Agent protocol
 - **Purpose** (Optional): Description of what the Agent is for
 - **Access Key**: Authentication credentials (you can add multiple keys)
@@ -68,9 +68,9 @@ If your Agent uses MCP tools or delegates to sub-agents, Grey Box registration e
 
 White Box provides full source code access for static analysis (SAST) combined with dynamic testing (DAST). This is the most thorough evaluation path.
 
-**Additional fields:**
+**White Box fields:**
 - **Source Code**: Paste code directly, or leave empty to pull from repository
-- **GitHub Repository**: URL, username, and access token for private repos
+- **GitHub Repository**: Repository URL, Entry point, Username, and Access token for private repos
 
 White Box evaluation can identify vulnerabilities that Black Box testing would miss—hardcoded secrets, unsafe deserialization, SQL injection in tool implementations, and similar code-level issues.
 
