@@ -1,18 +1,18 @@
 ---
 title: 'Register Agents'
-description: 'Add your AI agents to Vijil for evaluation and protection.'
+description: 'Add your AI Agents to Vijil for evaluation and protection.'
 ---
 
-Before Vijil can evaluate or protect an agent, you need to register it. Registration tells Vijil how to communicate with your agent and how much visibility you are granting for analysis.
+Before Vijil can evaluate or protect an Agent, you need to register it. Registration tells Vijil how to communicate with your Agent and how much visibility you are granting for analysis.
 
 ## The Agent Registry
 
-Navigate to **Agents** in the sidebar to open the Agent Registry. The registry displays all agents in your workspace with key information:
+Navigate to **Agents** in the sidebar to open the Agent Registry. The registry displays all Agents in your workspace with key information:
 
 | Column | What It Shows |
 |--------|---------------|
 | **Agent Name** | Identifier you assigned during registration |
-| **Owner** | Team member who registered the agent |
+| **Owner** | Team member who registered the Agent |
 | **Status** | Draft, Active, Under Review, or Archived |
 | **Access Level** | Black Box, Grey Box, or White Box |
 | **Last Evaluated** | When Diamond last ran an evaluation |
@@ -26,28 +26,28 @@ Vijil supports three access levels, each enabling progressively deeper evaluatio
 | Access Level | What You Provide | What Vijil Can Test |
 |--------------|------------------|---------------------|
 | **Black Box** | API endpoint and credentials | Input/output behavior only |
-| **Grey Box** | Model config, MCP config, A2A config | Vulnerabilities traced to agent composition |
+| **Grey Box** | Model config, MCP config, A2A config | Vulnerabilities traced to the Agent's composition |
 | **White Box** | Full configuration and source code | SAST and DAST analysis for thorough audit |
 
 ### Black Box
 
-Black Box registration requires minimal information: your agent's API endpoint and authentication. Vijil treats the agent as an opaque system, testing only its observable behavior.
+Black Box registration requires minimal information: your Agent's API endpoint and authentication. Vijil treats the Agent as an opaque system, testing only its observable behavior.
 
 This approach works well for:
-- Third-party agents you do not control
+- Third-party Agents you do not control
 - Initial evaluations before deeper analysis
 - Agents where you want to test the API contract
 
 **Required fields:**
 - **Agent Name**: A descriptive identifier
 - **Status**: Start with Draft for initial setup
-- **Agent URL**: Where your agent accepts requests
+- **Agent URL**: Where your Agent accepts requests
 - **API Key**: Authentication credentials (you can add multiple keys)
 - **Rate Limit Per Minute**: Matches your provider's limits to avoid throttling
 
 ### Grey Box
 
-Grey Box expands visibility into your agent's composition. This enables Vijil to trace vulnerabilities to specific components whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated agent behavior.
+Grey Box expands visibility into your Agent's composition. This enables Vijil to trace vulnerabilities to specific components whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated Agent behavior.
 
 **Additional fields:**
 
@@ -56,7 +56,7 @@ Grey Box expands visibility into your agent's composition. This enables Vijil to
 | **Role & Instructions** | Role, System Prompt | Helps Vijil understand expected behavior |
 | **Model Configuration** | Hub, Model Name, Parameters | Identifies model-specific vulnerabilities |
 | **External Resources** | MCP Proxy/Server, Access Level | Tests tool-use attack surfaces |
-| **Delegated Agents** | A2A Card URLs | Evaluates multi-agent orchestration risks |
+| **Delegated Agents** | A2A Card URLs | Evaluates orchestration risks for delegated Agents |
 
 The **Hub** dropdown supports major providers:
 
@@ -70,8 +70,8 @@ The **Hub** dropdown supports major providers:
 | [NVIDIA NIM](/owner-guide/register-agents/integrations/nvidia) | `nvidia` | `nvidia/llama3-chatqa-1.5-8b`, `nvidia/llama3-chatqa-1.5-70b`, `nvidia/nemotron-4-340b-instruct` | 60 requests / 60s |
 | [Google Cloud Vertex AI](/owner-guide/register-agents/integrations/vertex) | `vertex` | `google/gemini-2.5-pro`, `google/gemini-2.0-flash-001`, `google/gemini-1.5-flash-001`, `google/gemini-1.5-pro-001`, `google/gemini-1.0-pro-002` | 60 requests / 60s |
 | [AWS Bedrock](/owner-guide/register-agents/integrations/bedrock) | `bedrock` | `us.amazon.nova-lite-v1:0`, `us.amazon.nova-micro-v1:0`, `us.amazon.nova-pro-v1:0`, `us.anthropic.claude-3-7-sonnet-20250219-v1:0`, `anthropic.claude-3-5-sonnet-20241022-v2:0`, `meta.llama3-1-70b-instruct-v1:0`, `meta.llama3-1-405b-instruct-v1:0`, `mistral.mistral-large-2407-v1:0` | 60 requests / 60s |
-| [AWS Bedrock Agents](/owner-guide/register-agents/integrations/bedrock) | `bedrockAgents` | Bedrock-hosted agents configured by `agent_id` / `agent_alias_id` | 30 requests / 60s |
-| Google Cloud (Agentforce) | `agentforce` | Agentforce-hosted agents (via Agentforce configuration) | 30 requests / 60s |
+| [AWS Bedrock Agents](/owner-guide/register-agents/integrations/bedrock) | `bedrockAgents` | Bedrock-hosted Agents configured by `agent_id` / `agent_alias_id` | 30 requests / 60s |
+| Google Cloud (Agentforce) | `agentforce` | Agentforce-hosted Agents (via Agentforce configuration) | 30 requests / 60s |
 | Azure | `azure` | Azure-hosted deployments (models configured in your Azure account) | 60 requests / 60s |
 | [DigitalOcean](/owner-guide/register-agents/integrations/digitalocean) | `digitalocean` | DigitalOcean-hosted deployments (models configured in your DO account) | 30 requests / 60s |
 | [OpenRouter](/owner-guide/register-agents/integrations/openrouter) | `openrouter` | `microsoft/phi-4`, `google/gemini-2.5-flash-preview`, `x-ai/grok-3-beta` | 60 requests / 60s |
@@ -79,7 +79,7 @@ The **Hub** dropdown supports major providers:
 
 
 <Tip>
-If your agent uses MCP tools or delegates to sub-agents, Grey Box registration enables Vijil to test the full execution graph—not just the top-level API.
+If your Agent uses MCP tools or delegates to other Agents, Grey Box registration enables Vijil to test the full execution graph—not just the top-level API.
 </Tip>
 
 ### White Box
@@ -96,33 +96,33 @@ White Box evaluation can identify vulnerabilities that Black Box testing would m
 
 1. Click **+ Register Agent** to open the registration modal
 2. Choose **Manual** for direct entry or **Import** to load from a file
-3. Fill in the **Black Box** fields (required for all agents)
+3. Fill in the **Black Box** fields (required for all Agents)
 4. Expand **Grey Box** if you want compositional analysis
 5. Expand **White Box** if you want source code analysis
 6. Click **Register Agent**
 
-Your agent appears in the registry with status **Draft**. Change to **Active** when ready for evaluation.
+Your Agent appears in the registry with status **Draft**. Change to **Active** when ready for evaluation.
 
 ## Managing Agents
 
-Click the **More Actions** menu (three dots) on any agent row to access management options.
+Click the **More Actions** menu (three dots) on any Agent row to access management options.
 
 | Action | What It Does |
 |--------|--------------|
-| **Edit** | Modify agent configuration |
+| **Edit** | Update Agent configuration |
 | **Clone** | Create a copy with a new name |
 | **Export JSON** | Download configuration for backup or migration |
 | **Archive** | Remove from active list while preserving history |
-| **Delete** | Permanently remove agent and all associated data |
+| **Delete** | Permanently remove an Agent and all associated data |
 
 ### Editing an Agent
 
-Select **Edit** to open the agent configuration modal with current values populated.
+Select **Edit** to open the Agent configuration modal with current values populated.
 
 Make your changes and click **Save Changes**.
 
 <Warning>
-Changing an agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
+Changing an Agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
 </Warning>
 
 ## Agent Status
@@ -167,6 +167,6 @@ For provider-specific configuration details, use our dedicated UI walk-through g
     Create user profiles for evaluation
   </Card>
   <Card title="Define Policies" icon="scroll-text" href="/owner-guide/simulate-environment/policies">
-    Set organizational rules your agent must follow
+    Set organizational rules your Agent must follow
   </Card>
 </CardGroup>
