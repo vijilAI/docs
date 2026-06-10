@@ -50,13 +50,14 @@ This approach works well for:
 
 Grey Box expands visibility into your Agent's composition. This enables Vijil to trace vulnerabilities to specific components whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated Agent behavior.
 
-**Additional fields:**
+**Grey Box settings**:
 
 | Section | Fields | Purpose |
 |---------|--------|---------|
 | **Role & Instructions** | Role, System Prompt | Helps Vijil understand expected behavior |
-| **Model Configuration** | Hub, Model Name, Parameters | Identifies model-specific vulnerabilities |
-| **External Resources** | MCP Proxy/Server, Access Level | Tests tool-use attack surfaces |
+| **Capabilities** | Capability tools | Add one or more Capability tools |
+| **Model Configuration** | Model name and Advanced Parameters | TODO: Write this |
+| **External Resources** | MCP Proxy or Server, MCP Access Level | Tests tool-use attack surfaces |
 | **Delegated Agents** | A2A Card URLs | Evaluates orchestration risks for delegated Agents |
 
 <Tip>
