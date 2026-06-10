@@ -1,29 +1,28 @@
 ---
 title: 'Understand Results'
-description: 'Interpret evaluation findings using the Taxonomy of Trust framework.'
+description: 'Interpret evaluation findings using the Dimensions of Trust framework.'
 ---
 
-Evaluation results reveal how your agent behaves across the three pillars of trustworthy AI: Reliability, Security, and Safety. This page explains the taxonomy that structures findings and how to prioritize remediation.
+Evaluation results reveal how your [Agent](/owner-guide/register-agents/what-is-an-agent) behaves across the three pillars of trustworthy AI: Reliability, Security, and Safety.
 
 ## The Trust Score
 
-The Trust Score is a composite metric ranging from 0 to 1 that quantifies how much you can trust your agent in production. It aggregates performance across all evaluated dimensions.
+The Trust Score is a composite metric ranging from 0 to 100 that quantifies how much you can trust your [Agent](/owner-guide/register-agents/what-is-an-agent) in production. Vijil aggregates performance across all Evaluated Dimensions.
 
 | Score | Status | Interpretation |
 |-------|--------|----------------|
-| ≥ 0.70 | **PASSED** | Agent meets trustworthiness threshold for deployment |
-| < 0.70 | **FAILED** | Agent requires remediation before production use |
+| ≥ 70 | <Badge color="green">PASSED</Badge> | Agent meets trustworthiness threshold for deployment |
+| < 70 | <Badge color="red">FAILED</Badge> | Agent requires remediation before production use |
 
-The threshold of **0.70** represents a baseline for acceptable behavior. Agents scoring below this threshold exhibited failure modes that pose unacceptable risk.
+The threshold of **70** represents a baseline for acceptable behavior. [Agents](/owner-guide/register-agents/what-is-an-agent) scoring below this threshold exhibited failure modes that pose unacceptable risk.
 
 <Warning>
-A passing Trust Score indicates acceptable performance against tested Scenarios. It does not guarantee absence of all vulnerabilities—evaluation coverage depends on the Harness configuration and Probe selection.
+A passing Trust Score indicates acceptable performance against tested [Scenarios](/concepts/evaluation-components/scenario). The report does not guarantee absence of all vulnerabilities: Evaluation coverage depends on the [Harness](/concepts/evaluation-components/harness) configuration and [Probe](/concepts/evaluation-components/probe) selection.
 </Warning>
 
-## Taxonomy of Trust
+## Dimensions of Trust
 
-Vijil organizes agent behavior into a three-level taxonomy:
-
+Vijil organizes [Agent](/owner-guide/register-agents/what-is-an-agent) behavior into a three-level taxonomy:
 
 <CardGroup cols={3}>
   <Card
@@ -64,12 +63,11 @@ Vijil organizes agent behavior into a three-level taxonomy:
   </Card>
 </CardGroup>
 
+Each pillar addresses a distinct aspect of trustworthy AI. Failures in any pillar can render an Agent unsuitable for production deployment.
 
-Each pillar addresses a distinct aspect of trustworthy AI. Failures in any pillar can render an agent unsuitable for production deployment.
+### Reliability
 
-## Reliability
-
-Reliability measures whether your agent produces correct, consistent, and robust outputs.
+Reliability measures whether your Agent produces correct, consistent, and robust outputs.
 
 | Subcategory | What It Tests |
 |-------------|---------------|
@@ -77,9 +75,9 @@ Reliability measures whether your agent produces correct, consistent, and robust
 | **Consistency** | Self-consistency, cross-session stability, temporal stability, inter-user consistency |
 | **Robustness** | Contextual handling, distributional generalization, operational stability |
 
-## Security
+### Security
 
-Security measures whether your agent resists attacks on confidentiality, integrity, and availability.
+Security measures whether your Agent resists attacks on confidentiality, integrity, and availability.
 
 | Subcategory | What It Tests |
 |-------------|---------------|
@@ -87,9 +85,9 @@ Security measures whether your agent resists attacks on confidentiality, integri
 | **Integrity** | Adversarial robustness, manipulation resistance, tamper resistance |
 | **Availability** | DoS resistance, graceful degradation, resilience |
 
-## Safety
+### Safety
 
-Safety measures whether your agent operates within acceptable boundaries.
+Safety measures whether your Agent operates within acceptable boundaries.
 
 | Subcategory | What It Tests |
 |-------------|---------------|
@@ -99,24 +97,69 @@ Safety measures whether your agent operates within acceptable boundaries.
 
 ## Reading the Trust Report
 
-The Trust Report organizes findings by taxonomy level:
+Each evaluation produces a Trust Report, a structured PDF that moves from a high-level verdict down to individual Probe results and actionable remediation guidance. You can download a [sample report](/assets/vijil-console-eval-report.pdf) to follow along. The report has six sections.
 
-### Dimension Breakdown
+### Entering the Trust Report
 
-Each dimension (Reliability, Security, Safety) shows:
-- **Dimension score**: Aggregate performance for this pillar
-- **Subcategory scores**: Performance for each aspect within the dimension
-- **Finding count**: Number of issues identified at each severity level
+The cover page shows:
+- **Agent name** and evaluation type (for example, *Behavioral Safety Assessment*)
+- A <Badge color="green">PASSED</Badge> or <Badge color="red">FAILED</Badge> badge against the Trust Score threshold
+- The numeric **Trust Score**
+- An **Evaluation ID** for tracking and sharing the report
+- The generation timestamp in UTC
 
-### Individual Findings
+### Executive Summary
 
-Each finding includes:
-- **Category**: Where in the taxonomy this issue falls
-- **Severity**: Risk level from 1–4
-- **Probe**: The test case that revealed this behavior
-- **Agent Response**: What your agent actually produced
-- **Expected Behavior**: What a trustworthy agent would produce
-- **Recommendation**: Specific remediation guidance
+A brief overview that states which [Harnesses](/concepts/evaluation-components/harness) were run, the overall pass/fail result, and the final Trust Score against the threshold. Use this section to share findings with stakeholders who do not need the full detail.
+
+### Agent Specification
+
+Confirms exactly what was evaluated:
+
+| Field | Description |
+|-------|-------------|
+| Agent Name | The name you registered in [Diamond](/concepts/platform/diamond) |
+| Agent URL | The endpoint [Diamond](/concepts/platform/diamond) probed |
+| Model | The underlying model identifier |
+| Rate Limit | Requests per minute used during the evaluation |
+| Request Timeout | Per-request timeout in seconds |
+
+A **Harnesses Evaluated** table lists each Harness by name, type, and a short description.
+
+### Evaluation Results
+
+**Overall Score** displays a visual gauge with your Trust Score plotted against the pass threshold, making the pass/fail outcome immediately legible.
+
+**Per-Harness Breakdown** lists one card per [Harness](/concepts/evaluation-components/harness) showing its individual score and PASS/FAIL result. When multiple Harnesses are run, a Harness can fail while the overall score passes, or vice versa, depending on weighting. Check each card to identify which dimension drove the outcome.
+
+### Detailed Analysis
+
+The primary diagnostic section, with one subsection per Harness. Each subsection contains:
+
+**Risk Assessment**: States the overall risk level (Low, Moderate, High, or Critical) and the total count of failure patterns broken down by severity (for example, "22 failure patterns identified: 12 Critical, 5 High, 4 Moderate, 1 Low").
+
+**Probe Scores**: A table of every Probe run, grouped by Scenario, with its numeric score and severity rating. Lower scores mean the Agent failed more of that Probe's test cases. The severity label reflects how dangerous the failure pattern is, not just how often it occurred.
+
+**Identified Failure Patterns**: Each pattern that exceeded the failure threshold gets its own entry with:
+- A **code** (for example, `MUT-001`, `SEC-007`) for tracking across evaluations
+- A short **issue title** and **severity** badge
+- A **description** of the behavior Diamond observed
+- **Implications**: what could go wrong in production as a result
+- **Mitigations**: concrete remediation steps such as system prompt changes, Guardrail configuration, or architectural changes
+
+Failure patterns aggregate multiple Probes into a single named finding. Addressing one pattern can resolve failures across many individual Probes.
+
+### Conclusion
+
+A deployment recommendation states plainly whether the Agent can be deployed or requires remediation first. If the Agent failed, it lists the steps to take before re-evaluating.
+
+### Appendix
+
+Records the exact evaluation configuration for reproducibility:
+
+- **Evaluation Configuration**: request parameters (evaluation type, Agent URL, model, rate limit, timeout) and a Harnesses table with final scores
+- **Scoring Methodology**: the pass/fail threshold applied
+- **Harness Definitions**: plain-language definitions of what each Harness type measures
 
 ## Prioritizing Remediation
 
@@ -138,7 +181,7 @@ Use severity and taxonomy to prioritize fixes:
 - Rare edge case handling
 
 <Tip>
-Focus remediation on root causes rather than individual findings. Multiple findings often share a common root cause—fixing the underlying issue resolves all related symptoms.
+Focus remediation on root causes rather than individual findings. Multiple findings often share a common root cause, and fixing the underlying issue resolves all related symptoms.
 </Tip>
 
 ## Comparing Evaluations
@@ -147,11 +190,11 @@ Run evaluations before and after changes to track improvement:
 
 | Metric | Before | After | Change |
 |--------|--------|-------|--------|
-| Trust Score | 0.62 | 0.78 | +0.16 |
+| Trust Score | 62 | 78 | +16 |
 | Critical Findings | 3 | 0 | -3 |
 | High Findings | 7 | 2 | -5 |
 
-A rising Trust Score with decreasing critical findings indicates effective remediation. A declining score signals regression—investigate recent changes.
+A rising Trust Score with decreasing critical findings indicates effective remediation. A declining score signals regression, so investigate recent changes.
 
 ## Next Steps
 
