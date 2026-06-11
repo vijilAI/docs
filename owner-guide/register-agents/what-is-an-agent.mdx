@@ -3,6 +3,10 @@ title: 'What is an Agent'
 description: 'An overview of AI agents and how to test them with Vijil.'
 ---
 
+<Tip>
+**TL;DR:** An AI agent is an autonomous system that can observe its environment, make decisions, and take actions, often using external tools. Vijil evaluates Agents using automated adversarial testing and assigns a [Trust Score](/concepts/trust-score/introduction) (0–100) measuring [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety).
+</Tip>
+
 An AI agent is an autonomous system powered by artificial intelligence designed to achieve specific goals. Unlike standard software that follows rigid rules, an Agent can observe its environment, make decisions, take actions and use external tools to complete tasks.
 
 ## Types of Agents
@@ -40,9 +44,11 @@ Testing agents is difficult because their outputs are not always predictable. To
 
 Agents are commonly tested in these three ways:
 
-- **Manual Testing**: Having humans chat with the Agent to see if it behaves well. This is slow and doesn't scale.
-- **Unit Testing**: Testing individual parts of the Agent. This misses issues that only happen when the whole system runs together.
-- **Automated Evaluation (Vijil's Approach)**: Vijil uses an automated environment to test your Agents against a wide range of [scenarios](/concepts/evaluation-components/scenario), edge cases, and adversarial attacks.
+| Approach | How It Works | Limitation |
+|----------|-------------|------------|
+| **Manual Testing** | Humans interact with the agent to check behavior | Slow, does not scale, misses adversarial edge cases |
+| **Unit Testing** | Tests individual components in isolation | Misses failures that only emerge when the full system runs |
+| **Automated Evaluation** | Sends hundreds of adversarial [Probes](/concepts/evaluation-components/probe) across [Scenarios](/concepts/evaluation-components/scenario) | Requires agent registration and [Harness](/concepts/evaluation-components/harness) configuration |
 
 Vijil measures your Agent's performance and assigns a [Trust Score](/concepts/trust-score/introduction). The Trust Score helps you understand if the Agent is safe, secure, and reliable enough for production.
 

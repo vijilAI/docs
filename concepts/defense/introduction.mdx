@@ -3,20 +3,37 @@ title: "How Defense Works"
 description: "The architecture of runtime agent protection: Guardrails, Guards, and Detectors."
 ---
 
+<Tip>
+**TL;DR:** Vijil Dome provides runtime protection by intercepting every [Agent](/owner-guide/register-agents/what-is-an-agent) input and output through configurable [Guardrails](/concepts/defense/guardrail). Where Diamond identifies vulnerabilities, Dome enforces policies to block attacks in production, without requiring changes to the underlying model.
+</Tip>
+
 Evaluation tells you how trustworthy your agent is. Defense keeps it that way in production.
+
+## Evaluation vs. Defense
+
+| | Diamond (Evaluation) | Dome (Defense) |
+|--|----------------------|----------------|
+| **When it runs** | Before deployment | On every production request |
+| **What it does** | Sends adversarial [Probes](/concepts/evaluation-components/probe); returns a [Trust Score](/concepts/trust-score/introduction) | Intercepts inputs/outputs; blocks flagged content |
+| **Output** | Trust Score + findings report | Allow / block decision + audit trace |
+| **Primary user** | Developer, security reviewer | Production agent deployment |
+
+Dome implements the defensive counterpart to evaluation, acting as the runtime enforcement layer that keeps tested policies active under real-world conditions.
 
 AI blue teaming covers defense mechanisms to proactively defend the agent or model against failure modes found through red teaming tests. Blue teaming methods that are popular currently include LLM firewalls, prompt augmentation, and safety Guardrails. However, such methods are sometimes overly defensive, and can be bypassed.[^1]
 
 In the longer term, deeper defense strategies such as adversarial finetuning and Constitutional AI[^2] may be more robust. However, technical challenges related to computational stability and tradeoffs need to be overcome to make such techniques mainstream.
 
-Using **Vijil Dome**, an enterprise AI engineer or developer can protect a generative AI system by
+Using **Vijil Dome**, you can protect a generative AI system by:
 
-- Applying Guardrails on system prompts
-- Routing the input to and output from my app through scanners to block or redact harmful and malicious content
-- Applying scanners through policies that map to internal usage restrictions, local/national/international regulations, and standards such as OWASP Top 10 for LLMs.
-- Creating new policies or modify existing policy components to adapt to changing threat landscapes.
+- Applying [Guardrails](/concepts/defense/guardrail) on system prompts
+- Routing inputs to and outputs from your agent through scanners to block or redact harmful and malicious content
+- Applying scanners through policies that map to internal usage restrictions, local regulations, and standards such as OWASP Top 10 for LLMs
+- Creating new policies or modifying existing policy components to adapt to changing threat landscapes
 
-**(Coming Soon!)** Input and outputs from real-world usage passing through a Dome deployment are logged and stored for post-hoc analysis and improvement. Over time, Vijil Dome adapts to usage patterns of the specific enterprise and application context it is deployed in by retraining its detection models on these datasets.
+<Note>
+Input and output logging for post-hoc analysis, as well as Dome's adaptive retraining on production data (Vijil Darwin), is in development.
+</Note>
 
 [^1]: [The Art of Defending: A Systematic Evaluation and Analysis of LLM Defense Strategies on Safety and Over-Defensiveness](https://arxiv.org/abs/2401.00287)
 [^2]: [Constitutional AI: Harmlessness from AI Feedback](https://www.anthropic.com/index/constitutional-ai-harmlessness-from-ai-feedback)
@@ -38,4 +55,3 @@ Using **Vijil Dome**, an enterprise AI engineer or developer can protect a gener
     Telemetry, metrics, and logging
   </Card>
 </CardGroup>
-
