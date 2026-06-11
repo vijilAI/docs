@@ -29,7 +29,15 @@ The next highest level consists of [Scenarios](/concepts/evaluation-components/s
 
 At the topmost level, [Harnesses](/concepts/evaluation-components/harness) are collections of one or more Scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more Harnesses to include. The current Vijil Trust Score consists of three Harnesses: Security, Safety, and Reliability.
 
-Learn more about trust score components:
+## Where Red Team Fits
+
+Standard Diamond evaluations use the Harness hierarchy to run a known set of test cases and produce a Trust Score or custom evaluation report. Red Team is also part of Diamond, but it uses an adaptive campaign loop instead of a fixed Harness.
+
+A Red Team campaign starts from a risk taxonomy and the registered agent context, generates attack seeds for each wave, runs attackers against the target, judges the transcripts, reflects on what worked, and uses those observations to plan later waves. 
+
+Use standard evaluations when you need reproducible score evidence. Use Red Team when you need deeper adversarial exploration of security, safety, policy, and data leakage risks.
+
+Learn more about Trust Score components:
 <Columns cols={2}>
     <Card
         title="Harness"
