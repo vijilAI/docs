@@ -3,68 +3,82 @@ title: 'Cloud Provider Integrations'
 description: 'Evaluate agents hosted on major cloud platforms.'
 ---
 
-Vijil supports direct evaluation of agents and models hosted on major cloud platforms. This guide covers configuration for each supported provider.
+Vijil can evaluate agents and models hosted on supported model providers. Use this guide to identify the provider credentials, endpoint details, and rate-limit settings you need before running an evaluation.
+
+<Warning>
+**TODO:** Provider availability, model coverage, and rate-limit defaults should be confirmed with Lief before publishing updates to this page. Provider catalogs and account quotas change frequently.
+</Warning>
 
 ## Supported Providers
 
-| Provider | Hub ID | Supported Targets |
-|----------|--------|-------------------|
-| OpenAI | `openai` | GPT-4o, GPT-4, GPT-3.5 |
-| Anthropic | `anthropic` | Claude 3 family |
-| AWS Bedrock | `bedrock` / `bedrockAgents` | Foundation models, Bedrock Agents |
-| Google Vertex AI | `vertex` | Gemini family |
-| DigitalOcean | `digitalocean` | GenAI Platform agents |
-| Custom | `custom` | Any OpenAI-compatible endpoint |
+This table is a provider reference, not a static model allowlist. For providers with model catalogs, choose a model that your provider account can access and that Vijil supports for that provider.
 
-## OpenAI
+| Provider | What Vijil can evaluate | Model catalog |
+|----------|-------------------------|---------------|
+| OpenAI | OpenAI-hosted models available to your account | [OpenAI models](https://platform.openai.com/docs/models) |
+| Anthropic | Claude models available to your Anthropic account | [Anthropic models](https://docs.anthropic.com/en/docs/about-claude/models/overview) |
+| AWS Bedrock | Bedrock foundation models and Bedrock Agents configured in AWS | [AWS Bedrock models](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html) |
+| Google Vertex AI | Gemini and partner models available through Vertex AI | [Google models on Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models) |
+| DigitalOcean | DigitalOcean AI Platform agents and endpoints | [DigitalOcean AI Platform docs](https://docs.digitalocean.com/products/ai-platform/) |
+| Custom endpoints | OpenAI-compatible endpoints configured by your team | Use your endpoint's model documentation |
 
-Store your OpenAI credentials via the API or dashboard before running an evaluation. Supported models include `gpt-4o`, `gpt-4-turbo`, `gpt-4`, and `gpt-3.5-turbo`.
+## Providers to Verify with Lief
 
-## Anthropic
+These providers were not listed on the original version of this page.
 
-Store your Anthropic credentials before running an evaluation. Supported models include the `claude-3` family.
+| Candidate provider | What to verify |
+|--------------------|----------------|
+| Azure | Whether Azure AI Foundry or Azure OpenAI deployments are supported for this developer-guide workflow |
+| Together AI | Whether Together-hosted serverless models are supported |
+| Mistral AI | Whether native Mistral API models are supported |
+| Fireworks AI | Whether Fireworks-hosted models are supported |
+| NVIDIA NIM | Whether NVIDIA NIM endpoints are supported |
+| Google Cloud Agentforce | Whether Agentforce-hosted agents are supported |
+| OpenRouter | Whether OpenRouter-routed models are supported |
+| Groq | Whether GroqCloud-hosted models are supported |
 
-## AWS Bedrock
+## Provider Setup
 
-Bedrock supports both foundation models and custom Bedrock Agents.
+Store provider credentials in Vijil before running an evaluation. Use the exact model identifier, deployment name, endpoint, or agent identifier expected by the provider and your Vijil configuration.
 
-### Foundation Models
+### API-based Providers
 
-Store your Bedrock access keys and specify the region to evaluate Foundation Models.
+For OpenAI and Anthropic, store the provider API key and use a model identifier from the provider catalog. Your provider account must have access to the model you select.
 
-<Note>
-For Bedrock foundation models, prepend `us.` to the model ID from [AWS's supported models list](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html).
-</Note>
+### AWS Bedrock
 
-### Bedrock Agents
+For Bedrock foundation models, store AWS credentials with permission to invoke the target model and specify the AWS region. Use the model ID format from the AWS model catalog for your selected region, and confirm any Vijil-specific formatting requirements before publishing examples.
 
-For Bedrock Agents, securely supply your `agent_id`, `agent_alias_id`, and AWS access configurations.
+For Bedrock Agents, provide the Bedrock agent identifier, agent alias identifier, region, and AWS access configuration.
 
-## Google Vertex AI
+### Google Vertex AI
 
-Authenticate with Google Cloud and retrieve your application default credentials. Store the provided `client_id`, `client_secret`, and `refresh_token` in Vijil before targeting models from the `gemini-1.5` or `gemini-1.0` families.
+Authenticate with Google Cloud using credentials that can call Vertex AI generative models. Use model identifiers from the Google model catalog and confirm that the selected model is available in your project and region.
 
-## DigitalOcean
+### DigitalOcean
 
-Follow [DigitalOcean's guide](https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/) to get your `agent_id` and `agent_key`, and securely provide them to Vijil.
+Use the DigitalOcean AI Platform endpoint and agent credentials for the agent or endpoint you want Vijil to evaluate.
 
-## Custom Endpoints
+### Custom Endpoints
 
-Evaluate any agent with an OpenAI-compatible API by storing your custom endpoint's API key and providing the URL of the endpoint.
-
+Evaluate any compatible endpoint by storing its API key and providing the endpoint URL. Use the model name and request shape that your endpoint expects.
 
 ## Rate Limiting
 
-Control evaluation pace to avoid API throttling. You can set limits for the number of requests per interval when registering credentials.
+Control evaluation pace to avoid provider throttling and to avoid overwhelming the agent under test. Do not rely on a single docs-wide requests-per-minute value. Set the Vijil-side limit below the strictest limit from your provider account, selected model, cloud project or region, and application capacity.
 
-### Recommended Rate Limits
+| Provider | Where to verify limits |
+|----------|------------------------|
+| OpenAI | [OpenAI rate limits](https://platform.openai.com/docs/guides/rate-limits) |
+| Anthropic | [Anthropic rate limits](https://docs.anthropic.com/en/api/rate-limits) |
+| AWS Bedrock | [Amazon Bedrock quotas](https://docs.aws.amazon.com/bedrock/latest/userguide/quotas.html) |
+| Google Vertex AI | [Vertex AI quotas](https://cloud.google.com/vertex-ai/generative-ai/docs/quotas) |
+| DigitalOcean | DigitalOcean account settings and endpoint-specific limits |
+| Custom endpoints | Endpoint-specific limits set by your service |
 
-| Provider | Requests/min | Notes |
-|----------|--------------|-------|
-| OpenAI | 60-100 | Depends on tier |
-| Anthropic | 60-100 | Depends on tier |
-| Bedrock | 30-60 | Model-dependent |
-| Vertex AI | 60-120 | Project quotas apply |
+<Tip>
+Start with a conservative request limit for new evaluations, then increase it only after confirming that provider dashboards and Vijil evaluation logs show enough headroom.
+</Tip>
 
 <Card title="Work in Progress" icon="pickaxe" badge="Private preview">
   The programmatic evaluation capabilities are currently in private preview and subject to change.
