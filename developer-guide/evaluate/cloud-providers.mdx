@@ -15,6 +15,26 @@ The endpoint must expose an **OpenAI-compatible interface**, regardless of which
 - If your agent already exposes an OpenAI-compatible endpoint, you can register it directly. 
 - If it uses a native API that does not expose that interface, create an adapter service that lets Vijil invoke the agent through the supported request and response shape.
 
+<Note>
+Vijil does not require you to choose from a provider or model list. The OpenAI-style endpoint is what matters.
+</Note>
+
+## When You Need an Adapter
+
+Use an adapter when your agent's native API is not OpenAI-compatible. 
+
+The adapter should accept Vijil's compatible request, translate it to the native agent or provider call, then translate the result back into the compatible response shape.
+
+Native Anthropic, AWS Bedrock, Google Vertex AI, and Agentforce-style APIs are examples of integrations that may need this adapter layer if they are not already exposed through an OpenAI-compatible endpoint.
+
+An adapter should handle:
+
+- Authentication to the upstream agent or provider
+- Mapping the registered model identifier to the model or deployment your agent uses
+- Translating request fields into the upstream API format
+- Translating upstream responses into the compatible response format
+- Provider or application errors in a way that Vijil can surface during evaluation
+
 ## Register the Agent in Vijil
 
 When registering the agent, provide the fields Vijil needs to call the endpoint.
@@ -34,34 +54,18 @@ Rate limits are configured per API key in Vijil. Set the Vijil-side limit below 
 
 Many providers share account-level quota across API keys. Do not allocate the full account quota to a Vijil API key if production agents or other systems use the same provider account.
 
-Use provider quota documentation and dashboards to choose a safe value. Common references include:
+Use provider quota documentation and dashboards to choose a safe value. 
 
 | Provider | Quota documentation |
 |----------|---------------------|
 | OpenAI | [OpenAI rate limits](https://platform.openai.com/docs/guides/rate-limits) |
 | Anthropic | [Anthropic rate limits](https://docs.anthropic.com/en/api/rate-limits) |
-| AWS Bedrock | [Amazon Bedrock quotas](https://docs.aws.amazon.com/bedrock/latest/userguide/quotas.html) |
-| Google Vertex AI | [Vertex AI quotas](https://cloud.google.com/vertex-ai/generative-ai/docs/quotas) |
+| Groq | [Groq rate limits](https://console.groq.com/docs/rate-limits) |
+| Together AI | [Together serverless rate limits](https://docs.together.ai/docs/serverless/rate-limits) |
 
 <Tip>
 Start with a conservative limit for new evaluations. Increase it only after confirming that provider dashboards, application logs, and Vijil evaluation logs show enough headroom.
 </Tip>
-
-## When You Need an Adapter
-
-Use an adapter when your agent's native API is not OpenAI-compatible. 
-
-The adapter should accept Vijil's compatible request, translate it to the native agent or provider call, then translate the result back into the compatible response shape.
-
-Native Anthropic, AWS Bedrock, Google Vertex AI, and Agentforce-style APIs are examples of integrations that may need this adapter layer if they are not already exposed through an OpenAI-compatible endpoint.
-
-An adapter should handle:
-
-- Authentication to the upstream agent or provider
-- Mapping the registered model identifier to the model or deployment your agent uses
-- Translating request fields into the upstream API format
-- Translating upstream responses into the compatible response format
-- Provider or application errors in a way that Vijil can surface during evaluation
 
 ## Next Steps
 
