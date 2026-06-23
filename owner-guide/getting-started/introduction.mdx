@@ -7,7 +7,7 @@ description: 'Why teams use Vijil for trust evidence, then register an Agent, ru
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides, then walks through the **Console**: register an agent, run an evaluation, read your [Trust Report](#read-the-trust-report), and configure **[Dome](concepts/welcome#build-ship-run-evolve)** guardrails.
+This page explains how Vijil helps both sides, then walks through the **Console**: register an Agent, run an Evaluation, optionally run [Red Team](/concepts/platform/diamond#red-team-in-diamond), read your [Trust Report](#read-the-trust-report), and configure **[Dome](/concepts/welcome#build-ship-run-evolve)** Guardrails.
 
 <Warning>
     This guide assumes you have Vijil Console deployed. See [how to deploy Vijil Console in your environment](#).
@@ -37,13 +37,13 @@ If you want to integrate via the Vijil API and using a code library, use the [De
 | **Pressure** | Delivery speed | Risk reduction |
 | **Question** | “Can we ship?” | “Can I defend approving this?” |
 
-**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
+**Vijil aligns those questions with the [Trust Score](/concepts/trust-score/introduction)**, a reproducible score from a defined Harness, not a one-off opinion. Agree on the threshold before you test; compare results after; the decision gets clearer.
 
 Vijil measures **reliability**, **security**, and **safety**, the failure modes that look like “the model behaved” but still hurt users or the org. For detail on each dimension, see [Trust Score](/concepts/trust-score/introduction) in Concepts.
 
 ## Working with Vijil Console
 
-First you will need to **register** an Agent, then **run** an [Evaluation](/concepts/evaluation-components/introduction) (with a built-in [Trust Score Harness](/concepts/evaluation-components/harness) or a [custom Harness](/concepts/evaluation-components/harness)), **read** the [Trust Report](#read-the-trust-report), then **[Protect](/owner-guide/protect-in-production/configuring-guardrails)** the agent with Dome.
+First you will need to **register** an Agent, then **run** an [Evaluation](/concepts/evaluation-components/introduction) (with a built-in [Trust Score Harness](/concepts/evaluation-components/harness) or a [custom Harness](/concepts/evaluation-components/harness)), optionally run **Red Team** for deeper adversarial testing, **read** the [Trust Report](#read-the-trust-report), then **[Protect](/owner-guide/protect-in-production/configuring-guardrails)** the Agent with Dome.
 
 <Steps>
   <Step title="Register an Agent">
@@ -71,14 +71,14 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
 
     <Badge color="gray">Optional Step.</Badge>
    
-     For a baseline, you can skip this and use the Trust Score harness in the next step. 
+     For a baseline, you can skip this and use the Trust Score Harness in the next step.
      
      To test your [Personas](/owner-guide/simulate-environment/personas) and organizational [Policies](/owner-guide/simulate-environment/policies), go to **Harnesses** → **+ Create Harness**. The wizard covers basic info, a selected **Agent**, **Personas** (who talks to the agent), and **Policies** (rules it must follow); then generates test cases. 
      
      Set the **[Harness](/concepts/evaluation-components/harness)** to **<Badge color="green">ACTIVE</Badge>** when you are ready.
   </Step>
 
-  <Step title="Run an evaluation">
+  <Step title="Run an Evaluation">
 
     Open **Tests** in the **Console**. Pick the **Agent** and a [Harness](/concepts/evaluation-components/harness):
     
@@ -88,17 +88,36 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
 
     **Run Evaluation** and wait for completion (often on the order of minutes, depending on rate limits).
   </Step>
+  <Step title="Run Red Team">
+    <Badge color="gray">Optional Step.</Badge>
+
+    <Info>
+      [Red Team](/concepts/platform/diamond#red-team-in-diamond) is Diamond's adaptive adversarial evaluation mode for uncovering vulnerabilities, policy violations, leaked artifacts, and successful attack strategies.
+    </Info>
+
+    Use Red Team when the Agent handles sensitive data, calls tools, delegates to other Agents, or needs a deeper security and safety review than a standard Harness provides.
+    
+    1. Open **Tests** in the **Console** and click **Create Evaluation**. 
+    2. Choose the registered Agent.
+    3. In the **Test Configuration** panel select the **Red Team** tab.
+    4. Configure the Red Team settings.
+    5. Start the run.
+
+    Red Team runs adaptive waves of attacks. It uses the Agent context, selected policies, and available personas to generate attack seeds, run attackers, judge transcripts, and produce a final report with vulnerabilities, leaked artifacts, policy violations, and successful strategies.
+
+    <Tip>Start with a small campaign, then increase waves, seeds, and parallel attackers when you understand cost and runtime for your Agent.</Tip>
+  </Step>
   <Step title="Read the Trust Report">
     Open the report from the results list. You get a **Trust Score** (pass/fail threshold is **70**), per-Harness breakdown, spec used, and remediation-oriented findings.
 
     A Vijil **Trust Report** covers:
     
-    - **What the agent is** — the Agent being evaluated, the underlying model, and how it's configured
+    - **What the Agent is** — the Agent being evaluated, the underlying model, and how it is configured
     - **How it was tested** — which behavioral Harnesses were run (Security, Safety, Reliability, or custom) and what each one measures
     - **How it scored** — overall Trust Score, per-Harness breakdown, and pass/fail result
-    - **Where it failed** — specific failure patterns with severity ratings and probe-level scores
+    - **Where it failed** — specific failure patterns with severity ratings and Probe-level scores
     - **What to fix** — actionable mitigations for each identified issue
-    - **Whether it's ready for deployment** — a final recommendation based on the results
+    - **Whether it is ready for deployment** — a final recommendation based on the results
 
     <Warning>
     The score reflects **what the Harness exercised**, not a guarantee that every possible failure is impossible.
@@ -120,16 +139,16 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
 
 The [Vijil MCP server](/developer-guide/agentic/quickstart) exposes every Console action as a tool that [Claude Code](https://claude.ai/code) can call directly. Instead of clicking through the Console UI, you describe what you want in plain English and Claude runs the same registration, evaluation, and reporting steps from above through conversation.
 
-<Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete">
-Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete
+<Prompt description="Run a safety and security Evaluation on Agent a1b2c3d4-… with a sample size of 50, and wait for it to complete">
+Run a safety and security Evaluation on Agent a1b2c3d4-… with a sample size of 50, and wait for it to complete
 </Prompt>
 
 <Prompt description="Show me the detailed results for evaluation e5f6a7b8-…">
-Show me the detailed results for evaluation e5f6a7b8-…
+Show me the detailed results for Evaluation e5f6a7b8-…
 </Prompt>
 
 <Card title="MCP Quickstart" icon="plug" href="/developer-guide/agentic/quickstart">
-  Install `vijil-mcp`, connect Claude Code, and run your first evaluation in minutes.
+  Install `vijil-mcp`, connect Claude Code, and run your first Evaluation in minutes.
 </Card>
 
 ## Next Steps

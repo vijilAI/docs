@@ -3,68 +3,139 @@ title: 'Run Evaluations'
 description: 'Test your AI agents with Diamond to measure trustworthiness.'
 ---
 
-Evaluations test your AI agent against targeted [Scenarios](/concepts/evaluation-components/scenario) to measure its trustworthiness. Diamond, Vijil's evaluation engine, sends [Probes](/concepts/evaluation-components/probe) to your agent and analyzes responses to produce a [Trust Score](/concepts/trust-score/introduction).
+Evaluations test your AI agent against targeted [Scenarios](/concepts/evaluation-components/scenario) to measure its trustworthiness. Diamond, Vijil's evaluation engine, sends [Probes](/concepts/evaluation-components/probe) to your Agent and analyzes responses to produce a [Trust Score](/concepts/trust-score/introduction).
+
+For deeper adversarial testing, Diamond also supports Red Team campaigns that run adaptive waves of attacks against a registered Agent.
 
 ## Diamond Evaluations
 
-Navigate to **Evaluations** in the sidebar to open Diamond Evaluations.
+Navigate to **Tests** in the sidebar to open Diamond Evaluations.
 
 The page has three sections:
 
-- **Create Evaluation**: Configure and launch new evaluations
-- **Evaluation Results**: Track progress and access completed evaluations
+- **Create Evaluation**: Configure and launch new Evaluations
+- **Evaluation Results**: Track progress and access completed Evaluations
+- **Terminated Evaluations**: A list of canceled or failed Evaluations 
 
 ## Creating an Evaluation
 
+Start by clicking **Create Evaluation** on the Diamond Evaluations page. 
+
 ### Select Agent
 
-The agent table shows all registered agents in your workspace:
+The Agent table shows all registered Agents in your workspace:
 
 | Column | What It Shows |
 |--------|---------------|
 | **Agent Name** | Identifier from registration |
 | **Status** | Active or Draft |
 
-Select the agent you want to evaluate by clicking its row. Only agents with status <Badge color="green">Active</Badge> can be evaluated.
+Select the Agent you want to evaluate by clicking its row. Only Agents with status <Badge color="green">Active</Badge> can be evaluated.
 
 <Tip>
-Use the search box to filter agents by name, model, or hub when you have many registered agents.
+Use the search box to filter Agents by name, model, or hub when you have many registered Agents.
 </Tip>
 
 ### Select Harness
 
-Choose what to test by selecting a Harness type:
+In the **Testing Configuration** panel, you can choose an Evaluation type:
 
-**Trust Score**: Vijil's standard evaluation across three dimensions:
+1. **Trust Score**: Standard Evaluation type. Measures Agent trustworthiness across reliability, security, and safety. Configure it under **Baseline** or **Bespoke** tabs
+2. **Red Team**: Adaptive Evaluation type. Configure it under **Adaptive** tab
+
+**Baseline** tab: Configure standard Trust Score Evaluation across three dimensions:
 - **Reliability**: Correctness, consistency, robustness
 - **Security**: Confidentiality, integrity, availability
 - **Safety**: Containment, compliance, transparency
 
-Each dimension has a toggle. Enable all three for comprehensive evaluation, or select specific dimensions to focus on particular concerns.
+Each dimension has a toggle. Enable all three for comprehensive Evaluation, or select specific dimensions to focus on particular concerns.
 
-**Custom**: Your configured Harnesses that combine specific personas and policies. Custom Harnesses appear here when you've created them in the Harness Registry with status <Badge color="green">Active</Badge>.
+**Bespoke** tab: Configure custom Trust Score Evaluation based on Custom Harnesses that combine specific personas and policies. Custom Harnesses appear in this tab when you have created them in the Harness Registry with status <Badge color="green">Active</Badge>.
+
+**Adaptive** tab: Configure an adaptive Red Team campaign. It starts from the registered Agent context and a risk taxonomy, then runs multiple waves of attacks. Use Red Team when you need to uncover unknown vulnerabilities, test tool and data leakage risks, or gather deeper evidence for security review.
 
 ### Run Evaluation
 
-Once you've selected an agent and configured your Harness:
+Once you have selected an [Agent](/owner-guide/register-agents/what-is-an-agent) and configured your Harness:
 
-1. Verify your agent selection in the left panel
-2. Confirm Harness settings in the right panel
+1. Verify your Agent selection in the left panel
+2. Confirm configuration settings in the right panel
 3. Click **Run Evaluation**
 
-The evaluation starts immediately. Diamond sends Probes to your agent based on the selected Harness and records responses for analysis.
+The Evaluation starts immediately. Diamond sends Probes to your Agent based on the selected configuration and records responses for analysis.
+
+## Running a Red Team Campaign
+
+Red Team is designed for deeper adversarial exploration than a standard Trust Score or custom Harness Evaluation. It is useful when:
+
+- The Agent handles sensitive data, regulated workflows, or privileged actions
+- The Agent uses tools, MCP servers, delegated Agents, or external data stores
+- A Trust Score or custom Harness finding needs deeper investigation
+- A release needs security, safety, or risk-owner review before deployment
+- You want to validate whether previous fixes reduced exploitable behavior
+
+Red Team does not replace Trust Score Evaluations. Use Trust Score for reproducible readiness evidence, then use Red Team to search for harder-to-find vulnerabilities and successful attack strategies.
+
+### Before You Start
+
+For best results, make sure the selected Agent is <Badge color="green">Active</Badge> and has as much context as you can safely provide.
+
+### Launch Red Team
+
+1. Open **Create Evaluation** in the **Tests** page in the **Console**
+2. Choose the registered Agent you want to test
+3. Select the **Adaptive** tab in the **Test Configuration** panel
+4. Configure Red Team settings
+5. Start the campaign
+
+Each campaign follows the same loop:
+
+**Taxonomy -> Attack seeds -> Attackers -> Judgments -> Reflections -> Report**
+
+The taxonomy defines the risk areas to explore. Attack seeds convert those risks into concrete adversarial goals. Attackers execute the seeds against the Agent. Judges review transcripts for harmful behavior, policy violations, and leaked artifacts. Reflections summarize what worked and guide the next wave. The final report clusters the most important findings.
+
+### Red Team Settings
+
+| Setting | What It Controls | Tradeoff |
+|---------|------------------|----------|
+| **Minimum waves** | The smallest number of attack waves to run | Guarantees at least some iterative exploration |
+| **Maximum waves** | The largest number of waves to run | Higher values improve coverage but increase runtime and cost |
+| **Max seeds per wave** | How many attack goals are generated in each wave | More seeds increase diversity and coverage |
+| **Max parallel attackers** | How many attacks run at the same time | Higher concurrency is faster but can hit Agent or provider rate limits |
+
+Optionally, you can add Personas and Policies to help improve the Evaluation:
+
+| Input | Why It Matters |
+|-------|----------------|
+| **Policies** | Gives the judge clear rules for identifying policy violations |
+| **Personas** | Helps generate realistic attacker and user behavior |
+
+If Policies are missing, Red Team can still run, but judgments may rely more heavily on general safety and security expectations.
+
+### Advanced Settings
+
+Use advanced settings when you understand the cost and runtime impact of the campaign:
+
+| Setting | What It Controls | Tradeoff |
+|---------|------------------|----------|
+| **Max attempts per phase** | Retries allowed for one step in the attack plan before a rollback. | Higher values improve recovery from refusals or weak turns, but each retry adds a full LLM cycle. |
+| **Max rollbacks** | Total rollbacks allowed across one strategy, which prevents rollback loops. | Higher values give each seed more persistence, but increase runtime and cost. |
+| **Max strategies** | How many distinct strategies the attacker tries per seed before giving up. | Higher values allow more creative attempts per seed, with diminishing returns. |
+| **Max turns** | The committed turn budget per strategy, counted as attacker-target exchange pairs. | Higher values allow deeper conversations, but cap how long each strategy can run. |
+| **TextGrad** | LLM gradient-descent-style prompt refinement between attempts. | Improves attack quality at modest extra cost. |
+
 
 ## Monitoring Progress
 
-Running evaluations appear in the **Evaluation Results** table:
+Running Evaluations appear in the **Evaluation Results** table:
 
 | Column | What It Shows |
 |--------|---------------|
-| **Agent Name** | Which agent is being evaluated |
-| **Created By** | Who started the evaluation |
-| **Created At** | When the evaluation began |
+| **Agent Name** | Which Agent is being evaluated |
+| **Created By** | Who started the Evaluation |
+| **Created At** | When the Evaluation began |
 | **Evaluation** | Status: PENDING, RUNNING, COMPLETED, or FAILED |
-| **Last Evaluated At** | When the evaluation finished |
+| **Last Evaluated At** | When the Evaluation finished |
 | **Actions** | View report, download results |
 
 ### Evaluation Status
@@ -74,13 +145,15 @@ Running evaluations appear in the **Evaluation Results** table:
 | **PENDING** | Queued, waiting to start |
 | **RUNNING** | Actively sending Probes and collecting responses |
 | **COMPLETED** | Finished successfully, results available |
-| **FAILED** | Encountered an error, check agent connectivity |
+| **FAILED** | Encountered an error, check Agent connectivity |
 
-Evaluations typically complete in 5-30 minutes depending on the Harness size and your agent's rate limits.
+Evaluations typically complete in 5-30 minutes depending on the Harness size and your Agent's rate limits.
+
+Red Team campaigns can take longer because each wave may run multiple attackers and reflection steps. During a Red Team run, use the campaign panel to track the current wave, phase, elapsed time, accumulated cost, completed attackers, and failed attackers.
 
 ## Viewing Results
 
-When an evaluation completes, access the results through the **Actions** column:
+When an Evaluation completes, access the results through the **Actions** column:
 
 - **View** (eye icon) — Opens the Trust Report in a new tab
 - **Download** (download icon) — Downloads results as a file
@@ -91,41 +164,58 @@ The Trust Report provides:
 - Detailed findings for each Probe category
 - Deployment recommendations
 
-See [Understand Results](/owner-guide/run-evaluations/understanding-results) for detailed guidance on interpreting findings.
+Red Team results provide:
+- Wave details and generated attack seeds
+- Attack transcripts and final strategies
+- Judge scores and harmful-content judgments
+- Leaked artifacts and policy violations
+- A final report that clusters vulnerabilities and successful strategies
+
+See [Understand Results](/owner-guide/run-evaluations/understanding-results) for detailed guidance on interpreting Trust Score and Red Team findings.
 
 ## Evaluation Considerations
 
 ### Rate Limits
 
-Diamond respects the rate limit you configured during agent registration. Higher rate limits enable faster evaluations but may exceed your provider's quotas.
+Diamond respects the rate limit you configured during Agent registration. Higher rate limits enable faster Evaluations but may exceed your provider's quotas.
 
-If evaluations fail with timeout errors:
-- Verify your agent URL is accessible
+If Evaluations fail with timeout errors:
+- Verify your Agent URL is accessible
 - Check that your API credentials are valid
-- Consider reducing the rate limit in agent settings
+- Consider reducing the rate limit in Agent settings
 
 ### Agent Availability
 
-Your agent must remain available throughout the evaluation. If your agent goes offline or becomes unresponsive, the evaluation may fail or produce incomplete results.
+Your Agent must remain available throughout the Evaluation. If your Agent goes offline or becomes unresponsive, the Evaluation may fail or produce incomplete results.
 
-For production agents behind load balancers, ensure sufficient capacity to handle evaluation traffic alongside normal usage.
+For production Agents behind load balancers, ensure sufficient capacity to handle Evaluation traffic alongside normal usage.
+
+### Red Team Runtime and Cost
+
+Red Team campaigns can generate more traffic than a standard Harness because each wave may launch several attackers and each attacker can run multi-turn conversations. 
+
+Start with conservative wave, seed, and parallel attacker settings. Increase them only after you have confirmed your Agent's rate limits and the campaign cost profile.
 
 ### Re-running Evaluations
 
-You can run multiple evaluations against the same agent. Each evaluation creates a new entry in the results table, allowing you to:
+You can run multiple Evaluations against the same Agent. Each Evaluation creates a new entry in the results table, allowing you to:
 - Track Trust Score changes over time
-- Compare results before and after agent modifications
+- Compare results before and after Agent modifications
 - Verify fixes for previously identified issues
 
 ## Best Practices
 
-**Evaluate before deployment**: Run a Trust Score evaluation on every agent before it reaches production. The results provide evidence of baseline trustworthiness.
+**Evaluate before deployment**: Run a Trust Score Evaluation on every Agent before it reaches production. The results provide evidence of baseline trustworthiness.
 
 **Test after changes**: Any modification to your agent—prompt updates, model changes, tool additions—can affect behavior. Re-evaluate to verify.
 
 **Use appropriate Harnesses**: The Trust Score Harness tests general behaviors. For domain-specific requirements, create custom Harnesses with relevant personas and policies.
 
-**Monitor for regressions**: Compare Trust Scores across evaluations. A declining score indicates problems introduced by recent changes.
+**Use Red Team for deeper security review**: Run Red Team after baseline Evaluation, before major releases, and after changes to tools, prompts, policies, or access controls.
+
+**Give Red Team enough context**: Policies and personas improve seed quality and judgment accuracy.
+
+**Monitor for regressions**: Compare Trust Scores across Evaluations. A declining score indicates problems introduced by recent changes.
 
 ## Next Steps
 

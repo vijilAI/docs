@@ -194,6 +194,11 @@ A flaw or deficiency in design, implementation, or operation that could potentia
 
 ## Vijil
 
+**Attack Seed**
+A concrete Red Team goal generated from a risk taxonomy and Agent context. Each seed gives an attacker a specific failure mode to explore.
+
+---
+
 **Detector**
 A component that analyzes agent responses to determine if they contain threats, policy violations, or evaluation failures. Detectors use pattern matching, ML classifiers, or LLM judges.
 
@@ -239,6 +244,11 @@ A specific test case that challenges an agent with a potentially harmful or prob
 
 ---
 
+**Red Team**
+A Diamond evaluation mode that runs adaptive, multi-wave adversarial campaigns against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies.
+
+---
+
 **Scenario**
 A group of related Probes that test a specific attack pattern or vulnerability class. Scenarios provide structure between Probes and Harnesses.
 
@@ -246,3 +256,10 @@ A group of related Probes that test a specific attack pattern or vulnerability c
 
 **Trust Score**
 Vijil's composite measure of agent trustworthiness across three dimensions: Reliability (consistent, accurate behavior), Security (resistance to attacks), and Safety (avoiding harmful outputs).
+
+---
+
+**Wave**
+One iteration of a Red Team campaign. A wave generates seeds, runs attackers, judges transcripts, and produces reflections that guide the next wave.
+
+---

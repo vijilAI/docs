@@ -3,10 +3,23 @@ title: "How Evaluation Works"
 description: "The architecture of systematic agent testing: from test definition through execution to trust scoring."
 ---
 
+<Tip>
+**TL;DR:** Vijil evaluates [Agents](/owner-guide/register-agents/what-is-an-agent) using a four-layer hierarchy: [Harness](/concepts/evaluation-components/harness), [Scenario](/concepts/evaluation-components/scenario), [Probe](/concepts/evaluation-components/probe), and [Detector](/concepts/evaluation-components/detector). You select one or more Harnesses and the platform runs the full test suite automatically, with each layer narrowing scope from the overall evaluation environment down to individual response checks.
+</Tip>
+
 The [Trust Score](/concepts/trust-score/introduction) measures [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety). But how do you actually test for these properties? You cannot just ask an agent *"**are you trustworthy?**"*. You need to [Probe](/concepts/evaluation-components/probe) its behavior systematically, across hundreds of [Scenarios](concepts/evaluation-components/scenario), looking for specific failure modes.
 
 Vijil’s evaluation service consists of [Harnesses](concepts/evaluation-components/harness), [Scenarios](concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector):
 ![Vijil Evaluation components](/images/legacy/Harness-scenario-probe-detector.webp)
+
+## Evaluation Hierarchy at a Glance
+
+| Layer | What It Is | Your Role |
+|-------|-----------|-----------|
+| **[Harness](/concepts/evaluation-components/harness)** | Top-level collection of Scenarios that produces a Trust Score | Select before running |
+| **[Scenario](/concepts/evaluation-components/scenario)** | Group of related Probes targeting one failure category | Defined in the Harness |
+| **[Probe](/concepts/evaluation-components/probe)** | One or more adversarial prompts sent to your agent | Generated per Scenario |
+| **[Detector](/concepts/evaluation-components/detector)** | Response analyzer that marks a Probe as pass or fail | Runs automatically |
 
 At the lowest level, [Detectors](/concepts/evaluation-components/detector) scan model responses for undesirable features and register responses with those features as successful attacks on the model. For example, a Detector may be designed to look for fake Python packages.
 
@@ -16,7 +29,15 @@ The next highest level consists of [Scenarios](/concepts/evaluation-components/s
 
 At the topmost level, [Harnesses](/concepts/evaluation-components/harness) are collections of one or more Scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more Harnesses to include. The current Vijil Trust Score consists of three Harnesses: Security, Safety, and Reliability.
 
-Learn more about trust score components:
+## Where Red Team Fits
+
+Standard Diamond evaluations use the Harness hierarchy to run a known set of test cases and produce a Trust Score or custom evaluation report. Red Team is also part of Diamond, but it uses an adaptive campaign loop instead of a fixed Harness.
+
+A Red Team campaign starts from a risk taxonomy and the registered agent context, generates attack seeds for each wave, runs attackers against the target, judges the transcripts, reflects on what worked, and uses those observations to plan later waves. 
+
+Use standard evaluations when you need reproducible score evidence. Use Red Team when you need deeper adversarial exploration of security, safety, policy, and data leakage risks.
+
+Learn more about Trust Score components:
 <Columns cols={2}>
     <Card
         title="Harness"
@@ -101,4 +122,3 @@ Learn more about trust score components:
     Configurable protection pipelines
   </Card>
 </CardGroup>
-

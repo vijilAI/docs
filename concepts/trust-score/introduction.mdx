@@ -3,9 +3,32 @@ title: "The Trust Score"
 description: "A quantitative framework for measuring agent trustworthiness across reliability, security, and safety."
 ---
 
+<Tip>
+**TL;DR:** The Trust Score quantifies how trustworthy an [AI agent](/owner-guide/register-agents/what-is-an-agent) is in production on a scale from 0 to 100. A score at or above 70 meets the deployment threshold. The Trust Score breaks down into three dimensions: [Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), and [Safety](/concepts/trust-score/safety).
+</Tip>
+
 Trust is the willingness to accept risk in exchange for expected benefit. When you trust a person, a machine, or an organization, you are making a calculation often unconsciously about whether the reward of cooperation outweighs the risk of betrayal.
 
-Vijil evaluates LLM trustworthiness across 3 critical dimensions. For each dimension, it assesses vulnerability to several attack vectors. Each attack vector is treated as one evaluation module. Each module contains one or more tests:
+Vijil evaluates LLM trustworthiness across 3 critical dimensions. For each dimension, it assesses vulnerability to several attack vectors. Each attack vector is treated as one evaluation module. Each module contains one or more tests.
+
+## What the Trust Score Measures
+
+| Score | Status | What It Means |
+|-------|--------|---------------|
+| ≥ 70 | **Passed** | Agent meets the deployment threshold |
+| < 70 | **Failed** | Agent requires remediation before production use |
+
+Each score breaks down into three dimensions:
+
+| Dimension | Core Question | Example Failures |
+|-----------|---------------|-----------------|
+| **[Reliability](/concepts/trust-score/reliability)** | Does the agent do what it is supposed to do? | Hallucinations, inconsistent responses, task failures |
+| **[Security](/concepts/trust-score/security)** | Can the agent resist adversarial manipulation? | Prompt injection, data leakage, jailbreaks |
+| **[Safety](/concepts/trust-score/safety)** | Does the agent stay within acceptable boundaries? | Policy violations, harmful content, bias |
+
+<Warning>
+A passing Trust Score reflects performance against tested [Scenarios](/concepts/evaluation-components/scenario). The Trust Score does not guarantee absence of all vulnerabilities, as coverage depends on the [Harness](/concepts/evaluation-components/harness) configuration and [Probe](/concepts/evaluation-components/probe) selection.
+</Warning>
 
 <Columns cols={1}>
 <Card

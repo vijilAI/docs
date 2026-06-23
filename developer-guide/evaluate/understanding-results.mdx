@@ -3,11 +3,59 @@ title: 'Understand Results'
 description: 'Interpret evaluation findings using the Dimensions of Trust framework.'
 ---
 
-Evaluation results reveal how your [Agent](/owner-guide/register-agents/what-is-an-agent) behaves across the three pillars of trustworthy AI: Reliability, Security, and Safety.
+<Tip>
+**TL;DR:** Evaluation results include a [Trust Score](/concepts/trust-score/introduction) (0–100), per-dimension breakdowns, severity-rated findings, and remediation guidance. A score at or above 70 passes the deployment threshold. Use the Console's Report Analysis view or generate reports programmatically in HTML or PDF.
+</Tip>
+
+Evaluation results reveal how your [agent](/owner-guide/register-agents/what-is-an-agent) behaves across the three pillars of trustworthy AI: [Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), and [Safety](/concepts/trust-score/safety). This page explains how to read the Trust Score, interpret findings, and prioritize remediation.
 
 ## The Trust Score
 
-The Trust Score is a composite metric ranging from 0 to 100 that quantifies how much you can trust your [Agent](/owner-guide/register-agents/what-is-an-agent) in production. Vijil aggregates performance across all Evaluated Dimensions.
+The Trust Score is a composite metric from 0 to 100. It aggregates performance across all evaluated dimensions.
+
+| Score | Status | Action |
+|-------|--------|--------|
+| ≥ 70 | **Passed** | Agent meets the deployment threshold |
+| < 70 | **Failed** | Remediate before deploying to production |
+
+Each dimension ([Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), [Safety](/concepts/trust-score/safety)) also carries a sub-score. A high overall score can mask a low sub-score in one dimension, so always check dimension-level results.
+
+<Warning>
+A passing Trust Score reflects performance against tested [Scenarios](/concepts/evaluation-components/scenario). The Trust Score does not guarantee absence of all vulnerabilities, as coverage depends on the [Harness](/concepts/evaluation-components/harness) configuration and [Probe](/concepts/evaluation-components/probe) selection.
+</Warning>
+
+## Reading Findings
+
+Each finding in the evaluation report includes:
+
+- **Category**: where in the taxonomy ([Reliability](/concepts/trust-score/reliability) / [Security](/concepts/trust-score/security) / [Safety](/concepts/trust-score/safety) and subcategory) this issue falls
+- **Severity**: risk level from 1 (Low) to 4 (Critical)
+- **Probe**: the [Probe](/concepts/evaluation-components/probe) that revealed the behavior
+- **Agent Response**: what your agent actually produced
+- **Expected Behavior**: what a trustworthy agent would produce
+- **Recommendation**: specific mitigation guidance
+
+## Prioritizing Remediation
+
+Address findings in severity order, then by dimension:
+
+**Fix immediately (severity 3–4, Critical/High):**
+- Security vulnerabilities: prompt injection compliance, data leakage
+- Safety violations: harmful content, out-of-scope actions
+- Reliability failures that break core functionality
+
+**Fix before next release (severity 2, Medium):**
+- Consistency failures across sessions
+- Minor compliance gaps
+- Robustness failures on edge cases
+
+**Track and monitor (severity 1, Low):**
+- Transparency improvements
+- Rare edge case handling
+
+<Tip>
+Focus on root causes rather than individual findings. Multiple findings often share a common cause. Fixing the underlying issue resolves all related symptoms at once.
+</Tip>
 
 | Score | Status | Interpretation |
 |-------|--------|----------------|
@@ -16,11 +64,24 @@ The Trust Score is a composite metric ranging from 0 to 100 that quantifies how 
 
 The threshold of **70** represents a baseline for acceptable behavior. [Agents](/owner-guide/register-agents/what-is-an-agent) scoring below this threshold exhibited failure modes that pose unacceptable risk.
 
-<Warning>
-A passing Trust Score indicates acceptable performance against tested [Scenarios](/concepts/evaluation-components/scenario). The report does not guarantee absence of all vulnerabilities: Evaluation coverage depends on the [Harness](/concepts/evaluation-components/harness) configuration and [Probe](/concepts/evaluation-components/probe) selection.
-</Warning>
+The report opens showing:
+- A summary banner with the overall Trust Score and pass/fail result
+- A dimension breakdown with scores for Reliability, Security, and Safety
+- A findings table filterable by severity and dimension
+- Per-finding detail panels with the [Probe](/concepts/evaluation-components/probe), response, and recommendation
 
-## Dimensions of Trust
+## Generate a Report via the API
+
+You can programmatically generate an evaluation report for a completed evaluation. Reports are available in two formats:
+
+- **HTML**: interactive charts and filterable findings table
+- **PDF**: static export suitable for compliance handoffs
+
+Generation can be synchronous (wait for the report) or asynchronous (poll for completion). For CLI-based report generation, see [Run Evaluations](/developer-guide/evaluate/running-evaluations).
+
+<Note>
+Evaluation reports are only supported for Vijil Harnesses and Custom Harnesses. Reports cannot be generated for benchmarks.
+</Note>
 
 Vijil organizes [Agent](/owner-guide/register-agents/what-is-an-agent) behavior into a three-level taxonomy:
 
