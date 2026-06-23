@@ -1,6 +1,6 @@
 ---
 title: 'Understand Results'
-description: 'Interpret evaluation scores, analyze failures, and plan remediation.'
+description: 'Interpret evaluation findings using the Dimensions of Trust framework.'
 ---
 
 <Tip>
@@ -57,9 +57,12 @@ Address findings in severity order, then by dimension:
 Focus on root causes rather than individual findings. Multiple findings often share a common cause. Fixing the underlying issue resolves all related symptoms at once.
 </Tip>
 
-## Viewing the Report in the Web Interface
+| Score | Status | Interpretation |
+|-------|--------|----------------|
+| ≥ 70 | <Badge color="green">PASSED</Badge> | Agent meets trustworthiness threshold for deployment |
+| < 70 | <Badge color="red">FAILED</Badge> | Agent requires remediation before production use |
 
-You can view the evaluation report for any completed evaluation by navigating to **Evaluations** in the left sidebar. Click on the evaluation you want to view, then in the **Report Analysis** section, you can view the generated report, generate a new report, or regenerate a report.
+The threshold of **70** represents a baseline for acceptable behavior. [Agents](/owner-guide/register-agents/what-is-an-agent) scoring below this threshold exhibited failure modes that pose unacceptable risk.
 
 The report opens showing:
 - A summary banner with the overall Trust Score and pass/fail result
@@ -80,20 +83,193 @@ Generation can be synchronous (wait for the report) or asynchronous (poll for co
 Evaluation reports are only supported for Vijil Harnesses and Custom Harnesses. Reports cannot be generated for benchmarks.
 </Note>
 
-<Card title="Work in Progress" icon="pickaxe" badge="Private preview">
-  The programmatic evaluation capabilities are currently in private preview and subject to change.
-</Card>
+Vijil organizes [Agent](/owner-guide/register-agents/what-is-an-agent) behavior into a three-level taxonomy:
+
+<CardGroup cols={3}>
+  <Card
+    title="Reliability"
+    icon="circle-check"
+    href="/concepts/trust-score/reliability"
+    arrow="true"
+  >
+    <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
+      <li>Correctness</li>
+      <li>Consistency</li>
+      <li>Robustness</li>
+    </ul>
+  </Card>
+  <Card
+    title="Security"
+    href="/concepts/trust-score/security"
+    arrow="true"
+    icon="lock"
+  >
+    <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
+      <li>Confidentiality</li>
+      <li>Integrity</li>
+      <li>Availability</li>
+    </ul>
+  </Card>
+  <Card
+    title="Safety"
+    href="/concepts/trust-score/safety"
+    arrow="true"
+    icon="shield"
+  >
+    <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
+      <li>Containment</li>
+      <li>Compliance</li>
+      <li>Transparency</li>
+    </ul>
+  </Card>
+</CardGroup>
+
+Each pillar addresses a distinct aspect of trustworthy AI. Failures in any pillar can render an Agent unsuitable for production deployment.
+
+### Reliability
+
+Reliability measures whether your Agent produces correct, consistent, and robust outputs.
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Correctness** | Factual accuracy, logical validity, task alignment, goal satisfaction |
+| **Consistency** | Self-consistency, cross-session stability, temporal stability, inter-user consistency |
+| **Robustness** | Contextual handling, distributional generalization, operational stability |
+
+### Security
+
+Security measures whether your Agent resists attacks on confidentiality, integrity, and availability.
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Confidentiality** | Data leakage resistance, access control, data/user/model privacy |
+| **Integrity** | Adversarial robustness, manipulation resistance, tamper resistance |
+| **Availability** | DoS resistance, graceful degradation, resilience |
+
+### Safety
+
+Safety measures whether your Agent operates within acceptable boundaries.
+
+| Subcategory | What It Tests |
+|-------------|---------------|
+| **Containment** | Scope boundaries, capability boundaries, self-modification control |
+| **Compliance** | Policy compliance, norm compliance, ethical behavior |
+| **Transparency** | Explainability, accountability, user controllability |
+
+## Reading the Trust Report
+
+Each evaluation produces a Trust Report, a structured PDF that moves from a high-level verdict down to individual Probe results and actionable remediation guidance. You can download a [sample report](/assets/vijil-console-eval-report.pdf) to follow along. The report has six sections.
+
+### Entering the Trust Report
+
+The cover page shows:
+- **Agent name** and evaluation type (for example, *Behavioral Safety Assessment*)
+- A <Badge color="green">PASSED</Badge> or <Badge color="red">FAILED</Badge> badge against the Trust Score threshold
+- The numeric **Trust Score**
+- An **Evaluation ID** for tracking and sharing the report
+- The generation timestamp in UTC
+
+### Executive Summary
+
+A brief overview that states which [Harnesses](/concepts/evaluation-components/harness) were run, the overall pass/fail result, and the final Trust Score against the threshold. Use this section to share findings with stakeholders who do not need the full detail.
+
+### Agent Specification
+
+Confirms exactly what was evaluated:
+
+| Field | Description |
+|-------|-------------|
+| Agent Name | The name you registered in [Diamond](/concepts/platform/diamond) |
+| Agent URL | The endpoint [Diamond](/concepts/platform/diamond) probed |
+| Model | The underlying model identifier |
+| Rate Limit | Requests per minute used during the evaluation |
+| Request Timeout | Per-request timeout in seconds |
+
+A **Harnesses Evaluated** table lists each Harness by name, type, and a short description.
+
+### Evaluation Results
+
+**Overall Score** displays a visual gauge with your Trust Score plotted against the pass threshold, making the pass/fail outcome immediately legible.
+
+**Per-Harness Breakdown** lists one card per [Harness](/concepts/evaluation-components/harness) showing its individual score and PASS/FAIL result. When multiple Harnesses are run, a Harness can fail while the overall score passes, or vice versa, depending on weighting. Check each card to identify which dimension drove the outcome.
+
+### Detailed Analysis
+
+The primary diagnostic section, with one subsection per Harness. Each subsection contains:
+
+**Risk Assessment**: States the overall risk level (Low, Moderate, High, or Critical) and the total count of failure patterns broken down by severity (for example, "22 failure patterns identified: 12 Critical, 5 High, 4 Moderate, 1 Low").
+
+**Probe Scores**: A table of every Probe run, grouped by Scenario, with its numeric score and severity rating. Lower scores mean the Agent failed more of that Probe's test cases. The severity label reflects how dangerous the failure pattern is, not just how often it occurred.
+
+**Identified Failure Patterns**: Each pattern that exceeded the failure threshold gets its own entry with:
+- A **code** (for example, `MUT-001`, `SEC-007`) for tracking across evaluations
+- A short **issue title** and **severity** badge
+- A **description** of the behavior Diamond observed
+- **Implications**: what could go wrong in production as a result
+- **Mitigations**: concrete remediation steps such as system prompt changes, Guardrail configuration, or architectural changes
+
+Failure patterns aggregate multiple Probes into a single named finding. Addressing one pattern can resolve failures across many individual Probes.
+
+### Conclusion
+
+A deployment recommendation states plainly whether the Agent can be deployed or requires remediation first. If the Agent failed, it lists the steps to take before re-evaluating.
+
+### Appendix
+
+Records the exact evaluation configuration for reproducibility:
+
+- **Evaluation Configuration**: request parameters (evaluation type, Agent URL, model, rate limit, timeout) and a Harnesses table with final scores
+- **Scoring Methodology**: the pass/fail threshold applied
+- **Harness Definitions**: plain-language definitions of what each Harness type measures
+
+## Prioritizing Remediation
+
+Use severity and taxonomy to prioritize fixes:
+
+**Address immediately (Critical/High severity):**
+- Security vulnerabilities (prompt injection, data leakage)
+- Safety violations (harmful content, scope violations)
+- Reliability failures that affect core functionality
+
+**Address in next release (Medium severity):**
+- Consistency issues across sessions
+- Minor compliance gaps
+- Robustness failures on edge cases
+
+**Track and monitor (Low severity):**
+- Transparency improvements
+- Minor formatting inconsistencies
+- Rare edge case handling
+
+<Tip>
+Focus remediation on root causes rather than individual findings. Multiple findings often share a common root cause, and fixing the underlying issue resolves all related symptoms.
+</Tip>
+
+## Comparing Evaluations
+
+Run evaluations before and after changes to track improvement:
+
+| Metric | Before | After | Change |
+|--------|--------|-------|--------|
+| Trust Score | 62 | 78 | +16 |
+| Critical Findings | 3 | 0 | -3 |
+| High Findings | 7 | 2 | -5 |
+
+A rising Trust Score with decreasing critical findings indicates effective remediation. A declining score signals regression, so investigate recent changes.
 
 ## Next Steps
 
-<CardGroup cols={1}>
-  <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
-    Execute and monitor evaluations
+<CardGroup cols={2}>
+  <Card title="Configure Guardrails" icon="shield" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Add runtime protection with Dome
   </Card>
-  <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
-    Create targeted test Scenarios
+  <Card title="Quantifying Risk" icon="chart-pie" href="/owner-guide/audit-agent-behavior/quantifying-risk">
+    Translate findings into risk assessments
   </Card>
-  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
-    Add runtime protection
+  <Card title="Trust Score Harness" icon="shield-check" href="/owner-guide/simulate-environment/harnesses/trust-score">
+    Learn about the standard evaluation
+  </Card>
+  <Card title="Run Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Launch and monitor evaluations
   </Card>
 </CardGroup>
