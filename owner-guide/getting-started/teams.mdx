@@ -1,0 +1,99 @@
+---
+title: 'Manage Teams'
+description: 'Create a team workspace, review members, and invite collaborators from the Vijil Console.'
+---
+
+Teams let your organization manage shared Vijil workspaces. A team groups the people who can work with the same Agents, Resources, Personas, Policies, Harnesses, and Tests.
+
+## Before You Begin
+
+You need a verified Vijil account and access to the Console. If your organization manages access through an administrator or SSO, your account may already belong to a team.
+
+<Note>
+If you only see a team list and member lists, your account is likely a **MEMBER**. That is expected for regular users.
+</Note>
+
+## Create a Team
+
+If you are starting from a personal workspace and have permission to create a team:
+
+1. Open **Teams** from the left sidebar.
+2. Click **+ New team**.
+3. Enter a **Name** and **Description**.
+5. Click **Create**.
+
+The Team name is the primary label shown in the Console. Use the description to clarify the business unit, application group, or environment the team owns.
+
+<Note>
+If you are a **MEMBER**, you will not be able to create a Team.
+</Note>
+
+## View Team Details
+
+After a team exists, open the Teams page to review the team workspace and its members.
+
+The member list can include:
+
+| Field | What It Shows |
+|-------|---------------|
+| **Name** | Given and family name, when available |
+| **Email** | The member's account email address |
+| **Status** | Whether the account is active and verified |
+| **Role** | OWNER, ADMIN, or MEMBER |
+| **Created at** | When the user joined the team |
+| **Actions** | TODO: Write this|
+
+## Invite Members
+
+**OWNER** and **ADMIN** users can invite new members by email.
+
+1. Open **Teams** from the left sidebar.
+2. Choose the team you want to manage.
+3. Click **Invite Member**.
+4. Enter the user's email address.
+5. Select a role.
+6. Send the invitation.
+
+If no role is selected, new invitations default to **MEMBER**.
+
+<Info>
+**MEMBER** users do not see invitation controls.
+</Info>
+
+## Invitation Statuses
+
+Invitations move through a simple lifecycle:
+
+| Status | Meaning |
+|--------|---------|
+| **Pending** | The invitation was sent and has not been accepted yet |
+| **Accepted** | The invited user accepted and became a team member |
+| **Declined** | The invited user declined the invitation |
+| **Expired** | The invitation is no longer valid |
+
+Only the invited user can accept their invitation. The Console uses the signed-in user's account identity to confirm that the invitation matches their email.
+
+## Team Roles
+
+Vijil teams use three roles:
+
+| Role | Use For |
+|------|---------|
+| **OWNER** | Primary team administrators who manage team access |
+| **ADMIN** | Team managers who can invite users and help administer the workspace |
+| **MEMBER** | Regular users who can view their teams and the member lists inside those teams |
+
+Choose the least-privileged role that lets the person do their work. Use **MEMBER** for most collaborators and reserve **OWNER** or **ADMIN** for people responsible for team access. **OWNER** and **ADMIN** users have additional team-management controls when their account has the required permissions.
+
+## Next Steps
+
+Once your team is ready, continue with the main Console workflow:
+
+<CardGroup cols={2}>
+  <Card title="Register an Agent" icon="bot" href="/owner-guide/register-agents/registering-agents">
+    Add an AI agent to your team workspace.
+  </Card>
+  <Card title="Run an Evaluation" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Test a registered agent with Diamond.
+  </Card>
+</CardGroup>
