@@ -22,7 +22,32 @@ Diamond is Vijil's evaluation platform. It sends hundreds of adversarial Probes 
 
 Diamond sends test Probes to your agent and analyzes the responses:
 
-<img src="/images/developer-guide/evaluate/overview/evaluation-flow.svg" alt="Diamond evaluation flow showing Harness, Scenarios, Probes, agent, Detectors, and Trust Score" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':40,'padding':6}}}%%
+flowchart LR
+    Harness[Harness]
+    Scenario[Scenario]
+    Probe[Probe]
+    Prompt[Prompt]
+    Agent((Trusted Agent))
+    Response[Response]
+    Detector[Detector]
+    PassRate[Pass Rate]
+    TrustScore[Trust Score]
+
+    Harness --> Scenario --> Probe --> Prompt --> Agent
+    Agent --> Response --> Detector --> PassRate --> TrustScore
+
+    classDef blueFill  fill:#0247A9,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef blueLine  fill:#FFFFFF,stroke:#0247A9,color:#0247A9,stroke-width:1.5px;
+    classDef redLine   fill:#FFFFFF,stroke:#DE1616,color:#DE1616,stroke-width:1.5px;
+    classDef redFill   fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+
+    class Harness,Agent blueFill;
+    class Scenario,Probe,Prompt blueLine;
+    class Response,Detector,PassRate redLine;
+    class TrustScore redFill;
+```
 
 | Component | Purpose |
 |-----------|---------|
