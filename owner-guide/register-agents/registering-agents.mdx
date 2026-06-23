@@ -1,21 +1,21 @@
 ---
 title: 'Register Agents'
-description: 'Add your AI agents to Vijil for evaluation and protection.'
+description: 'Add your AI Agents to Vijil for evaluation and protection.'
 ---
 
-Before Vijil can evaluate or protect an agent, you need to register it. Registration tells Vijil how to communicate with your agent and how much visibility you are granting for analysis.
+Before Vijil can evaluate or protect an [Agent](/owner-guide/register-agents/what-is-an-agent), you need to register it. Registration tells Vijil how to communicate with your Agent and how much visibility you are granting for analysis.
 
 ## The Agent Registry
 
-Navigate to **Agents** in the sidebar to open the Agent Registry. The registry displays all agents in your workspace with key information:
+Navigate to **Agents** in the sidebar to open the Agent Registry. The registry displays all Agents in your workspace with key information:
 
 | Column | What It Shows |
 |--------|---------------|
-| **Agent Name** | Identifier you assigned during registration |
-| **Owner** | Team member who registered the agent |
-| **Status** | Draft, Active, Under Review, or Archived |
-| **Access Level** | Black Box, Grey Box, or White Box |
-| **Last Evaluated** | When Diamond last ran an evaluation |
+| **Name** | Identifier you assigned during registration |
+| **Owner** | Team member who registered the Agent |
+| **Registered** | Date and time when the Agent was registered |
+| **[Stage](/owner-guide/register-agents/registering-agents#agent-stage)** | Current lifecycle stage: Registered, Tested, Protected, or Adapted |
+| **Time in Stage** | How long the Agent has been in its current stage |
 | **Trust Score** | Current score from most recent evaluation |
 
 ## Access Levels
@@ -26,139 +26,98 @@ Vijil supports three access levels, each enabling progressively deeper evaluatio
 | Access Level | What You Provide | What Vijil Can Test |
 |--------------|------------------|---------------------|
 | **Black Box** | API endpoint and credentials | Input/output behavior only |
-| **Grey Box** | Model config, MCP config, A2A config | Vulnerabilities traced to agent composition |
+| **Grey Box** | Model config, MCP config, A2A config | Vulnerabilities traced to the Agent's composition |
 | **White Box** | Full configuration and source code | SAST and DAST analysis for thorough audit |
 
 ### Black Box
 
-Black Box registration requires minimal information: your agent's API endpoint and authentication. Vijil treats the agent as an opaque system, testing only its observable behavior.
+Black Box registration requires minimal information: your Agent's API endpoint and authentication. Vijil treats the Agent as an opaque system, testing only its observable behavior.
 
 This approach works well for:
-- Third-party agents you do not control
+- Third-party Agents you do not control
 - Initial evaluations before deeper analysis
 - Agents where you want to test the API contract
 
-**Required fields:**
+**Black Box fields**:
 - **Agent Name**: A descriptive identifier
-- **Status**: Start with Draft for initial setup
-- **Agent URL**: Where your agent accepts requests
-- **API Key**: Authentication credentials (you can add multiple keys)
+- **Agent URL**: Remote Agent endpoint URL 
+- **Use A2A Protocol**: Enable Agent to Agent protocol
+- <Badge>Optional</Badge> **Purpose**: Description of what the Agent is for
+- **Access Key**: Authentication credentials (you can add multiple keys)
 - **Rate Limit Per Minute**: Matches your provider's limits to avoid throttling
 
 ### Grey Box
 
-Grey Box expands visibility into your agent's composition. This enables Vijil to trace vulnerabilities to specific components whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated agent behavior.
+Grey Box expands visibility into your Agent's composition. This enables Vijil to trace vulnerabilities to specific components whether a prompt injection succeeded because of the model choice, MCP tool exposure, or delegated Agent behavior.
 
-**Additional fields:**
+**Grey Box settings**:
 
 | Section | Fields | Purpose |
 |---------|--------|---------|
 | **Role & Instructions** | Role, System Prompt | Helps Vijil understand expected behavior |
-| **Model Configuration** | Hub, Model Name, Parameters | Identifies model-specific vulnerabilities |
-| **External Resources** | MCP Proxy/Server, Access Level | Tests tool-use attack surfaces |
-| **Delegated Agents** | A2A Card URLs | Evaluates multi-agent orchestration risks |
-
-The **Hub** dropdown supports major providers:
-
-| Provider | Model Hub | Out-of-the-box model examples | Default rate limit* |
-|---|---|---|---|
-| [OpenAI](/owner-guide/register-agents/integrations/openai) | `openai` | `gpt-4.1`, `gpt-4.5-preview`, `gpt-4o`, `gpt-4o-mini`, `o1`, `o1-mini`, `o3-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo` | 500 requests / 60s |
-| [Anthropic](/owner-guide/register-agents/integrations/anthropic) | `anthropic` | `claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`, `claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest` | 500 requests / 60s |
-| [Together AI](/owner-guide/register-agents/integrations/together) | `together` | `deepseek-ai/DeepSeek-R1`, `meta-llama/Llama-3.3-70B-Instruct-Turbo`, `Qwen/QwQ-32B-Preview`, `google/gemma-2-27b-it`, `mistralai/Mixtral-8x22B-Instruct-v0.1` | 600 requests / 60s |
-| [Mistral AI](/owner-guide/register-agents/integrations/mistral) | `mistral` | `mistral-large-latest`, `mistral-saba-latest`, `ministral-3b-latest`, `ministral-8b-latest`, `mistral-small-latest`, `open-mixtral-8x22b` | 300 requests / 60s |
-| [Fireworks AI](/owner-guide/register-agents/integrations/fireworks) | `fireworks` | `llama-v3p2-1b-instruct`, `llama-v3p2-3b-instruct`, `llama-v3p2-11b-vision-instruct`, `llama-v3p2-90b-vision-instruct`, `mixtral-8x22b-instruct`, `qwen2p5-72b-instruct`, `deepseek-r1` | 600 requests / 60s |
-| [NVIDIA NIM](/owner-guide/register-agents/integrations/nvidia) | `nvidia` | `nvidia/llama3-chatqa-1.5-8b`, `nvidia/llama3-chatqa-1.5-70b`, `nvidia/nemotron-4-340b-instruct` | 60 requests / 60s |
-| [Google Cloud Vertex AI](/owner-guide/register-agents/integrations/vertex) | `vertex` | `google/gemini-2.5-pro`, `google/gemini-2.0-flash-001`, `google/gemini-1.5-flash-001`, `google/gemini-1.5-pro-001`, `google/gemini-1.0-pro-002` | 60 requests / 60s |
-| [AWS Bedrock](/owner-guide/register-agents/integrations/bedrock) | `bedrock` | `us.amazon.nova-lite-v1:0`, `us.amazon.nova-micro-v1:0`, `us.amazon.nova-pro-v1:0`, `us.anthropic.claude-3-7-sonnet-20250219-v1:0`, `anthropic.claude-3-5-sonnet-20241022-v2:0`, `meta.llama3-1-70b-instruct-v1:0`, `meta.llama3-1-405b-instruct-v1:0`, `mistral.mistral-large-2407-v1:0` | 60 requests / 60s |
-| [AWS Bedrock Agents](/owner-guide/register-agents/integrations/bedrock) | `bedrockAgents` | Bedrock-hosted agents configured by `agent_id` / `agent_alias_id` | 30 requests / 60s |
-| Google Cloud (Agentforce) | `agentforce` | Agentforce-hosted agents (via Agentforce configuration) | 30 requests / 60s |
-| Azure | `azure` | Azure-hosted deployments (models configured in your Azure account) | 60 requests / 60s |
-| [DigitalOcean](/owner-guide/register-agents/integrations/digitalocean) | `digitalocean` | DigitalOcean-hosted deployments (models configured in your DO account) | 30 requests / 60s |
-| [OpenRouter](/owner-guide/register-agents/integrations/openrouter) | `openrouter` | `microsoft/phi-4`, `google/gemini-2.5-flash-preview`, `x-ai/grok-3-beta` | 60 requests / 60s |
-| [Groq](/owner-guide/register-agents/integrations/groq) | `groq` | `llama-3.1-8b-instant`, `llama-3.3-70b-versatile`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b` | 30 requests / 60s |
-
+| **Capabilities** | Capability tools | Add one or more Capability tools |
+| **Model Configuration** | Model name, Temperature, Max tokens, Top P | Defines the model and generation settings used during evaluation |
+| **External Resources** | MCP Proxy or Server, MCP Access Level | Tests tool-use attack surfaces |
+| **Delegated Agents** | A2A Card URLs | Evaluates orchestration risks for delegated Agents |
 
 <Tip>
-If your agent uses MCP tools or delegates to sub-agents, Grey Box registration enables Vijil to test the full execution graph—not just the top-level API.
+If your Agent uses MCP tools or delegates to sub-agents, Grey Box registration enables Vijil to test the full execution graph—not just the top-level API.
 </Tip>
 
 ### White Box
 
 White Box provides full source code access for static analysis (SAST) combined with dynamic testing (DAST). This is the most thorough evaluation path.
 
-**Additional fields:**
+**White Box fields:**
 - **Source Code**: Paste code directly, or leave empty to pull from repository
-- **GitHub Repository**: URL, username, and access token for private repos
+- **GitHub Repository**: Repository URL, Entry point, Username, and Access token for private repos
 
 White Box evaluation can identify vulnerabilities that Black Box testing would miss—hardcoded secrets, unsafe deserialization, SQL injection in tool implementations, and similar code-level issues.
 
 ## Registering an Agent
 
-1. Click **+ Register Agent** to open the registration modal
-2. Choose **Manual** for direct entry or **Import** to load from a file
-3. Fill in the **Black Box** fields (required for all agents)
+1. Navigate to **Agents** in the sidebar to open the Agent Registry
+2. Click **+ Register Agent** to open the Register Agent form
+3. Fill in the **Black Box** fields (required for all Agents)
 4. Expand **Grey Box** if you want compositional analysis
 5. Expand **White Box** if you want source code analysis
 6. Click **Register Agent**
 
-Your agent appears in the registry with status **Draft**. Change to **Active** when ready for evaluation.
 
 ## Managing Agents
 
-Click the **More Actions** menu (three dots) on any agent row to access management options.
+Click the **Actions** menu (three dots) on any Agent row to access management options.
 
 | Action | What It Does |
 |--------|--------------|
-| **Edit** | Modify agent configuration |
+| **View** | View Agent configuration |
+| **Edit** | Update Agent configuration |
 | **Clone** | Create a copy with a new name |
 | **Export JSON** | Download configuration for backup or migration |
-| **Archive** | Remove from active list while preserving history |
-| **Delete** | Permanently remove agent and all associated data |
+| **Delete** | Permanently remove an Agent and all associated data |
 
 ### Editing an Agent
 
-Select **Edit** to open the agent configuration modal with current values populated.
+Select **Edit** to open the Agent configuration form with current values populated.
 
 Make your changes and click **Save Changes**.
 
 <Warning>
-Changing an agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
+Changing an Agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
 </Warning>
 
-## Agent Status
+## Agent Stage
 
-Agents progress through lifecycle states:
+Agents progress through lifecycle stages:
 
-| Status | Meaning |
+| Stage | Meaning |
 |--------|---------|
-| **Draft** | Configuration in progress, not ready for evaluation |
-| **Active** | Ready for evaluation and protection |
-| **Under Review** | Currently being evaluated |
-| **Archived** | Preserved for reference but inactive |
+| **Registered** | The Agent has been registered in the platform |
+| **Tested** | At least one evaluation has been run against the Agent |
+| **Protected** | Dome has been configured and enabled for the Agent |
+| **Adapted** | At least one Darwin proposal has been accepted for the Agent following an evolution run |
 
-Set status to **Active** before running evaluations or configuring Dome protection.
-
-
-## Integration Guides
-
-For provider-specific configuration details, use our dedicated UI walk-through guides.
-
-<CardGroup cols={3}>
-  <Card title="OpenAI" icon="openai" href="/owner-guide/register-agents/integrations/openai" />
-  <Card title="Anthropic" icon="asterisk" href="/owner-guide/register-agents/integrations/anthropic" />
-  <Card title="Google Vertex" icon="google" href="/owner-guide/register-agents/integrations/vertex" />
-  <Card title="Mistral AI" icon="wind" href="/owner-guide/register-agents/integrations/mistral" />
-  <Card title="AWS Bedrock" icon="aws" href="/owner-guide/register-agents/integrations/bedrock" />
-  <Card title="DigitalOcean" icon="digital-ocean" href="/owner-guide/register-agents/integrations/digitalocean" />
-  <Card title="Groq" icon="bolt" href="/owner-guide/register-agents/integrations/groq" />
-  <Card title="Together Web" icon="users" href="/owner-guide/register-agents/integrations/together" />
-  <Card title="OpenRouter" icon="route" href="/owner-guide/register-agents/integrations/openrouter" />
-  <Card title="Fireworks AI" icon="flame" href="/owner-guide/register-agents/integrations/fireworks" />
-  <Card title="NVIDIA NIM" icon="microchip" href="/owner-guide/register-agents/integrations/nvidia" />
-  <Card title="Custom Agents" icon="code" href="/owner-guide/register-agents/integrations/custom">
-    OpenAI-compatible endpoints
-  </Card>
-</CardGroup>
+Use Stage to understand where an Agent is in the evaluation, protection, and adaptation lifecycle.
 
 ## Next Steps
 
@@ -167,6 +126,6 @@ For provider-specific configuration details, use our dedicated UI walk-through g
     Create user profiles for evaluation
   </Card>
   <Card title="Define Policies" icon="scroll-text" href="/owner-guide/simulate-environment/policies">
-    Set organizational rules your agent must follow
+    Set organizational rules your Agent must follow
   </Card>
 </CardGroup>
