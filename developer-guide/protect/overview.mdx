@@ -15,7 +15,35 @@ Dome is Vijil's runtime protection system. It intercepts every input and output,
 
 Dome wraps your agent with configurable Guardrails:
 
-<img src="/images/developer-guide/protect/overview/defense-flow.svg" alt="Dome defense flow showing input Guardrail, agent, and output Guardrail" style={{maxWidth: '600px', margin: '2rem auto', display: 'block'}} />
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':40,'padding':6}}}%%
+flowchart LR
+    subgraph Guardrails[Guardrails]
+        GuardIn[Guard]
+        DetectorIn[Detector]
+        ModelIn[Model]
+        ActionIn[Action]
+        ActionOut[Action]
+        ModelOut[Model]
+        DetectorOut[Detector]
+        GuardOut[Guard]
+    end
+
+    Agent((Trusted Agent))
+
+    GuardIn --> DetectorIn --> ModelIn --> ActionIn --> Agent
+    Agent --> ActionOut --> ModelOut --> DetectorOut --> GuardOut
+
+    classDef guard    fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef redLine  fill:#FFFFFF,stroke:#DE1616,color:#DE1616,stroke-width:1.5px;
+    classDef agent    fill:#0247A9,stroke:#DE1616,color:#FFFFFF,stroke-width:3px;
+    classDef railbox  fill:none,stroke:#DE1616,color:#DE1616,stroke-width:1px;
+
+    class GuardIn,GuardOut guard;
+    class DetectorIn,DetectorOut,ModelIn,ModelOut,ActionIn,ActionOut redLine;
+    class Agent agent;
+    class Guardrails railbox;
+```
 
 | Component | Purpose |
 |-----------|---------|

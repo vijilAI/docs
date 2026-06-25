@@ -11,9 +11,42 @@ Vijil Dome allows users to assemble and configure Guardrails, which are designed
 - **Output Guardrails**: For scanning outputs from a foundation model.
 - **Retrieval Guardrails** (coming soon): To protect requests to and from retrievers.
 - **Execution Guardrails** (coming soon): To protect requests to and from external agents and tools.
-{/* vale off */}
-![Guardrail-position | 80%](/images/legacy/guardrails_workflow.webp)
-{/* vale off */}
+
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':35,'padding':6}}}%%
+flowchart TD
+    App[Application Code]
+
+    subgraph Platform[" "]
+        InputGR[Input Guardrail]
+        OutputGR[Output Guardrail]
+        FM((Foundational Models))
+        RetrievalGR[Retrieval Guardrail]
+        ExecutionGR[Execution Guardrail]
+    end
+
+    Retriever[Retriever]
+    Agents[Agents]
+
+    App --> InputGR
+    InputGR --> FM
+    FM --> OutputGR
+    OutputGR --> App
+    FM <--> RetrievalGR
+    FM <--> ExecutionGR
+    RetrievalGR <--> Retriever
+    ExecutionGR <--> Agents
+
+    classDef guardrail fill:#0247A9,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef model     fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef external  fill:#FFFFFF,stroke:#2B0C0C,color:#2B0C0C,stroke-width:1.5px;
+    classDef platform  fill:none,stroke:#2B0C0C,stroke-width:1px,stroke-dasharray:5 5;
+
+    class InputGR,OutputGR,RetrievalGR,ExecutionGR guardrail;
+    class FM model;
+    class App,Retriever,Agents external;
+    class Platform platform;
+```
 
 Guardrails consist of a set of [Guards](/concepts/defense/guard) and how they should be executed. These Guards are fully configurable and customizable.
 
@@ -21,9 +54,44 @@ Guardrails consist of a set of [Guards](/concepts/defense/guard) and how they sh
 
 Users can configure Guards by selecting and combining different [Detectors](/concepts/evaluation-components/detector) based on their specific needs. This customization allows for flexible and robust Guardrails that cater to diverse application requirements.
 
-{/* vale off */}
-![Guardrail-composition | 80%](/images/legacy/guardrail_composition.webp)
-{/* vale off */}
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':55,'padding':6}}}%%
+flowchart LR
+    InputGR[Input Guardrail]
+    OutputGR[Output Guardrail]
+
+    SecGuard[Security Guard]
+    ModGuard1[Moderation Guard]
+    PrivGuard[Privacy Guard]
+    ModGuard2[Moderation Guard]
+
+    PIModel[Prompt Injection Model]
+    PIEmbed[Prompt Injection Embeddings Detector]
+    KeyBan[Keyword Banlist]
+    PII[PII Detector]
+    ToxModel[Toxic Content Model]
+    PromptEng[Prompt Engineering-based Detector]
+
+    InputGR --> SecGuard
+    InputGR --> ModGuard1
+    SecGuard --> PIModel
+    SecGuard --> PIEmbed
+    ModGuard1 --> KeyBan
+
+    OutputGR --> PrivGuard
+    OutputGR --> ModGuard2
+    PrivGuard --> PII
+    ModGuard2 --> ToxModel
+    ModGuard2 --> PromptEng
+
+    classDef guardrail fill:#0247A9,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef guard     fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef detector  fill:#FFFFFF,stroke:#2B0C0C,color:#2B0C0C,stroke-width:1.5px;
+
+    class InputGR,OutputGR guardrail;
+    class SecGuard,ModGuard1,PrivGuard,ModGuard2 guard;
+    class PIModel,PIEmbed,KeyBan,PII,ToxModel,PromptEng detector;
+```
 
 ### Example Configuration
 
@@ -88,4 +156,3 @@ The output from Dome's `scan` functions is a `ScanResult` object. It contains th
     Set up Dome for your agent
   </Card>
 </CardGroup>
-

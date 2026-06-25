@@ -10,7 +10,36 @@ description: "The architecture of systematic agent testing: from test definition
 The [Trust Score](/concepts/trust-score/introduction) measures [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety). But how do you actually test for these properties? You cannot just ask an agent *"**are you trustworthy?**"*. You need to [Probe](/concepts/evaluation-components/probe) its behavior systematically, across hundreds of [Scenarios](concepts/evaluation-components/scenario), looking for specific failure modes.
 
 Vijil’s evaluation service consists of [Harnesses](concepts/evaluation-components/harness), [Scenarios](concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector):
-![Vijil Evaluation components](/images/legacy/Harness-scenario-probe-detector.webp)
+
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':30,'padding':6}}}%%
+flowchart TD
+    subgraph System[" "]
+        Harness[Harness]
+        Harness --> Scenario1[Scenario₁]
+        Harness --> Scenario2[Scenario₂]
+        Scenario1 --> Probe1[Probe₁]
+        Scenario1 --> Probe2[Probe₂]
+        Scenario2 --> Probe3[Probe₃]
+        Scenario2 --> Probe4[Probe₄]
+        subgraph Detectors[" "]
+            direction LR
+            Detector1[Detector₁]
+            Detector2[Detector₂]
+            Detector3[Detector₃]
+        end
+    end
+
+    classDef harness  fill:#0247A9,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef scenario fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef probe    fill:#FFFFFF,stroke:#0247A9,color:#2B0C0C,stroke-width:1.5px;
+    classDef detector fill:#FFFFFF,stroke:#DE1616,color:#2B0C0C,stroke-width:1.5px;
+
+    class Harness harness;
+    class Scenario1,Scenario2 scenario;
+    class Probe1,Probe2,Probe3,Probe4 probe;
+    class Detector1,Detector2,Detector3 detector;
+```
 
 ## Evaluation Hierarchy at a Glance
 

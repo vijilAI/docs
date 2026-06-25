@@ -9,8 +9,27 @@ Dome provides runtime protection for your AI agents by filtering requests and re
 
 Dome interposes between users and your agent, inspecting traffic in both directions:
 
-```
-User Request → Dome (Input Guards) → Your Agent → Dome (Output Guards) → User Response
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':40,'padding':6}}}%%
+flowchart LR
+    Req[User Request]
+    InputDome["Dome<br/>(Input Guards)"]
+    Agent[Your Agent]
+    OutputDome["Dome<br/>(Output Guards)"]
+    Resp[User Response]
+
+    Req --> InputDome
+    InputDome --> Agent
+    Agent --> OutputDome
+    OutputDome --> Resp
+
+    classDef dome     fill:#0247A9,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef agent    fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef external fill:#FFFFFF,stroke:#2B0C0C,color:#2B0C0C,stroke-width:1.5px;
+
+    class InputDome,OutputDome dome;
+    class Agent agent;
+    class Req,Resp external;
 ```
 
 **Input Guards** filter incoming requests before they reach your agent, blocking prompt injection attempts, detecting malicious content, and enforcing content policies.
