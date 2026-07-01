@@ -1,212 +1,398 @@
 ---
-title: "Start with MCP"
-description: "Connect Claude Code to your Vijil Console and run your first trust evaluation through natural language."
+title: "Quickstart"
+description: "Install Vijil, register an Agent, run a trust Evaluation, and retrieve results, through the CLI, MCP, or REST API."
 ---
 
-The Vijil MCP server exposes your Console as tools that [Claude Code](https://claude.ai/code) can call directly. Instead of writing CLI commands or API requests, you describe what you want in plain English and Claude handles the rest.
+Vijil exposes three programmatic interfaces. This quickstart takes you from a fresh setup to a completed trust Evaluation. The workflow is the same for all three, so pick the tab for the interface you prefer at each step.
 
-<Info>
-[`vijil-mcp`](https://pypi.org/project/vijil-mcp/) installs `vijil-console` as a dependency. You get both the MCP server and the CLI in a single install.
-</Info>
+| Interface | Best For | Requires |
+|-----------|----------|----------|
+| **CLI** | Scripting, CI/CD gates, headless automation | `vijil-console` |
+| **MCP** | Interactive development, natural language | Claude Code + `vijil-mcp` |
+| **REST API** | Custom integrations, non-Python environments | HTTP client + API key |
 
 ## Prerequisites
 
-- [Python 3.8](https://www.python.org/downloads/) or later
-- [Claude Code](https://claude.ai/code) installed
 - A [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment and its API gateway URL
 - An API key for the AI model you want to evaluate
+- [Python 3.8](https://www.python.org/) or later (CLI and MCP only)
+- [Claude Code](https://claude.ai/code) installed (MCP only)
 
 ## Steps
 
 <Steps>
   <Step title="Install">
-    Install `vijil-mcp`:
+    <Tabs>
+      <Tab title="CLI">
+        Install `vijil-console` via pip or pipx:
 
-    <CodeGroup>
-    ```bash pip
-    pip install vijil-mcp
-    ```
+        <CodeGroup>
+        ```bash pip
+        pip install vijil-console
+        ```
 
-    ```bash pipx
-    pipx install vijil-mcp
-    ```
-    </CodeGroup>
+        ```bash pipx
+        pipx install vijil-console
+        ```
+        </CodeGroup>
 
-    Verify both components are available:
+        Verify the installation:
 
-    ```bash
-    vijil --help
-    vijil-mcp --help
-    ```
+        ```bash
+        vijil --help
+        ```
+      </Tab>
+      <Tab title="MCP">
+        Install `vijil-mcp`. It pulls in `vijil-console` as a dependency, so you get both the MCP server and the CLI in a single install:
+
+        <CodeGroup>
+        ```bash pip
+        pip install vijil-mcp
+        ```
+
+        ```bash pipx
+        pipx install vijil-mcp
+        ```
+        </CodeGroup>
+
+        Verify both components are available:
+
+        ```bash
+        vijil --help
+        vijil-mcp --help
+        ```
+      </Tab>
+      <Tab title="REST API">
+        No installation is required. You only need an HTTP client such as `curl`. Set your API gateway URL as a shell variable for convenience:
+
+        ```bash
+        export VIJIL_URL="https://console-api.example.com"
+        ```
+      </Tab>
+    </Tabs>
   </Step>
 
-  <Step title="Configure the CLI">
-    `vijil-mcp` reads its credentials from the same configuration the CLI uses. Point the CLI at your Console API gateway:
+  <Step title="Configure and Authenticate">
+    <Tabs>
+      <Tab title="CLI">
+        Point the CLI at your Console API gateway, then log in:
 
-    ```bash
-    vijil auth init --url https://console-api.example.com
-    ```
+        ```bash
+        vijil auth init --url https://console-api.example.com
+        vijil auth login
+        ```
 
-    Log in with your account credentials:
+        You will be prompted for your email and password. The CLI stores your token in `~/.vijil/config.yaml`.
 
-    ```bash
-    vijil auth login
-    ```
+        If you belong to multiple teams, select the one you want to work with:
 
-    You will be prompted for your email and password. The CLI stores your token in `~/.vijil/config.yaml`.
+        ```bash
+        vijil team list
+        vijil team use <team_id>
+        ```
 
-    If you belong to multiple teams, select one:
+        <Tip>
+        Every subsequent command uses the active team automatically, so you do not need to pass a team ID manually.
+        </Tip>
+      </Tab>
+      <Tab title="MCP">
+        `vijil-mcp` reads the same credentials as the CLI. Configure and log in once:
 
-    ```bash
-    vijil team list
-    vijil team use <team_id>
-    ```
+        ```bash
+        vijil auth init --url https://console-api.example.com
+        vijil auth login
+        vijil team use <team_id>   # if you belong to multiple teams
+        ```
 
-    <Tip>
-    You only need to do this once. `vijil-mcp` inherits the stored credentials automatically on every start.
-    </Tip>
-  </Step>
+        Then create a `.mcp.json` file in your project root so Claude Code launches the server:
 
-  <Step title="Connect Claude Code">
-    Create a `.mcp.json` file in your project root:
-
-    ```json
-    {
-      "mcpServers": {
-        "vijil": {
-          "type": "stdio",
-          "command": "vijil-mcp"
+        ```json
+        {
+          "mcpServers": {
+            "vijil": {
+              "type": "stdio",
+              "command": "vijil-mcp"
+            }
+          }
         }
-      }
-    }
-    ```
+        ```
 
-    This tells Claude Code to launch `vijil-mcp` as a local subprocess and discover its tools automatically.
+        Start Claude Code in the directory containing `.mcp.json` and confirm the connection:
 
-    <Tip>
-    For access across all projects, add the same block to `~/.claude.json` instead. Add `.mcp.json` to your `.gitignore` if you do not want to commit it, or commit it so your whole team gets the Vijil tools automatically.
-    </Tip>
-  </Step>
+        <Prompt description="Check my Vijil setup">
+        Check my Vijil setup
+        </Prompt>
 
-  <Step title="Verify the Connection">
-    Start Claude Code in the directory containing `.mcp.json` and ask:
+        Claude calls the `vijil_status` tool, which confirms the CLI is configured, authenticated, and has a team selected.
 
-    <Prompt description="Check my Vijil setup">
-    Check my Vijil setup
-    </Prompt>
+        <Tip>
+        For access across all projects, add the same block to `~/.claude.json` instead of a per-project `.mcp.json`.
+        </Tip>
+      </Tab>
+      <Tab title="REST API">
+        Exchange your credentials for a JWT access token:
 
-    Claude calls the `vijil_status` tool, which confirms the CLI is configured, authenticated, and has a team selected. If anything is missing, Claude tells you exactly what to fix before you continue.
+        ```bash
+        curl -s -X POST "$VIJIL_URL/auth/jwt/login" \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com", "password": "your-password"}'
+        ```
+
+        Save the returned token and include it on every subsequent request:
+
+        ```bash
+        export TOKEN="eyJhbG..."
+        ```
+
+        Most operations are scoped to a team. List your memberships and save the `team_id`:
+
+        ```bash
+        curl -s "$VIJIL_URL/users/me/teams" \
+          -H "Authorization: Bearer $TOKEN"
+
+        export TEAM_ID="c58aea71-..."
+        ```
+      </Tab>
+    </Tabs>
   </Step>
 
   <Step title="Register an Agent">
-    Tell Claude about the model you want to evaluate:
+    <Tabs>
+      <Tab title="CLI">
+        Create an [Agent](/owner-guide/register-agents/what-is-an-agent) configuration for the model you want to evaluate. Export your provider API key first to keep it out of your shell history:
 
-    <Prompt description="Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with my OpenAI API key sk-…">
-    Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with my OpenAI API key sk-…
-    </Prompt>
+        ```bash
+        export OPENAI_API_KEY="sk-..."
 
-    Claude calls `agent_create` and shows you the new [Agent](/owner-guide/register-agents/what-is-an-agent) including its ID. Note that ID — you will use it in the next steps.
+        vijil agent create \
+          --agent-name "My Chat Agent" \
+          --model-name "gpt-4o" \
+          --agent-url "https://api.openai.com/v1/chat/completions" \
+          --api-key "$OPENAI_API_KEY"
+        ```
 
-    To see all registered Agents at any time:
+        The output includes the new Agent's `id`. Save it, then confirm the Agent was registered:
 
-    <Prompt description="List my agents">
-    List my agents
-    </Prompt>
+        ```bash
+        export AGENT_ID="a1b2c3d4-..."
+        vijil agent list
+        ```
+      </Tab>
+      <Tab title="MCP">
+        Tell Claude about the model you want to evaluate:
+
+        <Prompt description="Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with my OpenAI API key sk-…">
+        Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with my OpenAI API key sk-…
+        </Prompt>
+
+        Claude calls `agent_create` and shows you the new [Agent](/owner-guide/register-agents/what-is-an-agent) including its ID. Note that ID, you will use it in the next steps. To see all registered Agents at any time:
+
+        <Prompt description="List my agents">
+        List my agents
+        </Prompt>
+      </Tab>
+      <Tab title="REST API">
+        Create an Agent configuration pointing at the AI model you want to evaluate. The team is derived from your JWT token, so no `team_id` parameter is needed:
+
+        ```bash
+        curl -s -X POST "$VIJIL_URL/agent-configurations/" \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "agent_name": "My Chat Agent",
+            "model_name": "gpt-4o",
+            "agent_url": "https://api.openai.com/v1/chat/completions",
+            "api_key": "sk-..."
+          }'
+        ```
+
+        The response (HTTP 201) includes the new Agent's `id`. Save it:
+
+        ```bash
+        export AGENT_ID="a1b2c3d4-..."
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Choose a Harness">
+    [Harnesses](/concepts/evaluation-components/harness) are test suites that cover a specific [trust dimension](/concepts/trust-score/introduction). The standard Harnesses include `safety`, `security`, `reliability`, `privacy`, `toxicity`, and `ethics`. For this quickstart you will run `safety` and `security`.
+
+    <Tabs>
+      <Tab title="CLI">
+        List the available standard Harnesses:
+
+        ```bash
+        vijil harness list
+        ```
+      </Tab>
+      <Tab title="MCP">
+        Ask Claude which Harnesses are available:
+
+        <Prompt description="What Harnesses are available?">
+        What Harnesses are available?
+        </Prompt>
+      </Tab>
+      <Tab title="REST API">
+        List the standard Harnesses:
+
+        ```bash
+        curl -s "$VIJIL_URL/harnesses/?team_id=$TEAM_ID" \
+          -H "Authorization: Bearer $TOKEN"
+        ```
+      </Tab>
+    </Tabs>
   </Step>
 
   <Step title="Run an Evaluation">
-    Start a trust evaluation and wait for it to finish:
+    <Tabs>
+      <Tab title="CLI">
+        Start an Evaluation and wait for it to complete:
 
-    <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete">
-    Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete
-    </Prompt>
+        ```bash
+        vijil eval run \
+          --agent-id "$AGENT_ID" \
+          --harness-names '["safety", "security"]' \
+          --sample-size 50 \
+          --wait
+        ```
 
-    Claude calls `eval_run` with `wait=True`, polls every 5 seconds, and reports back when the evaluation finishes — including the per-[Harness](/concepts/evaluation-components/harness) scores.
+        `--sample-size 50` runs 50 [Probes](/concepts/evaluation-components/probe) per Harness, enough for a meaningful score in a few minutes. Omit it to run the full Harness (~1,250 Probes for `security`). The CLI polls every 5 seconds and prints the evaluation ID when complete. Save it:
 
-    <Tip>
-    Ask for a sample size of 10 for fast iteration during development. Run the full Harness (~1,250 [Probes](/concepts/evaluation-components/probe) for `security`) before releasing to production.
-    </Tip>
+        ```bash
+        export EVAL_ID="e5f6a7b8-..."
+        ```
+      </Tab>
+      <Tab title="MCP">
+        Start a trust Evaluation and wait for it to finish:
 
-    To start an evaluation without waiting, omit the instruction to wait:
+        <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete">
+        Run a safety and security evaluation on agent a1b2c3d4-… with a sample size of 50, and wait for it to complete
+        </Prompt>
 
-    <Prompt description="Start a safety evaluation on agent a1b2c3d4-…">
-    Start a safety evaluation on agent a1b2c3d4-…
-    </Prompt>
+        Claude calls `eval_run` with `wait=True`, polls every 5 seconds, and reports back when the Evaluation finishes, including the per-Harness scores.
+
+        <Tip>
+        Ask for a sample size of 10 for fast iteration during development. Run the full Harness before releasing to production.
+        </Tip>
+      </Tab>
+      <Tab title="REST API">
+        Start a trust Evaluation. Evaluations run asynchronously, so the API returns immediately with a `202 Accepted` status and an `evaluation_id`:
+
+        ```bash
+        curl -s -X POST "$VIJIL_URL/evaluations/" \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"agent_id\": \"$AGENT_ID\",
+            \"team_id\": \"$TEAM_ID\",
+            \"harness_names\": [\"safety\", \"security\"],
+            \"sample_size\": 50
+          }"
+        ```
+
+        Save the evaluation ID, then poll for status until it reaches `completed`:
+
+        ```bash
+        export EVAL_ID="e5f6a7b8-..."
+
+        curl -s "$VIJIL_URL/evaluations/$EVAL_ID" \
+          -H "Authorization: Bearer $TOKEN"
+        ```
+
+        The `status` field progresses through `starting` → `pending` → `running` → `completed` → `saving` → `saved`.
+      </Tab>
+    </Tabs>
   </Step>
 
   <Step title="View the Results">
-    Once the evaluation completes, retrieve the full results:
+    <Tabs>
+      <Tab title="CLI">
+        Retrieve your [Trust Score](/concepts/trust-score/introduction) and per-Harness breakdown:
 
-    <Prompt description="Show me the detailed results for evaluation e5f6a7b8-…">
-    Show me the detailed results for evaluation e5f6a7b8-…
-    </Prompt>
+        ```bash
+        vijil eval results-detail "$EVAL_ID"
+        ```
 
-    Claude calls `eval_results_detail` and presents your [Trust Score](/concepts/trust-score/introduction), per-Harness breakdowns, and individual Probe results with identified failure patterns.
+        This returns scores per Harness (0 to 1), individual Probe results, and identified failure patterns. To filter with `jq`:
+
+        ```bash
+        vijil eval results-detail "$EVAL_ID" --json | jq '.scores'
+        ```
+      </Tab>
+      <Tab title="MCP">
+        Once the Evaluation completes, retrieve the full results:
+
+        <Prompt description="Show me the detailed results for evaluation e5f6a7b8-…">
+        Show me the detailed results for evaluation e5f6a7b8-…
+        </Prompt>
+
+        Claude calls `eval_results_detail` and presents your [Trust Score](/concepts/trust-score/introduction), per-Harness breakdowns, and individual Probe results with identified failure patterns.
+      </Tab>
+      <Tab title="REST API">
+        Retrieve the full results once the Evaluation has completed:
+
+        ```bash
+        curl -s "$VIJIL_URL/evaluation-results/$EVAL_ID/results?team_id=$TEAM_ID" \
+          -H "Authorization: Bearer $TOKEN"
+        ```
+
+        This returns the detailed results JSON including per-Harness breakdowns, individual Probe results, and analysis.
+      </Tab>
+    </Tabs>
   </Step>
 
   <Step title="Generate a Report">
-    Trigger a Trust Report for the completed evaluation:
+    <Tabs>
+      <Tab title="CLI">
+        Trigger a [Trust Report](/developer-guide/evaluate/understanding-results) for the completed Evaluation:
 
-    <Prompt description="Generate a report for evaluation e5f6a7b8-…">
-    Generate a report for evaluation e5f6a7b8-…
-    </Prompt>
+        ```bash
+        vijil eval report "$EVAL_ID"
+        ```
 
-    Claude calls `eval_report`. Download the [Trust Report](/developer-guide/evaluate/understanding-results) as HTML or PDF from the Console.
+        The report summarizes what was tested, how the Agent scored, and where it failed. Download it as HTML or PDF from the Console.
+      </Tab>
+      <Tab title="MCP">
+        Trigger a [Trust Report](/developer-guide/evaluate/understanding-results) for the completed Evaluation:
+
+        <Prompt description="Generate a report for evaluation e5f6a7b8-…">
+        Generate a report for evaluation e5f6a7b8-…
+        </Prompt>
+
+        Claude calls `eval_report`. Download the report as HTML or PDF from the Console.
+      </Tab>
+      <Tab title="REST API">
+        Download the [Trust Report](/developer-guide/evaluate/understanding-results) for the completed Evaluation as HTML or PDF:
+
+        ```bash
+        curl -s "$VIJIL_URL/evaluations/$EVAL_ID/html?team_id=$TEAM_ID" \
+          -H "Authorization: Bearer $TOKEN" \
+          -o report.html
+
+        curl -s "$VIJIL_URL/evaluations/$EVAL_ID/pdf?team_id=$TEAM_ID" \
+          -H "Authorization: Bearer $TOKEN" \
+          -o report.pdf
+        ```
+      </Tab>
+    </Tabs>
   </Step>
 </Steps>
-
-## What to Ask Next
-
-The Vijil MCP server covers the full evaluation and protection workflow. Here are more things you can ask Claude:
-
-**Custom Harnesses** — generate test suites tailored to your Agent:
-
-<Prompt description="Create a custom Harness called 'Support Bot Harness' for agent a1b2c3d4-…">
-Create a custom Harness called 'Support Bot Harness' for agent a1b2c3d4-…
-</Prompt>
-
-**Personas** — add realistic user archetypes to shape Probe generation:
-
-<Prompt description="Show me the adversarial persona presets">
-Show me the adversarial persona presets
-</Prompt>
-
-<Prompt description="Create a persona from the 'jailbreaker' preset">
-Create a persona from the 'jailbreaker' preset
-</Prompt>
-
-**Policies** — define the compliance rules your Agent must follow:
-
-<Prompt description="Create a GDPR compliance policy from the preset">
-Create a GDPR compliance policy from the preset
-</Prompt>
-
-**Dome Guardrails** — configure runtime protection:
-
-<Prompt description="Create a default Dome config for agent a1b2c3d4-…">
-Create a default Dome config for agent a1b2c3d4-…
-</Prompt>
-
-**Red Team Campaigns** — run adversarial attack sequences:
-
-<Prompt description="Run a garak red team campaign against my agent at https://my-agent.example.com/v1 with the purpose 'customer support chatbot'">
-Run a garak red team campaign against my agent at https://my-agent.example.com/v1 with the purpose 'customer support chatbot'
-</Prompt>
-
-**Trust Dashboard** — view aggregated trust metrics:
-
-<Prompt description="Show me the trust dashboard">
-Show me the trust dashboard
-</Prompt>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="MCP Tools Reference" icon="wrench" href="/developer-guide/agentic/tools">
-    Complete list of all MCP tools with parameters and example prompts
+  <Card title="CLI Reference" icon="terminal" href="/developer-guide/cli/setup">
+    Full command reference for auth, Agents, Evaluations, and protection
   </Card>
-  <Card title="CLI Quickstart" icon="terminal" href="/developer-guide/cli/quickstart">
-    Use the CLI directly for scripted or CI/CD workflows
+  <Card title="MCP Tools Reference" icon="wrench" href="/developer-guide/agentic/tools">
+    Complete list of MCP tools with parameters and example prompts
+  </Card>
+  <Card title="Understand Results" icon="chart-line" href="/developer-guide/evaluate/understanding-results">
+    Interpret Trust Scores and prioritize what to fix
+  </Card>
+  <Card title="Custom Harnesses" icon="flask-conical" href="/developer-guide/evaluate/custom-harnesses">
+    Generate test suites tailored to your Agent
   </Card>
 </CardGroup>
 
@@ -214,9 +400,10 @@ Show me the trust dashboard
 
 | Symptom | Fix |
 |---------|-----|
-| `vijil` not found in `PATH` | Run `pip install vijil-mcp` |
+| `vijil` not found in `PATH` | Re-install with `pipx`, which handles `PATH` setup automatically |
 | CLI not configured | Run `vijil auth init --url <your-url>` |
 | Session expired | Run `vijil auth login` |
-| No team selected | Run `vijil team use <team_id>` |
+| No team selected | Run `vijil team list` then `vijil team use <team_id>` |
 | Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
 | Claude uses Bash instead of MCP tools | Confirm `vijil-mcp` is in your `PATH`: run `which vijil-mcp` |
+| `401 Unauthorized` from the REST API | Your token expired, request a new one from `POST /auth/jwt/login` |
