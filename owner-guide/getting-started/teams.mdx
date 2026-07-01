@@ -1,6 +1,6 @@
 ---
 title: 'Manage Teams'
-description: 'Create a team workspace, review members, and invite collaborators from the Vijil Console.'
+description: 'Create a team workspace, review members, and add users from the Vijil Console.'
 ---
 
 Teams let your organization manage shared Vijil workspaces. A team groups the people who can work with the same Agents, Resources, Personas, Policies, Harnesses, and Tests.
@@ -25,7 +25,7 @@ If you are starting from a personal workspace and have permission to create a te
 The Team name is the primary label shown in the Console. Use the description to clarify the business unit, application group, or environment the team owns.
 
 <Note>
-If you are a **MEMBER**, you will not be able to create a Team.
+Only the **SUPER ADMIN** users can create a Team.
 </Note>
 
 ## View Team Details
@@ -40,38 +40,20 @@ The member list can include:
 | **Email** | The member's account email address |
 | **Status** | Whether the account is active and verified |
 | **Role** | OWNER, ADMIN, or MEMBER |
-| **Created at** | When the user joined the team |
-| **Actions** | TODO: Write this|
+| **Created at** | When the user was added to the team |
+| **Actions** | Actions you can perform on individual users|
 
-## Invite Members
+<Note>
+**Delete** action is currently not implemented, even though you can see it in the **Actions** column.
+</Note>
 
-**OWNER** and **ADMIN** users can invite new members by email.
+## Add Users to a Team
 
-1. Open **Teams** from the left sidebar.
-2. Choose the team you want to manage.
-3. Click **Invite Member**.
-4. Enter the user's email address.
-5. Select a role.
-6. Send the invitation.
-
-If no role is selected, new invitations default to **MEMBER**.
+In Console, **ADMIN** users can add users to a team, and send them the initial password. When the user logs in for the first time, the Console requires them to change the initial password.
 
 <Info>
-**MEMBER** users do not see invitation controls.
+**MEMBER** users cannot add users to a team.
 </Info>
-
-## Invitation Statuses
-
-Invitations move through a simple lifecycle:
-
-| Status | Meaning |
-|--------|---------|
-| **Pending** | The invitation was sent and has not been accepted yet |
-| **Accepted** | The invited user accepted and became a team member |
-| **Declined** | The invited user declined the invitation |
-| **Expired** | The invitation is no longer valid |
-
-Only the invited user can accept their invitation. The Console uses the signed-in user's account identity to confirm that the invitation matches their email.
 
 ## Team Roles
 
@@ -80,7 +62,7 @@ Vijil teams use three roles:
 | Role | Use For |
 |------|---------|
 | **OWNER** | Primary team administrators who manage team access |
-| **ADMIN** | Team managers who can invite users and help administer the workspace |
+| **ADMIN** | Team managers who can add users and help administer the workspace |
 | **MEMBER** | Regular users who can view their teams and the member lists inside those teams |
 
 Choose the least-privileged role that lets the person do their work. Use **MEMBER** for most collaborators and reserve **OWNER** or **ADMIN** for people responsible for team access. **OWNER** and **ADMIN** users have additional team-management controls when their account has the required permissions.
