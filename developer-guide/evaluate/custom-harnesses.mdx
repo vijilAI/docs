@@ -44,7 +44,18 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
   | `--json` | Output as JSON | |
 
   </Tab>
-  <Tab title="API">
+  <Tab title="MCP">
+
+  With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
+
+  <Prompt description="Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-… with the GDPR policy">
+  Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-… with the GDPR policy
+  </Prompt>
+
+  Claude creates the Harness and returns the ID.
+
+  </Tab>
+  <Tab title="REST API">
 
   Send a `POST` request to `/v1/custom-harnesses/` with your Agent ID. Personas and Policies are optional.
 
@@ -84,17 +95,6 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
   | `persona_ids` | One or more Persona UUID values | No |
   | `description` | Human-readable description | No |
   | `system_prompt` | System prompt used during Harness generation; defaults to the Agent description if omitted | No |
-
-  </Tab>
-  <Tab title="MCP">
-
-  With the [Vijil MCP server](/developer-guide/agentic/mcp) configured, ask Claude Code in natural language:
-
-  <Prompt description="Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-… with the GDPR policy">
-  Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-… with the GDPR policy
-  </Prompt>
-
-  Claude creates the Harness and returns the ID.
 
   </Tab>
 </Tabs>

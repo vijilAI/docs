@@ -7,7 +7,7 @@ description: 'Start, monitor, and retrieve trust Evaluations programmatically us
 
 ## Prerequisites
 
-- CLI configured and authenticated, or a Bearer token from `POST /auth/jwt/login` — see [Console API](/developer-guide/getting-started/api)
+- CLI configured and authenticated, or a Bearer token from `POST /auth/jwt/login`, see the [Quickstart](/developer-guide/agentic/quickstart)
 - A registered [Agent](/tutorials/manage-agents) and its UUID
 
 ## Start an Evaluation
@@ -35,7 +35,18 @@ description: 'Start, monitor, and retrieve trust Evaluations programmatically us
   <Tip>Use `--sample-size 10` for fast iteration during development. Run the full Harness before releasing to production.</Tip>
 
   </Tab>
-  <Tab title="API">
+  <Tab title="MCP">
+
+  With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
+
+  <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete">
+  Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete
+  </Prompt>
+
+  Claude calls `eval_run` with `wait=True` and reports back Trust Scores when the evaluation finishes.
+
+  </Tab>
+  <Tab title="REST API">
 
   The API returns `202 Accepted` immediately. Use the returned `evaluation_id` to poll for status.
 
@@ -73,17 +84,6 @@ description: 'Start, monitor, and retrieve trust Evaluations programmatically us
   | `harness_names` | Array of Harness names | Yes |
   | `sample_size` | Probes per Harness (1–1000); omit to run all | |
   | `harness_type` | `"standard"` (default) or `"custom"` | |
-
-  </Tab>
-  <Tab title="MCP">
-
-  With the [Vijil MCP server](/developer-guide/agentic/mcp) configured, ask Claude Code in natural language:
-
-  <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete">
-  Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete
-  </Prompt>
-
-  Claude calls `eval_run` with `wait=True` and reports back Trust Scores when the evaluation finishes.
 
   </Tab>
 </Tabs>
