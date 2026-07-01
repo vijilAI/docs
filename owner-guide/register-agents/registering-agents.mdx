@@ -1,27 +1,15 @@
 ---
-title: 'Register Agents'
-description: 'Add your AI Agents to Vijil for evaluation and protection.'
+title: 'Manage Agents'
+description: 'Add your AI Agents to Vijil for evaluation and protection, through the Console or natural language with MCP.'
 ---
 
 Before Vijil can evaluate or protect an [Agent](/owner-guide/register-agents/what-is-an-agent), you need to register it. Registration tells Vijil how to communicate with your Agent and how much visibility you are granting for analysis.
 
-## The Agent Registry
-
-Navigate to **Agents** in the sidebar to open the Agent Registry. The registry displays all Agents in your workspace with key information:
-
-| Column | What It Shows |
-|--------|---------------|
-| **Name** | Identifier you assigned during registration |
-| **Owner** | Team member who registered the Agent |
-| **Registered** | Date and time when the Agent was registered |
-| **[Stage](/owner-guide/register-agents/registering-agents#agent-stage)** | Current lifecycle stage: Registered, Tested, Protected, or Adapted |
-| **Time in Stage** | How long the Agent has been in its current stage |
-| **Trust Score** | Current score from most recent evaluation |
+You can register and manage Agents two ways: through the **Console** web interface, or through **MCP** by describing what you want in plain English to Claude Code. Use the tabs in each section to follow the path you prefer.
 
 ## Access Levels
 
 Vijil supports three access levels, each enabling progressively deeper evaluation. The access level you choose determines what Vijil can analyze and what vulnerabilities it can detect.
-
 
 | Access Level | What You Provide | What Vijil Can Test |
 |--------------|------------------|---------------------|
@@ -74,37 +62,123 @@ White Box provides full source code access for static analysis (SAST) combined w
 
 White Box evaluation can identify vulnerabilities that Black Box testing would miss—hardcoded secrets, unsafe deserialization, SQL injection in tool implementations, and similar code-level issues.
 
-## Registering an Agent
+## Register an Agent
 
-1. Navigate to **Agents** in the sidebar to open the Agent Registry
-2. Click **+ Register Agent** to open the Register Agent form
-3. Fill in the **Black Box** fields (required for all Agents)
-4. Expand **Grey Box** if you want compositional analysis
-5. Expand **White Box** if you want source code analysis
-6. Click **Register Agent**
+<Tabs>
+  <Tab title="Console">
+    ### The Agent Registry
 
+    Navigate to **Agents** in the sidebar to open the Agent Registry. The registry displays all Agents in your workspace with key information:
 
-## Managing Agents
+    | Column | What It Shows |
+    |--------|---------------|
+    | **Name** | Identifier you assigned during registration |
+    | **Owner** | Team member who registered the Agent |
+    | **Registered** | Date and time when the Agent was registered |
+    | **[Stage](/owner-guide/register-agents/registering-agents#agent-stage)** | Current lifecycle stage: Registered, Tested, Protected, or Adapted |
+    | **Time in Stage** | How long the Agent has been in its current stage |
+    | **Trust Score** | Current score from most recent evaluation |
 
-Click the **Actions** menu (three dots) on any Agent row to access management options.
+    ### Registering an Agent
 
-| Action | What It Does |
-|--------|--------------|
-| **View** | View Agent configuration |
-| **Edit** | Update Agent configuration |
-| **Clone** | Create a copy with a new name |
-| **Export JSON** | Download configuration for backup or migration |
-| **Delete** | Permanently remove an Agent and all associated data |
+    1. Navigate to **Agents** in the sidebar to open the Agent Registry
+    2. Click **+ Register Agent** to open the Register Agent form
+    3. Fill in the **Black Box** fields (required for all Agents)
+    4. Expand **Grey Box** if you want compositional analysis
+    5. Expand **White Box** if you want source code analysis
+    6. Click **Register Agent**
+  </Tab>
+  <Tab title="MCP">
+    Connect Claude Code to your Vijil account once, then register Agents by describing them in plain English.
 
-### Editing an Agent
+    <Accordion title="One-time setup: connect Claude Code to Vijil">
+      Install the Vijil tools. `vijil-mcp` connects Claude Code to Vijil and pulls in the `vijil` command-line tool as a dependency:
 
-Select **Edit** to open the Agent configuration form with current values populated.
+      ```bash
+      pipx install vijil-mcp
+      ```
 
-Make your changes and click **Save Changes**.
+      If you do not have `pipx`, use `pip install vijil-mcp` (or `pip3`). Confirm both tools are available:
 
-<Warning>
-Changing an Agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
-</Warning>
+      ```bash
+      vijil --help
+      vijil-mcp --help
+      ```
+
+      Point the tool at your Console and log in with the same email and password you use for the Console website:
+
+      ```bash
+      vijil auth init --url https://console-api.your-company.com
+      vijil auth login
+      ```
+
+      If you belong to more than one team, choose which to use:
+
+      ```bash
+      vijil team list
+      vijil team use <team_id>
+      ```
+
+      Finally, create a `.mcp.json` file in your working folder so Claude Code launches the Vijil tools:
+
+      ```json
+      {
+        "mcpServers": {
+          "vijil": {
+            "type": "stdio",
+            "command": "vijil-mcp"
+          }
+        }
+      }
+      ```
+
+      Start Claude Code in that folder and type "Check my Vijil setup" to confirm everything is connected. For access in every folder, add the same block to `~/.claude.json` instead.
+    </Accordion>
+
+    Tell Claude about the AI Agent you want to register. Provide its name, the model it uses, and its API endpoint and key:
+
+    <Prompt description="Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with API key sk-...">
+    Create a new agent called 'My Chat Agent' using gpt-4o at https://api.openai.com/v1/chat/completions with API key sk-...
+    </Prompt>
+
+    Claude registers the Agent and shows you its ID. Keep that ID handy, you will use it when running evaluations.
+  </Tab>
+</Tabs>
+
+## Manage Agents
+
+<Tabs>
+  <Tab title="Console">
+    Click the **Actions** menu (three dots) on any Agent row to access management options.
+
+    | Action | What It Does |
+    |--------|--------------|
+    | **View** | View Agent configuration |
+    | **Edit** | Update Agent configuration |
+    | **Clone** | Create a copy with a new name |
+    | **Export JSON** | Download configuration for backup or migration |
+    | **Delete** | Permanently remove an Agent and all associated data |
+
+    ### Editing an Agent
+
+    Select **Edit** to open the Agent configuration form with current values populated. Make your changes and click **Save Changes**.
+
+    <Warning>
+    Changing an Agent's configuration may affect ongoing evaluations. If you need to test different configurations, consider using **Clone** to create a variant instead.
+    </Warning>
+  </Tab>
+  <Tab title="MCP">
+    List your registered Agents at any time:
+
+    <Prompt description="List my agents">
+    List my agents
+    </Prompt>
+
+    Claude shows all your registered Agents with their names, IDs, and the last time they were evaluated.
+
+    The same natural-language approach works across the rest of your workflow, from [run evaluations](/owner-guide/run-evaluations/running-evaluations), define [Personas](/owner-guide/simulate-environment/personas) and [Policies](/owner-guide/simulate-environment/policies), to configure [Dome Guardrails](/owner-guide/protect-in-production/configuring-guardrails), by describing what you want to Claude.
+  </Tab>
+</Tabs>
 
 ## Agent Stage
 
