@@ -148,6 +148,10 @@
             "pages": ["owner-guide/getting-started/introduction"]
           },
           {
+            "group": "Teams",
+            "pages": ["owner-guide/getting-started/teams"]
+          },
+          {
             "group": "Agents",
             "pages": [
               "owner-guide/register-agents/what-is-an-agent",
