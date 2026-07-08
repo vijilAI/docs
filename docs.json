@@ -80,8 +80,7 @@
                   "concepts/platform/console",
                   "concepts/platform/diamond",
                   "concepts/platform/dome",
-                  "concepts/platform/darwin",
-                  "concepts/platform/depot"
+                  "concepts/platform/darwin"
                 ]
               }
             ]
