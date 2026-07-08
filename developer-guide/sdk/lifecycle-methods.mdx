@@ -1,0 +1,137 @@
+---
+title: "Lifecycle Methods"
+description: "High-level Vijil client methods that drive the Agent trust lifecycle: evaluate, test, adapt, and protect."
+---
+
+Lifecycle methods are high-level workflows on the `Vijil` client. Each maps to a stage of the Agent trust lifecycle and, where an operation runs asynchronously, polls until it completes by default.
+
+| Method | What It Does | Returns |
+|--------|--------------|---------|
+| `client.evaluate()` | Measure an Agent against known standards | `Evaluation` |
+| `client.test()` | Explore for weaknesses under adversarial pressure | `Job` |
+| `client.adapt()` | Improve an Agent through corrective evolution | `Job` |
+| `client.protect()` | Configure Dome runtime Guardrails | `DomeConfig` |
+
+<Tip>
+`evaluate` measures against known standards, like a certification exam. `test` explores for unknown weaknesses through adversarial pressure, like a penetration test. Both produce Trust Scores.
+</Tip>
+
+## `client.evaluate()`
+
+Run an Evaluation and poll until it completes.
+
+```python
+evaluation = client.evaluate(
+    "agent-id",
+    baseline=True,          # use the standard trust Harnesses
+    # harness_id="h-abc",  # OR use a specific Harness (mutually exclusive with baseline)
+)
+
+print(evaluation.status)         # "completed"
+print(evaluation.trust_score)    # 0.82
+print(evaluation.dimensions)     # Dimensions(reliability=0.9, security=0.8, safety=0.75)
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `agent_id` | `str` | — | Agent ID or alias |
+| `baseline` | `bool` | `False` | Run the standard trust Harnesses (reliability, security, safety) |
+| `harness_id` | `str \| None` | `None` | Run a specific [Harness](/concepts/evaluation-components/harness) instead of the baseline |
+| `_poll_interval` | `float` | `5.0` | Seconds between status checks |
+
+Returns an [`Evaluation`](/developer-guide/sdk/models-errors). Pass either `baseline=True` or a `harness_id`, not both.
+
+## `client.test()`
+
+Create a Red Swarm test engagement and, by default, poll until it finishes.
+
+```python
+job = client.test(
+    "agent-id",
+    mode="adaptive",        # or "comprehensive"
+    no_wait=False,          # True to return immediately
+)
+
+print(job.status)   # "completed"
+print(job.id)       # "job-abc123"
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `agent_id` | `str` | — | Agent ID or alias |
+| `mode` | `str` | `"adaptive"` | `"adaptive"` adjusts strategy from responses; `"comprehensive"` sweeps all categories |
+| `no_wait` | `bool` | `False` | Return immediately without polling |
+| `tool` | `str` | `"diamond_security"` | Red-team tool to use |
+| `purpose` | `str` | `""` | Description of the Agent's purpose |
+| `categories` | `list[str] \| None` | `None` | Test categories, for example `["injection"]` |
+
+Returns a [`Job`](/developer-guide/sdk/models-errors).
+
+## `client.adapt()`
+
+Create a corrective evolution job that improves an existing Agent based on weaknesses found by evaluation or testing.
+
+```python
+job = client.adapt("agent-id", mode="config")
+print(job.status)   # "completed"
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `agent_id` | `str` | — | Agent ID or alias |
+| `mode` | `str` | `"config"` | `"prompt"`, `"config"`, `"code"`, or `"dome"` |
+| `no_wait` | `bool` | `False` | Return immediately without polling |
+
+Returns a [`Job`](/developer-guide/sdk/models-errors). After adaptation completes, review and apply the resulting [proposals](/developer-guide/sdk/resources#client-proposals).
+
+## `client.protect()`
+
+Configure [Dome](/developer-guide/protect/overview) runtime Guardrails for an Agent.
+
+```python
+dome = client.protect(
+    "agent-id",
+    guards=["prompt_injection", "pii"],
+    mode="enforce",
+)
+
+print(dome.mode)     # "enforce"
+print(dome.guards)   # ["prompt_injection", "pii"]
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `agent_id` | `str` | — | Agent ID or alias |
+| `policy_id` | `str \| None` | `None` | Policy to apply |
+| `guards` | `list[str] \| None` | `None` | [Guard](/concepts/defense/guard) names |
+| `mode` | `str` | `"enforce"` | `"enforce"` blocks threats, `"monitor"` logs only, `"disabled"` turns Guardrails off |
+
+Returns a [`DomeConfig`](/developer-guide/sdk/models-errors).
+
+## Preview Methods
+
+<Info>
+The following methods target Console routes that are not yet generally available. Their signatures are stable, but calls fail until the corresponding Console capability ships.
+</Info>
+
+| Method | What It Does | Returns |
+|--------|--------------|---------|
+| `client.discover()` | Find Agents in GitHub repositories or cloud infrastructure | `Page[DiscoveredAgent]` |
+| `client.register()` | Convert Agent source into an A2A card and genome | `dict` |
+| `client.evolve()` | Create a new Agent through generative evolution | `Job` |
+| `client.deploy()` | Deploy an Agent to a production runtime | `Deployment` |
+
+```python
+# Discover Agents in a GitHub organization or a Kubernetes namespace
+agents = client.discover(github_org="acme-corp")
+agents = client.discover(provider="k8s", namespace="production")
+
+# Register an Agent from a GitHub URL or a local directory
+result = client.register("https://github.com/acme/my-agent")
+
+# Create a new Agent from a spec, a file, or a natural-language description
+job = client.evolve(description="A travel booking agent for flights and hotels")
+
+# Deploy an Agent to a runtime
+deployment = client.deploy("agent-id", runtime="agentcore")
+```

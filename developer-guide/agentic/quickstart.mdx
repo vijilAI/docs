@@ -3,19 +3,21 @@ title: "Quickstart"
 description: "Install Vijil, register an Agent, run a trust Evaluation, and retrieve results, through the CLI, MCP, or REST API."
 ---
 
-Vijil exposes three programmatic interfaces. This quickstart takes you from a fresh setup to a completed trust Evaluation. The workflow is the same for all three, so pick the tab for the interface you prefer at each step.
+Vijil exposes four programmatic interfaces. This quickstart takes you from a fresh setup to a completed trust Evaluation. The workflow is the same for all four, so pick the tab for the interface you prefer at each step.
 
 | Interface | Best For | Requires |
 |-----------|----------|----------|
 | **CLI** | Scripting, CI/CD gates, headless automation | `vijil-console` |
 | **MCP** | Interactive development, natural language | Claude Code + `vijil-mcp` |
 | **REST API** | Custom integrations, non-Python environments | HTTP client + API key |
+| **SDK** | Python apps, notebooks, programmatic pipelines | `vijil-sdk` (Python 3.12+) |
 
 ## Prerequisites
 
 - A [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment and its API gateway URL
 - An API key for the AI model you want to evaluate
-- [Python 3.8](https://www.python.org/) or later (CLI and MCP only)
+- A Vijil API key from the Console (**Settings** > **API Keys**) — a client ID and secret — for the SDK
+- [Python 3.8](https://www.python.org/) or later (CLI and MCP only; the SDK requires Python 3.12 or later)
 - [Claude Code](https://claude.ai/code) installed (MCP only)
 
 ## Steps
@@ -67,6 +69,25 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
 
         ```bash
         export VIJIL_URL="https://console-api.example.com"
+        ```
+      </Tab>
+      <Tab title="SDK">
+        Install `vijil-sdk`, which provides the `vijil` Python SDK:
+
+        <CodeGroup>
+        ```bash pip
+        pip install vijil-sdk
+        ```
+
+        ```bash poetry
+        poetry add vijil-sdk
+        ```
+        </CodeGroup>
+
+        The SDK requires Python 3.12 or later. Verify the import:
+
+        ```bash
+        python -c "from vijil import Vijil; print('ok')"
         ```
       </Tab>
     </Tabs>
@@ -153,6 +174,28 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
         export TEAM_ID="c58aea71-..."
         ```
       </Tab>
+      <Tab title="SDK">
+        Create an API key in the Console under **Settings** > **API Keys** — a client ID (`vk_…`) plus a one-time secret shown only at creation. Export the pair; the SDK exchanges it for a short-lived access token automatically:
+
+        ```bash
+        export VIJIL_CLIENT_ID="vk_..."
+        export VIJIL_CLIENT_SECRET="..."   # shown once at creation
+        ```
+
+        Construct the client, pointing it at your Console gateway:
+
+        ```python
+        from vijil import Vijil
+
+        client = Vijil(gateway="https://console-api.example.com")
+        ```
+
+        `Vijil()` reads the credentials from the environment automatically. If you already have a bearer access token, use it directly instead with `VIJIL_API_KEY` or `Vijil(api_key="<access-token>")`.
+
+        <Tip>
+        In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than committing them.
+        </Tip>
+      </Tab>
     </Tabs>
   </Step>
 
@@ -212,6 +255,24 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
         export AGENT_ID="a1b2c3d4-..."
         ```
       </Tab>
+      <Tab title="SDK">
+        Create an [Agent](/owner-guide/register-agents/what-is-an-agent) configuration for the model you want to evaluate:
+
+        ```python
+        agent = client.agents.create(
+            name="My Chat Agent",
+            url="https://api.openai.com/v1/chat/completions",
+        )
+        print(agent.id)
+        ```
+
+        Keep the returned `agent` object, you will pass `agent.id` to the Evaluation. To see all registered Agents at any time:
+
+        ```python
+        for a in client.agents.list().items:
+            print(a.id, a.name)
+        ```
+      </Tab>
     </Tabs>
   </Step>
 
@@ -240,6 +301,16 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
         curl -s "$VIJIL_URL/harnesses/?team_id=$TEAM_ID" \
           -H "Authorization: Bearer $TOKEN"
         ```
+      </Tab>
+      <Tab title="SDK">
+        List the available Harnesses:
+
+        ```python
+        for harness in client.harnesses.list().items:
+            print(harness.name)
+        ```
+
+        For this quickstart you will use the standard trust Harnesses, which `client.evaluate(..., baseline=True)` runs in the next step. To run a specific custom Harness instead, pass its `harness_id`.
       </Tab>
     </Tabs>
   </Step>
@@ -302,6 +373,16 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
 
         The `status` field progresses through `starting` → `pending` → `running` → `completed` → `saving` → `saved`.
       </Tab>
+      <Tab title="SDK">
+        Start a trust Evaluation against the standard Harnesses. `evaluate` polls until the Evaluation completes, then returns the result:
+
+        ```python
+        evaluation = client.evaluate(agent.id, baseline=True)
+        print(evaluation.status)   # "completed"
+        ```
+
+        Polling runs every 5 seconds by default. Adjust it with the `_poll_interval` argument. `baseline=True` covers the reliability, security, and safety dimensions in a single run.
+      </Tab>
     </Tabs>
   </Step>
 
@@ -339,6 +420,23 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
 
         This returns the detailed results JSON including per-Harness breakdowns, individual Probe results, and analysis.
       </Tab>
+      <Tab title="SDK">
+        Read the [Trust Score](/concepts/trust-score/introduction) and per-dimension breakdown straight off the returned Evaluation:
+
+        ```python
+        print(evaluation.trust_score)               # 0.82
+        print(evaluation.dimensions.reliability)
+        print(evaluation.dimensions.security)
+        print(evaluation.dimensions.safety)
+        ```
+
+        To fetch the latest score for an Agent later, without holding the Evaluation object:
+
+        ```python
+        score = client.scores.show(agent.id)
+        print(score.trust_score)
+        ```
+      </Tab>
     </Tabs>
   </Step>
 
@@ -375,6 +473,17 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
           -o report.pdf
         ```
       </Tab>
+      <Tab title="SDK">
+        Download the [Trust Report](/developer-guide/evaluate/understanding-results) for the completed Evaluation as a PDF:
+
+        ```python
+        pdf_bytes = client.reports.download(evaluation.id)
+        with open("report.pdf", "wb") as f:
+            f.write(pdf_bytes)
+        ```
+
+        The report summarizes what was tested, how the Agent scored, and where it failed.
+      </Tab>
     </Tabs>
   </Step>
 </Steps>
@@ -387,6 +496,9 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
   </Card>
   <Card title="MCP Tools Reference" icon="wrench" href="/developer-guide/agentic/tools">
     Complete list of MCP tools with parameters and example prompts
+  </Card>
+  <Card title="SDK Reference" icon="code" href="/developer-guide/sdk/setup">
+    Python client, lifecycle methods, resources, models, and errors
   </Card>
   <Card title="Understand Results" icon="chart-line" href="/developer-guide/evaluate/understanding-results">
     Interpret Trust Scores and prioritize what to fix
@@ -407,3 +519,5 @@ Vijil exposes three programmatic interfaces. This quickstart takes you from a fr
 | Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
 | Claude uses Bash instead of MCP tools | Confirm `vijil-mcp` is in your `PATH`: run `which vijil-mcp` |
 | `401 Unauthorized` from the REST API | Your token expired, request a new one from `POST /auth/jwt/login` |
+| `VijilAuthError` from the SDK | Set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` (or `VIJIL_API_KEY`) before constructing `Vijil()` |
+| SDK import fails | Ensure you are on Python 3.12 or later, then reinstall with `pip install vijil-sdk` |

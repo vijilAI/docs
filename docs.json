@@ -235,6 +235,15 @@
                 ]
               },
               {
+                "group": "SDK Reference",
+                "pages": [
+                  "developer-guide/sdk/setup",
+                  "developer-guide/sdk/lifecycle-methods",
+                  "developer-guide/sdk/resources",
+                  "developer-guide/sdk/models-errors"
+                ]
+              },
+              {
                 "group": "API Reference",
                 "openapi": "openapi/api.json"
               }

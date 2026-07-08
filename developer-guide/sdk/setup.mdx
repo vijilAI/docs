@@ -1,0 +1,135 @@
+---
+title: "Setup"
+description: "Install the Vijil SDK, construct the client, and authenticate against your Vijil Console deployment."
+---
+
+The `vijil` Python SDK measures and improves Agent trustworthiness from your own code. Use it in scripts, notebooks, and pipelines to run Evaluations, configure protection, and read results programmatically.
+
+<Info>
+This reference covers the Python SDK (`from vijil import Vijil`). For interactive, natural-language access from Claude Code, see [MCP](/developer-guide/agentic/quickstart). For terminal commands, see the [CLI Reference](/developer-guide/cli/setup).
+</Info>
+
+## Installation
+
+Install `vijil-sdk` with pip or add it to your project with Poetry:
+
+<CodeGroup>
+```bash pip
+pip install vijil-sdk
+```
+
+```bash poetry
+poetry add vijil-sdk
+```
+</CodeGroup>
+
+The SDK requires Python 3.12 or later. Verify the import:
+
+```bash
+python -c "from vijil import Vijil; print('ok')"
+```
+
+## The `Vijil` Client
+
+`Vijil` is the entry point for every SDK operation. Construct it once and reuse it:
+
+```python
+from vijil import Vijil
+
+# Read the API key from VIJIL_API_KEY and settings from ~/.vijil/
+client = Vijil()
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `gateway` | `str \| None` | `None` | Gateway URL. Falls back to config, then `https://api.vijil.ai` |
+| `api_key` | `str \| None` | `None` | API key. Falls back to the `VIJIL_API_KEY` environment variable, then `~/.vijil/credentials.json` |
+| `config_dir` | `Path \| None` | `None` | Configuration directory. Defaults to `~/.vijil/` |
+
+The constructor raises [`VijilAuthError`](/developer-guide/sdk/models-errors) if no API key can be resolved from any source.
+
+## Authentication
+
+Create an API key in your [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment under **Settings** > **API Keys** — a client ID (`vk_…`) plus a one-time secret shown only at creation. Export the pair; the SDK exchanges it for a short-lived access token automatically:
+
+```bash
+export VIJIL_CLIENT_ID="vk_..."
+export VIJIL_CLIENT_SECRET="..."   # shown once at creation
+```
+
+`Vijil()` reads these from the environment on construction.
+
+### Bearer Token
+
+If you already have a bearer access token, provide it directly instead of the client ID and secret:
+
+<CodeGroup>
+```bash Environment variable
+export VIJIL_API_KEY="<access-token>"
+```
+
+```python Explicit argument
+from vijil import Vijil
+
+client = Vijil(api_key="<access-token>")
+```
+
+```bash Saved credentials
+vijil auth login   # paste the token; saved to ~/.vijil/credentials.json
+```
+</CodeGroup>
+
+The `api_key` argument takes precedence over `VIJIL_API_KEY`, which takes precedence over the saved credentials file.
+
+<Tip>
+In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than committing them or running an interactive login.
+</Tip>
+
+## Gateway Configuration
+
+By default the SDK connects to `https://api.vijil.ai`. Point it at your own Console deployment (enterprise or VPC) with the `gateway` argument or the `VIJIL_GATEWAY` environment variable:
+
+<CodeGroup>
+```python Argument
+from vijil import Vijil
+
+client = Vijil(gateway="https://console-api.example.com")
+```
+
+```bash Environment variable
+export VIJIL_GATEWAY="https://console-api.example.com"
+```
+</CodeGroup>
+
+All SDK calls route through the gateway. Resolution order, highest priority first:
+
+1. The `gateway` argument
+2. The `VIJIL_GATEWAY` environment variable
+3. The `gateway.url` value in `~/.vijil/config.toml`
+4. The built-in default, `https://api.vijil.ai`
+
+## Agent Aliases
+
+The SDK resolves short aliases defined in `~/.vijil/config.toml` anywhere an Agent ID is expected, so you can pass a memorable name instead of a UUID:
+
+```python
+client = Vijil()
+client.evaluate("travel-agent", baseline=True)   # resolves the alias via config
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Lifecycle Methods" icon="workflow" href="/developer-guide/sdk/lifecycle-methods">
+    Evaluate, test, adapt, and protect Agents with high-level methods
+  </Card>
+  <Card title="Resources" icon="boxes" href="/developer-guide/sdk/resources">
+    Low-level CRUD accessors for Agents, Evaluations, Harnesses, and more
+  </Card>
+  <Card title="Models and Errors" icon="shapes" href="/developer-guide/sdk/models-errors">
+    Return types, the exception hierarchy, and error-handling patterns
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/developer-guide/agentic/quickstart">
+    Run your first Evaluation end to end
+  </Card>
+</CardGroup>

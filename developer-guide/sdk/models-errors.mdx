@@ -1,0 +1,202 @@
+---
+title: "Models and Errors"
+description: "Return types the Vijil SDK produces and the exception hierarchy it raises."
+---
+
+Every SDK call returns a typed model and raises a typed exception on failure. All models inherit from `VijilModel` (a Pydantic `BaseModel` configured with `extra="ignore"`), and all exceptions inherit from `VijilError`.
+
+## Models
+
+### `Page[T]`
+
+Generic paginated response returned by every `list()` method.
+
+```python
+page = client.agents.list()
+page.items     # list[T] — the results
+page.total     # int — total count
+page.has_more  # bool — whether more results exist
+```
+
+`Page[T]` handles the Console's varying response shapes (`items` or `results` keys, `total` or `count` fields) transparently.
+
+### `Evaluation`
+
+```python
+evaluation.id             # str (UUID)
+evaluation.agent_id       # str | None
+evaluation.status         # str — "pending", "running", "completed", "failed"
+evaluation.harness_names  # list[str] | None
+evaluation.trust_score    # float | None
+evaluation.dimensions     # Dimensions | None
+```
+
+### `Dimensions`
+
+```python
+dimensions.reliability  # float | None
+dimensions.security     # float | None
+dimensions.safety       # float | None
+```
+
+### `Job`
+
+```python
+job.id          # str (UUID)
+job.agent_id    # str | None
+job.status      # str — "pending", "running", "completed", "failed", "cancelled"
+job.mode        # str | None
+job.created_at  # str | None
+job.error       # str | None
+```
+
+### `Agent`
+
+```python
+agent.id          # str (UUID)
+agent.name        # str
+agent.team_id     # str | None
+agent.url         # str | None
+agent.framework   # str | None
+agent.hub         # str | None
+agent.model_name  # str | None
+agent.status      # str | None
+```
+
+### `TrustScore`
+
+```python
+score.agent_id     # str
+score.trust_score  # float | None
+score.reliability  # float | None
+score.security     # float | None
+score.safety       # float | None
+```
+
+### `DomeConfig`
+
+```python
+dome.id             # str | None
+dome.agent_id       # str | None
+dome.guards         # list[str] | None
+dome.mode           # str | None
+dome.input_guards   # list[str] | None
+dome.output_guards  # list[str] | None
+```
+
+### `Harness`
+
+```python
+harness.id        # str
+harness.name      # str | None
+harness.type      # str | None
+harness.category  # str | None
+harness.version   # str | None
+```
+
+### `Report`
+
+```python
+report.id          # str
+report.agent_id    # str | None
+report.status      # str | None
+report.format      # str | None
+report.created_at  # str | None
+```
+
+### Other Models
+
+| Model | Key Fields | Produced By |
+|-------|-----------|-------------|
+| `Genome` | `id`, `agent_id`, `version`, `genes`, `created_at` | `client.genomes.*` |
+| `GenomeDiff` | `genome_id`, `v1`, `v2`, `changes` | `client.genomes.diff()` |
+| `Proposal` | `id`, `agent_id`, `genome_id`, `status`, `trigger_summary`, `mutations`, `resulting_version` | `client.proposals.*` |
+| `Deployment` | `id`, `agent_id`, `runtime`, `status`, `url`, `version` | `client.deploy()` |
+| `DiscoveredAgent` | `id`, `name`, `source`, `framework`, `status`, `description` | `client.discover()` |
+| `MonitorSummary` | `agent_id`, `total_detections`, `blocked_count`, `passed_count` | `client.monitor.summary()` |
+| `Detection` | `id`, `agent_id`, `type`, `direction`, `blocked`, `timestamp` | `client.monitor.detections()` |
+| `Trace` | `trace_id`, `agent_id`, `duration_ms`, `spans`, `timestamp` | `client.monitor.traces()` |
+| `LogEntry` | `agent_id`, `level`, `message`, `timestamp` | `client.monitor.logs()` |
+| `Persona` | `id`, `name`, `description`, `agent_id`, `created_at` | `client.personas.*` |
+| `Policy` | `id`, `name`, `content`, `agent_id`, `created_at` | `client.policies.*` |
+
+## Errors
+
+Import exceptions from `vijil.exceptions`:
+
+```python
+from vijil.exceptions import (
+    VijilError,
+    VijilAuthError,
+    VijilNotFoundError,
+    VijilValidationError,
+    VijilRateLimitError,
+    VijilServerError,
+    VijilJobFailedError,
+    VijilConfigError,
+)
+```
+
+### Exception Hierarchy
+
+| Exception | HTTP Code | When |
+|-----------|-----------|------|
+| `VijilAuthError` | 401, 403 | Invalid or expired API key |
+| `VijilNotFoundError` | 404 | Resource does not exist |
+| `VijilValidationError` | 400, 422 | Invalid request parameters |
+| `VijilRateLimitError` | 429 | Too many requests |
+| `VijilServerError` | 500+ | Server error (the SDK retries automatically) |
+| `VijilJobFailedError` | — | Asynchronous job completed with an error |
+| `VijilConfigError` | — | Missing or invalid configuration |
+
+### Exception Attributes
+
+```python
+try:
+    client.agents.show("nonexistent")
+except VijilNotFoundError as e:
+    print(str(e))            # error message
+    print(e.resource_type)   # "agent" (if set)
+    print(e.resource_id)     # "nonexistent" (if set)
+
+try:
+    client.agents.list()
+except VijilAuthError as e:
+    print(e.status_code)     # 401 or 403
+
+except VijilRateLimitError as e:
+    print(e.retry_after)     # seconds to wait (float)
+
+try:
+    client.agents.create(name="")
+except VijilValidationError as e:
+    print(e.details)         # dict of field-level errors
+```
+
+### Automatic Retries
+
+The HTTP client retries transient failures automatically, up to three attempts:
+
+- **429 Rate Limited** — waits for the `Retry-After` header duration.
+- **5xx Server Error** — exponential backoff (1s, 2s, 4s).
+
+If every retry fails, the SDK raises the corresponding exception.
+
+### Error-Handling Pattern
+
+Catch specific exceptions first, then fall back to the `VijilError` base class:
+
+```python
+from vijil import Vijil
+from vijil.exceptions import VijilError, VijilNotFoundError
+
+client = Vijil()
+
+try:
+    evaluation = client.evaluate("my-agent", baseline=True)
+    print(f"Trust score: {evaluation.trust_score}")
+except VijilNotFoundError:
+    print("Agent not found. Check the ID or alias.")
+except VijilError as e:
+    print(f"Vijil error: {e}")
+```
