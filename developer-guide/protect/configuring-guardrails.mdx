@@ -9,10 +9,22 @@ Dome's configuration system lets you precisely control which Guards run, how the
 
 Dome organizes protection in three levels:
 
-```
-Guardrail (input/output)
-    └── Guard (security, moderation, privacy)
-            └── Detector (specific detection method)
+```mermaid actions={false}
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':35,'padding':6}}}%%
+flowchart TD
+    Guardrail["Guardrail<br/>(input / output)"]
+    Guard["Guard<br/>(security, moderation, privacy)"]
+    Detector["Detector<br/>(specific detection method)"]
+
+    Guardrail --> Guard --> Detector
+
+    classDef guardrail fill:#0247A9,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef guard     fill:#DE1616,stroke:#2B0C0C,color:#FFFFFF,stroke-width:1px;
+    classDef detector  fill:#FFFFFF,stroke:#2B0C0C,color:#2B0C0C,stroke-width:1.5px;
+
+    class Guardrail guardrail;
+    class Guard guard;
+    class Detector detector;
 ```
 
 Each level has its own configuration options that can be customized.

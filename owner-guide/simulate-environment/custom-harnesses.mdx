@@ -1,171 +1,103 @@
 ---
-title: 'Build Custom Harnesses'
-description: 'Combine agents, personas, and policies into targeted evaluation configurations.'
+title: 'Custom Harnesses'
+description: 'Create targeted evaluations with custom Harnesses, personas, and policies.'
 ---
 
-Custom Harnesses let you create evaluation Scenarios tailored to your agent's specific use case. By combining an agent with selected [personas](/owner-guide/simulate-environment/personas) and [policies](/owner-guide/simulate-environment/policies), you generate test cases that [Probe](/concepts/evaluation-components/probe) exactly the behaviors that matter to your organization.
+While Vijil has a variety of pre-configured [Harnesses](/concepts/evaluation-components/harness) that you can select from, you can also create your own Harnesses to obtain a [Trust Score](/concepts/trust-score/introduction) specific to your organization and agent.
 
-## Why Custom Harnesses Matter
+## View Custom Harnesses
 
-Standard Harnesses test against general benchmarks. Custom Harnesses test against *your* requirements:
-- **Your users**: Personas that match your actual user base and threat actors
-- **Your rules**: Policies that reflect your compliance obligations and operational guidelines
-- **Your agent**: Test cases generated specifically for your agent's role and capabilities
+You can view previously created custom Harnesses by navigating to **Harnesses** in the left sidebar.
 
-A customer support agent for a healthcare company needs different evaluation than a code assistant for developers. Custom Harnesses capture that context.
+To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and [Policies](/owner-guide/simulate-environment/policies) in a custom Harness, click on its row in the **Harnesses** table.
 
-## The Harness Registry
+## Create a Custom Harness
 
-Navigate to **Harnesses** in the sidebar to open the Harness Registry.
+1. In the left sidebar, navigate to **Harnesses** and press **Create Harness**.
+2. Enter a Harness name and a description.
+3. Select an [Agent](/owner-guide/register-agents/what-is-an-agent).
+4. <Badge>Optional</Badge> Select one or more [Persona(s)](/owner-guide/simulate-environment/personas).
+5. Select one or more [Policies](/owner-guide/simulate-environment/policies).
 
-The registry displays all Harnesses in your workspace:
+## Create a Custom Harness via MCP
 
-| Column | What It Shows |
-|--------|---------------|
-| **Name** | Harness identifier and description |
-| **Agent** | The agent this Harness evaluates |
-| **Personas** | Number of personas included |
-| **Policies** | Number of policies included |
-| **Status** | Draft or Active |
-| **Updated** | Last modification date |
+### Create a Harness
 
-## Creating a Custom Harness
+With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
 
-Click **+ Create Harness** to open the creation wizard. The wizard guides you through four steps.
+<Prompt description="Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-… with the GDPR policy">
+Create a custom Harness called 'Customer Support Harness' for agent a1b2c3d4-… with the GDPR policy
+</Prompt>
 
-### Step 1: Basic Information
+Claude creates the Harness and returns the ID.
 
-- **Name**: Descriptive identifier (e.g., "Security Evaluation Suite", "Customer Support Compliance")
-- **Description**: What this Harness tests and why
-- **Status**: Start with Draft, change to Active when ready for evaluations
+<Note>Custom Harnesses are immutable once created. To change the configuration, delete the Harness and create a new one.</Note>
 
-### Step 2: Select Agent
+### Check Generation Status
 
-Choose which registered agent this Harness evaluates. The list shows each agent's model and hub configuration to help you identify the correct target.
+Harness generation is asynchronous. Ask Claude to check until `status` is `active`.
 
-<Note>
-Only agents with status **Active** appear in the selection list. Register and activate your agent first if it does not appear.
-</Note>
+<Prompt description="What is the status of custom Harness h1a2b3c4-…?">
+What is the status of custom Harness h1a2b3c4-…?
+</Prompt>
 
-### Step 3: Select Personas
+| `status` value | Meaning |
+|----------------|---------|
+| `draft` (no workflow) | Not yet started |
+| `draft` (workflow `running`) | Generation in progress |
+| `draft` (workflow `failed`) | Generation failed |
+| `active` | Ready to use in an Evaluation |
+| `failed` | Harness creation failed permanently |
 
-Select personas that represent who will interact with your agent during evaluation. The interface presents two columns:
+### Get Harness Prompts
 
-**Preset Personas**: Built-in personas covering common user types and threat actors:
-- Professional users (Data Analyst, Legal Counsel, Software Developer)
-- Security personas (Security Researcher, Prompt Injection Tester, Social Engineer)
-- Edge cases (Confused User, Non-English Speaker, Accessibility User)
-- Threat actors (Malicious Actor)
+Retrieve the generated Probes for a completed Harness.
 
-**Custom Personas**: Personas you've created in the Persona Registry.
+<Prompt description="Show me the prompts for custom Harness h1a2b3c4-…">
+Show me the prompts for custom Harness h1a2b3c4-…
+</Prompt>
 
-Select multiple personas to generate diverse test cases. For comprehensive coverage:
-- Include at least one benign user persona (baseline behavior)
-- Include at least one adversarial persona (security testing)
-- Add domain-specific personas that match your user base
+Returns an empty list if the Harness is still in `draft` status.
 
-### Step 4: Select Policies
+### List Custom Harnesses
 
-Select **policies** that define the rules your agent must follow. Policies appear with their category (**Compliance, Security, Operational, Custom**) and rule count.
+<Prompt description="List my custom Harnesses">
+List my custom Harnesses
+</Prompt>
 
-Vijil uses selected policies to generate test cases that verify your agent respects each constraint. A policy stating "Never share customer data" generates Scenarios where personas attempt to extract customer information.
+<Prompt description="List my custom Harnesses for agent a1b2c3d4-… with status active">
+List my custom Harnesses for agent a1b2c3d4-… with status active
+</Prompt>
 
-Click **Create Harness** to save your configuration.
+Both support filtering by agent and status.
 
-## Harness Detail View
+### Cancel Generation
 
-After creation, the Harness detail page shows your complete configuration and generated test cases.
+Stop a Harness that is still generating.
 
-The header displays:
-- **Agent**: The target agent with model details
-- **Personas**: Count and list of selected personas
-- **Policies**: Count and list of selected policies
-- **Status**: Current lifecycle state
-- **Updated**: Last modification date
+<Prompt description="Cancel the custom Harness h1a2b3c4-… that is still generating">
+Cancel the custom Harness h1a2b3c4-… that is still generating
+</Prompt>
 
-## Generated Test Cases
+### Delete a Harness
 
-Vijil analyzes your personas and policies to generate targeted test cases. Each test case combines a persona's perspective with policy constraints.
-
-### Trust Coverage
-
-The Trust Coverage panel shows how generated test cases distribute across Trust Score dimensions:
-
-| Dimension | What It Tests |
-|-----------|---------------|
-| **Reliability** | Correctness, consistency, goal satisfaction |
-| **Security** | Confidentiality, integrity, adversarial robustness |
-| **Safety** | Containment, compliance, transparency |
-
-Each dimension shows the number of tests and category coverage percentage. Higher coverage indicates more thorough testing of that dimension.
-
-### Taxonomy Navigation
-
-The Taxonomy tree lets you filter test cases by Trust Score category:
-- Click a dimension (Reliability, Security, Safety) to see its subcategories
-- Click a subcategory to filter the test case list
-- The count badge shows how many tests target each category
-
-### Test Case Structure
-
-Each test case includes:
-
-| Component | Purpose |
-|-----------|---------|
-| **Persona** | Who is asking (with avatar and role) |
-| **Risk Level** | Low, Medium, High, or Critical |
-| **User Prompt** | The input Vijil will send to your agent |
-| **Expected Response** | Reference answer showing ideal behavior |
-| **Category** | Trust Score dimension and subcategory |
-| **Evaluation Criteria** | Specific behaviors the Detector checks |
-
-Test cases range from routine interactions (product inquiries, support requests) to adversarial Probes (prompt injection, social engineering, data extraction attempts).
-
-## Managing Harnesses
-
-### Editing a Harness
-
-Click **Edit** on the Harness detail page to modify:
-- Basic information (name, description)
-- Selected personas
-- Selected policies
-
-<Warning>
-Changing a Harness configuration regenerates test cases. Previous evaluation results remain linked to the original test case set.
-</Warning>
-
-### Harness Status
-
-| Status | Meaning |
-|--------|---------|
-| **Draft** | Configuration in progress, not available for evaluations |
-| **Active** | Ready to use in Diamond evaluations |
-
-Set status to **Active** before running evaluations.
-
-### Deleting a Harness
-
-Click **Delete** to permanently remove a Harness. This action cannot be undone, but evaluation results from previous runs are preserved.
-
-## Best Practices
-
-**Start focused, then expand**: Begin with a Harness testing specific behaviors (e.g., data privacy for customer support). Add complexity as you understand your agent's failure modes.
-
-**Balance persona types**: Include both benign users testing normal functionality and adversarial users probing security boundaries. Production agents face both.
-
-**Write precise policies**: Vijil generates better test cases from clear, specific policy statements. "Never disclose customer PII" produces more targeted tests than "Protect customer data."
-
-**Review generated test cases**: Before running evaluations, review the generated prompts and expected responses. They should align with your understanding of correct agent behavior.
-
-**Iterate based on results**: Evaluation findings reveal gaps. Add personas that represent failure cases. Refine policies that generate too many false positives.
+<Prompt description="Delete custom Harness h1a2b3c4-…">
+Delete custom Harness h1a2b3c4-…
+</Prompt>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Run an Evaluation" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
-    Test your agent with custom Harnesses
+  <Card title="Run Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Execute custom Harness evaluations
   </Card>
-  <Card title="Understand Results" icon="brain" href="/owner-guide/run-evaluations/understanding-results">
-    Deep dive into evaluation findings
+  <Card title="Understand Results" icon="chart-bar" href="/owner-guide/run-evaluations/understanding-results">
+    Analyze custom Harness results
+  </Card>
+  <Card title="Personas" icon="users" href="/owner-guide/simulate-environment/personas">
+    Learn more about Personas
+  </Card>
+  <Card title="Policies" icon="scroll" href="/owner-guide/simulate-environment/policies">
+    Learn more about Policies
   </Card>
 </CardGroup>
