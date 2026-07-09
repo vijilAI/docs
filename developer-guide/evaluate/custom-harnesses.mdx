@@ -22,7 +22,98 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
 
 ## Create a Custom Harness Programmatically
 
+### Create Personas and Policies
+
+[Personas](/owner-guide/simulate-environment/personas) define *who* interacts with your Agent, and [Policies](/owner-guide/simulate-environment/policies) define the *rules* it must follow. Both are optional inputs to custom Harness creation: pass their IDs (`persona_ids` and `policy_ids`) in the next step, and Vijil generates [Probes](/concepts/evaluation-components/probe) that combine each Persona's behavior with each Policy's constraints. Create them first, then reference their IDs when you create the Harness.
+
+<Tabs>
+  <Tab title="CLI">
+
+  ```bash
+  # Create a Persona (or copy a built-in one: vijil persona from-preset <preset_id>)
+  vijil persona create \
+    --name "Frustrated Customer" \
+    --role "End user" \
+    --intent adversarial
+
+  # Create a Policy from text, then activate it for use in Harnesses
+  vijil policy create \
+    --name "Data Handling Policy" \
+    --category privacy \
+    --source-text "The agent must not store or repeat personal data."
+
+  vijil policy activate <policy_id>
+  ```
+
+  Each command prints the new `id`. Save the Persona and Policy IDs for the next step. List built-in options with `vijil persona preset-list` and `vijil policy preset-list`.
+
+  </Tab>
+  <Tab title="MCP">
+
+  With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
+
+  <Prompt description="Create an adversarial 'Frustrated Customer' persona and a privacy policy that forbids storing personal data">
+  Create an adversarial 'Frustrated Customer' persona and a privacy policy that forbids storing personal data
+  </Prompt>
+
+  Claude creates the Persona and Policy and returns their IDs.
+
+  </Tab>
+  <Tab title="REST API">
+
+  ```bash
+  curl -s -X POST "$VIJIL_URL/v1/personas/?team_id=$TEAM_ID" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "name": "Frustrated Customer",
+      "role": "End user",
+      "intent": "adversarial"
+    }'
+
+  curl -s -X POST "$VIJIL_URL/v1/policies/?team_id=$TEAM_ID" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "name": "Data Handling Policy",
+      "category": "privacy",
+      "source_text": "The agent must not store or repeat personal data."
+    }'
+  ```
+
+  Each request returns `201 Created` with an `id`. Save both for the next step.
+
+  </Tab>
+  <Tab title="SDK">
+
+  ```python
+  persona = client.personas.create(
+      name="Frustrated Customer",
+      role="End user",
+      intent="adversarial",
+  )
+
+  policy = client.policies.create(
+      name="Data Handling Policy",
+      category="privacy",
+      source_text="The agent must not store or repeat personal data.",
+  )
+
+  print(persona.id, policy.id)
+  ```
+
+  `intent` is one of `benign`, `curious`, `adversarial`, or `malicious`. `category` is one of `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom`.
+
+  </Tab>
+</Tabs>
+
+<Tip>
+Personas and Policies are reusable across Harnesses. For balanced coverage, combine a benign and an adversarial Persona with the Policies that matter most to your Agent. See [Define Personas](/owner-guide/simulate-environment/personas) and [Define Policies](/owner-guide/simulate-environment/policies) for design guidance.
+</Tip>
+
 ### Create a Harness
+
+Pass the Persona and Policy IDs from the previous step as `persona_ids` and `policy_ids`. Both are optional — omit them to generate a Harness from the Agent description alone.
 
 <Tabs>
   <Tab title="CLI">
@@ -30,7 +121,9 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
   ```bash
   vijil harness custom-create \
     --name "Customer Support Harness" \
-    --agent-id "$AGENT_ID"
+    --agent-id "$AGENT_ID" \
+    --persona-ids '["<persona-id>"]' \
+    --policy-ids '["<policy-id>"]'
   ```
 
   | Flag | Description | Required |
@@ -97,6 +190,28 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
   | `system_prompt` | System prompt used during Harness generation; defaults to the Agent description if omitted | No |
 
   </Tab>
+  <Tab title="SDK">
+
+  ```python
+  harness = client.harnesses.create(
+      name="Customer Support Harness",
+      agent_id="<agent-id>",
+      persona_ids=["<persona-id>"],   # optional
+      policy_ids=["<policy-id>"],     # optional
+      system_prompt="You are a helpful customer support assistant.",  # optional
+  )
+  print(harness.id)
+  ```
+
+  | Parameter | Description | Required |
+  |-----------|-------------|----------|
+  | `name` | Harness display name | Yes |
+  | `agent_id` | UUID of the Agent under test | Yes |
+  | `persona_ids` | List of Persona UUID values | No |
+  | `policy_ids` | List of Policy UUID values | No |
+  | `system_prompt` | System prompt used during generation; defaults to the Agent description | No |
+
+  </Tab>
 </Tabs>
 
 <Note>Custom Harnesses are immutable once created. To change the configuration, delete the Harness and create a new one.</Note>
@@ -113,6 +228,11 @@ vijil harness custom-get <harness_id>
 ```bash title="API"
 curl -s "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
+```
+
+```python title="SDK"
+harness = client.harnesses.show("<harness-id>")
+print(harness.status)
 ```
 </CodeGroup>
 
@@ -137,9 +257,17 @@ vijil harness custom-prompts <harness_id> --json
 curl -s "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID/prompts?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
 ```
+
+```python title="SDK"
+# No dedicated resource method yet — reach the endpoint through the client's HTTP transport
+prompts = client._http.get(
+    f"/v1/custom-harnesses/{harness_id}/prompts",
+    params={"team_id": team_id},
+)
+```
 </CodeGroup>
 
-Returns an empty list if the Harness is still in `draft` status.
+Returns an empty list if the Harness is still in `draft` status. The SDK has no dedicated `prompts` method yet, so the example above calls the endpoint through `client._http`, the same transport the high-level methods use.
 
 ### List Custom Harnesses
 
@@ -153,9 +281,14 @@ vijil harness custom-list --agent-id "$AGENT_ID" --status active
 curl -s "$VIJIL_URL/v1/custom-harnesses/?team_id=$TEAM_ID&status=active" \
   -H "Authorization: Bearer $TOKEN"
 ```
+
+```python title="SDK"
+for harness in client.harnesses.list().items:
+    print(harness.id, harness.name, harness.status)
+```
 </CodeGroup>
 
-Both support filtering by `agent_id` and `status`, with `limit` and `offset` for pagination.
+Both support filtering by `agent_id` and `status`, with `limit` and `offset` for pagination. The SDK's `client.harnesses.list()` returns standard and custom Harnesses together.
 
 ### Cancel Generation
 
@@ -170,7 +303,17 @@ vijil harness custom-cancel <harness_id>
 curl -s -X POST "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID/cancel?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
 ```
+
+```python title="SDK"
+# No dedicated resource method yet — reach the endpoint through the client's HTTP transport
+client._http.post(
+    f"/v1/custom-harnesses/{harness_id}/cancel",
+    params={"team_id": team_id},
+)
+```
 </CodeGroup>
+
+The SDK has no dedicated `cancel` method yet, so the example above calls the endpoint through `client._http`, the same transport the high-level methods use.
 
 ### Delete a Harness
 
@@ -183,6 +326,10 @@ vijil harness custom-delete <harness_id> --yes
 ```bash title="API"
 curl -s -X DELETE "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
+```
+
+```python title="SDK"
+client.harnesses.delete("<harness-id>")
 ```
 </CodeGroup>
 
