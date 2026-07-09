@@ -221,6 +221,7 @@
           {
             "group": "Reference",
             "pages": [
+              "developer-guide/reference/sdk-migration-guide",
               "developer-guide/agentic/tools",
               {
                 "group": "CLI Reference",
