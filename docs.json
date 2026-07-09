@@ -149,10 +149,8 @@
             "pages": ["owner-guide/getting-started/introduction"]
           },
           {
-            "group": "Discover Resources",
-            "pages": [
-              "owner-guide/discover-resources/scanning-resources"
-            ]
+            "group": "Teams",
+            "pages": ["owner-guide/getting-started/teams"]
           },
           {
             "group": "Agents",
