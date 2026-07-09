@@ -45,6 +45,22 @@
     {
       "source": "/get-started/overview",
       "destination": "/owner-guide/getting-started/introduction"
+    },
+    {
+      "source": "/developer-guide/getting-started/api",
+      "destination": "/developer-guide/agentic/quickstart"
+    },
+    {
+      "source": "/developer-guide/cli/quickstart",
+      "destination": "/developer-guide/agentic/quickstart"
+    },
+    {
+      "source": "/developer-guide/agentic/mcp",
+      "destination": "/developer-guide/agentic/quickstart"
+    },
+    {
+      "source": "/owner-guide/register-agents/mcp",
+      "destination": "/owner-guide/register-agents/registering-agents"
     }
   ],
   "navigation": {
@@ -63,7 +79,8 @@
                 "pages": [
                   "concepts/platform/console",
                   "concepts/platform/diamond",
-                  "concepts/platform/dome"
+                  "concepts/platform/dome",
+                  "concepts/platform/darwin"
                 ]
               }
             ]
@@ -128,15 +145,18 @@
         "tab": "Agent Owner's Guide",
         "groups": [
           {
-            "group": "Quick Start",
+            "group": "Get Started",
             "pages": ["owner-guide/getting-started/introduction"]
+          },
+          {
+            "group": "Teams",
+            "pages": ["owner-guide/getting-started/teams"]
           },
           {
             "group": "Agents",
             "pages": [
               "owner-guide/register-agents/what-is-an-agent",
-              "owner-guide/register-agents/registering-agents",
-              "owner-guide/register-agents/mcp"
+              "owner-guide/register-agents/registering-agents"
             ]
           },
           {
@@ -173,23 +193,11 @@
         "tab": "Agent Developer's Guide",
         "groups": [
           {
-            "group": "Quick Start",
+            "group": "Get Started",
             "pages": [
               "developer-guide/getting-started/introduction",
-              "developer-guide/getting-started/api"
-            ]
-          },
-          {
-            "group": "Deploy Vijil",
-            "pages": [
-              "developer-guide/deploy-vijil/deploy-vijil-console"
-            ]
-          },
-          {
-            "group": "Agentic Workflow",
-            "pages": [
               "developer-guide/agentic/quickstart",
-              "developer-guide/agentic/tools"
+              "developer-guide/deploy-vijil/deploy-vijil-console"
             ]
           },
           {
@@ -215,21 +223,26 @@
             ]
           },
           {
-            "group": "CLI",
+            "group": "Reference",
             "pages": [
-              "developer-guide/cli/quickstart",
-              "developer-guide/cli/setup",
-              "developer-guide/cli/agents",
-              "developer-guide/cli/evaluate",
-              "developer-guide/cli/protect",
-              "developer-guide/cli/red-team",
-              "developer-guide/cli/telemetry"
+              "developer-guide/reference/sdk-migration-guide",
+              "developer-guide/agentic/tools",
+              {
+                "group": "CLI Reference",
+                "pages": [
+                  "developer-guide/cli/setup",
+                  "developer-guide/cli/agents",
+                  "developer-guide/cli/evaluate",
+                  "developer-guide/cli/protect",
+                  "developer-guide/cli/red-team",
+                  "developer-guide/cli/telemetry"
+                ]
+              },
+              {
+                "group": "API Reference",
+                "openapi": "openapi/api.json"
+              }
             ]
-          },
-          {
-            "group": "API Reference",
-            "openapi": "openapi/api.json",
-            "expanded": false
           }
         ]
       },
@@ -238,7 +251,10 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["legacy/get-started/welcome", "legacy/get-started/quickstart"]
+            "pages": [
+              "legacy/get-started/welcome",
+              "legacy/get-started/quickstart"
+            ]
           },
           {
             "group": "Core Concepts",

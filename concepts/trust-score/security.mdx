@@ -2,58 +2,83 @@
 title: 'Security'
 description: 'Scenarios and probes for the Security dimension of trust (confidentiality, integrity, availability).'
 sidebarTitle: 'Security'
-icon: 'table-list'
 mode: 'wide'
 ---
 
-| Scenario ID | Scenario Name | Probe ID | Probe Name | Description |
-| --- | --- | --- | --- | --- |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.LiteratureCloze80_Small | Book Excerpt Insertion | Tests whether the agent will fill in the middle of a book excerpt. A low score in this test indicates that the agent may reveal training information or violate copyright laws. |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.LiteratureCloze80_Small_char_code | Book Excerpt Insertion with Character Code Mutation | Tests whether the agent will fill in the middle of a book excerpt. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Character Code Mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.LiteratureCloze80_Small_embed_json | Book Excerpt Insertion with Embed JSON Mutation | Tests whether the agent will fill in the middle of a book excerpt. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Embed JSON Mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.8kEnronLeakEmail_Small | Emails Leakage - Enron | Tests whether an agent will reveal email addresses obtained from the discovery process of the Enron investigation. A low score in this test indicates that the agent may reveal general PII that might be present in its training data. |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.leakreplay.GuardianCloze | Media Excerpt Insertion - Guardian | Tests whether the model will fill in the middle of an excerpt from The Guardian |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.NYTCloze_Small | Media Excerpt Insertion - NYT | Tests whether an agent will fill in the middle of an excerpt from the New York Times. A low score in this test indicates that the agent may reveal training information or violate copyright laws. |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_leakage_resistance_diacritics | Data Leakage Resistance / Diacritics | Tests for data leakage resistance using diacritics mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_leakage_resistance_underline | Data Leakage Resistance / Underline | Tests for data leakage resistance using underline mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_leakage_resistance_logical_appeal | Data Leakage Resistance / Logical Appeal | Tests for data leakage resistance using logical appeal mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_leakage_resistance_soft_mutation | Data Leakage Resistance / Soft Mutation | Tests for data leakage resistance using soft mutation mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_leakage_resistance_embed_xml | Data Leakage Resistance / Embed Xml | Tests for data leakage resistance using embed xml mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_privacy_soft_mutation | Data Privacy / Soft Mutation | Tests for data privacy using soft mutation mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_privacy_embed_json | Data Privacy / Embed Json | Tests for data privacy using embed json mutation |
-| vijil.scenarios.security_confidentiality_dataprivacy | Data Privacy | vijil.probes.confidentiality.data_privacy_math_problem | Data Privacy / Math Problem | Tests for data privacy using math problem mutation |
-| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | vijil.probes.pii_query.embed_json | PII Leakage Probe: Embed JSON Mutation | Tests for PII leakage without jailbreaks. Response fails if it reveals any PII. Mutated with Embed JSON mutation. |
-| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | vijil.probes.confidentiality.user_privacy_uppercase | User Privacy / Uppercase | Tests for user privacy using uppercase mutation |
-| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | vijil.probes.confidentiality.user_privacy_homoglyph | User Privacy / Homoglyph | Tests for user privacy using homoglyph mutation |
-| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | vijil.probes.confidentiality.user_privacy_diacritics | User Privacy / Diacritics | Tests for user privacy using diacritics mutation |
-| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | vijil.probes.confidentiality.user_privacy_fullwidth | User Privacy / Fullwidth | Tests for user privacy using fullwidth mutation |
-| vijil.scenarios.security_confidentiality_userprivacy | User Privacy | vijil.probes.confidentiality.user_privacy_embed_xml | User Privacy / Embed Xml | Tests for user privacy using embed xml mutation |
-| vijil.scenarios.security_confidentiality_modelprivacy | Model Privacy | vijil.probes.confidentiality.model_privacy_lowercase | Model Privacy / Lowercase | Tests for model privacy using lowercase mutation |
-| vijil.scenarios.security_confidentiality_modelprivacy | Model Privacy | vijil.probes.confidentiality.model_privacy_uppercase | Model Privacy / Uppercase | Tests for model privacy using uppercase mutation |
-| vijil.scenarios.security_confidentiality_modelprivacy | Model Privacy | vijil.probes.confidentiality.model_privacy_zero_width | Model Privacy / Zero Width | Tests for model privacy using zero width mutation |
-| vijil.scenarios.security_confidentiality_modelprivacy | Model Privacy | vijil.probes.confidentiality.model_privacy_diacritics | Model Privacy / Diacritics | Tests for model privacy using diacritics mutation |
-| vijil.scenarios.security_confidentiality_modelprivacy | Model Privacy | vijil.probes.confidentiality.model_privacy_soft_mutation | Model Privacy / Soft Mutation | Tests for model privacy using soft mutation mutation |
-| vijil.scenarios.integrity | integrity | vijil.probes.integrity.adversarial_robustness_spaces | Adversarial Robustness / Spaces | Tests for adversarial robustness using spaces mutation |
-| vijil.scenarios.integrity | integrity | vijil.probes.integrity.adversarial_robustness_underline | Adversarial Robustness / Underline | Tests for adversarial robustness using underline mutation |
-| vijil.scenarios.integrity | integrity | vijil.probes.integrity.adversarial_robustness_logical_appeal | Adversarial Robustness / Logical Appeal | Tests for adversarial robustness using logical appeal mutation |
-| vijil.scenarios.integrity | integrity | vijil.probes.integrity.adversarial_robustness_misrepresentation | Adversarial Robustness / Misrepresentation | Tests for adversarial robustness using misrepresentation mutation |
-| vijil.scenarios.integrity | integrity | vijil.probes.integrity.adversarial_robustness_soft_mutation | Adversarial Robustness / Soft Mutation | Tests for adversarial robustness using soft mutation mutation |
-| vijil.scenarios.availability | availability | vijil.probes.availability.denial_of_service_resistance_uppercase | Denial Of Service Resistance / Uppercase | Tests for denial of service resistance using uppercase mutation |
-| vijil.scenarios.availability | availability | vijil.probes.availability.denial_of_service_resistance_zero_width | Denial Of Service Resistance / Zero Width | Tests for denial of service resistance using zero width mutation |
-| vijil.scenarios.availability | availability | vijil.probes.availability.denial_of_service_resistance_diacritics | Denial Of Service Resistance / Diacritics | Tests for denial of service resistance using diacritics mutation |
-| vijil.scenarios.availability | availability | vijil.probes.availability.denial_of_service_resistance_spaces | Denial Of Service Resistance / Spaces | Tests for denial of service resistance using spaces mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malware_generation_fullwidth | Malware Generation / Fullwidth | Tests for malware generation using fullwidth mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malware_generation_authority_endorsement | Malware Generation / Authority Endorsement | Tests for malware generation using authority endorsement mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malware_generation_logical_appeal | Malware Generation / Logical Appeal | Tests for malware generation using logical appeal mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malware_generation_soft_mutation | Malware Generation / Soft Mutation | Tests for malware generation using soft mutation mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malware_generation_embed_json | Malware Generation / Embed Json | Tests for malware generation using embed json mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.exploit_generation_fullwidth | Exploit Generation / Fullwidth | Tests for exploit generation using fullwidth mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.exploit_generation_authority_endorsement | Exploit Generation / Authority Endorsement | Tests for exploit generation using authority endorsement mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.exploit_generation_logical_appeal | Exploit Generation / Logical Appeal | Tests for exploit generation using logical appeal mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.exploit_generation_misrepresentation | Exploit Generation / Misrepresentation | Tests for exploit generation using misrepresentation mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.exploit_generation_soft_mutation | Exploit Generation / Soft Mutation | Tests for exploit generation using soft mutation mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malicious_tool_generation_authority_endorsement | Malicious Tool Generation / Authority Endorsement | Tests for malicious tool generation using authority endorsement mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malicious_tool_generation_logical_appeal | Malicious Tool Generation / Logical Appeal | Tests for malicious tool generation using logical appeal mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malicious_tool_generation_misrepresentation | Malicious Tool Generation / Misrepresentation | Tests for malicious tool generation using misrepresentation mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malicious_tool_generation_embed_json | Malicious Tool Generation / Embed Json | Tests for malicious tool generation using embed json mutation |
-| vijil.scenarios.security_integrity_manipulationresistance | Manipulation Resistance | vijil.probes.malicious_code.malicious_tool_generation_embed_xml | Malicious Tool Generation / Embed Xml | Tests for malicious tool generation using embed xml mutation |
+<Tip>Hover over any [Scenario](/scores/scenario) or [Probe](/scores/probe) name to view its ID in Vijil.</Tip>
+
+<AccordionGroup>
+  <Accordion title="Data Privacy" description="Scenario ID: vijil.scenarios.security_confidentiality_dataprivacy">
+    | Probe Name | Description |
+    | :--- | :--- |
+    | <Tooltip tip="Probe ID: vijil.​probes.​LiteratureCloze80_​Small">Book Excerpt Insertion</Tooltip> | Tests whether the agent will fill in the middle of a book excerpt. A low score in this test indicates that the agent may reveal training information or violate copyright laws. |
+    | <Tooltip tip="Probe ID: vijil.​probes.​LiteratureCloze80_​Small_​char_​code">Book Excerpt Insertion with Character Code Mutation</Tooltip> | Tests whether the agent will fill in the middle of a book excerpt. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Character Code Mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​LiteratureCloze80_​Small_​embed_​json">Book Excerpt Insertion with Embed JSON Mutation</Tooltip> | Tests whether the agent will fill in the middle of a book excerpt. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Embed JSON Mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​8kEnronLeakEmail_​Small">Emails Leakage - Enron</Tooltip> | Tests whether an agent will reveal email addresses obtained from the discovery process of the Enron investigation. A low score in this test indicates that the agent may reveal general PII that might be present in its training data. |
+    | <Tooltip tip="Probe ID: vijil.​probes.​leakreplay.​GuardianCloze">Media Excerpt Insertion - Guardian</Tooltip> | Tests whether the model will fill in the middle of an excerpt from The Guardian |
+    | <Tooltip tip="Probe ID: vijil.​probes.​NYTCloze_​Small">Media Excerpt Insertion - NYT</Tooltip> | Tests whether an agent will fill in the middle of an excerpt from the New York Times. A low score in this test indicates that the agent may reveal training information or violate copyright laws. |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​leakage_​resistance_​diacritics">Data Leakage Resistance / Diacritics</Tooltip> | Tests for data leakage resistance using diacritics mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​leakage_​resistance_​underline">Data Leakage Resistance / Underline</Tooltip> | Tests for data leakage resistance using underline mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​leakage_​resistance_​logical_​appeal">Data Leakage Resistance / Logical Appeal</Tooltip> | Tests for data leakage resistance using logical appeal mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​leakage_​resistance_​soft_​mutation">Data Leakage Resistance / Soft Mutation</Tooltip> | Tests for data leakage resistance using soft mutation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​leakage_​resistance_​embed_​xml">Data Leakage Resistance / Embed Xml</Tooltip> | Tests for data leakage resistance using embed xml mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​privacy_​soft_​mutation">Data Privacy / Soft Mutation</Tooltip> | Tests for data privacy using soft mutation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​privacy_​embed_​json">Data Privacy / Embed Json</Tooltip> | Tests for data privacy using embed json mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​data_​privacy_​math_​problem">Data Privacy / Math Problem</Tooltip> | Tests for data privacy using math problem mutation |
+  </Accordion>
+  <Accordion title="User Privacy" description="Scenario ID: vijil.scenarios.security_confidentiality_userprivacy">
+    | Probe Name | Description |
+    | :--- | :--- |
+    | <Tooltip tip="Probe ID: vijil.​probes.​pii_​query.​embed_​json">PII Leakage Probe: Embed JSON Mutation</Tooltip> | Tests for PII leakage without jailbreaks. Response fails if it reveals any PII. Mutated with Embed JSON mutation. |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​user_​privacy_​uppercase">User Privacy / Uppercase</Tooltip> | Tests for user privacy using uppercase mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​user_​privacy_​homoglyph">User Privacy / Homoglyph</Tooltip> | Tests for user privacy using homoglyph mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​user_​privacy_​diacritics">User Privacy / Diacritics</Tooltip> | Tests for user privacy using diacritics mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​user_​privacy_​fullwidth">User Privacy / Fullwidth</Tooltip> | Tests for user privacy using fullwidth mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​user_​privacy_​embed_​xml">User Privacy / Embed Xml</Tooltip> | Tests for user privacy using embed xml mutation |
+  </Accordion>
+  <Accordion title="Model Privacy" description="Scenario ID: vijil.scenarios.security_confidentiality_modelprivacy">
+    | Probe Name | Description |
+    | :--- | :--- |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​model_​privacy_​lowercase">Model Privacy / Lowercase</Tooltip> | Tests for model privacy using lowercase mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​model_​privacy_​uppercase">Model Privacy / Uppercase</Tooltip> | Tests for model privacy using uppercase mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​model_​privacy_​zero_​width">Model Privacy / Zero Width</Tooltip> | Tests for model privacy using zero width mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​model_​privacy_​diacritics">Model Privacy / Diacritics</Tooltip> | Tests for model privacy using diacritics mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​confidentiality.​model_​privacy_​soft_​mutation">Model Privacy / Soft Mutation</Tooltip> | Tests for model privacy using soft mutation mutation |
+  </Accordion>
+  <Accordion title="integrity" description="Scenario ID: vijil.scenarios.integrity">
+    | Probe Name | Description |
+    | :--- | :--- |
+    | <Tooltip tip="Probe ID: vijil.​probes.​integrity.​adversarial_​robustness_​spaces">Adversarial Robustness / Spaces</Tooltip> | Tests for adversarial robustness using spaces mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​integrity.​adversarial_​robustness_​underline">Adversarial Robustness / Underline</Tooltip> | Tests for adversarial robustness using underline mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​integrity.​adversarial_​robustness_​logical_​appeal">Adversarial Robustness / Logical Appeal</Tooltip> | Tests for adversarial robustness using logical appeal mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​integrity.​adversarial_​robustness_​misrepresentation">Adversarial Robustness / Misrepresentation</Tooltip> | Tests for adversarial robustness using misrepresentation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​integrity.​adversarial_​robustness_​soft_​mutation">Adversarial Robustness / Soft Mutation</Tooltip> | Tests for adversarial robustness using soft mutation mutation |
+  </Accordion>
+  <Accordion title="availability" description="Scenario ID: vijil.scenarios.availability">
+    | Probe Name | Description |
+    | :--- | :--- |
+    | <Tooltip tip="Probe ID: vijil.​probes.​availability.​denial_​of_​service_​resistance_​uppercase">Denial Of Service Resistance / Uppercase</Tooltip> | Tests for denial of service resistance using uppercase mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​availability.​denial_​of_​service_​resistance_​zero_​width">Denial Of Service Resistance / Zero Width</Tooltip> | Tests for denial of service resistance using zero width mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​availability.​denial_​of_​service_​resistance_​diacritics">Denial Of Service Resistance / Diacritics</Tooltip> | Tests for denial of service resistance using diacritics mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​availability.​denial_​of_​service_​resistance_​spaces">Denial Of Service Resistance / Spaces</Tooltip> | Tests for denial of service resistance using spaces mutation |
+  </Accordion>
+  <Accordion title="Manipulation Resistance" description="Scenario ID: vijil.scenarios.security_integrity_manipulationresistance">
+    | Probe Name | Description |
+    | :--- | :--- |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malware_​generation_​fullwidth">Malware Generation / Fullwidth</Tooltip> | Tests for malware generation using fullwidth mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malware_​generation_​authority_​endorsement">Malware Generation / Authority Endorsement</Tooltip> | Tests for malware generation using authority endorsement mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malware_​generation_​logical_​appeal">Malware Generation / Logical Appeal</Tooltip> | Tests for malware generation using logical appeal mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malware_​generation_​soft_​mutation">Malware Generation / Soft Mutation</Tooltip> | Tests for malware generation using soft mutation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malware_​generation_​embed_​json">Malware Generation / Embed Json</Tooltip> | Tests for malware generation using embed json mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​exploit_​generation_​fullwidth">Exploit Generation / Fullwidth</Tooltip> | Tests for exploit generation using fullwidth mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​exploit_​generation_​authority_​endorsement">Exploit Generation / Authority Endorsement</Tooltip> | Tests for exploit generation using authority endorsement mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​exploit_​generation_​logical_​appeal">Exploit Generation / Logical Appeal</Tooltip> | Tests for exploit generation using logical appeal mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​exploit_​generation_​misrepresentation">Exploit Generation / Misrepresentation</Tooltip> | Tests for exploit generation using misrepresentation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​exploit_​generation_​soft_​mutation">Exploit Generation / Soft Mutation</Tooltip> | Tests for exploit generation using soft mutation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malicious_​tool_​generation_​authority_​endorsement">Malicious Tool Generation / Authority Endorsement</Tooltip> | Tests for malicious tool generation using authority endorsement mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malicious_​tool_​generation_​logical_​appeal">Malicious Tool Generation / Logical Appeal</Tooltip> | Tests for malicious tool generation using logical appeal mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malicious_​tool_​generation_​misrepresentation">Malicious Tool Generation / Misrepresentation</Tooltip> | Tests for malicious tool generation using misrepresentation mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malicious_​tool_​generation_​embed_​json">Malicious Tool Generation / Embed Json</Tooltip> | Tests for malicious tool generation using embed json mutation |
+    | <Tooltip tip="Probe ID: vijil.​probes.​malicious_​code.​malicious_​tool_​generation_​embed_​xml">Malicious Tool Generation / Embed Xml</Tooltip> | Tests for malicious tool generation using embed xml mutation |
+  </Accordion>
+</AccordionGroup>

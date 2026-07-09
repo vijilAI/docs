@@ -1,0 +1,107 @@
+---
+title: "SDK Migration Guide"
+description: "Migrate from the legacy Python package to the current SDK package and CLI."
+---
+
+## Who This Guide Is For
+
+Use this guide if you installed the legacy `vijil` PyPI package with `pip install vijil`. That package targets a previous API contract.
+
+This guide gets you onto `vijil-sdk` v3, the current SDK and CLI distribution.
+
+## Why Migrate
+
+The legacy `vijil` package cannot reach current platform endpoints. If a recent legacy install returns authentication failures or `404` responses, the package is likely using the old API contract.
+
+Key changes:
+
+- Authentication moved from a username and token flow against `/tokens/verify` to bearer API keys.
+- The current CLI replaces generic CRUD commands such as `vijil create`, `vijil list`, and `vijil describe` with workflow verbs and resource commands.
+- The current SDK includes generated models for stronger type checking and IDE completion.
+
+## Install
+
+Uninstall the legacy package, then install the current SDK:
+
+```bash
+# Old
+pip uninstall vijil
+
+# New
+pip install vijil-sdk
+```
+
+The `vijil-sdk` package installs both the `vijil` Python SDK and the `vijil` CLI under one distribution. It requires Python 3.12 or later.
+
+## Authentication Changes
+
+The legacy package prompted for a username and token:
+
+```bash
+# Old
+vijil login <your-username>
+# Enter your token: ****
+```
+
+The current SDK uses bearer API keys generated from your [Console](/concepts/platform/console) deployment under **Profile** > **Personal Information** > **API Auth Token**:
+
+```bash
+# New
+vijil auth login
+# Enter your Vijil API key: ****
+# Authenticated. Token saved to ~/.vijil/credentials.json
+```
+
+<Note>
+You can also set `VIJIL_API_KEY` in your environment. The environment variable takes precedence over the token stored by `vijil auth login`.
+</Note>
+
+## Command Map
+
+The legacy package exposed 8 top-level commands for generic operations. 
+
+The current CLI splits those commands into:
+1. **Porcelain commands** for the high-level agent trust workflow
+2. **Plumbing commands** for low-level CRUD operations on platform resources (scripting, automation, and direct resource management)
+
+| Legacy Command | Current Command | Notes |
+| --- | --- | --- |
+| `vijil login` | `vijil auth login` | Uses an API key instead of username and token authentication |
+| `vijil logout` | `vijil auth logout` | Clears stored credentials |
+| `vijil create <X>` | Porcelain verbs such as `vijil evaluate`, `vijil test`, `vijil adapt`, `vijil protect`, `vijil register`, `vijil evolve`, or `vijil deploy` | Choose the command by intent instead of using a generic `create` action |
+| `vijil list <X>` | `vijil <resource> list` | Resources include `agents`, `evaluations`, `harnesses`, `genomes`, `jobs`, `scores`, `reports`, `proposals`, `policies`, and `personas` |
+| `vijil describe <X>` | `vijil <resource> describe <id>` | Uses the same resource set as `list` |
+| `vijil delete <X>` | `vijil <resource> delete <id>` | Uses the same resource set as `list` |
+| `vijil download <X>` | `vijil reports download <id>` | Reports are the only downloadable artifact today |
+| `vijil start <X>` | Porcelain verbs such as `vijil evaluate` or `vijil test` | Starting a job is now done using a porcelain verb |
+| `vijil stop <X>` | `vijil jobs cancel <id>` | Job cancellation is a plumbing command |
+
+<Tip>
+Link to the full CLI reference here.
+</Tip>
+
+## Python SDK Changes
+
+The legacy package did not expose a stable Python API beyond CLI invocation. The current package provides the `Vijil` client:
+
+```python
+from vijil import Vijil
+
+client = Vijil()
+evaluation = client.evaluate(agent_id="...", harness="trust-baseline")
+print(evaluation.scores)
+```
+
+By default, `Vijil()` reads `VIJIL_API_KEY` or the credentials saved by `vijil auth login`.
+
+<Tip>
+Link to the full SDK reference here.
+</Tip>
+
+## When to Use MCP Instead
+
+Use `vijil-mcp` when you need to run Vijil capabilities inside MCP-aware agent framework such as Claude Desktop, Cursor, LangGraph, ADK, or Strands. 
+
+The `vijil-mcp` package runs as a separate stdio MCP server that exposes Vijil platform capabilities as tools an agent can call.
+
+You can install both `vijil-sdk` and `vijil-mcp` in the same environment. They are independent and do not share runtime state.

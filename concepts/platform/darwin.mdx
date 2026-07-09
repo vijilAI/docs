@@ -1,0 +1,24 @@
+---
+title: "Darwin"
+description: "Evolution engine that uses reinforcement learning over production telemetry to continuously improve agent resilience."
+---
+
+<Note>
+Darwin is in development and not yet generally available. This page previews what it will do.
+</Note>
+
+Darwin is Vijil's evolution engine. Where [Diamond](/concepts/platform/diamond) tests an Agent before deployment and [Dome](/concepts/platform/dome) protects it in production, Darwin closes the loop by learning from what happens in the real world and feeding those lessons back into the Agent.
+
+Darwin uses reinforcement learning over production telemetry, the real interactions, failures, and edge cases your Agent encounters, to continuously improve its resilience as behavior drifts over time.
+
+## How Darwin Fits In
+
+The three products form a continuous cycle:
+
+- **[Diamond](/concepts/platform/diamond)** evaluates the Agent before deployment and produces a Trust Score.
+- **[Dome](/concepts/platform/dome)** protects the Agent at runtime and logs what it sees.
+- **Darwin** learns from that production telemetry and proposes improvements, which feed back into a stronger Agent.
+
+## The Adapted Stage
+
+An Agent reaches the **Adapted** [stage](/owner-guide/register-agents/registering-agents#agent-stage) once at least one Darwin proposal has been accepted following an evolution run. This marks an Agent that has not only been tested and protected, but improved based on evidence from real-world use.
