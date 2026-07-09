@@ -149,6 +149,12 @@
             "pages": ["owner-guide/getting-started/introduction"]
           },
           {
+            "group": "Discover Resources",
+            "pages": [
+              "owner-guide/discover-resources/scanning-resources"
+            ]
+          },
+          {
             "group": "Agents",
             "pages": [
               "owner-guide/register-agents/what-is-an-agent",

@@ -1,0 +1,159 @@
+---
+title: 'Scan for Resources'
+description: 'Scan cloud environments and GitHub repositories to discover Agents and other AI system resources.'
+---
+
+Resources are AI-related artifacts and infrastructure components identified during a scan. An [Agent](/owner-guide/register-agents/what-is-an-agent) is one Resource type, but scans can also identify the components and infrastructure associated with an Agent.
+
+Use the **Resources Registry** to run scans, review discovered Resources, and register discovered Agents.
+
+## The Resources Registry
+
+Navigate to **Resources** in the sidebar to open the Resources Registry. The page separates discovery into two scan histories:
+
+| Scan Type | What It Scans | What It Finds |
+|-----------|---------------|---------------|
+| **Network Scans** | Cloud environments, such as AWS accounts and regions | Agents, AI components, and supporting infrastructure |
+| **Code Repository Scans** | GitHub organizations and repositories | Source-code findings, scan summary metrics, and Agents available for registration |
+
+Each table shows previous scans, their completion status, when they ran, and actions for working with the scan record.
+
+## Network Scans
+
+Network scans inventory Resources in a connected cloud environment. A network scan can identify the following Resource types:
+
+- Agent
+- Knowledge Base
+- Guardrail
+- Model
+- Function
+- Task Definition
+- Cluster
+- Agent Runtime
+
+The **Network Scans** table includes:
+
+| Column | What It Shows |
+|--------|---------------|
+| **ID** | Short scan identifier |
+| **Status** | Whether the scan succeeded or failed |
+| **New Resources** | Number of newly discovered Resources in the scan |
+| **Total Resources** | Total number of Resources found by the scan |
+| **Created At** | Date and time when the scan started |
+| **Completed At** | Date and time when the scan finished |
+| **Actions** | Download or delete the scan record |
+
+### Running a Network Scan
+
+1. Navigate to **Resources** in the sidebar.
+2. In **Network Scans**, click **Scan Network**.
+3. In the **Discover Agents** form, select **Production**.
+4. Choose the cloud **Provider**.
+5. Choose a **Provider Region**, or select **Scan all regions**.
+6. Click **Scan**.
+
+When the scan completes, review the **Status**, **New Resources**, and **Total Resources** columns to understand what the scan found.
+
+### Reviewing Network Scan Results
+
+Expand a network scan row to review the Resources found during that scan. The expanded table includes:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Name** | Name of the discovered Resource |
+| **Status** | Current review status of the Resource |
+| **Resource Type** | Resource category identified by the scan |
+| **Linked Agent** | Registered Agent associated with the Resource, or a dash if none exists |
+| **Last Seen** | Most recent date and time when a scan found the Resource |
+| **Actions** | Controls to save, dismiss, or link the Resource |
+
+Resource status can have one of the following values:
+
+| Status | Meaning |
+|--------|---------|
+| **CANDIDATE** | The scan found the Resource and it awaits review |
+| **MATCHED** | A registered Agent matches the Resource |
+| **SAVED** | You saved the Resource for follow-up |
+| **DISMISSED** | You dismissed the Resource as out of scope or not relevant |
+
+The available Resource actions include:
+
+| Action | What It Does |
+|--------|--------------|
+| **Save** | Keep the discovered Resource for follow-up in the Resources Registry |
+| **Dismiss** | Mark the Resource as out of scope or not relevant |
+| **Link** | Associate the Resource with an existing Agent in the Agent Registry |
+
+Use **Link** when the discovered Resource corresponds to an Agent you already registered manually.
+
+## Code Repository Scans
+
+Code repository scans inspect GitHub repositories for Agents and related source-code findings. Use this scan type to review repositories in a GitHub organization during development.
+
+The **Code Repository Scans** table includes:
+
+| Column | What It Shows |
+|--------|---------------|
+| **Repository Name** | Repository included in the scan |
+| **Repository Owner** | GitHub organization or owner associated with the repository |
+| **Status** | Whether the scan succeeded or failed |
+| **Linked Agent(s)** | Associated Agent Registry entries, or a dash if none exist |
+| **Created At** | Date and time when the scan started |
+| **Completed At** | Date and time when the scan finished |
+| **Actions** | Download or delete the scan record |
+
+### Running a Code Repository Scan
+
+1. Navigate to **Resources** in the sidebar.
+2. In **Code Repository Scans**, click **Scan Code Repository**.
+3. In the **Discover Agents** form, select **Development**.
+4. Choose a **GitHub connection** provided by your GitHub administrator.
+5. Select the GitHub repository or organization you want to scan.
+6. Use the **Repositories** filter to find the repository or path.
+7. Select a repository you want to scan.
+8. Click **Scan**.
+
+### Reviewing Code Repository Scan Results
+
+Expand a completed code repository scan to review these summary metrics:
+
+| Metric | What It Shows |
+|--------|---------------|
+| **Agent Count** | Number of Agents reported by the scan |
+| **Data Source Count** | Number of data sources reported by the scan |
+| **Workflow Count** | Number of workflows reported by the scan |
+| **Total Count** | Total count reported by the scan |
+| **Sensitive Data Count** | Sensitive-data count reported by the scan |
+
+The scan overview also lists the discovered Agents. You can register an Agent directly from this list. Other scan findings provide context about the repository and are not registered as Agents.
+
+## Scan Statuses
+
+| Status | Meaning |
+|--------|---------|
+| **SUCCEEDED** | The scan completed and the platform recorded the results |
+| **FAILED** | The scan did not complete successfully |
+
+For failed scans, check the selected cloud provider, region, GitHub connection, repository access, and organization permissions before retrying.
+
+## Managing Scan Records
+
+The actions column on each scan row includes controls for scan records:
+
+| Action | What It Does |
+|--------|--------------|
+| **Download** | Downloads scan output in JSON format for offline review or audit evidence |
+| **Delete** | Removes the scan record from the Resources Registry |
+
+Deleting a scan record removes the historical record of that scan. If you need to preserve scan output for audit or troubleshooting, download it before deleting the record.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Register Agents" icon="bot" href="/owner-guide/register-agents/registering-agents">
+    Add discovered Agents to the Agent Registry
+  </Card>
+  <Card title="Run Evaluations" icon="activity" href="/owner-guide/run-evaluations/running-evaluations">
+    Test registered Agents
+  </Card>
+</CardGroup>
