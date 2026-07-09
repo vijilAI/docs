@@ -87,11 +87,16 @@ dome.output_guards  # list[str] | None
 ### `Harness`
 
 ```python
-harness.id        # str
-harness.name      # str | None
-harness.type      # str | None
-harness.category  # str | None
-harness.version   # str | None
+harness.id            # str
+harness.name          # str | None
+harness.type          # str | None
+harness.category      # str | None
+harness.version       # str | None
+harness.agent_id      # str | None
+harness.persona_ids   # list[str] | None
+harness.policy_ids    # list[str] | None
+harness.status        # str | None — e.g. "draft", "active"
+harness.prompt_count  # int | None
 ```
 
 ### `Report`
@@ -117,8 +122,8 @@ report.created_at  # str | None
 | `Detection` | `id`, `agent_id`, `type`, `direction`, `blocked`, `timestamp` | `client.monitor.detections()` |
 | `Trace` | `trace_id`, `agent_id`, `duration_ms`, `spans`, `timestamp` | `client.monitor.traces()` |
 | `LogEntry` | `agent_id`, `level`, `message`, `timestamp` | `client.monitor.logs()` |
-| `Persona` | `id`, `name`, `description`, `agent_id`, `created_at` | `client.personas.*` |
-| `Policy` | `id`, `name`, `content`, `agent_id`, `created_at` | `client.policies.*` |
+| `Persona` | `id`, `name`, `role`, `intent`, `knowledge_level`, `skill_level` | `client.personas.*` |
+| `Policy` | `id`, `name`, `category`, `status`, `source_text`, `tags` | `client.policies.*` |
 
 ## Errors
 

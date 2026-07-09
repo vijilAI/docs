@@ -190,7 +190,7 @@ Vijil exposes four programmatic interfaces. This quickstart takes you from a fre
         client = Vijil(gateway="https://console-api.example.com")
         ```
 
-        `Vijil()` reads the credentials from the environment automatically. If you already have a bearer access token, use it directly instead with `VIJIL_API_KEY` or `Vijil(api_key="<access-token>")`.
+        `Vijil()` reads the credentials from the environment automatically. If you already have a bearer access token, use it directly instead with `VIJIL_API_KEY` or `Vijil(api_key="<access-token>")` — but note that a bearer token is a JWT that expires 24 hours after it is issued. The client ID and secret do not expire, and the SDK refreshes the token from them automatically, so prefer the pair for long-lived automation.
 
         <Tip>
         In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than committing them.

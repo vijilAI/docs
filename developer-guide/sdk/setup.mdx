@@ -81,6 +81,10 @@ vijil auth login   # paste the token; saved to ~/.vijil/credentials.json
 
 The `api_key` argument takes precedence over `VIJIL_API_KEY`, which takes precedence over the saved credentials file.
 
+<Note>
+A bearer access token is a JWT that expires 24 hours after it is issued. For long-lived automation, authenticate with the client ID and secret instead — the SDK exchanges them for a fresh token automatically whenever the current one expires.
+</Note>
+
 <Tip>
 In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than committing them or running an interactive login.
 </Tip>

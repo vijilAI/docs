@@ -11,7 +11,7 @@ List methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `
 |----------|---------|
 | `client.agents` | `list`, `show`, `create`, `update`, `delete` |
 | `client.evaluations` | `list`, `show`, `create` |
-| `client.harnesses` | `list`, `show`, `create`, `update` |
+| `client.harnesses` | `list`, `show`, `create`, `delete` |
 | `client.scores` | `show`, `history` |
 | `client.reports` | `list`, `show`, `download` |
 | `client.dome` | `list`, `show`, `default`, `update` |
@@ -51,9 +51,17 @@ List and manage [Harnesses](/concepts/evaluation-components/harness). The list m
 ```python
 page = client.harnesses.list()
 harness = client.harnesses.show("harness-id")
-harness = client.harnesses.create(name="Custom Harness")
-harness = client.harnesses.update("harness-id", name="Updated")
+harness = client.harnesses.create(
+    name="Custom Harness",
+    agent_id="agent-id",
+    persona_ids=["persona-id"],   # optional
+    policy_ids=["policy-id"],     # optional
+    system_prompt="...",          # optional
+)
+client.harnesses.delete("harness-id")
 ```
+
+`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for the given Agent; `persona_ids` and `policy_ids` shape the Probes it produces. Custom Harnesses are immutable, so there is no `update()` — create a new Harness and delete the old one to change its configuration.
 
 ## `client.scores`
 
@@ -126,24 +134,32 @@ proposal = client.proposals.reject("proposal-id")
 
 ## `client.policies`
 
-Manage safety and security policies.
+Manage the [Policies](/owner-guide/simulate-environment/policies) that constrain Agent behavior. `category` is required — one of `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom`. Provide the policy text with `source_text`, `content`, or a `file_path` to a `.txt`/`.pdf` document.
 
 ```python
 page = client.policies.list(agent_id="optional-agent-id")
 policy = client.policies.show("policy-id")
-policy = client.policies.create(name="Safety Policy", file_path="policy.yaml")
+policy = client.policies.create(
+    name="Data Handling Policy",
+    category="privacy",
+    source_text="The agent must not store or repeat personal data.",
+)
 policy = client.policies.update("policy-id", name="Updated")
 client.policies.delete("policy-id")
 ```
 
 ## `client.personas`
 
-Manage test personas used to build custom Harnesses.
+Manage the [Personas](/owner-guide/simulate-environment/personas) used to build custom Harnesses. `role` is required; `intent` is one of `benign`, `curious`, `adversarial`, or `malicious`.
 
 ```python
 page = client.personas.list(agent_id="optional-agent-id")
 persona = client.personas.show("persona-id")
-persona = client.personas.create(name="Malicious User", description="Attempts injections")
+persona = client.personas.create(
+    name="Frustrated Customer",
+    role="End user",
+    intent="adversarial",
+)
 persona = client.personas.update("persona-id", name="Updated")
 client.personas.delete("persona-id")
 ```
