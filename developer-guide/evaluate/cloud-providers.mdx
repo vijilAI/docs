@@ -3,72 +3,69 @@ title: 'Cloud Provider Integrations'
 description: 'Evaluate agents hosted on major cloud platforms.'
 ---
 
-Vijil supports direct evaluation of agents and models hosted on major cloud platforms. This guide covers configuration for each supported provider.
 
-## Supported Providers
+Vijil can evaluate agents and models hosted on supported model providers. Use this guide to identify the provider credentials, endpoint details, and rate-limit settings you need before running an evaluation.
 
-| Provider | Hub ID | Supported Targets |
-|----------|--------|-------------------|
-| OpenAI | `openai` | GPT-4o, GPT-4, GPT-3.5 |
-| Anthropic | `anthropic` | Claude 3 family |
-| AWS Bedrock | `bedrock` / `bedrockAgents` | Foundation models, Bedrock Agents |
-| Google Vertex AI | `vertex` | Gemini family |
-| DigitalOcean | `digitalocean` | GenAI Platform agents |
-| Custom | `custom` | Any OpenAI-compatible endpoint |
+## What Vijil Can Evaluate
 
-## OpenAI
+Vijil evaluates agents by sending requests to an endpoint you register. 
 
-Store your OpenAI credentials via the API or dashboard before running an evaluation. Supported models include `gpt-4o`, `gpt-4-turbo`, `gpt-4`, and `gpt-3.5-turbo`.
+The endpoint must expose an **OpenAI-compatible interface**, regardless of which model, framework, or cloud service powers the agent behind it:
 
-## Anthropic
-
-Store your Anthropic credentials before running an evaluation. Supported models include the `claude-3` family.
-
-## AWS Bedrock
-
-Bedrock supports both foundation models and custom Bedrock Agents.
-
-### Foundation Models
-
-Store your Bedrock access keys and specify the region to evaluate Foundation Models.
+- If your agent already exposes an OpenAI-compatible endpoint, you can register it directly. 
+- If it uses a native API that does not expose that interface, create an adapter service that lets Vijil invoke the agent through the supported request and response shape.
 
 <Note>
-For Bedrock foundation models, prepend `us.` to the model ID from [AWS's supported models list](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html).
+Vijil does not require you to choose from a provider or model list. The OpenAI-style endpoint is what matters.
 </Note>
 
-### Bedrock Agents
+## When You Need an Adapter
 
-For Bedrock Agents, securely supply your `agent_id`, `agent_alias_id`, and AWS access configurations.
+Use an adapter when your agent's native API is not OpenAI-compatible. 
 
-## Google Vertex AI
+The adapter should accept Vijil's compatible request, translate it to the native agent or provider call, then translate the result back into the compatible response shape.
 
-Authenticate with Google Cloud and retrieve your application default credentials. Store the provided `client_id`, `client_secret`, and `refresh_token` in Vijil before targeting models from the `gemini-1.5` or `gemini-1.0` families.
+Native Anthropic, AWS Bedrock, Google Vertex AI, and Agentforce-style APIs are examples of integrations that may need this adapter layer if they are not already exposed through an OpenAI-compatible endpoint.
 
-## DigitalOcean
+An adapter should handle:
 
-Follow [DigitalOcean's guide](https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/) to get your `agent_id` and `agent_key`, and securely provide them to Vijil.
+- Authentication to the upstream agent or provider
+- Mapping the registered model identifier to the model or deployment your agent uses
+- Translating request fields into the upstream API format
+- Translating upstream responses into the compatible response format
+- Provider or application errors in a way that Vijil can surface during evaluation
 
-## Custom Endpoints
+## Register the Agent in Vijil
 
-Evaluate any agent with an OpenAI-compatible API by storing your custom endpoint's API key and providing the URL of the endpoint.
+When registering the agent, provide the fields Vijil needs to call the endpoint.
 
+| Field | Purpose |
+|-------|---------|
+| `agent_url` | Endpoint URL Vijil should call |
+| `api_key` | API key or token for the registered endpoint |
+| `model_name` | Model identifier understood by your endpoint |
+| `rate_limit_requests_per_minute` | Vijil-side request limit for this API key |
+
+The endpoint can route to a hosted model, a multi-step agent, a local service exposed through a secure tunnel, or an adapter in front of a non-compatible provider API. The important contract is the endpoint interface, not the underlying provider.
 
 ## Rate Limiting
 
-Control evaluation pace to avoid API throttling. You can set limits for the number of requests per interval when registering credentials.
+Rate limits are configured per API key in Vijil. Set the Vijil-side limit below the strictest relevant limit for your account, model, tier, project, region, and endpoint capacity.
 
-### Recommended Rate Limits
+Many providers share account-level quota across API keys. Do not allocate the full account quota to a Vijil API key if production agents or other systems use the same provider account.
 
-| Provider | Requests/min | Notes |
-|----------|--------------|-------|
-| OpenAI | 60-100 | Depends on tier |
-| Anthropic | 60-100 | Depends on tier |
-| Bedrock | 30-60 | Model-dependent |
-| Vertex AI | 60-120 | Project quotas apply |
+Use provider quota documentation and dashboards to choose a safe value. 
 
-<Card title="Work in Progress" icon="pickaxe" badge="Private preview">
-  The programmatic evaluation capabilities are currently in private preview and subject to change.
-</Card>
+| Provider | Quota documentation |
+|----------|---------------------|
+| OpenAI | [OpenAI rate limits](https://platform.openai.com/docs/guides/rate-limits) |
+| Anthropic | [Anthropic rate limits](https://docs.anthropic.com/en/api/rate-limits) |
+| Groq | [Groq rate limits](https://console.groq.com/docs/rate-limits) |
+| Together AI | [Together serverless rate limits](https://docs.together.ai/docs/serverless/rate-limits) |
+
+<Tip>
+Start with a conservative limit for new evaluations. Increase it only after confirming that provider dashboards, application logs, and Vijil evaluation logs show enough headroom.
+</Tip>
 
 ## Next Steps
 
