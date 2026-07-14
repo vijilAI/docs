@@ -12,6 +12,10 @@ Vijil Dome allows users to assemble and configure Guardrails, which are designed
 - **Retrieval Guardrails** (coming soon): To protect requests to and from retrievers.
 - **Execution Guardrails** (coming soon): To protect requests to and from external agents and tools.
 
+<Info>
+The Vijil Console currently configures Input and Output Guards from the selected Agent's **Protect** view. Retrieval and Execution Guardrails are broader concepts and are not sections in the current Console.
+</Info>
+
 ```mermaid actions={false}
 %%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':35,'padding':6}}}%%
 flowchart TD
@@ -95,7 +99,7 @@ flowchart LR
 
 ### Example Configuration
 
-Here is an example of how you can set up Guards and Detectors (see the [Configuring Dome section](/tutorials/protect-agents/configuring-guardrails) for more details):
+Here is an example based on the predefined Console Guards and Detectors (see the [Configuring Dome section](/owner-guide/protect-in-production/configuring-guardrails) for more details):
 
 <CodeGroup>
 ```python title="Python" icon="python"
@@ -105,31 +109,31 @@ Here is an example of how you can set up Guards and Detectors (see the [Configur
     # Setup Guardrails from Guards
     ########################
     # Input Guardrail
-    "input-guards": ["prompt-injection", "input-privacy"],
+    "input-guards": ["security-guard", "moderation-guard"],
 
-    # output guardrail
-    "output-guards": ["output-toxicity"],
+    # Output Guardrail
+    "output-guards": ["moderation-guard", "privacy-guard"],
 
     ##########################
     # Assemble and configure Guards
     ##########################
 
-    # a guard for prompt injection
-    "prompt-injection": {
+    # Security input Guard
+    "security-guard": {
         "type": "security",
-        "methods" : ["prompt-injection-deberta-v3-base", "security-llm"],
+        "methods": ["encoding-heuristics", "prompt-injection-mbert"],
     },
 
-    # a guard to remove PII from requests to the LLM
-    "input-privacy": {
-        "type": "privacy",
-        "methods": ["privacy-presidio"]
-    },
-
-    # a guard for toxic output content
-    "output-toxicity": {
+    # Moderation input and output Guard
+    "moderation-guard": {
         "type": "moderation",
-        "methods": ["moderation-llamaguard"]
+        "methods": ["moderation-flashtext", "moderation-mbert"],
+    },
+
+    # Privacy output Guard
+    "privacy-guard": {
+        "type": "privacy",
+        "methods": ["privacy-presidio"],
     },
 }
 ```
