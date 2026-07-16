@@ -12,10 +12,10 @@ You can add the complete trust stack to a supported agent framework with `secure
 | Interface | Use It When | Protection |
 |-----------|-------------|------------|
 | `Dome` | You only need to scan agent inputs and outputs | Content Guardrails |
-| `secure_agent()` | You use LangGraph, Google ADK, or Strands | Identity, content Guards, tool access control, attestation, and audit events |
+| `secure_agent()` | You use LangGraph, Google ADK, or Strands | Identity, content Guards, framework-dependent tool access control, attestation, and audit events |
 | `TrustRuntime` | You need a custom integration or direct control of enforcement | The same trust capabilities through individual methods |
 
-The Controls Engine is a separate policy-as-data interface. Use Trust Runtime when you need identity-bound enforcement and framework integration in addition to content checks.
+The Controls Engine is a separate policy-as-data interface. Use Trust Runtime when you need identity-aware enforcement and framework integration in addition to content checks. Tool decisions become identity-bound when the runtime has an attested SPIFFE identity.
 
 ## Install Trust Runtime
 
@@ -39,7 +39,7 @@ pip install "vijil-dome[identity]"
 
 ## Protect an Agent With `secure_agent()`
 
-Pass your agent object and its registered `agent_id` to `secure_agent()`. Start in `warn` mode while you validate the integration:
+Pass your agent object, its registered `agent_id`, and a constraint source to `secure_agent()`. The following examples use the local `constraints` dictionary from [Configure Constraints](#configure-constraints). Start in `warn` mode while you validate the integration:
 
 ```python
 from vijil_dome import secure_agent
@@ -47,6 +47,7 @@ from vijil_dome import secure_agent
 secured_agent = secure_agent(
     agent,
     agent_id="travel-agent",
+    constraints=constraints,
     mode="warn",
 )
 ```
@@ -57,6 +58,7 @@ secured_agent = secure_agent(
 secured_agent = secure_agent(
     agent,
     agent_id="travel-agent",
+    constraints=constraints,
     mode="enforce",
 )
 ```
@@ -64,6 +66,8 @@ secured_agent = secure_agent(
 <Warning>
 An `agent_id` identifies the registered Agent and its configuration. It is not cryptographic proof of the running workload's identity. SPIFFE attestation provides that proof when it is available.
 </Warning>
+
+You can provide an authenticated Console client instead of explicit constraints. If you omit both `client` and `constraints`, Trust Runtime creates a minimal local configuration with no content Guards and no tool permissions. Content scanning is skipped, and an enforced policy denies tools that are not explicitly permitted.
 
 ### Integrate LangGraph
 
@@ -75,13 +79,14 @@ from vijil_dome import secure_agent
 app = secure_agent(
     graph,
     agent_id="travel-agent",
+    constraints=constraints,
     mode="warn",
 )
 
 result = app.invoke({"messages": messages})
 ```
 
-Use the returned object instead of calling `graph.compile()` separately.
+Use the returned object instead of calling `graph.compile()` separately. The wrapper applies input and output Guards around graph execution. Tool access control is best-effort for LangGraph: the compiled graph must expose tool functions that the adapter can discover and wrap. Verify tool enforcement in your graph before relying on it.
 
 ### Integrate Google ADK
 
@@ -93,6 +98,7 @@ from vijil_dome import secure_agent
 agent = secure_agent(
     agent,
     agent_id="travel-agent",
+    constraints=constraints,
     mode="warn",
 )
 ```
@@ -107,6 +113,7 @@ from vijil_dome import secure_agent
 agent = secure_agent(
     agent,
     agent_id="travel-agent",
+    constraints=constraints,
     mode="warn",
 )
 ```
@@ -138,9 +145,18 @@ constraints = {
         },
     ],
     "dome_config": {
-        "input_guards": ["prompt-injection"],
-        "output_guards": ["output-toxicity"],
-        "guards": {},
+        "input_guards": ["security_guard"],
+        "output_guards": ["moderation_guard"],
+        "guards": {
+            "security_guard": {
+                "type": "security",
+                "methods": ["encoding-heuristics"],
+            },
+            "moderation_guard": {
+                "type": "moderation",
+                "methods": ["moderation-flashtext"],
+            },
+        },
     },
     "organization": {
         "required_input_guards": [],
@@ -164,6 +180,10 @@ The effective enforcement mode is the stronger of the local `mode` and the mode 
 </Info>
 
 If you provide a client, Trust Runtime uses its API key as the development identity when a token is present. With an authenticated SPIFFE identity and an mTLS client, the runtime requests constraints by SPIFFE ID. Otherwise, it requests constraints by `agent_id`.
+
+<Warning>
+If you omit both `client` and `constraints`, the minimal local configuration does not provide useful production protection. Supply one of these sources before you enable enforcement for an Agent.
+</Warning>
 
 ## Use `TrustRuntime` Directly
 
@@ -276,7 +296,7 @@ An unattested runtime emits an `identity_unattested` audit event. Whether an una
 
 A tool manifest declares the tools an Agent expects to call. Each entry associates a tool name with its endpoint and expected SPIFFE identity. The manifest signature protects this inventory from undetected modification.
 
-Verify the manifest signature against the Console public key before you pass the manifest to `TrustRuntime`. The runtime loads the manifest and uses it for endpoint attestation; `attest()` does not verify the manifest signature.
+Verify the manifest signature against a trusted public key before you pass the manifest to `TrustRuntime`. The runtime loads the manifest and uses it for endpoint attestation; `attest()` does not verify the manifest signature.
 
 Pass a `Path` or a loaded `ToolManifest` to the runtime:
 
@@ -303,8 +323,10 @@ if not attestation.all_verified:
 
 If no manifest is configured, attestation succeeds with an empty tool list. If a manifest is configured but the Agent is not attested, each tool verification fails because the runtime cannot establish an identity-bound verification path.
 
+Framework adapters collect and expose the attestation result, but they do not stop startup when `all_verified` is `False`. If your deployment requires verified tool identities, inspect the result before the Agent accepts traffic.
+
 <Note>
-Create and sign manifests through the Console workflow. A dedicated Manifest CLI reference is forthcoming; this page does not prescribe an unconfirmed packaged command.
+The Dome repository contains the manifest model and client-side signing and verification code. Availability of the Console signing endpoints and packaged Manifest CLI still requires confirmation against the current Console release. A dedicated Manifest CLI reference is forthcoming.
 </Note>
 
 ## Capture Audit Events
@@ -327,7 +349,7 @@ runtime = TrustRuntime(
 )
 ```
 
-Events contain an `event_type`, `agent_id`, timestamp, and event-specific attributes. The runtime emits events for content Guard decisions, tool access checks, attestation results, identity or mTLS downgrade conditions, disabled Guards, and enforcement-mode downgrade attempts.
+Events contain an `event_type`, configured `agent_id`, timestamp, and event-specific attributes. The runtime emits events for content Guard decisions, tool access checks, attestation results, identity or mTLS downgrade conditions, disabled Guards, and enforcement-mode downgrade attempts. Cryptographic identity fields are available only when the runtime has an attested identity.
 
 See [Observability](/developer-guide/protect/observability) for Dome tracing and metrics. Trust Runtime audit events complement those signals with identity and policy decisions.
 

@@ -9,16 +9,16 @@ description: 'Guard your agent at runtime with Dome Guardrails.'
 
 Evaluation catches vulnerabilities you know to test for. But attackers will try things you did not anticipate like new prompt injection techniques, novel encoding tricks, social engineering patterns that emerge after your last evaluation.
 
-Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable Guardrails, and blocks attacks before they reach your agent or your users. When Diamond identifies vulnerabilities you cannot immediately fix, Dome provides defense-in-depth while you remediate.
+Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable Guardrails, and blocks attacks before they reach your Agent or your users. When Diamond identifies vulnerabilities you cannot immediately fix, Dome provides defense-in-depth while you remediate.
 
-For tool-using Agents, [Trust Runtime](/developer-guide/protect/trust-runtime) extends Dome with workload identity, Console or local constraints, tool-level mandatory access control, signed tool manifests, tool attestation, and structured audit events. Use `secure_agent()` to add the complete trust stack to LangGraph, Google ADK, or Strands.
+For tool-using Agents, [Trust Runtime](/developer-guide/protect/trust-runtime) extends Dome with workload identity, Console or local constraints, tool-level mandatory access control, signed tool manifests, tool attestation, and structured audit events. Use `secure_agent()` with LangGraph, Google ADK, or Strands. Tool enforcement depends on each framework's integration points; LangGraph tool wrapping requires discoverable tool functions on the compiled graph.
 
 ## Choose a Protection Interface
 
 | Interface | Use It When | Protection |
 |-----------|-------------|------------|
 | `Dome` | You need content Guardrails for inputs and outputs | Guards and Detectors |
-| `secure_agent()` | You use a supported agent framework | Content Guards, identity, tool access control, attestation, and audit events |
+| `secure_agent()` | You use a supported agent framework | Content Guards, identity, framework-dependent tool access control, attestation, and audit events |
 | `TrustRuntime` | You need direct or custom integration | Individual methods for each trust enforcement point |
 
 ## How Dome Works
@@ -106,7 +106,7 @@ Dome accepts configuration from three sources:
 
 | Source | How to Use | Best For |
 |--------|-----------|----------|
-| **Registered Agent** | Pull from your Vijil Console agent definition | Production: keeps configuration in sync with your policy |
+| **Registered Agent** | Pull from your Console Agent definition | Production: keeps configuration in sync with your policy |
 | **TOML file** | Reference a local `.toml` file at initialization | Version-controlled configuration in CI/CD |
 | **Python dict** | Pass a `dict` at runtime | Dynamic configuration, testing, prototyping |
 
@@ -126,7 +126,7 @@ Every scan returns a result object with the following fields:
 
 ## Framework Integrations
 
-Dome is designed to be integrable with popular frameworks and runtimes. You can see the specific framework developer guides for integration patterns during the developer access phase.
+Dome integrates with popular frameworks and runtime environments. See the framework developer guides for available integration patterns.
 
 ## Performance Options
 
