@@ -1,0 +1,170 @@
+---
+title: 'Trust Runtime'
+description: 'Secure an agent with identity, tool-permission enforcement, and audit using secure_agent() or TrustRuntime.'
+---
+
+<Tip>
+**TL;DR:** For a supported framework, `secure_agent(agent, agent_id="...", mode="enforce")` wraps it with the full trust stack in one call. For anything else, drive [`TrustRuntime`](/concepts/defense/trust-runtime) directly: it guards content, checks tool permissions, and attests identity from plain strings and tool names.
+</Tip>
+
+The Trust Runtime governs an [Agent](/owner-guide/register-agents/what-is-an-agent) as an actor. It attests the Agent's identity, fetches its permitted tools and [Guard](/concepts/defense/guard) configuration, checks every tool call against a permission policy before execution, and emits an audit trail. See [the concept page](/concepts/defense/trust-runtime) for the model; this page shows the code.
+
+Install the extras:
+
+```bash
+pip install "vijil-dome[trust,trust-adapters]"
+```
+
+## Two Entry Points
+
+<Tabs>
+<Tab title="secure_agent()">
+`secure_agent()` detects your framework and applies identity, content Guards, tool-permission enforcement, and audit. It supports LangGraph, Google ADK, and Strands.
+
+```python
+from vijil_dome import secure_agent
+
+# LangGraph returns a SecureGraph; ADK and Strands return the agent, wrapped in place.
+app = secure_agent(graph, agent_id="travel-agent", mode="enforce")
+```
+
+The keyword arguments are:
+
+**`agent_id`** (required): the Agent's identifier, used to fetch constraints and attest identity.
+
+**`mode`**: `"warn"` (default) or `"enforce"`.
+
+**`constraints`**: an explicit constraints dict. When omitted, the runtime fetches them from the Vijil Console.
+
+**`manifest`**: a signed tool manifest (path or object) for attestation.
+
+**`client`**: a Vijil client object, used to resolve identity from an API key.
+
+See [Framework Integrations](/developer-guide/protect/integrations/adk) for per-framework details.
+</Tab>
+
+<Tab title="TrustRuntime">
+Use `TrustRuntime` directly when you need fine-grained control or work with a framework `secure_agent()` does not support. It operates on plain strings and tool names, with no framework dependency.
+
+```python
+from vijil_dome import TrustRuntime
+
+runtime = TrustRuntime(agent_id="travel-agent", mode="enforce")
+
+# Guard content
+guard_result = runtime.guard_input(user_query)
+if guard_result.flagged:
+    return guard_result.guarded_response
+
+# Check a tool permission before calling
+mac_result = runtime.check_tool_call("search_flights", {"origin": "SFO"})
+if mac_result.permitted:
+    result = search_flights(origin="SFO")
+
+# Or wrap tools so checks and guards run automatically
+safe_tools = runtime.wrap_tools([search_flights, book_hotel])
+```
+</Tab>
+</Tabs>
+
+## Constraints
+
+Constraints define the Agent's tool permissions and Guard configuration. The runtime resolves them in this precedence order:
+
+<Steps>
+<Step title="Explicit">
+A `constraints` dict passed to `secure_agent()` or `TrustRuntime()` wins over everything else.
+</Step>
+<Step title="Vijil Console">
+When you pass a `client`, the runtime fetches constraints from the Console for the given `agent_id`.
+</Step>
+<Step title="Minimal default">
+With neither, the runtime falls back to a minimal, permissive default (useful for local development).
+</Step>
+</Steps>
+
+An explicit constraints dict looks like this:
+
+```python
+constraints = {
+    "agent_id": "travel-agent",
+    "tool_permissions": [
+        {"tool_name": "search_flights", "permitted": True},
+        {"tool_name": "process_payment", "permitted": False},
+    ],
+    "dome_config": {
+        "input_guards": ["prompt-injection"],
+        "output_guards": ["output-toxicity"],
+        "guards": {},
+    },
+    "organization": {
+        "required_input_guards": [],
+        "required_output_guards": [],
+        "denied_tools": ["get_api_credentials"],
+    },
+    "enforcement_mode": "enforce",
+}
+
+runtime = TrustRuntime(agent_id="travel-agent", constraints=constraints, mode="enforce")
+```
+
+Organization-level rules (such as `denied_tools`) apply globally and override an individual Agent's permissions.
+
+## Enforcement Modes
+
+| Mode | Behavior | Use It During |
+|------|----------|---------------|
+| `warn` | Logs policy violations but allows execution. | Development and rollout |
+| `enforce` | Blocks denied tool calls and replaces flagged content. | Production |
+
+The mode is set once, through the `mode` argument, and drives every block-versus-log decision.
+
+## Manifests and Attestation
+
+A signed tool manifest lists every tool the Agent may call and each tool's expected SPIFFE identity. Pass one to verify tool identities at startup:
+
+```python
+runtime = TrustRuntime(
+    agent_id="travel-agent",
+    manifest="manifest.json",
+    mode="enforce",
+)
+
+attestation = runtime.attest()
+print(attestation.all_verified)  # True when every tool's certificate matches
+```
+
+Sign and verify manifests with the `vijil manifest` CLI (the `trust-cli` extra):
+
+```bash
+vijil manifest sign manifest.json
+vijil manifest verify manifest.json
+```
+
+## Audit
+
+The runtime emits a structured [audit](/concepts/defense/observe) event for every Guard pass, permission decision, and attestation check. Pass an `audit_sink` callable to route events to your own logging or telemetry pipeline:
+
+```python
+def audit_sink(event):
+    logger.info("trust-event", extra={"event": event})
+
+runtime = TrustRuntime(agent_id="travel-agent", mode="enforce", audit_sink=audit_sink)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Framework Integrations" icon="plug" href="/developer-guide/protect/integrations/adk">
+    Per-framework `secure_agent()` guides
+  </Card>
+  <Card title="Trust Runtime Concept" icon="fingerprint" href="/concepts/defense/trust-runtime">
+    Identity, MAC, manifests, and attestation
+  </Card>
+  <Card title="Installation" icon="download" href="/developer-guide/protect/installation">
+    The `trust` and `trust-adapters` extras
+  </Card>
+  <Card title="Observe" icon="chart-line" href="/concepts/defense/observe">
+    Audit events and telemetry
+  </Card>
+</CardGroup>

@@ -1,0 +1,84 @@
+---
+title: 'LangGraph'
+description: 'Secure a LangGraph agent with the Dome Trust Runtime in one call.'
+---
+
+<Tip>
+**TL;DR:** Pass your `StateGraph` to `secure_agent()`. It returns a `SecureGraph` that replaces `graph.compile()`, running content Guards on every model call and enforcing tool permissions before each tool executes.
+</Tip>
+
+The [Trust Runtime](/concepts/defense/trust-runtime) wraps a LangGraph [Agent](/owner-guide/register-agents/what-is-an-agent) with the full trust stack: identity attestation, content [Guards](/concepts/defense/guard), tool-permission enforcement, and audit. Install the adapters extra:
+
+```bash
+pip install "vijil-dome[trust,trust-adapters]"
+```
+
+## Securing a Graph
+
+Call `secure_agent()` with your uncompiled `StateGraph`. It detects LangGraph automatically and returns a `SecureGraph` that stands in for the compiled graph.
+
+<CodeGroup>
+```python title="Python" icon="python"
+from langgraph.graph import StateGraph
+from vijil_dome import secure_agent
+
+graph = StateGraph(MyState)
+# ... add nodes and edges ...
+
+app = secure_agent(
+    graph,
+    agent_id="travel-agent",
+    mode="enforce",
+)
+
+result = app.invoke({"messages": [("user", "Find me flights from SF to Tokyo")]})
+```
+</CodeGroup>
+
+`secure_agent()` compiles the graph for you and best-effort wraps any tools it finds with permission checks. The returned `SecureGraph` supports the standard execution methods: `invoke`, `ainvoke`, `stream`, and `astream`. It also exposes `.runtime` (the underlying [`TrustRuntime`](/concepts/defense/trust-runtime)) and `.attestation` (the identity-verification result).
+
+## Execution Flow
+
+On `invoke`, a `SecureGraph` runs three stages:
+
+<Steps>
+<Step title="Guard the input">
+Runs the input through Dome's input Guards.
+</Step>
+<Step title="Execute the graph">
+Executes the underlying compiled graph.
+</Step>
+<Step title="Guard the output">
+Runs the graph output through Dome's output Guards.
+</Step>
+</Steps>
+
+In `enforce` mode, flagged input or output returns a guarded response of the form `{"messages": [guarded_response]}` instead of the model result. In `warn` mode, violations are logged and execution continues.
+
+<Note>
+Streaming (`stream` / `astream`) applies the output Guard on a best-effort basis after the stream completes, because streamed chunks cannot be retracted once emitted. For strict output enforcement, use `invoke` / `ainvoke`.
+</Note>
+
+## Passing Compile Options
+
+Extra keyword arguments flow through to `graph.compile()`:
+
+```python
+app = secure_agent(
+    graph,
+    agent_id="travel-agent",
+    mode="enforce",
+    checkpointer=my_checkpointer,
+)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trust Runtime" icon="fingerprint" href="/concepts/defense/trust-runtime">
+    Identity, tool permissions, and attestation
+  </Card>
+  <Card title="LangChain" icon="link" href="/developer-guide/protect/integrations/langchain">
+    Content Guards for LangChain chains
+  </Card>
+</CardGroup>
