@@ -61,6 +61,50 @@
     {
       "source": "/owner-guide/register-agents/mcp",
       "destination": "/owner-guide/register-agents/registering-agents"
+    },
+    {
+      "source": "/core-concepts/components/introduction",
+      "destination": "/concepts/evaluation-components/introduction"
+    },
+    {
+      "source": "/core-concepts/components/harness",
+      "destination": "/concepts/evaluation-components/harness"
+    },
+    {
+      "source": "/core-concepts/components/probe",
+      "destination": "/concepts/evaluation-components/probe"
+    },
+    {
+      "source": "/core-concepts/components/scenario",
+      "destination": "/concepts/evaluation-components/scenario"
+    },
+    {
+      "source": "/core-concepts/components/detector",
+      "destination": "/concepts/evaluation-components/detector"
+    },
+    {
+      "source": "/core-concepts/components/guard",
+      "destination": "/concepts/defense/guard"
+    },
+    {
+      "source": "/core-concepts/components/guardrail",
+      "destination": "/concepts/defense/guardrail"
+    },
+    {
+      "source": "/protect-agents/introduction",
+      "destination": "/developer-guide/protect/overview"
+    },
+    {
+      "source": "/protect-agents/detection-methods",
+      "destination": "/developer-guide/protect/detection-methods"
+    },
+    {
+      "source": "/tutorials/protect-agents/adk",
+      "destination": "/developer-guide/protect/integrations/adk"
+    },
+    {
+      "source": "/tutorials/protect-agents/langchain",
+      "destination": "/developer-guide/protect/integrations/langchain"
     }
   ],
   "navigation": {
