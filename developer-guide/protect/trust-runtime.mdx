@@ -1,0 +1,397 @@
+---
+title: 'Trust Runtime'
+description: 'Add identity, content Guards, tool access control, attestation, and audit events to your agent.'
+---
+
+Trust Runtime adds in-process security enforcement to an AI agent. It combines agent identity, local or Console-sourced constraints, Dome content Guards, tool-level mandatory access control, signed tool manifests, tool attestation, structured audit events, and optional enforcement heartbeats.
+
+You can add the complete trust stack to a supported agent framework with `secure_agent()`. Use `TrustRuntime` directly when you need to control each enforcement point or integrate another framework.
+
+## Choose the Right Interface
+
+| Interface | Use It When | Protection |
+|-----------|-------------|------------|
+| `Dome` | You only need to scan agent inputs and outputs | Content Guardrails |
+| `secure_agent()` | You use LangGraph, Google ADK, or Strands | Identity, content Guards, tool access control, attestation, and audit events |
+| `TrustRuntime` | You need a custom integration or direct control of enforcement | The same trust capabilities through individual methods |
+
+The Controls Engine is a separate policy-as-data interface. Use Trust Runtime when you need identity-bound enforcement and framework integration in addition to content checks.
+
+## Install Trust Runtime
+
+Install the core trust dependencies when you use `TrustRuntime` directly:
+
+```bash
+pip install "vijil-dome[trust]"
+```
+
+Install the framework adapters when you use `secure_agent()` with LangGraph, Google ADK, or Strands:
+
+```bash
+pip install "vijil-dome[trust-adapters]"
+```
+
+The `trust` and `trust-adapters` extras include SPIFFE identity support. If you only need SPIFFE identity with an otherwise minimal installation, install the standalone identity extra:
+
+```bash
+pip install "vijil-dome[identity]"
+```
+
+## Protect an Agent With `secure_agent()`
+
+Pass your agent object and its registered `agent_id` to `secure_agent()`. Start in `warn` mode while you validate the integration:
+
+```python
+from vijil_dome import secure_agent
+
+secured_agent = secure_agent(
+    agent,
+    agent_id="travel-agent",
+    mode="warn",
+)
+```
+
+`secure_agent()` detects the framework from the agent object and installs the appropriate adapter. Change the mode to `enforce` when you are ready to block violations:
+
+```python
+secured_agent = secure_agent(
+    agent,
+    agent_id="travel-agent",
+    mode="enforce",
+)
+```
+
+<Warning>
+An `agent_id` identifies the registered Agent and its configuration. It is not cryptographic proof of the running workload's identity. SPIFFE attestation provides that proof when it is available.
+</Warning>
+
+### Integrate LangGraph
+
+Pass either a LangGraph `StateGraph` or compiled graph. `secure_agent()` returns a `SecureGraph` that applies Trust Runtime around graph execution:
+
+```python
+from vijil_dome import secure_agent
+
+app = secure_agent(
+    graph,
+    agent_id="travel-agent",
+    mode="warn",
+)
+
+result = app.invoke({"messages": messages})
+```
+
+Use the returned object instead of calling `graph.compile()` separately.
+
+### Integrate Google ADK
+
+Pass a Google ADK `Agent`. The adapter injects callbacks and returns the same Agent:
+
+```python
+from vijil_dome import secure_agent
+
+agent = secure_agent(
+    agent,
+    agent_id="travel-agent",
+    mode="warn",
+)
+```
+
+### Integrate Strands
+
+Pass a Strands `Agent`. The adapter adds a trust hook provider and returns the same Agent:
+
+```python
+from vijil_dome import secure_agent
+
+agent = secure_agent(
+    agent,
+    agent_id="travel-agent",
+    mode="warn",
+)
+```
+
+For an unsupported object type, `secure_agent()` raises `TypeError`. Use `TrustRuntime` directly or register a custom adapter when automatic framework integration is not available.
+
+## Configure Constraints
+
+Trust Runtime resolves constraints in this order:
+
+1. The `constraints` argument, supplied as an `AgentConstraints` object or dictionary.
+2. The Console, when you provide a client and do not provide explicit constraints.
+3. A minimal local configuration with no content Guards or tool permissions.
+
+Explicit constraints are useful for local development and tests:
+
+```python
+from datetime import UTC, datetime
+
+from vijil_dome import secure_agent
+
+constraints = {
+    "agent_id": "travel-agent",
+    "tool_permissions": [
+        {
+            "name": "search_flights",
+            "identity": "spiffe://example.com/tools/flights/v1",
+            "endpoint": "mcp+tls://flights.internal:8443",
+        },
+    ],
+    "dome_config": {
+        "input_guards": ["prompt-injection"],
+        "output_guards": ["output-toxicity"],
+        "guards": {},
+    },
+    "organization": {
+        "required_input_guards": [],
+        "required_output_guards": [],
+        "denied_tools": ["get_api_credentials"],
+    },
+    "enforcement_mode": "warn",
+    "updated_at": datetime.now(tz=UTC),
+}
+
+agent = secure_agent(
+    agent,
+    agent_id="travel-agent",
+    constraints=constraints,
+    mode="warn",
+)
+```
+
+<Info>
+The effective enforcement mode is the stronger of the local `mode` and the mode in the resolved constraints. A local `mode="warn"` cannot downgrade Console-mandated or constraint-mandated `enforce` behavior.
+</Info>
+
+If you provide a client, Trust Runtime uses its API key as the development identity when a token is present. With an authenticated SPIFFE identity and an mTLS client, the runtime requests constraints by SPIFFE ID. Otherwise, it requests constraints by `agent_id`.
+
+## Use `TrustRuntime` Directly
+
+Create a `TrustRuntime` when you need to place each check in your own execution flow:
+
+```python
+from vijil_dome import TrustRuntime
+
+runtime = TrustRuntime(
+    agent_id="travel-agent",
+    constraints=constraints,
+    mode="enforce",
+)
+```
+
+### Guard Inputs and Outputs
+
+Run content through the configured Dome Guards before and after agent execution:
+
+```python
+input_result = runtime.guard_input(user_query)
+if input_result.flagged and input_result.enforced:
+    return input_result.guarded_response
+
+response = run_agent(user_query)
+
+output_result = runtime.guard_output(response)
+if output_result.flagged and output_result.enforced:
+    return output_result.guarded_response
+
+return response
+```
+
+An enforcement result reports whether content was `flagged`, whether the decision was `enforced`, a detection `score`, the optional `guarded_response`, execution time, and per-Guard trace information.
+
+Use the asynchronous methods when your execution flow is asynchronous:
+
+```python
+input_result = await runtime.aguard_input(user_query)
+output_result = await runtime.aguard_output(response)
+```
+
+### Check Tool Calls
+
+Call `check_tool_call()` before executing a tool:
+
+```python
+args = {"origin": "SFO", "destination": "NRT"}
+decision = runtime.check_tool_call("search_flights", args)
+
+if decision.permitted:
+    result = search_flights(**args)
+elif decision.enforced:
+    raise PermissionError(decision.error)
+```
+
+The decision includes the policy result, whether the caller identity was verified, and whether a denial is enforced. A tool can be denied because it is blocked by organization constraints, missing from the Agent's permissions, restricted to other actions, or evaluated against an incompatible identity policy.
+
+### Guard Tool Responses
+
+Run a string returned by a tool through the output Guards before sending it to the model:
+
+```python
+tool_result = search_flights(**args)
+guard_result = runtime.guard_tool_response("search_flights", tool_result)
+
+if guard_result.flagged and guard_result.enforced:
+    tool_result = guard_result.guarded_response
+```
+
+### Wrap Tools
+
+Use `wrap_tool()` or `wrap_tools()` to apply access checks and output Guards automatically:
+
+```python
+safe_search = runtime.wrap_tool(search_flights)
+
+safe_tools = runtime.wrap_tools([
+    search_flights,
+    book_hotel,
+])
+```
+
+In `enforce` mode, a denied wrapped tool raises `PermissionError`. In `warn` mode, the runtime logs the denial and calls the tool. If a wrapped tool returns a string, Trust Runtime also applies the configured output Guards.
+
+## Understand Identity
+
+Trust Runtime resolves identity through these paths:
+
+| Identity Path | When It Is Used | Attested |
+|---------------|-----------------|----------|
+| API key | A supplied Console client contains an API token | No |
+| SPIFFE X.509 SVID | The runtime can connect to the configured SPIRE agent socket | Yes |
+| Unattested fallback | Neither an API key nor a SPIFFE identity is available | No |
+
+The default SPIRE agent socket is `/run/spire/sockets/agent.sock`. Set `spire_socket` when your SPIRE Workload API uses another location:
+
+```python
+runtime = TrustRuntime(
+    agent_id="travel-agent",
+    constraints=constraints,
+    spire_socket="/var/run/spire/agent.sock",
+    mode="enforce",
+)
+```
+
+An unattested runtime emits an `identity_unattested` audit event. Whether an unattested Agent can call tools depends on the resolved `unattested_tool_policy` and enforcement mode.
+
+## Verify Tool Manifests
+
+A tool manifest declares the tools an Agent expects to call. Each entry associates a tool name with its endpoint and expected SPIFFE identity. The manifest signature protects this inventory from undetected modification.
+
+Verify the manifest signature against the Console public key before you pass the manifest to `TrustRuntime`. The runtime loads the manifest and uses it for endpoint attestation; `attest()` does not verify the manifest signature.
+
+Pass a `Path` or a loaded `ToolManifest` to the runtime:
+
+```python
+from pathlib import Path
+
+from vijil_dome import TrustRuntime
+
+runtime = TrustRuntime(
+    agent_id="travel-agent",
+    constraints=constraints,
+    manifest=Path("manifest.json"),
+    mode="enforce",
+)
+
+attestation = runtime.attest()
+if not attestation.all_verified:
+    for tool in attestation.tools:
+        if not tool.verified:
+            print(tool.tool_name, tool.error)
+```
+
+`attest()` connects to each declared endpoint, reads the SPIFFE ID from the peer certificate, and compares it with the expected identity. When the Agent has an X.509 SVID, the connection uses mTLS. Use `attest_async()` in an asynchronous application.
+
+If no manifest is configured, attestation succeeds with an empty tool list. If a manifest is configured but the Agent is not attested, each tool verification fails because the runtime cannot establish an identity-bound verification path.
+
+<Note>
+Create and sign manifests through the Console workflow. A dedicated Manifest CLI reference is forthcoming; this page does not prescribe an unconfirmed packaged command.
+</Note>
+
+## Capture Audit Events
+
+Trust Runtime emits an `AuditEvent` for security-relevant decisions. By default, it sends events to Python logging. Pass an `audit_sink` to route events to your telemetry pipeline:
+
+```python
+from vijil_dome import TrustRuntime
+
+
+def send_audit_event(event):
+    telemetry_client.emit(event.model_dump(mode="json"))
+
+
+runtime = TrustRuntime(
+    agent_id="travel-agent",
+    constraints=constraints,
+    audit_sink=send_audit_event,
+    mode="enforce",
+)
+```
+
+Events contain an `event_type`, `agent_id`, timestamp, and event-specific attributes. The runtime emits events for content Guard decisions, tool access checks, attestation results, identity or mTLS downgrade conditions, disabled Guards, and enforcement-mode downgrade attempts.
+
+See [Observability](/developer-guide/protect/observability) for Dome tracing and metrics. Trust Runtime audit events complement those signals with identity and policy decisions.
+
+## Emit Enforcement Heartbeats
+
+Set `heartbeat_interval` to emit an enforcement heartbeat on a schedule:
+
+```python
+runtime = TrustRuntime(
+    agent_id="travel-agent",
+    constraints=constraints,
+    mode="enforce",
+    heartbeat_interval=60.0,
+)
+```
+
+The constructor starts one daemon thread for the runtime. It emits immediately, then once per interval. Each heartbeat reports the configured mode, whether Guards were constructed, whether configured Detectors are reachable, and whether the Agent has an attested SPIFFE identity.
+
+The default heartbeat is unsigned. Pass a configured `BeaconSigner` when a downstream system must verify its origin. You can also manage the scheduler directly:
+
+```python
+runtime.start_heartbeat(60.0)
+health = runtime.heartbeat_health()
+runtime.stop_heartbeat()
+```
+
+`start_heartbeat()` requires a positive interval and does nothing if a scheduler is already running. `stop_heartbeat()` is safe to call more than once.
+
+## Handle Failure Behavior
+
+| Condition | `warn` Behavior | `enforce` Behavior |
+|-----------|-----------------|--------------------|
+| Content is flagged | Record the result without blocking | Return or substitute the guarded response |
+| Tool policy denies a wrapped call | Log the denial and call the tool | Raise `PermissionError` before execution |
+| Dome cannot initialize | Log the error, disable Guards, and emit an audit event | Raise `RuntimeError` during initialization |
+| Agent identity is unattested | Emit an audit event; tool behavior follows `unattested_tool_policy` | Apply the same policy and enforce any denial |
+| Tool identity does not match the manifest | Return a failed attestation status | Return a failed attestation status |
+
+The following failures do not depend on the enforcement mode:
+
+- A mode other than `warn` or `enforce` raises `ValueError`.
+- An unsupported object passed to `secure_agent()` raises `TypeError`.
+- A non-positive heartbeat interval raises `ValueError`.
+- An invalid manifest file fails while the runtime loads and validates it.
+- Direct heartbeat emission propagates signer or audit-sink errors; scheduled emission logs the error and continues the scheduler.
+
+Your application decides whether a failed `attest()` result prevents startup. Check `all_verified` before accepting traffic when tool identity is a deployment requirement.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Protection Overview" icon="shield" href="/developer-guide/protect/overview">
+    Compare Dome content Guardrails with the full Trust Runtime.
+  </Card>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
+    Select and configure the content Guards used by Trust Runtime.
+  </Card>
+  <Card title="Detection Methods" icon="list-checks" href="/developer-guide/protect/detection-methods">
+    Review the built-in Detectors available to Dome Guards.
+  </Card>
+  <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
+    Configure tracing, metrics, and logging for Dome.
+  </Card>
+  <Card title="Manifest CLI" icon="terminal" badge="Forthcoming">
+    Create, sign, and verify tool manifests from the command line.
+  </Card>
+</CardGroup>

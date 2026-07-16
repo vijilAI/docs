@@ -5,6 +5,8 @@ description: 'Monitor Dome Guardrails with OpenTelemetry, tracing, and logging.'
 
 Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup.
 
+If you use [Trust Runtime](/developer-guide/protect/trust-runtime), its structured audit events complement Dome telemetry with Agent identity, tool access, attestation, downgrade, and enforcement-heartbeat decisions.
+
 ## Quick Setup
 
 Install the [OpenTelemetry](https://opentelemetry.io/) support version of Dome using pip or your package manager.
@@ -132,6 +134,9 @@ You can set up alerts for anomalies like high block rates or high latency direct
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Capture identity-bound security and policy decisions
+  </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
     Guard configuration options
   </Card>

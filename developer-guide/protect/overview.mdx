@@ -11,6 +11,16 @@ Evaluation catches vulnerabilities you know to test for. But attackers will try 
 
 Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable Guardrails, and blocks attacks before they reach your agent or your users. When Diamond identifies vulnerabilities you cannot immediately fix, Dome provides defense-in-depth while you remediate.
 
+For tool-using Agents, [Trust Runtime](/developer-guide/protect/trust-runtime) extends Dome with workload identity, Console or local constraints, tool-level mandatory access control, signed tool manifests, tool attestation, and structured audit events. Use `secure_agent()` to add the complete trust stack to LangGraph, Google ADK, or Strands.
+
+## Choose a Protection Interface
+
+| Interface | Use It When | Protection |
+|-----------|-------------|------------|
+| `Dome` | You need content Guardrails for inputs and outputs | Guards and Detectors |
+| `secure_agent()` | You use a supported agent framework | Content Guards, identity, tool access control, attestation, and audit events |
+| `TrustRuntime` | You need direct or custom integration | Individual methods for each trust enforcement point |
+
 ## How Dome Works
 
 Dome wraps your agent with configurable Guardrails:
@@ -135,6 +145,9 @@ See [Configure Guardrails](/developer-guide/protect/configuring-guardrails) for 
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Add identity, tool access control, attestation, and audit events
+  </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
     Detailed Guard configuration options
   </Card>
