@@ -4,16 +4,16 @@ description: 'Guard your agent at runtime with Dome Guardrails.'
 ---
 
 <Tip>
-**TL;DR:** Dome wraps your [Agent](/owner-guide/register-agents/what-is-an-agent) with configurable [Guardrails](/concepts/defense/guardrail) that intercept every input and output, blocking attacks before they reach your Agent or your users. Configure which [Guards](/concepts/defense/guard) run via your registered Vijil Agent, a TOML file, or a Python dict, then choose early-exit (fast) or parallel execution (thorough) mode.
+**TL;DR:** Dome wraps your [Agent](/owner-guide/register-agents/what-is-an-agent) with configurable [Guardrails](/concepts/defense/guardrail) that intercept every input and output, blocking attacks before they reach your agent or your users. Configure which [Guards](/concepts/defense/guard) run via your registered Vijil Agent, a TOML file, or a Python dict, then choose early-exit (fast) or parallel execution (thorough) mode.
 </Tip>
 
 Evaluation catches vulnerabilities you know to test for. But attackers will try things you did not anticipate like new prompt injection techniques, novel encoding tricks, social engineering patterns that emerge after your last evaluation.
 
-Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable Guardrails, and blocks attacks before they reach your Agent or your users. When Diamond identifies vulnerabilities you cannot immediately fix, Dome provides defense-in-depth while you remediate.
+Dome is Vijil's runtime protection system. It intercepts every input and output, applies configurable Guardrails, and blocks attacks before they reach your agent or your users. When Diamond identifies vulnerabilities you cannot immediately fix, Dome provides defense-in-depth while you remediate.
 
 ## How Dome Works
 
-Dome wraps your Agent with configurable Guardrails:
+Dome wraps your agent with configurable Guardrails:
 
 ```mermaid actions={false}
 %%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':40,'padding':6}}}%%
@@ -86,7 +86,7 @@ Prevent exposure of sensitive data:
 
 ## Quick Start
 
-You can protect your Agents with default Guards. The default configuration includes:
+You can protect your agents with default Guards. The default configuration includes:
 - **Input**: Prompt injection detection, encoding heuristics, moderation
 - **Output**: Moderation, PII detection
 
@@ -96,7 +96,7 @@ Dome accepts configuration from three sources:
 
 | Source | How to Use | Best For |
 |--------|-----------|----------|
-| **Registered Agent** | Pull from your Vijil Console Agent definition | Production: keeps configuration in sync with your policy |
+| **Registered Agent** | Pull from your Vijil Console agent definition | Production: keeps configuration in sync with your policy |
 | **TOML file** | Reference a local `.toml` file at initialization | Version-controlled configuration in CI/CD |
 | **Python dict** | Pass a `dict` at runtime | Dynamic configuration, testing, prototyping |
 
@@ -116,15 +116,7 @@ Every scan returns a result object with the following fields:
 
 ## Framework Integrations
 
-Dome integrates with popular agent frameworks. Each guide shows both content-Guard protection and, where available, the full [Trust Runtime](/concepts/defense/trust-runtime).
-
-<CardGroup cols={3}>
-  <Card title="Google ADK" icon="bot" href="/developer-guide/protect/integrations/adk" />
-  <Card title="LangChain" icon="link" href="/developer-guide/protect/integrations/langchain" />
-  <Card title="LangGraph" icon="workflow" href="/developer-guide/protect/integrations/langgraph" />
-  <Card title="Strands" icon="wind" href="/developer-guide/protect/integrations/strands" />
-  <Card title="MCP Servers" icon="plug" href="/developer-guide/protect/integrations/mcp" />
-</CardGroup>
+Dome is designed to be integrable with popular frameworks and runtimes. You can see the specific framework developer guides for integration patterns during the developer access phase.
 
 ## Performance Options
 
