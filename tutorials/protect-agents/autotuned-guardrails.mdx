@@ -1,0 +1,115 @@
+---
+title: 'Autotuned Guardrails'
+description: 'Generate a recommended Dome configuration directly from a Vijil evaluation.'
+---
+
+<Tip>
+**TL;DR:** Evaluate your [Agent](/owner-guide/register-agents/what-is-an-agent) with Vijil, then call `Dome.create_from_vijil_evaluation(evaluation_id, api_key)` to build a Guardrail configuration tuned to the vulnerabilities that evaluation found. Optionally pass a `latency_threshold` to trade coverage for speed.
+</Tip>
+
+Rather than hand-picking Guards, you can let a Vijil evaluation drive your Dome configuration. This tutorial evaluates an unprotected Agent, generates a recommended configuration from the results, and re-evaluates the protected Agent to confirm the improvement.
+
+The full runnable code is in the [`AutotunedGuardrails` tutorial folder](https://github.com/vijilAI/vijil-dome/tree/main/vijil_dome/tutorials/AutotunedGuardrails).
+
+## Prerequisites
+
+Install the dependencies and set your keys:
+
+```bash
+pip install vijil-dome vijil
+```
+
+```bash
+OPENAI_API_KEY=<your OpenAI key>
+VIJIL_API_KEY=<your Vijil API key>
+```
+
+Obtain a Vijil API key from [evaluate.vijil.ai](https://evaluate.vijil.ai). If you are on the free plan, you also need an [Ngrok authtoken](https://dashboard.ngrok.com/get-started/setup/python) (`NGROK_AUTHTOKEN`), which Vijil uses to create a private HTTPS endpoint to your Agent. Premium users can skip this.
+
+## Walkthrough
+
+<Steps>
+  <Step title="Evaluate the Baseline Agent">
+    Run safety and security [harnesses](/concepts/evaluation-components/harness) against your unprotected Agent. When the evaluation completes, note its evaluation ID from the logs or from the Vijil Console.
+
+    ```bash
+    python -m evaluate_baseline_agent
+    ```
+  </Step>
+
+  <Step title="Build Guardrails From the Evaluation">
+    `Dome.create_from_vijil_evaluation` fetches the recommended configuration for that evaluation and returns a ready-to-use `Dome`:
+
+    ```python
+    from vijil_dome import Dome
+
+    dome = Dome.create_from_vijil_evaluation(
+        evaluation_id=YOUR_EVALUATION_ID,
+        api_key=VIJIL_API_KEY,
+    )
+    ```
+
+    Wrap your Agent so every request passes through the tuned Guardrails:
+
+    ```python
+    class ProtectedAgent:
+        def __init__(self, agent, dome: Dome):
+            self.agent = agent
+            self.dome = dome
+
+        async def guardrailed_invoke(self, prompt: str) -> str:
+            input_guard_result = await self.dome.async_guard_input(prompt)
+            if input_guard_result.flagged:
+                return "Input was flagged by Vijil Dome. This request violates the agent's usage policy."
+
+            agent_response = await self.agent.invoke(prompt)
+
+            output_guard_result = await self.dome.async_guard_output(agent_response)
+            if output_guard_result.flagged:
+                return "This output was blocked by Vijil Dome."
+
+            return agent_response
+    ```
+
+    Re-run the evaluation against the protected Agent:
+
+    ```bash
+    python -m evaluate_protected_agent --evaluation-id=YOUR_EVALUATION_ID
+    ```
+  </Step>
+
+  <Step title="Optimize for Latency">
+    Pass a `latency_threshold` (in seconds) to bias the recommendation toward faster Guards:
+
+    ```bash
+    python -m evaluate_protected_agent --evaluation-id=YOUR_EVALUATION_ID --latency-threshold=1.0
+    ```
+
+    In code, the same argument is available on the factory:
+
+    ```python
+    dome = Dome.create_from_vijil_evaluation(
+        evaluation_id=YOUR_EVALUATION_ID,
+        api_key=VIJIL_API_KEY,
+        latency_threshold=1.0,
+    )
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<Warning>
+Some Windows antivirus tools flag Ngrok. Ngrok is [safe](https://ngrok.com/docs/faq/#is-ngrok-a-virus), and Vijil guarantees that traffic reaching your Agent through Ngrok originates only from Vijil services, so your Agent is never publicly exposed.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
+    Fine-tune the recommended configuration
+  </Card>
+  <Card title="Understand Results" icon="chart-column" href="/developer-guide/evaluate/understanding-results">
+    Read the evaluation that drives the configuration
+  </Card>
+</CardGroup>

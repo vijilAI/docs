@@ -1,0 +1,85 @@
+---
+title: 'MCP Servers'
+description: 'Wrap third-party MCP tool servers with Dome Guardrails.'
+---
+
+<Tip>
+**TL;DR:** `DomedMCPServer` proxies a Model Context Protocol (MCP) tool server and runs Dome [Guardrails](/concepts/defense/guardrail) on every tool call. Build it with your server config and a `Dome` instance, `await` its `initialize()`, then `run()` it.
+</Tip>
+
+<Note>
+This page is about **protecting third-party MCP tool servers** your [Agent](/owner-guide/register-agents/what-is-an-agent) connects to. It is not the same as Vijil's own [Console MCP server](/developer-guide/agentic/mcp), which lets an assistant drive the Vijil Console. That server is documented separately.
+</Note>
+
+Install the MCP extra:
+
+```bash
+pip install "vijil-dome[mcp]"
+```
+
+## Wrapping an MCP Server
+
+`DomedMCPServer` builds a FastMCP proxy in front of your MCP server and inserts input and output Guard middleware around each tool call.
+
+<CodeGroup>
+```python title="Python" icon="python"
+import asyncio
+from vijil_dome import Dome
+from vijil_dome.integrations.mcp.wrapper import DomedMCPServer
+
+config = {
+    "mcpServers": {
+        "jokes": {"command": "python", "args": ["jokes_server.py"]},
+    }
+}
+
+dome = Dome()
+domed_server = DomedMCPServer(config, dome)
+
+asyncio.run(domed_server.initialize())   # required before run()
+domed_server.run(transport="http", host="0.0.0.0", port=8080)
+# or domed_server.run() for stdio
+```
+</CodeGroup>
+
+`initialize()` builds the proxy and must be called before `run()`. Supported transports are `stdio`, `http`, `sse`, and `streamable-http`. `DomedMCPServer` accepts optional `server_name`, `tool_call_input_block_message`, `tool_call_output_block_message`, and `enforce` (default `True`).
+
+<Note>
+Input Guards protect the wrapped server from malicious content coming *in* with a tool call. Output Guards protect the downstream Agent from malicious content coming *out* of the tool. Place prompt-injection Guards in your output Guards, since injected instructions typically arrive in tool results.
+</Note>
+
+When a tool call is flagged in `enforce` mode, the proxy returns a schema-valid placeholder result marked with `blocked_by_guardrails=True` and a `guardrail_message`, instead of the real tool output.
+
+## Secure Proxies with Obot
+
+<Accordion title="Advanced: place a secure gateway in front of your servers" icon="network">
+To route your servers through a secure MCP *gateway*, use `ObotClient` to generate a gateway config, then wrap it with Dome. This requires an Obot deployment.
+
+```python
+import asyncio
+from vijil_dome import Dome
+from vijil_dome.integrations.mcp import DomedMCPServer
+from vijil_dome.integrations.mcp.obot import ObotClient
+
+obot_client = ObotClient("<your-obot-url>", "<your-obot-token>")
+secure_config = obot_client.create_secure_mcp_config(config)
+
+dome = Dome()
+domed_server = DomedMCPServer(secure_config, dome)
+asyncio.run(domed_server.initialize())
+domed_server.run()
+```
+
+`create_secure_mcp_config()` takes a `{"mcpServers": {...}}` config and returns a new one whose entries route through Obot connect URLs over the `streamable_http` transport.
+</Accordion>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
+    Choose which Guards run on tool calls
+  </Card>
+  <Card title="Console MCP Server" icon="server" href="/developer-guide/agentic/mcp">
+    Drive the Vijil Console from an assistant
+  </Card>
+</CardGroup>

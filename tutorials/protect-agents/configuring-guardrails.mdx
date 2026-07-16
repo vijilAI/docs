@@ -12,7 +12,7 @@ Here iss a step-by-step guide that outlines how to setup a config for Dome.
 
 ### Step 1: Choose and Configure Guardrails
 
-Dome provides [the following types](/core-concepts/components/guardrail) of Guardrails:
+Dome provides [the following types](/concepts/defense/guardrail) of Guardrails:
 
 1. Input Guardrails
 2. Output Guardrails
@@ -53,7 +53,7 @@ Guards are made up of Detectors. To set up your Guards:
 1. Choose specific Detectors from Dome's growing library
 2. Configure each Detector with settings like thresholds or context-length.
 
-These settings depend on the Detector used. Please see the [list of detection methods](/protect-agents/detection-methods) for a comprehensive list of all the detection methods Vijil currently offers and the settings they have.
+These settings depend on the Detector used. Please see the [list of detection methods](/developer-guide/protect/detection-methods) for a comprehensive list of all the detection methods Vijil currently offers and the settings they have.
 
 ### Example
 
@@ -203,7 +203,7 @@ Each `guard` module has four attributes.
 | Attribute | Type | Description |
 |---|---|---|
 | `type` | Enum | user-defined type of the Guard module, specifying the category of Guards that it holds. Every Guard module can be exactly one of the four currently supported types: `security`, `moderation`, `privacy`, and `integrity` (experimental) |
-| `methods` | List | describes which methods are to be used in the Guard module. Possible methods depend on the type selected, and can be chosen from the [list of methods](/core-concepts/components/guard) under that type.
+| `methods` | List | describes which methods are to be used in the Guard module. Possible methods depend on the type selected, and can be chosen from the [list of methods](/concepts/defense/guard) under that type.
 | `early-exit` | Boolean | determines if the Guard runs in "early-exit" mode, i.e, stop execution as soon as one of the methods in Guard has the flagged the query |
 | `run-parallel` | Boolean |  determines whether methods in the Guard are executed in parallel. (Default is False) |
 

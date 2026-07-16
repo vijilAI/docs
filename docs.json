@@ -132,7 +132,8 @@
                   "concepts/defense/detector",
                   "concepts/defense/observe"
                 ]
-              }
+              },
+              "concepts/defense/trust-runtime"
             ]
           },
           {
@@ -213,13 +214,34 @@
           {
             "group": "Protect Agents",
             "pages": [
+              "developer-guide/protect/installation",
               "developer-guide/protect/overview",
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",
               "developer-guide/protect/detection-methods",
+              "developer-guide/protect/trust-runtime",
+              {
+                "group": "Framework Integrations",
+                "icon": "plug",
+                "pages": [
+                  "developer-guide/protect/integrations/adk",
+                  "developer-guide/protect/integrations/langchain",
+                  "developer-guide/protect/integrations/langgraph",
+                  "developer-guide/protect/integrations/strands",
+                  "developer-guide/protect/integrations/mcp"
+                ]
+              },
               "developer-guide/protect/observability",
-              "tutorials/protect-agents/dome-containerized-deployment"
+              {
+                "group": "Tutorials",
+                "icon": "graduation-cap",
+                "pages": [
+                  "tutorials/protect-agents/autotuned-guardrails",
+                  "tutorials/protect-agents/groq-agents",
+                  "tutorials/protect-agents/dome-containerized-deployment"
+                ]
+              }
             ]
           },
           {

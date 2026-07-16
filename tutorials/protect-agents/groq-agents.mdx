@@ -1,0 +1,120 @@
+---
+title: 'Protecting Groq Agents'
+description: 'Evaluate a Groq-powered agent with Vijil and protect it with Dome.'
+---
+
+<Tip>
+**TL;DR:** Wrap a Groq [Agent](/owner-guide/register-agents/what-is-an-agent) in a small class that runs `dome.async_guard_input` before the model and `dome.async_guard_output` after it, then evaluate the unprotected and protected versions to measure the difference.
+</Tip>
+
+This tutorial builds a news Agent on Groq's serverless inference, evaluates it with Vijil, and protects it with Dome. The full runnable code is in the [`GroqAgents` tutorial folder](https://github.com/vijilAI/vijil-dome/tree/main/vijil_dome/tutorials/GroqAgents).
+
+## Prerequisites
+
+```bash
+pip install vijil-dome vijil openai
+```
+
+```bash
+GROQ_API_KEY=<your Groq key>
+TAVILY_API_KEY=<your Tavily key>
+VIJIL_API_KEY=<your Vijil key>
+```
+
+Free-plan Vijil users also need an [Ngrok authtoken](https://dashboard.ngrok.com/get-started/setup/python) (`NGROK_AUTHTOKEN`).
+
+## Walkthrough
+
+<Steps>
+  <Step title="Build the Agent">
+    The base Agent calls Groq's OpenAI-compatible endpoint and uses Tavily for web search:
+
+    ```python
+    from openai import AsyncOpenAI
+
+    class MyNewsBot:
+        def __init__(self, groq_api_key: str, tavily_api_key: str,
+                     model: str = "openai/gpt-oss-20b"):
+            self.client = AsyncOpenAI(
+                base_url="https://api.groq.com/openai/v1",
+                api_key=groq_api_key,
+            )
+            self.tools = [{
+                "type": "mcp",
+                "server_url": f"https://mcp.tavily.com/mcp/?tavilyApiKey={tavily_api_key}",
+                "server_label": "tavily",
+                "require_approval": "never",
+            }]
+
+        async def answer_query(self, query_string: str):
+            response = await self.client.responses.create(
+                model=self.model, input=query_string, tools=self.tools, stream=False,
+            )
+            return response.output_text
+    ```
+  </Step>
+
+  <Step title="Add Dome Protection">
+    Wrap the Agent so inputs and outputs pass through Dome. Guard the input first, short-circuit if it is flagged, then guard the model output:
+
+    ```python
+    from vijil_dome import Dome
+
+    class MyProtectedNewsBot:
+        def __init__(self, groq_api_key: str, tavily_api_key: str):
+            self.dome = Dome()
+            self.news_bot = MyNewsBot(groq_api_key, tavily_api_key)
+            self.input_blocked_message = "This request violates my usage guidelines."
+            self.output_blocked_message = "This content violates my usage guidelines."
+
+        async def answer_query(self, query_string: str):
+            input_scan = await self.dome.async_guard_input(query_string)
+            if not input_scan.is_safe():
+                return self.input_blocked_message
+
+            agent_output = await self.news_bot.answer_query(query_string)
+
+            output_scan = await self.dome.async_guard_output(agent_output)
+            if not output_scan.is_safe():
+                return self.output_blocked_message
+
+            return output_scan.response_string
+    ```
+  </Step>
+
+  <Step title="Evaluate Both Versions">
+    Register each Agent with the Vijil SDK and run the `security` harness. See the [Evaluate SDK guide](/developer-guide/agentic/quickstart) for the full evaluation flow. The tutorial script runs the unprotected Agent by default and the protected Agent with a flag:
+
+    ```bash
+    # Unprotected
+    python -m evaluate_agent
+
+    # Protected with Dome
+    python -m evaluate_agent --protected=true
+    ```
+
+    Compare the two [Trust Scores](/concepts/trust-score/introduction) to see how much Dome improves the Agent's security posture.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Ngrok antivirus warnings">
+    Ngrok is [safe](https://ngrok.com/docs/faq/#is-ngrok-a-virus); traffic reaching your Agent comes only from Vijil's systems.
+  </Accordion>
+  <Accordion title="Rate limiting">
+    If you hit rate limits, lower the request frequency or upgrade your Groq and Tavily accounts.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Autotuned Guardrails" icon="wand-sparkles" href="/tutorials/protect-agents/autotuned-guardrails">
+    Generate a configuration from the evaluation
+  </Card>
+  <Card title="Protection Overview" icon="shield" href="/developer-guide/protect/overview">
+    How Dome guards inputs and outputs
+  </Card>
+</CardGroup>
