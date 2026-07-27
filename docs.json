@@ -214,6 +214,7 @@
             "group": "Protect Agents",
             "pages": [
               "developer-guide/protect/overview",
+              "developer-guide/protect/trust-runtime",
               "developer-guide/protect/configuring-guardrails",
               "developer-guide/protect/using-guardrails",
               "developer-guide/protect/custom-detectors",

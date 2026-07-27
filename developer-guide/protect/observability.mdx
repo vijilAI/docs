@@ -5,6 +5,8 @@ description: 'Monitor Dome Guardrails with OpenTelemetry, tracing, and logging.'
 
 Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup.
 
+If you use [Trust Runtime](/developer-guide/protect/trust-runtime), its structured audit events complement Dome telemetry with Agent identity, tool access, attestation, downgrade, and enforcement-heartbeat decisions. Every event includes the configured `agent_id`; cryptographic identity fields are available only when the runtime is attested.
+
 ## Quick Setup
 
 Install the [OpenTelemetry](https://opentelemetry.io/) support version of Dome using pip or your package manager.
@@ -15,7 +17,7 @@ Install the [OpenTelemetry](https://opentelemetry.io/) support version of Dome u
 
 [Weave](https://weave-docs.wandb.ai/) is W&B's toolkit for tracing LLM applications. You can use it with Dome to trace all inputs and outputs by wrapping Dome with Weave.
 
-In your Weave dashboard, you'll see:
+In your Weave dashboard, you will see:
 - All `guard_input` and `guard_output` calls
 - Individual Guard execution within each Guardrail
 - Detector-level details for each Guard
@@ -26,7 +28,7 @@ In your Weave dashboard, you'll see:
 
 ## OpenTelemetry Integration
 
-Dome works with any OpenTelemetry-compliant platform (Jaeger, Uptrace, Signoz, etc.).
+Dome works with OpenTelemetry-compliant platforms such as Jaeger, Uptrace, Signoz, etc.
 
 ### Basic Setup
 
@@ -95,7 +97,7 @@ Dome logs to Python loggers under `vijil.dome`. You can add standard handlers to
 |-------|---------------|
 | `DEBUG` | Initialization details, parameters |
 | `INFO` | Inputs and outputs from each component |
-| `WARNING` | Missing config, context window exceeded, timeouts |
+| `WARNING` | Missing configuration, context window exceeded, timeouts |
 | `ERROR` | Handled exceptions during execution |
 | `CRITICAL` | Initialization failures, unhandled exceptions |
 
@@ -132,6 +134,9 @@ You can set up alerts for anomalies like high block rates or high latency direct
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Capture identity and policy decisions
+  </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
     Guard configuration options
   </Card>
