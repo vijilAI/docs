@@ -225,7 +225,6 @@
           {
             "group": "Reference",
             "pages": [
-              "developer-guide/reference/sdk-migration-guide",
               "developer-guide/agentic/tools",
               {
                 "group": "CLI Reference",
@@ -236,6 +235,15 @@
                   "developer-guide/cli/protect",
                   "developer-guide/cli/red-team",
                   "developer-guide/cli/telemetry"
+                ]
+              },
+              {
+                "group": "SDK Reference",
+                "pages": [
+                  "developer-guide/sdk/setup",
+                  "developer-guide/sdk/lifecycle-methods",
+                  "developer-guide/sdk/resources",
+                  "developer-guide/sdk/models-errors"
                 ]
               },
               {

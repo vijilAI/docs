@@ -4,7 +4,7 @@ description: 'Integrate evaluation and protection into your development workflow
 ---
 
 <Tip>
-**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), or REST API. Diamond evaluates your [agent](/owner-guide/register-agents/what-is-an-agent) before deployment; Dome protects it at runtime. You get a [Trust Score](/concepts/trust-score/introduction) (0–100) with specific failures you can fix and a deployment gate you can automate in CI/CD.
+**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), REST API, or the Python SDK (`vijil-sdk`). Diamond evaluates your [agent](/owner-guide/register-agents/what-is-an-agent) before deployment; Dome protects it at runtime. You get a [Trust Score](/concepts/trust-score/introduction) (0–100) with specific failures you can fix and a deployment gate you can automate in CI/CD.
 </Tip>
 
 ## The Problem with Testing Agents
@@ -27,7 +27,7 @@ Vijil provides two products that work together:
 
 ## Integration Methods
 
-Vijil exposes three interfaces. Choose the one that fits your workflow, or mix them:
+Vijil exposes four interfaces. Choose the one that fits your workflow, or mix them:
 
 ### At a Glance
 
@@ -36,8 +36,9 @@ Vijil exposes three interfaces. Choose the one that fits your workflow, or mix t
 | **MCP** | Interactive development, natural language evaluation | Claude Code + `vijil-mcp` |
 | **CLI** | CI/CD gates, scripting, headless automation | `vijil-console` package |
 | **REST API** | Custom integrations, non-Python environments | HTTP client + API key |
+| **SDK** | Python apps, notebooks, programmatic pipelines | `vijil-sdk` package (Python 3.12+) |
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="MCP" icon="plug" href="/developer-guide/agentic/quickstart">
     **Natural language, no commands.** Connect Claude Code to your Console and evaluate agents through conversation. Best for interactive development and exploration.
   </Card>
@@ -46,6 +47,9 @@ Vijil exposes three interfaces. Choose the one that fits your workflow, or mix t
   </Card>
   <Card title="REST API" icon="code" href="/developer-guide/agentic/quickstart">
     **HTTP requests.** Call the Console API directly from any language. Best for custom integrations, dashboards, and non-Python environments.
+  </Card>
+  <Card title="SDK" icon="worm" href="/developer-guide/sdk/setup">
+    **Native Python.** Install `vijil-sdk` and drive evaluations from your own code. Best for Python apps, notebooks, and programmatic pipelines.
   </Card>
 </CardGroup>
 
@@ -92,9 +96,9 @@ Each evaluation produces a **Trust Score** (0–100) with breakdowns by dimensio
 
 ## Time to First Trust Score
 
-The fastest path is [MCP](/developer-guide/agentic/quickstart): install `vijil-mcp`, connect Claude Code, and ask it to run an evaluation, with no commands to learn. If you prefer the terminal, the [CLI path in the Quickstart](/developer-guide/agentic/quickstart) takes you from install to a completed evaluation in minutes. For custom integrations or non-Python environments, the [REST API](/developer-guide/agentic/quickstart) accepts standard HTTP requests and returns results as JSON.
+The fastest path is [MCP](/developer-guide/agentic/quickstart): install `vijil-mcp`, connect Claude Code, and ask it to run an evaluation, with no commands to learn. If you prefer the terminal, the [CLI path in the Quickstart](/developer-guide/agentic/quickstart) takes you from install to a completed evaluation in minutes. For custom integrations or non-Python environments, the [REST API](/developer-guide/agentic/quickstart) accepts standard HTTP requests and returns results as JSON. To drive evaluations from Python code, the [SDK](/developer-guide/sdk/setup) wraps the same workflow in a typed client.
 
-All three paths require a running [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
+All four paths require a running [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
 
 ## Integration Points
 

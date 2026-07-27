@@ -1,0 +1,176 @@
+---
+title: "Resources"
+description: "Low-level resource accessors on the Vijil client for CRUD operations on platform resources."
+---
+
+Resource accessors are low-level attributes on the `Vijil` client. Where [lifecycle methods](/developer-guide/sdk/lifecycle-methods) run whole workflows, resources give you direct create, read, update, and delete access to individual platform objects.
+
+List methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `page.items` for the results.
+
+| Accessor | Methods |
+|----------|---------|
+| `client.agents` | `list`, `show`, `create`, `update`, `delete` |
+| `client.evaluations` | `list`, `show`, `create` |
+| `client.harnesses` | `list`, `show`, `create`, `delete` |
+| `client.scores` | `show`, `history` |
+| `client.reports` | `list`, `show`, `download` |
+| `client.dome` | `list`, `show`, `default`, `update` |
+| `client.jobs` | `list`, `show`, `status`, `create`, `cancel` |
+| `client.genomes` | `list`, `show`, `versions`, `history`, `diff` |
+| `client.proposals` | `list`, `show`, `approve`, `apply`, `reject` |
+| `client.policies` | `list`, `show`, `create`, `update`, `delete` |
+| `client.personas` | `list`, `show`, `create`, `update`, `delete` |
+| `client.monitor` | `summary`, `detections`, `traces`, `logs` |
+
+## `client.agents`
+
+Manage [Agent](/owner-guide/register-agents/what-is-an-agent) configurations.
+
+```python
+page = client.agents.list(team_id="optional-team-id")
+agent = client.agents.show("agent-id")
+agent = client.agents.create(name="My Agent", url="http://agent:9000/v1")
+agent = client.agents.update("agent-id", name="New Name")
+client.agents.delete("agent-id")
+```
+
+## `client.evaluations`
+
+Manage [Evaluations](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#client-evaluate) for the polling workflow; `create()` here starts one without waiting.
+
+```python
+page = client.evaluations.list(agent_id="optional-agent-id")
+evaluation = client.evaluations.show("evaluation-id")
+evaluation = client.evaluations.create(agent_id="agent-id", baseline=True)
+```
+
+## `client.harnesses`
+
+List and manage [Harnesses](/concepts/evaluation-components/harness). The list merges standard and custom Harnesses.
+
+```python
+page = client.harnesses.list()
+harness = client.harnesses.show("harness-id")
+harness = client.harnesses.create(
+    name="Custom Harness",
+    agent_id="agent-id",
+    persona_ids=["persona-id"],   # optional
+    policy_ids=["policy-id"],     # optional
+    system_prompt="...",          # optional
+)
+client.harnesses.delete("harness-id")
+```
+
+`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for the given Agent; `persona_ids` and `policy_ids` shape the Probes it produces. Custom Harnesses are immutable, so there is no `update()` — create a new Harness and delete the old one to change its configuration.
+
+## `client.scores`
+
+Read Trust Scores for an Agent.
+
+```python
+score = client.scores.show("agent-id")
+page = client.scores.history("agent-id", limit=20)
+```
+
+## `client.reports`
+
+List, fetch, and download Trust Reports. `download()` returns PDF bytes.
+
+```python
+page = client.reports.list(agent_id="optional-agent-id")
+report = client.reports.show("evaluation-id")
+
+pdf_bytes = client.reports.download("evaluation-id")
+with open("report.pdf", "wb") as f:
+    f.write(pdf_bytes)
+```
+
+## `client.dome`
+
+Read and update [Dome](/developer-guide/protect/overview) Guardrail configurations. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) for the common case.
+
+```python
+page = client.dome.list()
+config = client.dome.show("agent-id")
+config = client.dome.default()
+config = client.dome.update("agent-id", guards=["prompt_injection"], mode="enforce")
+```
+
+## `client.jobs`
+
+Track and control asynchronous test and evolution jobs.
+
+```python
+page = client.jobs.list("agent-id")
+job = client.jobs.show("agent-id", "job-id")
+job = client.jobs.status("agent-id", "job-id")
+job = client.jobs.create("agent-id", mode="config")
+client.jobs.cancel("agent-id", "job-id")
+```
+
+## `client.genomes`
+
+Version and compare Agent source across adaptations.
+
+```python
+page = client.genomes.list(agent_id="optional-agent-id")
+genome = client.genomes.show("genome-id")
+versions = client.genomes.versions("genome-id")
+history = client.genomes.history("genome-id")
+diff = client.genomes.diff("genome-id", v1=1, v2=3)
+```
+
+## `client.proposals`
+
+Review and apply the adaptation proposals produced by [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
+
+```python
+page = client.proposals.list(agent_id="optional", status="pending")
+proposal = client.proposals.show("proposal-id")
+proposal = client.proposals.approve("proposal-id")
+proposal = client.proposals.apply("proposal-id")
+proposal = client.proposals.reject("proposal-id")
+```
+
+## `client.policies`
+
+Manage the [Policies](/owner-guide/simulate-environment/policies) that constrain Agent behavior. `category` is required — one of `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom`. Provide the policy text with `source_text`, `content`, or a `file_path` to a `.txt`/`.pdf` document.
+
+```python
+page = client.policies.list(agent_id="optional-agent-id")
+policy = client.policies.show("policy-id")
+policy = client.policies.create(
+    name="Data Handling Policy",
+    category="privacy",
+    source_text="The agent must not store or repeat personal data.",
+)
+policy = client.policies.update("policy-id", name="Updated")
+client.policies.delete("policy-id")
+```
+
+## `client.personas`
+
+Manage the [Personas](/owner-guide/simulate-environment/personas) used to build custom Harnesses. `role` is required; `intent` is one of `benign`, `curious`, `adversarial`, or `malicious`.
+
+```python
+page = client.personas.list(agent_id="optional-agent-id")
+persona = client.personas.show("persona-id")
+persona = client.personas.create(
+    name="Frustrated Customer",
+    role="End user",
+    intent="adversarial",
+)
+persona = client.personas.update("persona-id", name="Updated")
+client.personas.delete("persona-id")
+```
+
+## `client.monitor`
+
+Read Dome runtime telemetry. The `since` argument accepts durations such as `"1h"`, `"24h"`, or `"7d"`.
+
+```python
+summary = client.monitor.summary("agent-id")
+detections = client.monitor.detections("agent-id", since="24h")
+traces = client.monitor.traces("agent-id", since="1h")
+logs = client.monitor.logs("agent-id", since="7d")
+```
