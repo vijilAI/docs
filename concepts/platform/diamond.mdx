@@ -90,3 +90,63 @@ Here is how that hierarchy translates into an actual Evaluation process:
   Detectors analyze the Agent’s responses. They check if something went wrong, for example a policy violation, a hallucination, or a security issue and then record the results.
 
 If you want to create a short conclusion, it would be that these components allow Diamond to go beyond the superficial testing and find out how the Agent behaves under pressure.
+
+## Explore Diamond
+
+Pick the path that matches what you need to do next. Learn the ideas behind Diamond, run Evaluations from the Console, or integrate Diamond into your code.
+
+### Understand the Concepts
+
+<CardGroup cols={2}>
+  <Card title="The Trust Score" icon="gauge" href="/concepts/trust-score/introduction">
+    How Diamond scores Agent trustworthiness from 0 to 100.
+  </Card>
+  <Card title="How Evaluation Works" icon="workflow" href="/concepts/evaluation-components/introduction">
+    The architecture behind systematic Agent testing.
+  </Card>
+  <Card title="Dimensions of Trust" icon="ruler-dimension-line" href="/concepts/trust-score/reliability">
+    [Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), and [Safety](/concepts/trust-score/safety).
+  </Card>
+  <Card title="Evaluation Components" icon="handshake" href="/concepts/evaluation-components/harness">
+    [Harness](/concepts/evaluation-components/harness), [Scenario](/concepts/evaluation-components/scenario), [Probe](/concepts/evaluation-components/probe), and [Detector](/concepts/evaluation-components/detector).
+  </Card>
+</CardGroup>
+
+### Evaluate in the Console
+
+<CardGroup cols={2}>
+  <Card title="Build an Evaluation Environment" icon="sliders-vertical" href="/owner-guide/simulate-environment/personas">
+    Define [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies), and [Harnesses](/owner-guide/simulate-environment/harnesses/trust-score).
+  </Card>
+  <Card title="Run Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
+    Start an Evaluation on a registered Agent from the Console.
+  </Card>
+  <Card title="Understand Results" icon="chart-bar" href="/owner-guide/run-evaluations/understanding-results">
+    Read the Trust Report and act on the findings.
+  </Card>
+</CardGroup>
+
+### Evaluate Programmatically
+
+<CardGroup cols={2}>
+  <Card title="Evaluation Overview" icon="book-open-text" href="/developer-guide/evaluate/overview">
+    The programmatic evaluation workflow end to end.
+  </Card>
+  <Card title="Run Evaluations" icon="terminal" href="/developer-guide/evaluate/running-evaluations">
+    Start Evaluations through the CLI, MCP, REST API, or Python SDK.
+  </Card>
+  <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
+    Create targeted Evaluations with your own Harnesses.
+  </Card>
+  <Card title="Cloud Provider Integrations" icon="cloud" href="/developer-guide/evaluate/cloud-providers">
+    Evaluate Agents hosted on major cloud platforms.
+  </Card>
+</CardGroup>
+
+### Red Team Campaigns
+
+<CardGroup cols={2}>
+  <Card title="Run a Red Team Campaign" icon="crosshair" href="/developer-guide/cli/red-team">
+    Launch Diamond's [adaptive adversarial mode](#red-team-in-diamond) for deeper security and safety testing.
+  </Card>
+</CardGroup>
