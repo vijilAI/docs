@@ -1,0 +1,683 @@
+---
+title: 'Controls API Reference'
+description: 'Reference for the public VijilDome Controls classes, policy models, evaluators, results, and errors.'
+---
+
+This page documents the public Python exports for the Controls Engine. Start with [Controls Engine](/developer-guide/protect/control-engine) if you want a guided integration.
+
+Import the primary interfaces from the top-level package:
+
+```python
+from vijil_dome import (
+    ControlEngine,
+    ControlError,
+    ControlSteerError,
+    ControlViolationError,
+    Evaluator,
+    EvaluatorResult,
+    VijilDome,
+    control,
+    register_evaluator,
+)
+```
+
+Import policy models, registry functions, and selector utilities from `vijil_dome.controls`:
+
+```python
+from vijil_dome.controls import (
+    MISSING,
+    ConditionNode,
+    Control,
+    ControlAction,
+    ControlMatch,
+    ControlScope,
+    EvaluationResult,
+    EvaluatorRef,
+    Step,
+    SteeringContext,
+    list_evaluators,
+    resolve,
+    resolve_evaluator,
+)
+```
+
+## Installation
+
+| Installation | Included Controls Features |
+|--------------|----------------------------|
+| `pip install vijil-dome` | Python policies, JSON, TOML, `regex`, and `list` |
+| `pip install "vijil-dome[controls]"` | Base features and YAML loading |
+| `pip install "vijil-dome[controls-full]"` | YAML, JSON Schema, CEL, and RE2 |
+
+The package supports Python 3.11 through 3.13. A `dome:*` evaluator can require another optional dependency for its selected Dome Detector.
+
+## Choose an API
+
+| API | Purpose |
+|-----|---------|
+| `VijilDome` | Construct Steps, evaluate a policy, and enforce decisions |
+| `control()` | Wrap a synchronous or asynchronous function |
+| `ControlEngine` | Load Controls and evaluate explicit Steps |
+| Policy models | Validate or construct typed policy definitions |
+| Evaluator API | Register application-specific evaluation logic |
+
+## `VijilDome`
+
+`VijilDome` is the recommended policy-driven interface.
+
+```python
+VijilDome(
+    *,
+    policy: list[dict | Control] | str | Path | None = None,
+    enforce: bool = True,
+    agent_id: str | None = None,
+)
+```
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `policy` | `None` | Control dictionaries, `Control` objects, or a JSON, YAML, or TOML path |
+| `enforce` | `True` | Raises on `deny` and actionable `steer` results when enabled |
+| `agent_id` | `None` | Optional identifier stored and exposed through the `agent_id` property |
+
+<Warning>
+`agent_id` does not authenticate the running workload or make a policy identity-bound. Use [Trust Runtime](/developer-guide/protect/trust-runtime) when enforcement requires workload identity.
+</Warning>
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `engine` | `ControlEngine` | Underlying engine used by the interface |
+| `agent_id` | `str \| None` | Optional identifier stored and exposed by the instance |
+| `enforce` | `bool` | Whether the interface raises enforcement exceptions |
+
+### Input Methods
+
+```python
+guard_input(
+    text: str | dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+    step_name: str = "input",
+) -> EvaluationResult
+
+async_guard_input(
+    text: str | dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+    step_name: str = "input",
+) -> EvaluationResult
+```
+
+Both methods construct an `llm` Step with `text` assigned to `input`, then evaluate the `pre` stage.
+
+### Output Methods
+
+```python
+guard_output(
+    text: str | dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+    step_name: str = "output",
+) -> EvaluationResult
+
+async_guard_output(
+    text: str | dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+    step_name: str = "output",
+) -> EvaluationResult
+```
+
+Both methods construct an `llm` Step with `text` assigned to `output`, then evaluate the `post` stage.
+
+### Tool Methods
+
+```python
+guard_tool_call(
+    tool_name: str,
+    tool_input: Any = None,
+    *,
+    context: dict[str, Any] | None = None,
+) -> EvaluationResult
+
+async_guard_tool_call(
+    tool_name: str,
+    tool_input: Any = None,
+    *,
+    context: dict[str, Any] | None = None,
+) -> EvaluationResult
+```
+
+Both methods construct a `tool` Step named `tool_name`, assign `tool_input` to `input`, and evaluate the `pre` stage.
+
+### Instance Decorator
+
+```python
+VijilDome.control(
+    *,
+    step_type: Literal["tool", "llm"] = "llm",
+    step_name: str | None = None,
+    input_mapper: Callable | None = None,
+    output_mapper: Callable | None = None,
+    context_mapper: Callable | None = None,
+) -> Callable
+```
+
+The returned decorator uses the instance's `ControlEngine` and enforcement setting. See [`control()`](#control) for mapping and stage behavior.
+
+### Enforcement Behavior
+
+| Result | `enforce=True` | `enforce=False` |
+|--------|----------------|-----------------|
+| `allow` | Returns the result | Returns the result |
+| `deny` | Raises `ControlViolationError` | Logs a shadow warning and returns the result |
+| `steer` with context | Raises `ControlSteerError` | Logs a shadow warning and returns the result |
+| `steer` without context | Logs a warning and returns the result | Logs a warning and returns the result |
+
+## `control()`
+
+The standalone decorator creates or reuses a `ControlEngine` and evaluates a function at the `pre` and `post` stages.
+
+```python
+control(
+    *,
+    engine: ControlEngine | None = None,
+    policy: list[Control | dict] | str | Path | None = None,
+    step_type: Literal["tool", "llm"] = "llm",
+    step_name: str | None = None,
+    enforce: bool = True,
+    input_mapper: Callable[..., Any] | None = None,
+    output_mapper: Callable[[Any], Any] | None = None,
+    context_mapper: Callable[..., dict[str, Any] | None] | None = None,
+) -> Callable
+```
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `engine` | `None` | Existing engine to share across decorated functions |
+| `policy` | `None` | Control definitions or a policy file used to create an engine |
+| `step_type` | `llm` | Type assigned to the constructed Step |
+| `step_name` | Function name | Name assigned to the constructed Step |
+| `enforce` | `True` | Enables enforcement exceptions |
+| `input_mapper` | Automatic mapping | Synchronous callable that returns `Step.input` |
+| `output_mapper` | Return value | Synchronous callable that maps the function return value to `Step.output` |
+| `context_mapper` | Empty context | Synchronous callable that returns a context dictionary or `None` |
+
+Passing both `engine` and `policy` raises `ValueError`. If both are omitted, the decorator uses an empty engine and permits every call.
+
+The wrapper performs these operations:
+
+1. Construct a Step from the function arguments.
+2. Evaluate the `pre` stage and enforce its result.
+3. Invoke the wrapped function.
+4. Assign or map the return value to `Step.output`.
+5. Evaluate the `post` stage and enforce its result.
+6. Return the original function result.
+
+A pre-stage exception prevents function execution. A post-stage exception occurs after the function has completed.
+
+### Automatic Input Mapping
+
+For `tool` Steps, the decorator maps all bound parameters except `self` and `cls` to a dictionary. A tool function with one parameter still receives a dictionary as `Step.input`.
+
+For `llm` Steps, the decorator uses the first applicable rule:
+
+1. Select `input`, `message`, `query`, `text`, `prompt`, `content`, `user_input`, `msg`, or `request`.
+2. Select the first string-valued argument.
+3. Use the value directly when one parameter remains.
+4. Use a dictionary when multiple parameters remain.
+5. Convert the arguments to a string if signature binding fails or no parameter remains.
+
+Default parameter values are applied before mapping. Supply `input_mapper` when these rules do not match your function's data model.
+
+## `ControlEngine`
+
+`ControlEngine` loads, stores, and evaluates Controls.
+
+```python
+ControlEngine(controls: list[Control] | None = None)
+```
+
+The constructor accepts typed `Control` objects. Use `load_controls()` for dictionaries.
+
+### Engine Members
+
+```python
+controls: list[Control]
+
+add_control(control: Control) -> None
+
+load_controls(definitions: list[dict[str, Any]]) -> None
+
+load_controls_from_file(path: str | Path) -> None
+
+async evaluate(
+    step: Step,
+    stage: Literal["pre", "post"] = "pre",
+) -> EvaluationResult
+
+evaluate_sync(
+    step: Step,
+    stage: Literal["pre", "post"] = "pre",
+) -> EvaluationResult
+```
+
+| Member | Description |
+|--------|-------------|
+| `controls` | Returns the current priority-sorted Controls as a list snapshot |
+| `add_control()` | Adds one typed Control and restores priority order |
+| `load_controls()` | Validates and appends Control dictionaries |
+| `load_controls_from_file()` | Loads Controls from JSON, YAML, or TOML |
+| `evaluate()` | Evaluates applicable Controls asynchronously |
+| `evaluate_sync()` | Runs the same evaluation from synchronous code |
+
+Loading more Controls appends them to the existing engine. The loading methods do not replace previously loaded Controls.
+
+Direct engine evaluation returns an `EvaluationResult`. It does not raise `ControlViolationError` or `ControlSteerError`.
+
+## Policy Models
+
+Controls models inherit from `pydantic.BaseModel` and support standard model validation and serialization.
+
+### `Step`
+
+`Step` is the runtime payload evaluated by the engine.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `type` | `Literal["tool", "llm"]` | Required | Execution type |
+| `name` | `str` | Required | LLM or tool operation name |
+| `input` | `Any` | `None` | Data available to pre-stage selectors |
+| `output` | `Any` | `None` | Data available to post-stage selectors |
+| `context` | `dict[str, Any]` | `{}` | Application metadata available to selectors |
+
+### `Control`
+
+`Control` represents one policy rule.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `str` | Required | Name reported in matches and exceptions |
+| `description` | `str \| None` | `None` | Human-readable policy intent |
+| `enabled` | `bool` | `True` | Whether the engine evaluates the Control |
+| `scope` | `ControlScope` | Unrestricted | Applicability filters |
+| `condition` | `ConditionNode` | Required | Matching logic |
+| `action` | `ControlAction` | Required | Decision on match or error |
+| `priority` | `int` | `100` | Ascending sort value |
+| `tags` | `list[str]` | `[]` | Policy labels |
+| `annotations` | `dict[str, Any]` | `{}` | Vendor and extension metadata |
+
+The model preserves unknown top-level fields during parsing and serialization. Preserved fields are not automatically interpreted by the Controls Engine. Use reverse-DNS keys, such as `example.com/risk-class`, for annotation extensions.
+
+### `ControlScope`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `step_types` | `list[Literal["tool", "llm"]] \| None` | `None` | Accepted Step types |
+| `step_names` | `list[str] \| None` | `None` | Accepted exact Step names |
+| `step_name_regex` | `str \| None` | `None` | Regular expression for Step names |
+| `stages` | `list[Literal["pre", "post"]] \| None` | `None` | Accepted evaluation stages |
+
+Every specified field must match. An omitted field does not restrict the Control. Step-name regular expressions use RE2 when `google-re2` is installed and otherwise use Python's standard regular-expression engine with a warning.
+
+### `EvaluatorRef`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | `str` | Required | Registered evaluator name or `dome:*` reference |
+| `config` | `dict[str, Any]` | `{}` | Evaluator-specific configuration |
+
+### `ConditionNode`
+
+A leaf node requires both `selector` and `evaluator`:
+
+```python
+ConditionNode(
+    selector="input.amount",
+    evaluator=EvaluatorRef(
+        name="cel",
+        config={"expression": "value > 1000"},
+    ),
+)
+```
+
+Use one logical operator for each composite node:
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `and` | `list[ConditionNode] \| None` | `None` | Matches when every child matches |
+| `or` | `list[ConditionNode] \| None` | `None` | Matches when any child matches |
+| `not` | `ConditionNode \| None` | `None` | Inverts one child result |
+| `early_exit` | `bool` | `False` | Evaluates `and` or `or` children sequentially with short-circuiting |
+
+Leaf and composite fields are mutually exclusive. A leaf with only a selector or only an evaluator fails validation. Empty `and` and `or` lists also fail validation.
+
+`is_leaf()` reports whether the node contains leaf fields. `is_composite()` reports whether the node contains a logical operator.
+
+### `ControlAction`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `decision` | `Literal["deny", "steer", "observe"]` | Required | Action associated with a triggered Control |
+| `message` | `str \| None` | `None` | Message copied to a triggered `ControlMatch` |
+| `steering_context` | `SteeringContext \| None` | `None` | Correction guidance for `steer` |
+| `on_error` | `Literal["fail_open", "fail_closed"]` | `fail_closed` | Behavior when condition evaluation raises |
+
+Always supply `steering_context` for a `steer` action. Without it, the engine can return `steer`, but the interface logs a warning and does not raise `ControlSteerError`.
+
+### `SteeringContext`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `message` | `str` | Required | Correction instruction returned to the caller |
+| `metadata` | `dict[str, Any]` | `{}` | Structured application guidance |
+
+## Results
+
+### `EvaluationResult`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `action` | `Literal["allow", "deny", "steer"]` | `allow` | Aggregate engine decision |
+| `confidence` | `float` | `1.0` | Confidence copied from the selected match |
+| `matches` | `list[ControlMatch]` | `[]` | Completed per-Control evaluations |
+| `steering_context` | `SteeringContext \| None` | `None` | Guidance from the selected steering Control |
+| `exec_time_ms` | `float` | `0.0` | Total evaluation time in milliseconds |
+| `permitted` | `bool` | Computed | `False` only when `action` is `deny` |
+
+An `observe` action does not appear as an aggregate action. The observation appears as a triggered entry in `matches` and does not change the aggregate action. If no `deny` or `steer` Control triggers, the result is `allow`.
+
+The current engine reduces conditions to truth values before constructing `ControlMatch`. A completed Control evaluation therefore reports confidence `1.0`, while an evaluation error reports `0.0`. The engine does not propagate `EvaluatorResult.confidence` to `ControlMatch` or `EvaluationResult`.
+
+### `ControlMatch`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `control_name` | `str` | Required | Evaluated Control name |
+| `triggered` | `bool` | Required | Whether the condition or failure behavior triggered |
+| `action` | `ControlAction \| None` | `None` | Triggered action, when present |
+| `confidence` | `float` | `1.0` | Control-level confidence |
+| `message` | `str` | `""` | Triggered action message |
+| `exec_time_ms` | `float` | `0.0` | Control evaluation time in milliseconds |
+| `error` | `str \| None` | `None` | Raised evaluator or condition error |
+
+A fail-open error produces a non-triggered match without an action. A fail-closed error produces a triggered match with the Control action.
+
+## Evaluator API
+
+### `Evaluator`
+
+Custom evaluators subclass the abstract `Evaluator` class:
+
+```python
+class Evaluator(ABC):
+    async def evaluate(
+        self,
+        value: Any,
+        config: dict[str, Any],
+    ) -> EvaluatorResult:
+        ...
+```
+
+`value` is the selector result. `config` is the dictionary from `EvaluatorRef.config`.
+
+### `EvaluatorResult`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `matched` | `bool` | Required | Whether the condition matched |
+| `confidence` | `float` | `1.0` | Evaluator confidence from `0.0` through `1.0` |
+| `message` | `str` | `""` | Evaluator explanation |
+| `metadata` | `dict[str, Any]` | `{}` | Evaluator-specific details |
+
+`Pydantic` validation rejects confidence values outside the inclusive `0.0` through `1.0` range.
+
+### Registry Functions
+
+```python
+register_evaluator(name: str) -> Callable
+
+resolve_evaluator(name: str) -> Evaluator
+
+list_evaluators() -> list[str]
+```
+
+| Function | Description |
+|----------|-------------|
+| `register_evaluator()` | Class decorator that registers an `Evaluator` subclass under a name |
+| `resolve_evaluator()` | Returns a built-in, custom, or `dome:*` Evaluator instance |
+| `list_evaluators()` | Returns sorted names of registered built-in and custom evaluators |
+
+`register_evaluator()` raises `TypeError` if the decorated class does not subclass `Evaluator`. `resolve_evaluator()` raises `ValueError` for an unknown or unsupported name. Dynamic `dome:*` references do not appear in `list_evaluators()`.
+
+## Built-In Evaluators
+
+### `regex`
+
+Converts the selected value to text and searches one or more regular expressions.
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `pattern` | `str` | None | One expression to search |
+| `patterns` | `list[str]` | None | Additional expressions; any match succeeds |
+| `flags` | `str \| list[str]` | None | Short flags `i`, `m`, `s`, or long names such as `IGNORECASE` |
+| `negate` | `bool` | `False` | Matches only when no expression matches |
+
+If no pattern is supplied, the evaluator returns `matched=False`. RE2 is used when installed. A pattern with flags uses Python's standard engine because the RE2 package does not expose compatible flag behavior.
+
+### `list`
+
+Converts the selected value to text and compares it with configured strings.
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `values` | `list[str]` | `[]` | Comparison values |
+| `match_mode` | `str` | `exact` | `exact`, `contains`, `starts_with`, or `ends_with` |
+| `case_sensitive` | `bool` | `True` | Preserves case during comparison |
+| `logic` | `str` | `any` | Requires `any` or `all` comparison results |
+| `negate` | `bool` | `False` | Matches when the comparison does not match |
+| `match_on` | `str \| None` | None | AgentControl alias; `no_match` enables negation |
+
+If `values` is empty, the evaluator returns `matched=False`. When supplied, `match_on` takes precedence over `negate`.
+
+### `json_schema`
+
+Validates the selected value with the `jsonschema` package from the `controls-full` extra.
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `schema` | `dict` | None | JSON Schema that matches when validation succeeds |
+| `negate` | `bool` | `False` | Inverts the validation match |
+| `json_schema` | `dict` | None | AgentControl schema that matches on validation failure by default |
+| `field_constraints` | `dict` | None | AgentControl constraints converted to a schema that matches on violation |
+
+`field_constraints` supports `type`, `min`, `max`, `enum`, `min_length`, and `max_length`. Every configured field becomes required.
+
+An invalid schema returns `matched=False`, confidence `0.0`, and schema error metadata. It does not raise into the Control's `on_error` behavior.
+
+### `cel`
+
+Evaluates a Common Expression Language expression with `cel-python` from the `controls-full` extra.
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `expression` | `str` | None | Boolean CEL expression |
+
+The selected value is available as `value`. When the value is a dictionary, each top-level string key except `value` is also available as a variable. The reserved `value` variable always refers to the complete selected value.
+
+A missing or invalid expression returns `matched=False`. An evaluation error returns confidence `0.0` and error metadata rather than raising into `on_error`.
+
+### `dome:<detector-name>`
+
+Prefix a registered Dome Detector with `dome:` to use it as an Evaluator:
+
+```yaml
+evaluator:
+  name: dome:prompt-injection-deberta-v3-base
+  config:
+    threshold: 0.7
+    detector_kwargs: {}
+```
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `threshold` | `float` | `0.5` | Lowest Detector score that matches |
+| `detector_kwargs` | `dict` | `{}` | Keyword arguments passed to the Detector constructor |
+
+The Evaluator converts the selected value to a `DomePayload`. Matching uses `score >= threshold`; Evaluator metadata retains the Detector's hit value, but that value does not override the configured threshold. The result metadata includes the Detector name, score, hit, and full Detector details.
+
+See [Detection Methods](/developer-guide/protect/detection-methods) for available Detectors and their dependencies.
+
+## Selector Utilities
+
+### `resolve()`
+
+```python
+resolve(step: Step, path: str) -> Any
+```
+
+`resolve()` applies a supported selector path to a Step. It reads dictionary keys and object attributes, supports non-negative list indexes, and returns `MISSING` when the path cannot be resolved.
+
+### `MISSING`
+
+`MISSING` is the singleton sentinel returned for an unresolved selector. It evaluates to `False` and remains distinct from valid values such as `0`, `False`, `""`, and `[]`. The engine evaluates these valid values and skips only `MISSING`.
+
+## Errors
+
+### `ControlError`
+
+```python
+ControlError(
+    message: str,
+    *,
+    control_name: str,
+    result: EvaluationResult,
+)
+```
+
+Base exception for enforcement decisions.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `control_name` | `str` | Triggering Control name |
+| `result` | `EvaluationResult` | Complete aggregate evaluation result |
+
+### `ControlViolationError`
+
+Subclass of `ControlError` raised by `VijilDome` or `@control()` when an enforced `deny` result occurs. It adds no attributes.
+
+### `ControlSteerError`
+
+```python
+ControlSteerError(
+    message: str,
+    *,
+    control_name: str,
+    steering_context: SteeringContext,
+    result: EvaluationResult,
+)
+```
+
+Subclass of `ControlError` raised for an enforced `steer` result with correction guidance. Its `steering_context` attribute contains that guidance.
+
+Policy validation errors and unknown Evaluator resolution errors are not `ControlError` subclasses. The engine captures raised condition errors in `ControlMatch.error` and applies `on_error`.
+
+## Evaluation Semantics
+
+The engine applies these observable rules:
+
+1. Copy the current Controls and skip disabled or out-of-scope entries.
+2. Evaluate applicable `deny` Controls before `steer` and `observe` Controls.
+3. Return `deny` as soon as a deny Control triggers and cancel outstanding Control evaluations.
+4. If no deny triggers, evaluate `steer` and `observe` Controls.
+5. Return the first triggered `steer` match or otherwise return `allow`.
+
+Controls are stored in ascending `priority` order. Deny Controls run concurrently, so priority does not guarantee which simultaneous deny result finishes and returns first. A deny result also prevents applicable steer and observe Controls from running.
+
+`and` and `or` children run concurrently by default. Set `early_exit=True` to run their children sequentially and short-circuit. `not` inverts its child result.
+
+`on_error=fail_closed` is the default. A raised evaluator error triggers the Control and associates its action with the match. `on_error=fail_open` records a non-triggered match and allows evaluation to continue. Evaluators that convert their own errors into `matched=False` do not activate `on_error`.
+
+## Policy Files
+
+### JSON And YAML
+
+JSON and YAML accept a flat list:
+
+```yaml
+- name: example-control
+  condition: { ... }
+  action: { ... }
+```
+
+They also accept a top-level `controls` key:
+
+```yaml
+controls:
+  - name: example-control
+    condition: { ... }
+    action: { ... }
+```
+
+YAML loading requires the `controls` or `controls-full` extra.
+
+### TOML
+
+Native TOML uses an array of Control tables:
+
+```toml
+[[controls]]
+name = "example-control"
+
+[controls.condition]
+selector = "input"
+
+[controls.condition.evaluator]
+name = "regex"
+
+[controls.condition.evaluator.config]
+pattern = "blocked"
+
+[controls.action]
+decision = "deny"
+```
+
+The loader also accepts an established Dome `[guardrail]` configuration and translates its configured Guards into Controls. Files with another extension raise `ValueError`.
+
+## AgentControl Compatibility
+
+The Controls Engine accepts common AgentControl policy shapes without importing AgentControl.
+
+| AgentControl Feature | Controls Engine Behavior |
+|----------------------|--------------------------|
+| `selector: {path: input.amount}` | Normalized to `selector: input.amount` |
+| Evaluator name `json` | Alias for `json_schema` |
+| List `match_on: no_match` | Equivalent to negation |
+| Regex flags as a list | Accepts long names such as `IGNORECASE` |
+| `json_schema` configuration | Matches on schema violation by default |
+| `field_constraints` | Converted to JSON Schema and matched on violation |
+| Unknown Control fields such as `execution` | Preserved but not interpreted |
+
+The following AgentControl Evaluators are not included:
+
+| Evaluator | Suggested Alternative |
+|-----------|-----------------------|
+| `sql` | Use `regex` or register a custom `sql` Evaluator |
+| `budget` | Register a custom Evaluator for token or cost tracking |
+| `galileo.luna2` | Use a comparable `dome:*` moderation or harmfulness Detector |
+| `cisco.ai_defense` | Use Dome prompt-injection or toxicity Detectors |
+
+Resolving one of these names raises a descriptive `ValueError`. The containing Control then applies its configured `on_error` behavior.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Controls Engine" icon="shield" href="/developer-guide/protect/control-engine">
+    Apply Controls to LLM inputs, outputs, and tool calls
+  </Card>
+  <Card title="Detection Methods" icon="list-checks" href="/developer-guide/protect/detection-methods">
+    Review Detectors available through the `dome:` prefix
+  </Card>
+</CardGroup>
