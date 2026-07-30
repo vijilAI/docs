@@ -1,0 +1,457 @@
+---
+title: 'Controls Engine'
+description: 'Apply declarative policies to LLM inputs, outputs, and tool calls with VijilDome.'
+---
+
+The Controls Engine is an in-process policy engine for AI applications. It evaluates structured Controls before or after an LLM call or tool call, then returns an `allow`, `deny`, or `steer` decision. You can also record policy matches without blocking execution.
+
+A Control follows this evaluation flow:
+
+```text
+Step → Scope → Selector → Evaluator → Action
+```
+
+- A **Step** represents an LLM call or tool call.
+- A **Scope** determines whether the Control applies to that Step.
+- A **Selector** chooses the input, output, or context value to inspect.
+- An **Evaluator** checks the selected value.
+- An **Action** determines what happens when the condition matches.
+
+## Choose an Interface
+
+| Interface | Use It When |
+|-----------|-------------|
+| `VijilDome` | You want the recommended policy-driven interface for inputs, outputs, and tool calls |
+| `@control()` | You want to apply a policy around an existing synchronous or asynchronous function |
+| `ControlEngine` | You need to construct and evaluate `Step` objects directly |
+| `Dome` | You use the established Guardrail, Guard, and Detector configuration model |
+| `TrustRuntime` | You also need workload identity, tool authorization, attestation, and structured audit events |
+
+`VijilDome` and `Dome` are separate interfaces. `VijilDome` evaluates declarative Controls and returns `EvaluationResult` objects. `Dome` runs content Guardrails and returns scan results. A Control can still invoke a Dome Detector through the `dome:` Evaluator prefix.
+
+## Install the Controls Engine
+
+The base package includes Python policies, JSON and TOML loading, and the `regex` and `list` evaluators:
+
+```bash
+pip install vijil-dome
+```
+
+Install the `controls` extra to load YAML policies:
+
+```bash
+pip install "vijil-dome[controls]"
+```
+
+Install the `controls-full` extra to add YAML, JSON Schema, CEL, and RE2 support:
+
+```bash
+pip install "vijil-dome[controls-full]"
+```
+
+Some Dome Detectors require their own optional dependencies. See [Detection Methods](/developer-guide/protect/detection-methods) before you reference a Detector from a Control.
+
+## Protect a Tool Call
+
+Define a policy as a list of Control dictionaries, then pass it to `VijilDome`:
+
+```python
+from vijil_dome import ControlViolationError, VijilDome
+
+policy = [
+    {
+        "name": "block-restricted-transfers",
+        "description": "Block transfers to restricted destinations.",
+        "scope": {
+            "step_types": ["tool"],
+            "step_names": ["transfer_funds"],
+            "stages": ["pre"],
+        },
+        "condition": {
+            "selector": "input.destination_country",
+            "evaluator": {
+                "name": "list",
+                "config": {
+                    "values": ["restricted-region"],
+                    "case_sensitive": False,
+                },
+            },
+        },
+        "action": {
+            "decision": "deny",
+            "message": "Transfers to this destination are not permitted.",
+        },
+    }
+]
+
+dome = VijilDome(policy=policy)
+tool_input = {
+    "amount": 5000,
+    "destination_country": "restricted-region",
+}
+
+try:
+    dome.guard_tool_call("transfer_funds", tool_input)
+except ControlViolationError as exc:
+    print(f"Blocked by {exc.control_name}: {exc}")
+```
+
+In enforcement mode, `guard_tool_call()` raises `ControlViolationError` before your application invokes the tool. Call the tool only after the Guard method returns successfully:
+
+```python
+dome.guard_tool_call("transfer_funds", tool_input)
+result = transfer_funds(**tool_input)
+```
+
+## Protect LLM Inputs And Outputs
+
+Use the input Guard method before you call the model and the output Guard method before you return its response:
+
+```python
+dome.guard_input(
+    user_message,
+    context={"user_role": "member"},
+    step_name="support_chat",
+)
+
+model_response = call_model(user_message)
+
+dome.guard_output(
+    model_response,
+    context={"user_role": "member"},
+    step_name="support_chat",
+)
+```
+
+The asynchronous methods have the same policy behavior:
+
+```python
+await dome.async_guard_input(user_message, step_name="support_chat")
+model_response = await call_model(user_message)
+await dome.async_guard_output(model_response, step_name="support_chat")
+```
+
+| Operation | Synchronous | Asynchronous | Stage |
+|-----------|-------------|--------------|-------|
+| Inspect an LLM input | `guard_input()` | `async_guard_input()` | `pre` |
+| Inspect an LLM output | `guard_output()` | `async_guard_output()` | `post` |
+| Inspect a tool call | `guard_tool_call()` | `async_guard_tool_call()` | `pre` |
+
+## Write a Control
+
+Each Control contains the policy metadata, applicability rules, matching logic, and action.
+
+| Field | Required | Default | Purpose |
+|-------|----------|---------|---------|
+| `name` | Yes | — | Identifies the Control in results and exceptions |
+| `description` | No | `null` | Explains the policy intent |
+| `enabled` | No | `true` | Enables or disables evaluation |
+| `scope` | No | All Steps and stages | Limits where the Control applies |
+| `condition` | Yes | — | Defines the value and matching logic |
+| `action` | Yes | — | Defines the decision when the condition matches |
+| `priority` | No | `100` | Sorts Controls in ascending order |
+| `tags` | No | `[]` | Adds searchable policy labels |
+| `annotations` | No | `{}` | Preserves vendor or extension metadata |
+
+### Scope a Control
+
+Use `scope` to limit evaluation before the engine runs the condition:
+
+| Field | Accepted Values | Purpose |
+|-------|-----------------|---------|
+| `step_types` | `llm`, `tool` | Limits the Control to LLM calls or tool calls |
+| `step_names` | List of names | Matches exact Step names |
+| `step_name_regex` | Regular expression | Matches Step names by pattern |
+| `stages` | `pre`, `post` | Runs before or after execution |
+
+Omit a scope field to match all values for that field. A Control without a `scope` applies to every Step and stage.
+
+### Select a Value
+
+Selectors use dot notation against the Step:
+
+| Selector | Selected Value |
+|----------|----------------|
+| `input` | Complete Step input |
+| `input.amount` | Nested input field |
+| `input.items[0].id` | Field inside an indexed list item |
+| `output` | Complete Step output |
+| `context.user_role` | Value supplied through the `context` argument |
+| `name` | Step name |
+| `type` | `llm` or `tool` |
+| `*` | Complete serialized Step |
+
+If a selector path is missing, the condition does not match.
+
+### Combine Conditions
+
+A leaf condition contains one `selector` and one `evaluator`. Use `and`, `or`, and `not` to compose multiple conditions:
+
+```yaml
+condition:
+  and:
+    - selector: context.risk_level
+      evaluator:
+        name: list
+        config:
+          values: [high, critical]
+    - not:
+        selector: context.user_role
+        evaluator:
+          name: list
+          config:
+            values: [admin, security]
+```
+
+Composite children run concurrently by default. Set `early_exit: true` on an `and` or `or` node to evaluate its children sequentially and stop after the first decisive result.
+
+### Choose an Evaluator
+
+| Evaluator | Purpose | Main Configuration |
+|-----------|---------|--------------------|
+| `regex` | Search text for one or more patterns | `pattern`, `patterns`, `flags`, `negate` |
+| `list` | Match a value against a list of permitted or blocked values | `values`, `match_mode`, `case_sensitive`, `logic`, `negate` |
+| `json_schema` | Validate structured data | `schema`, `negate` |
+| `cel` | Evaluate a Common Expression Language expression | `expression` |
+| `dome:<detector-name>` | Run an existing Dome Detector through the `dome:` prefix | `threshold`, `detector_kwargs` |
+
+For example, run a prompt-injection Detector against every LLM input:
+
+```yaml
+- name: detect-prompt-injection
+  scope:
+    step_types: [llm]
+    stages: [pre]
+  condition:
+    selector: input
+    evaluator:
+      name: dome:prompt-injection-deberta-v3-base
+      config:
+        threshold: 0.7
+  action:
+    decision: deny
+    message: Prompt injection detected.
+```
+
+See the [Controls API Reference](/developer-guide/reference/controls-api#built-in-evaluators) for every evaluator option and default.
+
+### Choose an Action
+
+| Decision | Aggregate Result | Enforcement Behavior |
+|----------|------------------|----------------------|
+| `deny` | `deny` | Raises `ControlViolationError` |
+| `steer` | `steer` | With `enforce=True`, raises `ControlSteerError` when `steering_context` is present; otherwise, logs and returns |
+| `observe` | No change | Records a triggered match without blocking |
+
+Include `steering_context` whenever you use `steer`:
+
+```yaml
+action:
+  decision: steer
+  steering_context:
+    message: Ask the user to complete identity verification.
+    metadata:
+      verification: two-factor
+```
+
+Control how evaluator failures affect the decision with `on_error`:
+
+```yaml
+action:
+  decision: deny
+  on_error: fail_closed
+```
+
+`fail_closed` is the default and treats a raised evaluator error as a match. `fail_open` treats it as a non-match. This setting applies to evaluators that raise an error; an evaluator can instead return a non-matching result with error metadata.
+
+## Use Shadow Mode
+
+Set `enforce=False` to evaluate a policy without interrupting application execution:
+
+```python
+shadow_dome = VijilDome(
+    policy=policy,
+    enforce=False,
+    agent_id="payments-agent",
+)
+
+result = shadow_dome.guard_tool_call("transfer_funds", tool_input)
+
+if result.action == "deny":
+    print("This call would be denied in enforcement mode.")
+```
+
+Shadow mode logs `deny` and `steer` decisions and returns their `EvaluationResult`. The `agent_id` value is an optional identifier stored and exposed by the `VijilDome` instance. It does not establish workload identity. Use [Trust Runtime](/developer-guide/protect/trust-runtime) when you need identity-bound enforcement.
+
+<Note>
+`EvaluationResult.permitted` is `False` only for `deny`. A `steer` result remains permitted and carries correction guidance in `steering_context`. An `observe` match appears in `matches` and does not change the aggregate action. If no `deny` or `steer` Control triggers, the aggregate action is `allow`.
+</Note>
+
+## Protect a Function
+
+Use `@control()` to evaluate a function before and after execution. The following policy only applies to the `pre` stage, so it can block the function before it runs:
+
+```python
+from vijil_dome import control
+
+
+@control(
+    policy=policy,
+    step_type="tool",
+    step_name="transfer_funds",
+)
+def transfer_funds(amount: float, destination_country: str):
+    return payment_provider.transfer(amount, destination_country)
+```
+
+The decorator supports synchronous and asynchronous functions. For tool Steps, it maps bound function arguments to an input dictionary. For LLM Steps, it first looks for common parameter names such as `input`, `message`, `query`, `text`, or `prompt`.
+
+Use explicit mappers when your function arguments or return value need another shape:
+
+```python
+@control(
+    policy=policy,
+    step_type="tool",
+    step_name="transfer_funds",
+    input_mapper=lambda request: request["payload"],
+    output_mapper=lambda response: response.body,
+    context_mapper=lambda request: {
+        "user_role": request["user"]["role"],
+    },
+)
+def submit_transfer(request):
+    return payment_provider.submit(request["payload"])
+```
+
+You can also share a configured engine through the instance decorator:
+
+```python
+@dome.control(step_type="tool", step_name="transfer_funds")
+def transfer_funds(amount: float, destination_country: str):
+    return payment_provider.transfer(amount, destination_country)
+```
+
+## Load a Policy From a File
+
+Pass a JSON, YAML, or TOML path anywhere a policy is accepted:
+
+```python
+dome = VijilDome(policy="controls.yaml")
+```
+
+JSON and YAML files can contain either a list of Controls or a top-level `controls` key:
+
+```yaml
+controls:
+  - name: block-secrets
+    condition:
+      selector: output
+      evaluator:
+        name: regex
+        config:
+          pattern: 'api[_-]?key'
+          flags: i
+    action:
+      decision: deny
+      message: A possible API key was detected.
+```
+
+Use an array of `controls` tables for native TOML policies:
+
+```toml
+[[controls]]
+name = "block-secrets"
+
+[controls.condition]
+selector = "output"
+
+[controls.condition.evaluator]
+name = "regex"
+
+[controls.condition.evaluator.config]
+pattern = "api[_-]?key"
+flags = "i"
+
+[controls.action]
+decision = "deny"
+```
+
+The loader also accepts established Dome TOML files with a `[guardrail]` section and translates their Guards into Controls.
+
+## Use the Engine Directly
+
+Use `ControlEngine` when your application already represents execution as Steps or needs to inspect decisions without automatic exception handling:
+
+```python
+from vijil_dome import ControlEngine
+from vijil_dome.controls import Step
+
+engine = ControlEngine()
+engine.load_controls(policy)
+
+step = Step(
+    type="tool",
+    name="transfer_funds",
+    input={
+        "amount": 5000,
+        "destination_country": "restricted-region",
+    },
+    context={"user_role": "member"},
+)
+
+result = await engine.evaluate(step, stage="pre")
+
+if result.action == "deny":
+    raise PermissionError("Tool call denied by policy")
+```
+
+`evaluate()` and `evaluate_sync()` return an `EvaluationResult`. They do not raise `ControlViolationError` or `ControlSteerError`; your application decides how to enforce the result.
+
+## Register a Custom Evaluator
+
+Subclass `Evaluator` when the built-in evaluators and Dome Detectors do not cover your application policy:
+
+```python
+from vijil_dome import Evaluator, EvaluatorResult, register_evaluator
+
+
+@register_evaluator("maximum-amount")
+class MaximumAmountEvaluator(Evaluator):
+    async def evaluate(self, value, config):
+        maximum = config["maximum"]
+        return EvaluatorResult(
+            matched=value > maximum,
+            message=f"Amount exceeds {maximum}",
+            metadata={"maximum": maximum},
+        )
+```
+
+Reference the registered name from a Control:
+
+```yaml
+condition:
+  selector: input.amount
+  evaluator:
+    name: maximum-amount
+    config:
+      maximum: 10000
+```
+
+Import the module that registers your Evaluator before the first evaluation that references it.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Controls API Reference" icon="code" href="/developer-guide/reference/controls-api">
+    Review every public class, method, model, evaluator, and result type
+  </Card>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Add identity, tool access control, attestation, and structured audit events
+  </Card>
+  <Card title="Detection Methods" icon="list-checks" href="/developer-guide/protect/detection-methods">
+    Choose Dome Detectors to invoke from your Controls
+  </Card>
+  <Card title="Protection Overview" icon="shield" href="/developer-guide/protect/overview">
+    Compare the available Dome protection interfaces
+  </Card>
+</CardGroup>
