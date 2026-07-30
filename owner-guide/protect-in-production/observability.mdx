@@ -1,176 +1,145 @@
 ---
-title: 'Observe Traces and Metrics'
-description: 'Monitor Guardrail performance and agent traffic in real time.'
+title: 'Monitor Dome Metrics'
+description: 'Monitor Dome Guardrail performance and Agent traffic.'
 ---
 
-The Observability Dashboard provides visibility into your protected agents, showing [Guardrail](/concepts/defense/guardrail) activity, latency metrics, and execution traces.
+Dome Metrics provides visibility into a protected [Agent](/owner-guide/register-agents/registering-agents), including [Guardrail](/concepts/defense/guardrail) activity, blocked traffic, errors, latency, and execution details. Use these metrics to investigate threats, tune protection, and understand Dome's effect on production traffic.
 
-## Accessing Telemetry
+## Open Dome Metrics
 
-1. Navigate to **Guardrails** in the sidebar
-2. Find your agent in the Registered Agents table
-3. Click the **Monitor** icon (chart) in the Monitor column
+Monitor Dome from the Agent whose production traffic you want to review:
 
-The telemetry dashboard opens for that agent.
+1. Open **Agents** in the Console sidebar.
+2. Select the Agent you want to monitor.
+3. In the Actions row, click **Monitor**.
+4. Review the Agent's **Dome Metrics**.
 
-## Dashboard Layout
+<Note>
+[Dome](/owner-guide/protect-in-production/configuring-guardrails) must be configured for the Agent and sending telemetry before the dashboard can display production data.
+</Note>
 
-The dashboard has three main sections:
+## Choose a Time Range
 
-### 1. Guardrail Metrics
-Summary cards at the top show aggregate statistics:
+Use the time-range selector to review activity from the last **15m**, **30m**, **1h**, **2h**, **6h**, **1d**, **7d**, or **30d**. Summary metrics, charts, threat information, and events update for the selected range.
 
-**Input Guardrails:**
-- **Flagged Requests**: Number and percentage of requests that triggered input Guards
-- **Errors**: Count of processing errors in input Guards
+<Info>
+Chart timestamps display in UTC.
+</Info>
 
-**Output Guardrails:**
-- **Flagged Responses**: Number and percentage of responses that triggered output Guards
-- **Errors**: Count of processing errors in output Guards
+## Check Protection Status
 
-### 2. Time Series Charts
+The status banner provides a quick assessment of the selected time range and shows when the status was last updated. A **Clear** status means that Dome detected no threats during that interval. It does not guarantee that the Agent is free from every threat.
 
-Four charts visualize Guardrail activity over time:
+## Review Summary Metrics
 
-| Chart | What It Shows |
+The summary cards show the Agent's protection activity for the selected time range:
+
+| Metric | What It Shows |
+|--------|---------------|
+| **Traffic** | Agent traffic recorded by Dome |
+| **Inbound Blocked** | External requests stopped before reaching the Agent |
+| **Outbound Blocked** | Agent responses stopped before reaching users because of policy violations |
+| **Errors** | Guard failures recorded while processing traffic |
+| **Latency P99** | The 99th-percentile latency overhead added by Dome |
+
+**Latency P99** means that 99% of observed Guard operations completed within the displayed time. Track it over time to understand Dome's effect on the slowest requests.
+
+## Read Traffic Charts
+
+The dashboard separates traffic by direction:
+
+| Chart | Traffic Direction |
+|-------|-------------------|
+| **Inbound** | External requests moving toward the Agent |
+| **Outbound** | Agent responses moving toward users |
+
+Each chart compares blocked activity with total traffic. Red bars represent blocked requests or responses, while dark bars represent total traffic.
+
+An increase in blocked traffic can indicate:
+
+- Active threats or policy violations
+- Guards that are too sensitive for normal traffic
+- Changes in user behavior or Agent output
+
+Compare the charts with **Threat Breakdown**, **Guard Performance**, and individual events before changing the Guard configuration.
+
+## Investigate Threats and Guard Activity
+
+Use the dashboard's investigation panels to understand what contributed to the summary metrics:
+
+| Panel | How To Use It |
 |-------|---------------|
-| **Input Flagged Requests Over Time** | Bar chart comparing flagged vs. total input requests |
-| **Output Flagged Responses Over Time** | Bar chart comparing flagged vs. total output responses |
-| **Input Latency Distribution** | Latency percentiles (P50, P90, P95, P99) for input Guards |
-| **Output Latency Distribution** | Latency percentiles (P50, P90, P95, P99) for output Guards |
+| **Threat Breakdown** | Review the threat categories detected during the selected time range |
+| **Guard Performance** | Identify which Guards are active and where protection may require tuning |
+| **Events** | Inspect individual detection events for the selected filter |
 
-### 3. Execution Traces & Logs
+Select an event to inspect its details. Use event-level information to determine whether a block represents an expected policy decision, an active threat, or a possible false positive.
 
-Real-time monitoring of individual Guardrail executions:
+## Open Logs and Traces
 
-**Traces**: Detailed execution logs for each request, showing:
-- Request ID
-- Guards executed
-- Detection results
-- Timing information
+The **Logs & Traces** panel provides links to the detailed observability tools associated with the Agent:
 
-**Logs**: Streaming log output with search and level filtering.
+- **Guard Execution Logs** provides operational output from Guard executions.
+- **Trace Explorer** provides request-level traces across Guardrails, Guards, and Detectors.
 
-## Dashboard Controls
+Follow a link to open the corresponding tool, or use its copy control to copy the URL. These logs and traces are not embedded in the Dome Metrics dashboard.
 
-### Layout Options
+Use **Trace Explorer** to investigate:
 
-Toggle between:
-- **Grid**: Charts arranged in a grid layout
-- **Row**: Charts stacked vertically
+- Why a request or response was blocked
+- Which Guards and Detectors ran
+- Whether each component flagged content or encountered an error
+- Which Guards contributed the most execution time
 
-### Chart Type
+For instrumentation and trace details, see [Developer Observability](/developer-guide/protect/observability). To query raw telemetry from the command line, see the [Telemetry CLI](/developer-guide/cli/telemetry).
 
-Select how data points are displayed:
-- **Line Connected**: Points connected with lines
-- **Line Gaps**: Lines with gaps for missing data
-- **Points Only**: Individual data points without connecting lines
+## Interpret Metrics
 
-### Time Range
+Healthy behavior depends on the Agent's purpose and traffic. Establish a normal baseline instead of relying on a universal block-rate threshold.
 
-Filter data by time period:
-- Last 24 Hours
-- Last 7 Days
-- Last 30 Days
-- Custom range
+Healthy patterns generally include:
 
-All times display in UTC.
+- Traffic that follows expected usage patterns
+- Blocked activity that remains consistent with the Agent's risk profile
+- Stable P99 latency
+- Few Guard errors
 
-## Reading the Charts
-
-### Flagged Requests/Responses
-
-The bar charts show two series:
-- **Red bars**: Requests/responses flagged by Guardrails
-- **Dark bars**: Total requests/responses
-
-Hover over any bar to see exact counts and timestamps.
-
-A high flag rate may indicate:
-- Active threats being blocked
-- Overly sensitive Guard configuration (false positives)
-- User behavior patterns that need attention
-
-### Latency Distribution
-
-The latency charts show percentile lines:
-- **P50 (Median)**: Half of requests complete faster than this
-- **P90**: 90% of requests complete faster than this
-- **P95**: 95% of requests complete faster than this
-- **P99**: 99% of requests complete faster than this
-
-Monitor P99 latency to understand worst-case user experience. Spikes in P99 may indicate:
-- Guard processing bottlenecks
-- Resource contention
-- Complex inputs requiring more analysis
-
-## Execution Traces
-
-The Traces panel shows recent Guardrail executions. Click any trace to view:
-
-- **Request ID**: Unique identifier for the request
-- **Timestamp**: When the request was processed
-- **Guards Executed**: Which Guards ran and in what order
-- **Detection Results**: Whether each Guard flagged the content
-- **Timing Breakdown**: How long each Guard took
-
-Use traces to debug:
-- Why specific requests were flagged
-- Which Guards are slowest
-- How Guards interact in your pipeline
-
-## Logs Panel
-
-The Logs panel shows streaming log output from your Guardrails.
-
-### Filtering Logs
-
-Filter by log level:
-- **All Levels**: Show everything
-- **Error**: Only errors
-- **Warning**: Warnings and above
-- **Info**: Informational and above
-- **Debug**: All log levels
-
-Use the search box to find logs containing specific text.
-
-### Real-time Updates
-
-Toggle **Real-time Updates** to enable or disable automatic log streaming. Disable when you need to examine a specific log entry without the view scrolling.
-
-## Interpreting Metrics
-
-### Healthy Patterns
-
-- **Low flag rate** (< 5%) with consistent traffic
-- **Stable latency** without significant P99 spikes
-- **Few errors** in Guardrail processing
-
-### Warning Signs
+Investigate sustained changes:
 
 | Pattern | Possible Cause | Action |
 |---------|----------------|--------|
-| High flag rate (> 20%) | Attack in progress or config too sensitive | Review flagged content, adjust thresholds |
-| Increasing flag rate | Emerging threat or behavior change | Investigate new patterns |
-| Latency spikes | Resource constraints or complex inputs | Review Guard performance, consider parallel execution |
-| Error spikes | Guard failures or backend issues | Check logs for specific errors |
+| Increasing inbound blocks | Attack activity, new user behavior, or sensitive input Guards | Review **Events**, **Threat Breakdown**, and traces |
+| Increasing outbound blocks | Changes in Agent output or sensitive output Guards | Inspect blocked events and review the output Guard configuration |
+| Error increase | Guard failures, deployment issues, or telemetry problems | Open **Guard Execution Logs** and verify the Dome deployment |
+| P99 latency increase | Slow Guards, resource pressure, or unusually complex content | Review **Guard Performance** and compare Guard execution settings |
+| Missing or unexpected traffic | No traffic in the selected interval or missing telemetry | Broaden the time range and verify deployment, Agent traffic, and telemetry |
 
-## Exporting Data
+Telemetry can support security investigations, compliance reviews, and performance analysis. Review trends regularly and compare changes with Guard configuration updates and Agent releases.
 
-Use telemetry data for:
-- Compliance reporting
-- Security audits
-- Performance analysis
+## Empty States
 
-Export options are available through the API.
+Messages such as **No threats detected**, **No guard data available**, or **No events for the selected filter** can be expected when the selected interval contains no relevant activity.
+
+If the dashboard remains empty when you expect data:
+
+1. Select a broader time range.
+2. Confirm that Dome is deployed for this Agent.
+3. Confirm that the Agent received traffic during the selected interval.
+4. Verify that Dome telemetry is reaching Vijil.
 
 ## Next Steps
 
-<CardGroup cols={1}>
+<CardGroup cols={2}>
   <Card title="Deploy Dome" icon="rocket" href="/owner-guide/protect-in-production/deploying-dome">
-    Integrate Dome into your agent
+    Integrate Dome with the Agent
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
-    Adjust Guard configuration
+    Adjust the Agent's protection
+  </Card>
+  <Card title="Developer Observability" icon="activity" href="/developer-guide/protect/observability">
+    Configure logs, traces, and metrics
+  </Card>
+  <Card title="Telemetry CLI" icon="terminal" href="/developer-guide/cli/telemetry">
+    Query raw telemetry
   </Card>
 </CardGroup>

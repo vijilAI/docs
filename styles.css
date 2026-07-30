@@ -4,20 +4,121 @@
 /* Target ul elements that are direct children or descendants of Card components */
 [class*="card"] ul,
 [class*="Card"] ul {
-  list-style-type: disc !important;
-  list-style-position: outside !important;
-  padding-left: 20px;
-  margin-top: 12px;
+    list-style-type: disc !important;
+    list-style-position: outside !important;
+    padding-left: 20px;
+    margin-top: 12px;
 }
 
 [class*="card"] ul li,
 [class*="Card"] ul li {
-  margin-left: 0;
-  padding-left: 0;
+    margin-left: 0;
+    padding-left: 0;
 }
 
 /* Opt-out: some Card lists are used as structured text (no bullets). */
 [class*="card"] ul.card-no-bullets,
 [class*="Card"] ul.card-no-bullets {
-  list-style-type: none !important;
+    list-style-type: none !important;
+}
+
+/* ============================================================
+   Mermaid diagrams
+   ============================================================ */
+
+/* Render diagrams larger and centered in both themes. The SVGs ship with a
+   small intrinsic max-width; override it so they scale up to the content width. */
+.mermaid,
+[class*="mermaid"] {
+    text-align: center;
+}
+
+.mermaid svg,
+svg[id^="mermaid-"],
+svg[id^="flowchart-"] {
+    width: 100% !important;
+    max-width: 46rem !important;
+    height: auto !important;
+    margin-inline: auto;
+}
+
+/* Dark mode: the diagrams hard-code a light-theme palette, so recolor the
+   structural strokes (arrows, node borders, subgraph borders) and structural
+   text to white for contrast on dark backgrounds. Node fills and node label
+   colors are intentionally left as authored. */
+html.dark .mermaid svg .flowchart-link,
+html.dark .mermaid svg .edgePath > path,
+html.dark svg[id^="mermaid-"] .flowchart-link,
+html.dark svg[id^="mermaid-"] .edgePath > path,
+html.dark svg[id^="flowchart-"] .flowchart-link,
+html.dark svg[id^="flowchart-"] .edgePath > path,
+html[data-theme="dark"] .mermaid svg .flowchart-link,
+html[data-theme="dark"] svg[id^="mermaid-"] .flowchart-link,
+html[data-theme="dark"] svg[id^="mermaid-"] .edgePath > path {
+    stroke: #ffffff !important;
+}
+
+/* Arrowheads */
+html.dark .mermaid svg marker path,
+html.dark .mermaid svg .arrowMarkerPath,
+html.dark svg[id^="mermaid-"] marker path,
+html.dark svg[id^="mermaid-"] .arrowMarkerPath,
+html.dark svg[id^="flowchart-"] marker path,
+html[data-theme="dark"] svg[id^="mermaid-"] marker path,
+html[data-theme="dark"] svg[id^="mermaid-"] .arrowMarkerPath {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Node borders */
+html.dark .mermaid svg .node rect,
+html.dark .mermaid svg .node circle,
+html.dark .mermaid svg .node ellipse,
+html.dark .mermaid svg .node polygon,
+html.dark .mermaid svg .node path,
+html.dark svg[id^="mermaid-"] .node rect,
+html.dark svg[id^="mermaid-"] .node circle,
+html.dark svg[id^="mermaid-"] .node ellipse,
+html.dark svg[id^="mermaid-"] .node polygon,
+html.dark svg[id^="mermaid-"] .node path,
+html[data-theme="dark"] svg[id^="mermaid-"] .node rect,
+html[data-theme="dark"] svg[id^="mermaid-"] .node circle,
+html[data-theme="dark"] svg[id^="mermaid-"] .node ellipse,
+html[data-theme="dark"] svg[id^="mermaid-"] .node polygon,
+html[data-theme="dark"] svg[id^="mermaid-"] .node path {
+    stroke: #ffffff !important;
+}
+
+/* Subgraph / cluster borders and titles */
+html.dark .mermaid svg .cluster rect,
+html.dark svg[id^="mermaid-"] .cluster rect,
+html[data-theme="dark"] svg[id^="mermaid-"] .cluster rect {
+    stroke: #ffffff !important;
+    fill: transparent !important;
+}
+
+html.dark .mermaid svg .cluster text,
+html.dark .mermaid svg .cluster .nodeLabel,
+html.dark .mermaid svg .cluster span,
+html.dark svg[id^="mermaid-"] .cluster text,
+html.dark svg[id^="mermaid-"] .cluster .nodeLabel,
+html.dark svg[id^="mermaid-"] .cluster span,
+html[data-theme="dark"] svg[id^="mermaid-"] .cluster text,
+html[data-theme="dark"] svg[id^="mermaid-"] .cluster .nodeLabel {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Edge labels, if a diagram uses them */
+html.dark .mermaid svg .edgeLabel,
+html.dark .mermaid svg .edgeLabel span,
+html.dark .mermaid svg .edgeLabel p,
+html.dark svg[id^="mermaid-"] .edgeLabel,
+html.dark svg[id^="mermaid-"] .edgeLabel span,
+html.dark svg[id^="mermaid-"] .edgeLabel p,
+html[data-theme="dark"] svg[id^="mermaid-"] .edgeLabel,
+html[data-theme="dark"] svg[id^="mermaid-"] .edgeLabel span {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    background: transparent !important;
 }
