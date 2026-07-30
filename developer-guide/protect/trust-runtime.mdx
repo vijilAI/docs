@@ -15,7 +15,7 @@ You can add the complete trust stack to a supported agent framework with `secure
 | `secure_agent()` | You use LangGraph, Google ADK, or Strands | Identity, content Guards, framework-dependent tool access control, attestation, and audit events |
 | `TrustRuntime` | You need a custom integration or direct control of enforcement | The same trust capabilities through individual methods |
 
-The Controls Engine is a separate policy-as-data interface. Use Trust Runtime when you need identity-aware enforcement and framework integration in addition to content checks. Tool decisions become identity-bound when the runtime has an attested SPIFFE identity.
+The [Controls Engine](/developer-guide/protect/control-engine) is a separate policy-as-data interface. Use Trust Runtime when you need identity-aware enforcement and framework integration in addition to content checks. Tool decisions become identity-bound when the runtime has an attested SPIFFE identity.
 
 ## Install Trust Runtime
 
