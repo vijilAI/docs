@@ -237,7 +237,8 @@
                   "developer-guide/cli/evaluate",
                   "developer-guide/cli/protect",
                   "developer-guide/cli/red-team",
-                  "developer-guide/cli/telemetry"
+                  "developer-guide/cli/telemetry",
+                  "developer-guide/cli/manifest"
                 ]
               },
               {
