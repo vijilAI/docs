@@ -9,6 +9,10 @@ This tutorial evaluates the intentionally vulnerable [Vijil Travel Agent](https:
   **TL;DR:** Run the Agent on `localhost:9000`, register its OpenAI-compatible endpoint with `vijil register` and `--local`, and run a security Evaluation with `vijil evaluate` and `--local`. Restart the same Agent with Dome enabled, then repeat the Evaluation with the same Agent ID. Current local mode uses outbound requests and does not require ngrok.
 </Tip>
 
+<Note>
+  This guide covers the local lifecycle that is currently implemented: a Diamond Evaluation, Dome protection, and re-evaluation. Platform Red Team and Darwin do not currently have a supported local execution path. The [Current Limitations](#understand-current-limitations) section explains those boundaries.
+</Note>
+
 <Warning>
   The Travel Agent contains intentional vulnerabilities, unauthenticated `/admin` routes, and fictional sensitive data. Run it only on `localhost` in an environment you control. Never expose it to a public network, deploy it to production, or replace the sample data with real data.
 </Warning>
@@ -35,8 +39,17 @@ flowchart LR
 All connections are outbound from your computer. Vijil does not connect to `localhost`, and current local mode neither creates nor uses an ngrok tunnel.
 
 <Note>
-  `DOME_INFERENCE_URL` configures the remote Detectors used to score a local Diamond Evaluation. This variable differs from the in-process Dome Guardrails that you enable later in the tutorial.
+  `DOME_INFERENCE_URL` configures the remote Detectors used to score a local Diamond Evaluation. Dome also reads this variable and can route supported Guardrail Detectors to the same remote service. Keep it in the Evaluation terminal only if you want the Travel Agent's Dome Detectors to run locally.
 </Note>
+
+## Check Feature Coverage
+
+| Lifecycle Stage | Local Support | What This Guide Does |
+|---|---|---|
+| Diamond Evaluation | Supported | Runs the `security` Harness from your computer and saves the result to the Console |
+| Dome | Supported in the Agent process | Enables the sample's Strands `DomeHookProvider`, then repeats the same Evaluation |
+| Red Team | Not supported with `--local` | Documents the current limitation; the sample's adversarial script is only a local smoke test |
+| Darwin | Not supported as a local workflow | Documents the sample's telemetry and genome integration points without claiming an evolution run |
 
 ## Prerequisites
 
@@ -44,7 +57,8 @@ Before you begin, you need:
 
 - Python 3.12 or later, Git, and `curl`
 - A `GROQ_API_KEY` for the Travel Agent's hosted model
-- A Vijil API key, Console gateway URL, and team ID
+- A Vijil bearer access token, Console gateway URL, and team ID
+- A `vijil-sdk` build that includes `vijil register --local` and `vijil evaluate --local`
 - Access to the gateway's `/v1/detect` route for local Evaluation Detectors
 - An `OPENAI_API_KEY` for the Travel Agent's fast Dome configuration
 - Port 9000 available on your computer
@@ -65,10 +79,19 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python -m pip install --upgrade vijil-sdk "vijil-dome[pii]"
+python -m pip install --upgrade vijil-sdk "typer>=0.15" "rich>=13" "vijil-dome[pii]"
 ```
 
-Upgrading `vijil-sdk` and `vijil-dome[pii]` after installing the sample requirements ensures that you use the current local Evaluation CLI and install the optional Presidio dependencies required by the fast Dome configuration.
+Upgrading `vijil-sdk` and `vijil-dome[pii]` after installing the sample requirements ensures that you use the current local Evaluation CLI and install the optional Presidio dependencies required by the fast Dome configuration. The explicit Typer and Rich dependencies also support the first published SDK package, which did not declare its CLI dependencies.
+
+Verify that your installed CLI includes local mode:
+
+```bash
+vijil register --help
+vijil evaluate --help
+```
+
+Both commands must list a `--local` option. If they do not, ask your Vijil administrator for the current preview build before continuing.
 
 Set the model key:
 
@@ -76,12 +99,14 @@ Set the model key:
 export GROQ_API_KEY="<groq-api-key>"
 ```
 
-## Configure Vijil
+## Configure the Evaluation Terminal
 
-Export your Vijil credentials and deployment values:
+Use a second terminal for the Evaluation commands. Activate the same virtual environment, then export your Vijil credentials and deployment values in this terminal only:
 
 ```bash
-export VIJIL_API_KEY="<vijil-api-key>"
+source .venv/bin/activate
+
+export VIJIL_API_KEY="<bearer-access-token>"
 export TEAM_ID="<team-id>"
 export VIJIL_GATEWAY_URL="<console-gateway-base-url>"
 
@@ -91,7 +116,7 @@ vijil config set defaults.team_id "$TEAM_ID"
 export DOME_INFERENCE_URL="$VIJIL_GATEWAY_URL"
 ```
 
-The CLI reads the gateway and default team from `~/.vijil/config.toml`. `VIJIL_API_KEY` authenticates both the Console requests and the remote Detector requests. The Evaluation runner appends `/v1/detect` to `DOME_INFERENCE_URL`, so set it to the gateway base URL rather than the full detection route.
+The CLI reads the gateway and default team from `~/.vijil/config.toml`. `VIJIL_API_KEY` must contain a bearer access token because it authenticates both the Console requests and the direct remote Detector requests. The Evaluation runner appends `/v1/detect` to `DOME_INFERENCE_URL`, so set it to the gateway base URL rather than the full detection route.
 
 Verify the active configuration:
 
@@ -100,11 +125,11 @@ vijil config show
 vijil agents list
 ```
 
-The Agent list verifies that the CLI can authenticate with the configured gateway. You can also run `vijil auth login` to store your API key. Keep `VIJIL_API_KEY` exported for this tutorial because the local Detector dispatcher reads it directly.
+The Agent list verifies that the CLI can authenticate with the configured gateway. You can also run `vijil auth login` to store your bearer token. Keep `VIJIL_API_KEY` exported in the Evaluation terminal because the local Detector dispatcher reads it directly.
 
 ## Run the Unprotected Agent
 
-Start the Travel Agent without Dome:
+In the first terminal, start the Travel Agent without Dome. Do not export `DOME_INFERENCE_URL` in this terminal:
 
 ```bash
 export DOME_ENABLED=0
@@ -113,11 +138,9 @@ python agent.py
 
 Wait for the startup banner to show `UNPROTECTED (baseline)` and `http://localhost:9000/v1/chat/completions`. Leave this terminal running.
 
-In a second terminal, activate the same virtual environment and send a smoke-test request:
+In the Evaluation terminal, send a smoke-test request:
 
 ```bash
-source .venv/bin/activate
-
 curl --fail-with-body http://localhost:9000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
@@ -186,13 +209,16 @@ Return to the terminal running the Agent and press <kbd>Ctrl</kbd>+<kbd>C</kbd>.
 export OPENAI_API_KEY="<openai-api-key>"
 export DOME_ENABLED=1
 export DOME_FAST_MODE=1
-export VIJIL_AGENT_ID="$AGENT_ID"
+export VIJIL_AGENT_ID="<agent-id>"
 export TEAM_ID="<team-id>"
+unset DOME_INFERENCE_URL
 
 python agent.py
 ```
 
-The Travel Agent loads `dome_config_fast.toml` and creates a `DomeHookProvider` for every Strands Agent instance. The provider runs a Guard on the last user message before each model call and on the model response after each call. When an enforced Guardrail flags content, the hook replaces it with a blocked message.
+Use the Agent ID printed in the Evaluation terminal for `<agent-id>`. Shell variables do not transfer between terminals.
+
+The Travel Agent loads `dome_config_fast.toml` and creates a `DomeHookProvider` for every Strands Agent instance. The provider runs a Guard on the last user message before each model call and on the model response after each call. When an enforced Guardrail flags content, the hook replaces it with a blocked message. Removing `DOME_INFERENCE_URL` from the Agent terminal keeps supported Dome Detectors in process; leave the variable exported in the Evaluation terminal so Diamond can score the run.
 
 Confirm that the startup output says both `Dome: ENABLED` and `Dome guardrails ENABLED (DomeHookProvider)`. If Dome fails to initialize, stop here rather than evaluating an unintentionally unprotected Agent.
 
@@ -241,11 +267,13 @@ For score interpretation, see [Understand Evaluation Results](/developer-guide/e
 
 `vijil test --local` is not implemented. Local mode currently supports static Diamond Evaluations through `vijil evaluate --local`, with one of the `security`, `safety`, or `reliability` Harnesses.
 
-Do not create a tunnel as a workaround. The current local architecture does not require or use ngrok, and this guide does not expose the intentionally vulnerable Travel Agent to a public URL.
+The Travel Agent includes `test_adversarial.py`, which sends a fixed set of attacks directly to its chat-completions endpoint. You can use it to smoke-test the Dome integration, but it is not a Vijil Red Team campaign and does not produce Red Team findings or a campaign report.
+
+Do not create a tunnel as an undocumented workaround. A tunnel would only be relevant if a platform-hosted Red Team or Darwin service must initiate requests to your local endpoint. Whether those services support a tunneled local Agent, how the Agent must be registered, and which authentication they require must be confirmed with Vijil before this tutorial can include that path.
 
 ### Darwin Is in Private Preview
 
-[Darwin](/concepts/platform/darwin) is private preview. This tutorial does not run an evolution, apply a proposal, or adapt the Agent.
+[Darwin](/concepts/platform/darwin) is private preview. The current CLI does not provide `vijil adapt --local`. This tutorial does not run an evolution, apply a proposal, or adapt the Agent.
 
 The Travel Agent is ready to supply the telemetry context that a future Darwin workflow needs:
 
@@ -263,7 +291,7 @@ Do not set an OTLP endpoint or `GENOME_PATH` unless Vijil gives you private-prev
 | The Agent reports a missing `GROQ_API_KEY` | Export a valid Groq key in the terminal that runs `python agent.py`. |
 | Dome fails to start or the OpenAI moderation Detector fails | Export `OPENAI_API_KEY`, reinstall `"vijil-dome[pii]"`, and restart the Agent. Confirm the Dome-enabled startup messages before evaluating. |
 | The CLI cannot find a default team | Run `vijil config set defaults.team_id "<team-id>"`, then confirm it with `vijil config show`. |
-| Registration is laptop-only or Console calls return authentication errors | Export a valid `VIJIL_API_KEY`, verify `gateway.url`, and register the Agent again. |
+| Registration is laptop-only or Console calls return authentication errors | Export a valid bearer access token as `VIJIL_API_KEY`, verify `gateway.url`, and register the Agent again. |
 | The Agent returns 404 during an Evaluation | Register `http://localhost:9000/v1`, not the full `/v1/chat/completions` URL and not the server root. |
 | The Evaluation reports Detector failures | Set `DOME_INFERENCE_URL` to a gateway that exposes `/v1/detect`, export `VIJIL_API_KEY`, and confirm access with your Vijil administrator. Rerun with `vijil --verbose evaluate "$AGENT_ID" --local --harness-name security` and do not interpret a score from a run that logs Detector failures. |
 | Requests fail with 429 or timeouts | The Groq or OpenAI provider can be rate-limiting requests. Wait for the limit to reset, verify account quotas, and rerun the entire Evaluation. |
