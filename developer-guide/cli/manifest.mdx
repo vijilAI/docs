@@ -1,237 +1,58 @@
 ---
 title: "Manifest CLI"
-description: "Create, sign, and verify Trust Runtime tool manifests with the Console."
+description: "Sign and verify Trust Runtime tool manifests with the Console."
 ---
 
-The Manifest CLI signs and verifies the tool inventory that [Trust Runtime](/developer-guide/protect/trust-runtime) uses for endpoint attestation. A signed manifest binds an Agent to the names, SPIFFE identities, and endpoints of its expected tools.
+Use the Manifest CLI to sign a tool manifest and verify its Ed25519 signature before you load it into [Trust Runtime](/developer-guide/protect/trust-runtime).
 
-<Warning>
-The Manifest commands exist in the `vijil-dome` source, but the current package does not register them with a `vijil` CLI entry point. The availability of the required Console endpoints also needs confirmation. Treat this page as an implementation reference until your support contact confirms the supported package and Console release.
-</Warning>
 
-## Understand the Workflow
-
-The manifest workflow has four independent steps:
-
-1. Create an unsigned tool manifest as a JSON object.
-2. Run `vijil manifest sign` to request an Ed25519 signature from the Console.
-3. Run `vijil manifest verify` to verify the signed file against the Console public key.
-4. Pass the verified file to `TrustRuntime`, then inspect tool attestation before the Agent accepts traffic.
-
-The CLI does not create or compile unsigned manifests. Construct the JSON file directly or generate it in your build system.
-
-Signature verification and tool attestation establish different properties:
-
-| Check | Establishes | Does Not Establish |
-|-------|-------------|--------------------|
-| Manifest signature verification | The signed manifest fields have not changed since signing | The declared tool endpoints are authentic or reachable |
-| Tool attestation | Each endpoint presents the expected SPIFFE identity | The manifest signature is valid |
-
-`TrustRuntime` does not verify the manifest signature when it loads the file. Verify the signature before you initialize the runtime.
-
-## Configure Console Access
-
-Both commands require a Console base URL and API key. Supply them through environment variables to keep the API key out of shell history:
-
-```bash
-export VIJIL_CONSOLE_URL="https://console-api.example.com"
-export VIJIL_API_KEY="$CI_VIJIL_API_KEY"
-```
-
-Explicit `--console-url` and `--api-key` options override the corresponding environment variables.
-
-<Note>
-The repository defines a `trust-cli` dependency extra, but installing that extra alone does not expose the `vijil manifest` command. Confirm the supported CLI package and installation command before you use this reference.
-</Note>
-
-## Create a Tool Manifest
-
-An unsigned manifest is a JSON object with an empty `signature`:
-
-```json
-{
-  "manifest_version": 1,
-  "agent_id": "spiffe://vijil.ai/agents/travel-agent/v1",
-  "tools": [
-    {
-      "name": "search_flights",
-      "identity": "spiffe://vijil.ai/tools/flights/v2",
-      "endpoint": "mcp+tls://flights.internal:8443",
-      "version": "2.1.0"
-    }
-  ],
-  "compiled_at": "2026-08-05T12:00:00Z",
-  "signature": ""
-}
-```
-
-### Manifest Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `manifest_version` | Integer | No | Manifest format version. Defaults to `1` |
-| `agent_id` | String | Yes | SPIFFE identity of the Agent |
-| `tools` | Array | Yes | Tools that the Agent expects to call |
-| `compiled_at` | ISO 8601 timestamp | Yes | Time when the manifest was generated |
-| `signature` | String | No | Hex-encoded Ed25519 signature. Empty until signing |
-
-### Tool Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | String | Yes | Tool name used by the Agent and audit events |
-| `identity` | String | Yes | Expected SPIFFE identity of the tool endpoint |
-| `endpoint` | String | Yes | Endpoint that Trust Runtime contacts during attestation |
-| `version` | String or `null` | No | Informational version included in audit data |
-
-The CLI only checks that the signing input contains valid JSON before it sends the complete object to the Console. It does not validate the manifest fields locally during signing.
+| Command | Description |
+|---------|-------------|
+| `vijil manifest sign` | Sign a tool manifest through the Console |
+| `vijil manifest verify` | Verify a signed tool manifest against the Console public key |
 
 ## `vijil manifest sign`
 
-Request a signature from the Console and add it to the manifest:
+Request a signature from the Console and add it to a manifest JSON file.
 
 ```bash
 vijil manifest sign <input_path> [OPTIONS]
 ```
 
-| Argument or Option | Environment Variable | Required | Description |
-|--------------------|----------------------|----------|-------------|
-| `<input_path>` | — | Yes | Path to the unsigned manifest JSON |
-| `--console-url` | `VIJIL_CONSOLE_URL` | Yes | Console base URL |
-| `--api-key` | `VIJIL_API_KEY` | Yes | Console API key |
-| `--output`, `-o` | — | No | Output path. Defaults to overwriting the input file |
-
-The command performs these operations:
-
-1. Parses the input file as JSON.
-2. Sends the complete JSON object to `POST /manifests/sign` with Bearer authentication.
-3. Reads the `signature` field from the Console response.
-4. Adds the signature to the manifest and writes indented JSON to the destination.
-
-### Preserve the Unsigned Manifest
-
-Use `--output` to write a separate signed artifact:
+| Argument or Flag | Description | Required |
+|------------------|-------------|----------|
+| `<input_path>` | Path to the unsigned manifest JSON file | Yes |
+| `--console-url` | Console base URL. You can set `VIJIL_CONSOLE_URL` instead | Yes |
+| `--api-key` | Console API key. You can set `VIJIL_API_KEY` instead | Yes |
+| `--output`, `-o` | Output path. If omitted, the command overwrites the input file | |
 
 ```bash
+# Sign in place
+vijil manifest sign agent.manifest.json
+
+# Write the signed manifest to another file
 vijil manifest sign agent.manifest.json \
   --output agent.manifest.signed.json
 ```
 
-Successful output identifies the destination:
-
-```text
-Signed manifest written to agent.manifest.signed.json
-```
-
-### Sign in Place
-
-Omit `--output` to replace the input file:
-
-```bash
-vijil manifest sign agent.manifest.json
-```
-
-Use a separate output file in automated workflows when you need to retain the unsigned source artifact.
+The command sends the manifest to `POST /manifests/sign` and adds the returned `signature` to the output file.
 
 ## `vijil manifest verify`
 
-Verify a signed manifest against the Console public key:
+Verify a signed manifest against the Console public key.
 
 ```bash
 vijil manifest verify <path> [OPTIONS]
 ```
 
-| Argument or Option | Environment Variable | Required | Description |
-|--------------------|----------------------|----------|-------------|
-| `<path>` | — | Yes | Path to the signed manifest JSON |
-| `--console-url` | `VIJIL_CONSOLE_URL` | Yes | Console base URL |
-| `--api-key` | `VIJIL_API_KEY` | Yes | Console API key |
-
-The command performs these operations:
-
-1. Loads and validates the file as a `ToolManifest`.
-2. Requests `GET /manifests/public-key` with Bearer authentication.
-3. Reads `public_key` from the response and loads it as a PEM public key.
-4. Verifies the hex-encoded Ed25519 signature over deterministic JSON that excludes the `signature` field.
-
-<Note>
-The current verifier expects `public_key` to contain PEM text. Confirm this response format with the Console release before publication.
-</Note>
-
-A valid signature produces:
-
-```text
-Manifest signature valid.
-```
-
-A missing, malformed, incorrect, or stale signature produces an error on standard error and exits with code `4`:
-
-```text
-Manifest signature INVALID.
-```
-
-Changing any signed field, including an Agent ID, tool identity, endpoint, version, or compilation timestamp, invalidates the signature.
-
-## Use the Manifest With Trust Runtime
-
-After verification, pass a `pathlib.Path` or a loaded `ToolManifest` to `TrustRuntime`. Do not pass a plain path string.
-
-```python
-from pathlib import Path
-
-from vijil_dome import TrustRuntime
-
-runtime = TrustRuntime(
-    agent_id="travel-agent",
-    constraints=constraints,
-    manifest=Path("agent.manifest.signed.json"),
-    mode="enforce",
-)
-
-attestation = runtime.attest()
-if not attestation.all_verified:
-    raise RuntimeError("Tool attestation failed")
-```
-
-`attest()` connects to each declared endpoint and compares the SPIFFE ID in its certificate with the manifest entry. Your application decides whether a failed result prevents startup. The framework adapters run attestation during setup and expose the result, but they do not stop startup when `all_verified` is `False`.
-
-## Verify in CI
-
-Store the API key in your CI secret manager, map it to `VIJIL_API_KEY`, and verify the signed artifact before deployment:
+| Argument or Flag | Description | Required |
+|------------------|-------------|----------|
+| `<path>` | Path to the signed manifest JSON file | Yes |
+| `--console-url` | Console base URL. You can set `VIJIL_CONSOLE_URL` instead | Yes |
+| `--api-key` | Console API key. You can set `VIJIL_API_KEY` instead | Yes |
 
 ```bash
-export VIJIL_CONSOLE_URL="https://console-api.example.com"
-export VIJIL_API_KEY="$CI_VIJIL_API_KEY"
-
 vijil manifest verify agent.manifest.signed.json
 ```
 
-Treat any nonzero exit status as a failed deployment check. Do not echo the API key or pass it directly through `--api-key` in shared build logs.
-
-## Handle Failures
-
-| Failure | Behavior |
-|---------|----------|
-| Signing input contains malformed JSON | Prints an invalid JSON error and exits with code `1` |
-| Console returns non-JSON during signing or verification | Prints a Console response error and exits with code `1` |
-| Signing response omits `signature` | Prints a missing field error and exits with code `1` |
-| Public-key response omits `public_key` | Prints a missing field error and exits with code `1` |
-| Console returns an unsuccessful HTTP status | Raises an HTTP error and fails the command |
-| Signed file does not match the manifest schema | Raises a validation error and fails before requesting the public key |
-| `public_key` is not a supported PEM public key | Raises a key parsing or verification error and fails the command |
-| Signature is malformed, incorrect, or does not match the manifest | Prints `Manifest signature INVALID.` and exits with code `4` |
-| Input, output, or signed file cannot be read or written | Raises the corresponding file-system error and fails the command |
-
-## Security Considerations
-
-- Keep `VIJIL_API_KEY` in a secret manager and scope it to the required Console operations.
-- Prefer `--output` during signing so an interrupted workflow does not destroy the unsigned source artifact.
-- Verify the signed artifact again in the deployment environment rather than relying only on the build that created it.
-- Run tool attestation after signature verification. Neither check replaces the other.
-- Inspect `attestation.all_verified` before the Agent accepts traffic when tool identity is a deployment requirement.
-
-## Next Steps
-
-<Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
-  Load the verified manifest and attest tool endpoint identities.
-</Card>
+The command retrieves the public key from `GET /manifests/public-key` and verifies the manifest's hex-encoded Ed25519 signature. A valid signature prints `Manifest signature valid.` An invalid or missing signature prints `Manifest signature INVALID.` and exits with code `4`.
