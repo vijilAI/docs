@@ -9,7 +9,7 @@ Dome protects your AI agent by filtering requests and responses through configur
 
 To deploy Dome, your development team will:
 
-1. **Install the SDK**: Add `vijil-dome` to your Python dependencies
+1. **Install the package**: Add `vijil-dome` to your Python dependencies, following [Install Dome](/developer-guide/protect/installation)
 2. **Wrap LLM calls**: Insert Guard checks before and after your agent's LLM interactions
 3. **Configure Guards**: Load configuration from the Vijil Console or define it in code
 4. **Handle blocked content**: Return safe responses when Guards trigger
@@ -46,21 +46,28 @@ When you configure Guardrails in the Console, your developers can pull that conf
 
 ## Framework Support
 
-Dome integrates with popular agent frameworks:
-- **LangChain / LangGraph**: Use `GuardrailRunnable` in your chains
-- **Google ADK**: Register Dome callbacks with your agent
-- **Custom agents**: Wrap any LLM client with Guard calls
+Dome ships integrations for the common agent frameworks:
+
+- **[Google ADK](/developer-guide/protect/integrations/adk)**: register generated model callbacks with your agent
+- **[LangGraph](/developer-guide/protect/integrations/langgraph)**: scan inside graph nodes, or secure the whole graph
+- **[Strands](/developer-guide/protect/integrations/strands)**: attach a Dome hook provider to your agent
+- **[LangChain](/developer-guide/protect/integrations/langchain)**: use `GuardrailRunnable` in your chains
+- **[MCP servers](/developer-guide/protect/integrations/mcp)**: run a guarded proxy in front of the server
+- **Custom agents**: wrap any LLM client with Guard calls
 
 ## Next Steps
 
-<CardGroup cols={1}>
+<CardGroup cols={2}>
   <Card title="Monitor Performance" icon="chart-line" href="/owner-guide/protect-in-production/observability">
     View traces and metrics after deployment
   </Card>
-  <Card title="Dome SDK Guide" icon="code" href="/protect-agents/introduction">
+  <Card title="Protection Overview" icon="code" href="/developer-guide/protect/overview">
     Complete deployment instructions for developers
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
     Set up Guard policies in the Console
+  </Card>
+  <Card title="Containerized Deployment" icon="container" href="/tutorials/protect-agents/dome-containerized-deployment">
+    Run Dome as a standalone service
   </Card>
 </CardGroup>

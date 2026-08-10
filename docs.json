@@ -184,6 +184,7 @@
             "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
+              "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
             ]
           }
@@ -214,6 +215,7 @@
             "group": "Protect Agents",
             "pages": [
               "developer-guide/protect/overview",
+              "developer-guide/protect/installation",
               "developer-guide/protect/control-engine",
               "developer-guide/protect/trust-runtime",
               "developer-guide/protect/configuring-guardrails",
@@ -221,6 +223,16 @@
               "developer-guide/protect/custom-detectors",
               "developer-guide/protect/detection-methods",
               "developer-guide/protect/observability",
+              {
+                "group": "Framework Integrations",
+                "pages": [
+                  "developer-guide/protect/integrations/adk",
+                  "developer-guide/protect/integrations/langgraph",
+                  "developer-guide/protect/integrations/strands",
+                  "developer-guide/protect/integrations/langchain",
+                  "developer-guide/protect/integrations/mcp"
+                ]
+              },
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
           },

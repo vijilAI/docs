@@ -1,0 +1,70 @@
+---
+title: 'Strands'
+description: 'Add Dome Guardrails to a Strands Agent through hook providers.'
+---
+
+Strands [Agents](/owner-guide/register-agents/what-is-an-agent) accept hook providers. Dome ships `DomeHookProvider`, which registers callbacks on `BeforeModelCallEvent` and `AfterModelCallEvent` and replaces flagged content with a blocked message.
+
+## Install
+
+```bash
+pip install "vijil-dome[strands]"
+```
+
+See [Install Dome](/developer-guide/protect/installation) for the other extras.
+
+## Guard an Agent
+
+```python
+from strands import Agent
+
+from vijil_dome import Dome
+from vijil_dome.integrations.strands import DomeHookProvider
+
+dome = Dome()
+
+hooks = DomeHookProvider(
+    dome,
+    agent_id="travel-agent",
+    input_blocked_message="I cannot help with that request.",
+    output_blocked_message="I am not able to share that response.",
+)
+
+agent = Agent(tools=[search_flights], hooks=[hooks])
+```
+
+`DomeHookProvider` accepts the identity arguments `agent_id`, `team_id`, and `user_id`, and runs the [Guards](/concepts/defense/guard) defined in your configuration. Dome attaches them to every scan, which keeps [Vijil Console](/concepts/platform/console) telemetry attributed to the right Agent.
+
+The provider scans the last user message before the model call and the model response after it. When a Guard flags content, the provider replaces the message with the corresponding blocked message rather than raising an exception.
+
+## Add the Full Trust Stack
+
+`secure_agent()` adds identity, tool access control, attestation, and audit events on top of the content Guards. It registers a trust hook provider on the Strands Agent and returns the same Agent:
+
+```python
+from strands import Agent
+
+from vijil_dome import secure_agent
+
+agent = Agent(tools=[search_flights])
+
+secure_agent(
+    agent,
+    agent_id="travel-agent",
+    constraints=constraints,
+    mode="enforce",
+)
+```
+
+See [Trust Runtime](/developer-guide/protect/trust-runtime) for constraint sources, enforcement modes, and audit sinks.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
+    Choose the Guards behind the hooks
+  </Card>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Identity, tool access control, and audit events
+  </Card>
+</CardGroup>
