@@ -205,6 +205,7 @@
             "pages": [
               "developer-guide/evaluate/overview",
               "developer-guide/evaluate/running-evaluations",
+              "developer-guide/evaluate/local-agent",
               "developer-guide/evaluate/understanding-results",
               "developer-guide/evaluate/custom-harnesses",
               "developer-guide/evaluate/cloud-providers"
