@@ -402,6 +402,11 @@
     "global": {
       "anchors": [
         {
+          "anchor": "Diamond",
+          "href": "/concepts/platform/diamond",
+          "icon": "diamond"
+        },
+        {
           "anchor": "Blog",
           "href": "https://www.vijil.ai/blog",
           "icon": "newspaper"
