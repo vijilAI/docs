@@ -1,28 +1,30 @@
 ---
 title: 'Local Agent Evaluation'
-description: 'Expose a local Agent through a secure tunnel and run an Evaluation.'
+description: 'Expose a local Agent through a public HTTPS tunnel and run an Evaluation.'
 ---
 
 Use this workflow when your Agent runs on your computer or does not support the request format that Vijil expects. You will place a small proxy in front of the Agent and expose that proxy through an ngrok tunnel.
 
-A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel gives Vijil a temporary public URL for the proxy.
+A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel makes the proxy reachable at a public HTTPS URL while it runs.
 
-This guide uses the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from Anthropic's financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
+This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from Anthropic's financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
 
 <Warning>
-  Evaluation Probes are adversarial. Run this example with test data. Do not give the Agent access to production files, systems, or credentials. This guide disables file-writing tools and external MCP connectors.
+  Evaluation Probes are adversarial. Use test data and a test-only Anthropic API key with suitable spending limits. Do not give the Agent access to production files, systems, or credentials.
+
+  The proxy in this example does not authenticate incoming requests. Anyone who knows the public URL can call it while the tunnel is open. Run the proxy only for the Evaluation, and close the tunnel when the Evaluation finishes.
 </Warning>
 
 ## Understand How Requests Move
 
-Vijil sends each Probe to the public tunnel URL. The tunnel forwards the request to the proxy on your computer. The proxy runs Market Researcher and returns its text response to Vijil.
+Vijil sends each Probe to the public tunnel URL. The tunnel forwards the request to the proxy on your computer. The proxy runs the restricted Market Researcher and returns its text response to Vijil.
 
 ```mermaid actions={false}
 flowchart LR
     Vijil[Vijil Evaluation]
-    Tunnel[ngrok tunnel]
+    Tunnel[Public ngrok tunnel]
     Proxy[Local FastAPI proxy]
-    Agent[Market Researcher]
+    Agent[Restricted Market Researcher]
 
     Vijil -->|Probe| Tunnel
     Tunnel --> Proxy
@@ -36,20 +38,20 @@ You do not need to send Probes one at a time. After you register the proxy URL, 
 
 ## Install the Tools
 
-Create a virtual environment and install the Python packages used by the proxy:
+Create a Python 3.12 virtual environment and install the packages used by the proxy:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
-python -m pip install vijil-sdk fastapi uvicorn pyngrok httpx python-dotenv
+python -m pip install vijil-sdk fastapi uvicorn pyngrok httpx
 ```
 
-Install and authenticate [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview). Then confirm that the `claude` command works:
+Install [Claude Code](https://code.claude.com/docs/en/overview). Then confirm that the `claude` command is available:
 
 ```bash
-claude auth status
+claude --version
 ```
 
 The Vijil SDK must include tunnel support. Check it before continuing:
@@ -62,7 +64,7 @@ Continue only if the command prints `True`.
 
 ## Set Up Market Researcher
 
-Clone Anthropic's financial services examples:
+Clone Anthropic's financial services examples and save the absolute path to the Market Researcher plugin:
 
 ```bash
 git clone https://github.com/anthropics/financial-services.git
@@ -71,23 +73,9 @@ cd financial-services
 export MARKET_RESEARCHER_PLUGIN="$PWD/plugins/agent-plugins/market-researcher"
 ```
 
-Smoke-test the Agent before you create the proxy:
+The example reads Market Researcher's system prompt and preloads its `sector-overview` Skill. It creates a temporary Agent definition that has no runtime tools. The Agent cannot read, write, or edit files, run shell commands, invoke more Skills, or use MCP connectors.
 
-```bash
-claude \
-  --plugin-dir "$MARKET_RESEARCHER_PLUGIN" \
-  --agent market-researcher:market-researcher \
-  --permission-mode dontAsk \
-  --tools "Skill" \
-  --strict-mcp-config \
-  --output-format json \
-  -p "Give a short overview of the semiconductor equipment market. Mark any unsupported figures as unsourced."
-```
-
-The command runs Market Researcher without interactive prompts:
-- `--tools "Skill"` removes Claude Code’s built-in file-reading, file-editing, and shell tools from this session. 
-- `--strict-mcp-config` prevents access to configured MCP connectors.
-Continue only after the command returns JSON with a non-empty `result` field.
+Claude Code still reads the plugin prompt and Skill during startup. The `--no-session-persistence` flag prevents it from saving the conversation for later use.
 
 ## Configure Credentials
 
@@ -96,13 +84,13 @@ Export the values used by the example:
 ```bash
 export VIJIL_GATEWAY_URL="<console-gateway-base-url>"
 export VIJIL_API_KEY="<vijil-access-token>"
-export ANTHROPIC_API_KEY="<anthropic-api-key>"
+export ANTHROPIC_API_KEY="<test-only-anthropic-api-key>"
 export MARKET_RESEARCHER_PLUGIN="<absolute-path-to-market-researcher-plugin>"
 ```
 
 Keep these values in the terminal where you run the proxy. Do not put them in the Python file or commit them to source control.
 
-Vijil provides ngrok credentials to authenticated users through the SDK. You do not need a separate ngrok account or token.
+Claude Code uses `ANTHROPIC_API_KEY` to run Market Researcher. The script also sends this key to Vijil as the custom Agent's `api_key`, matching the custom Agent registration flow. The local proxy does not check this key or any other incoming authorization value.
 
 ## Create the Proxy
 
@@ -111,8 +99,10 @@ Create a file named `local_agent_evaluation.py`:
 ```python
 from __future__ import annotations
 
+import argparse
 import json
 import os
+from pathlib import Path
 import subprocess
 import threading
 import time
@@ -130,6 +120,7 @@ from vijil import Vijil
 LOCAL_PORT = 8322
 AGENT_NAME = "market-researcher-local"
 MODEL_NAME = "claude-code-market-researcher"
+RESTRICTED_AGENT_NAME = "vijil-market-researcher"
 
 
 class Message(BaseModel):
@@ -158,25 +149,54 @@ def make_prompt(messages: list[Message]) -> str:
 
     conversation = "\n\n".join(parts)
     return (
-        "Respond to the conversation as Market Researcher. "
-        "Return only the final response.\n\n"
+        "Respond to this labelled conversation. Return only the final response.\n\n"
         f"{conversation}"
     )
 
 
+def load_market_researcher_prompt(plugin_dir: Path) -> str:
+    agent_file = plugin_dir / "agents" / "market-researcher.md"
+    try:
+        source = agent_file.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise RuntimeError(f"Could not read {agent_file}") from exc
+
+    sections = source.split("---", maxsplit=2)
+    if len(sections) != 3 or not sections[2].strip():
+        raise RuntimeError(f"Could not parse the Agent prompt in {agent_file}")
+    return sections[2].strip()
+
+
+def restricted_agent_definition(plugin_dir: Path) -> dict[str, dict[str, object]]:
+    upstream_prompt = load_market_researcher_prompt(plugin_dir)
+    restricted_prompt = f"""{upstream_prompt}
+    return {
+        RESTRICTED_AGENT_NAME: {
+            "description": "A text-only Market Researcher for local Evaluation",
+            "prompt": restricted_prompt,
+            "skills": ["market-researcher:sector-overview"],
+        }
+    }
+
+
 def run_market_researcher(prompt: str) -> str:
-    plugin_dir = os.environ["MARKET_RESEARCHER_PLUGIN"]
+    plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).expanduser().resolve()
+    agent_definition = restricted_agent_definition(plugin_dir)
     command = [
         "claude",
+        "--bare",
         "--plugin-dir",
-        plugin_dir,
+        str(plugin_dir),
+        "--agents",
+        json.dumps(agent_definition),
         "--agent",
-        "market-researcher:market-researcher",
+        RESTRICTED_AGENT_NAME,
         "--permission-mode",
         "dontAsk",
         "--tools",
-        "Skill",
+        "",
         "--strict-mcp-config",
+        "--no-session-persistence",
         "--output-format",
         "json",
         "-p",
@@ -191,6 +211,11 @@ def run_market_researcher(prompt: str) -> str:
             text=True,
             timeout=180,
         )
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Claude Code is not installed or is not on PATH",
+        ) from exc
     except subprocess.TimeoutExpired as exc:
         raise HTTPException(status_code=504, detail="The Agent timed out") from exc
 
@@ -251,7 +276,7 @@ def wait_for_server() -> None:
     raise RuntimeError("The local proxy did not start")
 
 
-def main() -> None:
+def run_evaluation() -> None:
     client = Vijil(
         api_key=os.environ["VIJIL_API_KEY"],
         gateway=os.environ["VIJIL_GATEWAY_URL"],
@@ -311,11 +336,43 @@ def main() -> None:
             print("Tunnel closed")
 
 
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--smoke-test",
+        action="store_true",
+        help="Run one Agent request without starting the proxy or tunnel",
+    )
+    args = parser.parse_args()
+
+    if args.smoke_test:
+        result = run_market_researcher(
+            "Give a short overview of the semiconductor equipment market. "
+            "Mark every unsupported figure as [UNSOURCED]."
+        )
+        print(json.dumps({"result": result}))
+        return
+
+    run_evaluation()
+
+
 if __name__ == "__main__":
     main()
 ```
 
-The proxy accepts Vijil's chat-completion requests at `/v1/chat/completions`. It keeps each message's role and text, sends the conversation to Claude Code, and returns the final Agent response in `choices[0].message.content`.
+The proxy accepts Vijil's chat-completion requests at `/v1/chat/completions`. It converts each role and text value into a labelled section of one Claude Code prompt. It returns the final Agent response in `choices[0].message.content`.
+
+The proxy does not treat the labels as native Claude message roles. It also ignores the request's `temperature` and `max_tokens` values.
+
+## Run a Smoke Test
+
+Run the same restricted Agent invocation that the proxy will use:
+
+```bash
+python local_agent_evaluation.py --smoke-test
+```
+
+Continue only after the command returns JSON with a non-empty `result` field. Because the command uses `--bare`, `--tools ""`, and `--strict-mcp-config`, the Agent has no runtime file, shell, Skill, or MCP tools.
 
 ## Run the Evaluation
 
@@ -329,7 +386,7 @@ Keep the process running until the Evaluation finishes. The script:
 
 1. Starts the proxy on your computer.
 2. Fetches your tunnel credentials from Vijil.
-3. Opens the ngrok tunnel.
+3. Opens the public ngrok tunnel.
 4. Checks the public `/health` endpoint.
 5. Registers the tunnel URL as an Agent in Vijil Console.
 6. Starts a security Evaluation and waits for it to finish.
@@ -341,20 +398,8 @@ The script prints the Agent ID and Evaluation ID. It also prints the Trust Score
 
 ## Reuse the Agent
 
-The script closes the ngrok connection after each run. It does not revoke your tunnel credentials or archive the Agent in Console.
+The script closes the ngrok connection after each run. The public binding becomes unreachable when the tunnel closes. It does not revoke your tunnel credentials or archive the Agent in Console.
 
-`client.agent_tunnel.get()` returns the same tunnel credentials on later runs. Keep the Agent ID if you want to compare future Evaluations. If you rerun the full script, it registers another Agent record.
+`client.agent_tunnel.get()` returns the same tunnel credentials on later runs, so you can open the same binding again. Keep the Agent ID if you want to compare future Evaluations. If you rerun the full script, it registers another Agent record.
 
-## Troubleshoot the Evaluation
 
-| Problem | What to Check |
-|---|---|
-| `client.agent_tunnel` is missing | Install a current `vijil-sdk` build and run the feature check again. |
-| Claude Code cannot find Market Researcher | Confirm that `MARKET_RESEARCHER_PLUGIN` is an absolute path to the plugin directory. |
-| Claude Code asks for permission | Confirm that the command includes `--permission-mode dontAsk`, `--tools "Skill"`, and `--strict-mcp-config`. |
-| The proxy returns HTTP 502 | Run the Claude Code smoke test directly and check that it returns JSON with a `result` field. |
-| The proxy returns HTTP 504 | The Agent took longer than 180 seconds. Check Claude Code and provider status before trying again. |
-| ngrok rejects the hostname | Confirm that the SDK returned a non-empty `binding_url` and that your tunnel token is still active. |
-| The public health check fails | Confirm that port `8322` is free and that the local proxy started. |
-| Agent registration fails | Check `VIJIL_GATEWAY_URL`, `VIJIL_API_KEY`, and `ANTHROPIC_API_KEY`. |
-| The Evaluation fails or stops making progress | Keep the script running, check Claude Code output, and check Anthropic rate limits. |
