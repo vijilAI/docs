@@ -90,7 +90,7 @@ See [Detection Methods](/developer-guide/protect/detection-methods) for the full
 | **Input** | Encoding heuristics, prompt injection detection, moderation |
 | **Output** | Moderation, PII detection |
 
-The default prompt injection and moderation models require the `local` extra when you run them locally, and Presidio PII detection requires the `pii` extra. You can instead set `DOME_INFERENCE_URL` to route supported Detectors, including the default model and PII Detectors, to an inference service.
+The default prompt injection and moderation models require the `local` extra when you run them locally, and Presidio PII detection requires the `pii` extra. You can instead set `DOME_INFERENCE_URL` to route supported Detectors, including the default model and PII Detectors, to an inference service. See [Install Dome](/developer-guide/protect/installation) for every extra and environment variable.
 
 ## Configuration Sources
 
@@ -126,7 +126,17 @@ Every input or output scan returns a `ScanResult` with these key members:
 
 ## Framework Integrations
 
-You can call `Dome.guard_input()` and `Dome.guard_output()` from any Agent framework. For the complete trust stack, `secure_agent()` provides built-in adapters for LangGraph, Google ADK, and Strands.
+You can call `Dome.guard_input()` and `Dome.guard_output()` from any Agent framework. Dome also ships framework-specific entry points:
+
+| Framework | Integration Point |
+|-----------|-------------------|
+| [Google ADK](/developer-guide/protect/integrations/adk) | Generated `before_model_callback` and `after_model_callback` |
+| [LangGraph](/developer-guide/protect/integrations/langgraph) | Scans inside graph nodes, or a `SecureGraph` from `secure_agent()` |
+| [Strands](/developer-guide/protect/integrations/strands) | `DomeHookProvider` on the Agent's `hooks` parameter |
+| [LangChain](/developer-guide/protect/integrations/langchain) | `GuardrailRunnable` inside a chain |
+| [MCP servers](/developer-guide/protect/integrations/mcp) | `DomedMCPServer` proxy in front of the server |
+
+For the complete trust stack, `secure_agent()` provides built-in adapters for LangGraph, Google ADK, and Strands.
 
 Tool enforcement depends on the integration points exposed by each framework. LangGraph tool access control is best-effort because the compiled graph must expose tool functions that the adapter can discover and wrap. LangGraph checks streaming output only after it yields the chunks, so an output Guard cannot retract delivered chunks.
 
@@ -158,6 +168,9 @@ See [Configure Guardrails](/developer-guide/protect/configuring-guardrails) for 
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Install Dome" icon="download" href="/developer-guide/protect/installation">
+    Install the package, pick extras, and set environment variables
+  </Card>
   <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
     Add identity, tool access control, attestation, and audit events
   </Card>
