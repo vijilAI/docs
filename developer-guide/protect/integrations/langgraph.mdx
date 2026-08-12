@@ -1,0 +1,90 @@
+---
+title: 'LangGraph'
+description: 'Protect a LangGraph application with Dome content Guards and Trust Runtime.'
+---
+
+LangGraph applications can use Dome in two ways: call the content [Guards](/concepts/defense/guard) inside your graph nodes, or wrap the whole graph with `secure_agent()` for the full trust stack.
+
+## Install
+
+```bash
+pip install "vijil-dome[trust-adapters]"
+```
+
+The `trust-adapters` extra installs LangGraph along with the [Trust Runtime](/developer-guide/protect/trust-runtime) dependencies. See [Install Dome](/developer-guide/protect/installation) for every extra. For content Guards alone, `pip install "vijil-dome[local]"` next to your existing LangGraph install is enough.
+
+## Guard Graph Nodes
+
+Create the `Dome` instance once and scan at the graph boundaries. A scanning node can end the run early by routing to a terminal node:
+
+```python
+from langgraph.graph import END, StateGraph
+
+from vijil_dome import Dome
+
+dome = Dome()
+
+
+def guard_input_node(state):
+    scan = dome.guard_input(state["query"])
+    return {
+        **state,
+        "query": scan.guarded_response(),
+        "blocked": not scan.is_safe(),
+    }
+
+
+def guard_output_node(state):
+    scan = dome.guard_output(state["answer"])
+    return {**state, "answer": scan.guarded_response()}
+
+
+builder = StateGraph(AgentState)
+builder.add_node("guard_input", guard_input_node)
+builder.add_node("agent", agent_node)
+builder.add_node("guard_output", guard_output_node)
+
+builder.set_entry_point("guard_input")
+builder.add_conditional_edges(
+    "guard_input",
+    lambda state: END if state["blocked"] else "agent",
+)
+builder.add_edge("agent", "guard_output")
+builder.add_edge("guard_output", END)
+
+graph = builder.compile()
+```
+
+Use `async_guard_input()` and `async_guard_output()` in asynchronous nodes.
+
+## Add the Full Trust Stack
+
+`secure_agent()` accepts a `StateGraph` and returns a `SecureGraph`, which replaces `graph.compile()`:
+
+```python
+from vijil_dome import secure_agent
+
+app = secure_agent(
+    builder,
+    agent_id="travel-agent",
+    constraints=constraints,
+    mode="enforce",
+)
+```
+
+The secured graph applies content Guards on model calls, checks tool calls against the Agent's permission policy, and emits audit events. Pass `compile_kwargs` through `secure_agent()` when your graph needs compile options such as a checkpoint saver.
+
+<Warning>
+LangGraph tool access control is best-effort. The compiled graph must expose tool functions that the adapter can discover and wrap. Streaming output is checked only after chunks are yielded, so an output Guard cannot retract content that a client already received.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Constraints, attestation, and audit events
+  </Card>
+  <Card title="Use Guardrails" icon="train-track" href="/developer-guide/protect/using-guardrails">
+    Scan patterns for streaming and tool use
+  </Card>
+</CardGroup>
