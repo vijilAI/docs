@@ -45,7 +45,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
-python -m pip install vijil-sdk fastapi uvicorn pyngrok httpx
+python -m pip install vijil-sdk fastapi uvicorn pyngrok
 ```
 
 Install [Claude Code](https://code.claude.com/docs/en/overview). Then confirm that the `claude` command is available:
@@ -97,18 +97,14 @@ Claude Code uses `ANTHROPIC_API_KEY` to run Market Researcher. The script also s
 Create a file named `local_agent_evaluation.py`:
 
 ```python
-from __future__ import annotations
-
-import argparse
 import json
 import os
-from pathlib import Path
 import subprocess
 import threading
 import time
 import uuid
+from pathlib import Path
 
-import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -118,9 +114,7 @@ from vijil import Vijil
 
 
 LOCAL_PORT = 8322
-AGENT_NAME = "market-researcher-local"
 MODEL_NAME = "claude-code-market-researcher"
-RESTRICTED_AGENT_NAME = "vijil-market-researcher"
 
 
 class Message(BaseModel):
@@ -138,50 +132,34 @@ class ChatCompletionRequest(BaseModel):
 app = FastAPI()
 
 
-def make_prompt(messages: list[Message]) -> str:
-    parts = [
-        f"{message.role.upper()}:\n{message.content}"
-        for message in messages
-        if message.content
-    ]
-    if not parts:
-        raise HTTPException(status_code=400, detail="A text message is required")
+def run_market_researcher(messages: list[Message]) -> str:
+    plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).expanduser().resolve()
+    source = (plugin_dir / "agents" / "market-researcher.md").read_text()
+    market_researcher_prompt = source.split("---", maxsplit=2)[2].strip()
 
-    conversation = "\n\n".join(parts)
-    return (
-        "Respond to this labelled conversation. Return only the final response.\n\n"
-        f"{conversation}"
-    )
+    agent_definition = {
+        "vijil-market-researcher": {
+            "description": "A text-only Market Researcher",
+            "prompt": market_researcher_prompt
+            + """
 
-
-def load_market_researcher_prompt(plugin_dir: Path) -> str:
-    agent_file = plugin_dir / "agents" / "market-researcher.md"
-    try:
-        source = agent_file.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise RuntimeError(f"Could not read {agent_file}") from exc
-
-    sections = source.split("---", maxsplit=2)
-    if len(sections) != 3 or not sections[2].strip():
-        raise RuntimeError(f"Could not parse the Agent prompt in {agent_file}")
-    return sections[2].strip()
-
-
-def restricted_agent_definition(plugin_dir: Path) -> dict[str, dict[str, object]]:
-    upstream_prompt = load_market_researcher_prompt(plugin_dir)
-    restricted_prompt = f"""{upstream_prompt}
-    return {
-        RESTRICTED_AGENT_NAME: {
-            "description": "A text-only Market Researcher for local Evaluation",
-            "prompt": restricted_prompt,
+Work only in text-only sector-overview mode. Do not access files, run
+commands, call connectors, or invoke other Skills. Mark every unsupported
+figure as [UNSOURCED].
+""",
             "skills": ["market-researcher:sector-overview"],
         }
     }
+    conversation = "\n\n".join(
+        f"{message.role.upper()}:\n{message.content}"
+        for message in messages
+        if message.content
+    )
+    prompt = (
+        "Respond to this labelled conversation. Return only the final response.\n\n"
+        + conversation
+    )
 
-
-def run_market_researcher(prompt: str) -> str:
-    plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).expanduser().resolve()
-    agent_definition = restricted_agent_definition(plugin_dir)
     command = [
         "claude",
         "--bare",
@@ -190,7 +168,7 @@ def run_market_researcher(prompt: str) -> str:
         "--agents",
         json.dumps(agent_definition),
         "--agent",
-        RESTRICTED_AGENT_NAME,
+        "vijil-market-researcher",
         "--permission-mode",
         "dontAsk",
         "--tools",
@@ -204,9 +182,9 @@ def run_market_researcher(prompt: str) -> str:
     ]
 
     try:
-        completed = subprocess.run(
+        result = subprocess.run(
             command,
-            check=False,
+            check=True,
             capture_output=True,
             text=True,
             timeout=180,
@@ -216,30 +194,18 @@ def run_market_researcher(prompt: str) -> str:
             status_code=502,
             detail="Claude Code is not installed or is not on PATH",
         ) from exc
-    except subprocess.TimeoutExpired as exc:
-        raise HTTPException(status_code=504, detail="The Agent timed out") from exc
-
-    if completed.returncode != 0:
-        detail = completed.stderr.strip() or "Claude Code failed"
-        raise HTTPException(status_code=502, detail=detail[-500:])
-
-    try:
-        data = json.loads(completed.stdout)
-        result = data["result"]
-    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+    except subprocess.SubprocessError as exc:
         raise HTTPException(
             status_code=502,
-            detail="Claude Code returned an unexpected response",
+            detail="Claude Code could not run the Agent",
         ) from exc
 
-    if not isinstance(result, str) or not result.strip():
-        raise HTTPException(status_code=502, detail="The Agent returned no text")
-    return result
+    return json.loads(result.stdout)["result"]
 
 
 @app.post("/v1/chat/completions")
 def chat_completions(request: ChatCompletionRequest):
-    content = run_market_researcher(make_prompt(request.messages))
+    content = run_market_researcher(request.messages)
     return {
         "id": f"chatcmpl-{uuid.uuid4().hex[:8]}",
         "object": "chat.completion",
@@ -264,51 +230,38 @@ def start_server() -> None:
     uvicorn.run(app, host="127.0.0.1", port=LOCAL_PORT, log_level="warning")
 
 
-def wait_for_server() -> None:
-    deadline = time.monotonic() + 10
-    while time.monotonic() < deadline:
-        try:
-            response = httpx.get(f"http://127.0.0.1:{LOCAL_PORT}/health", timeout=1)
-            response.raise_for_status()
-            return
-        except httpx.HTTPError:
-            time.sleep(0.25)
-    raise RuntimeError("The local proxy did not start")
-
-
-def run_evaluation() -> None:
+def main() -> None:
     client = Vijil(
         api_key=os.environ["VIJIL_API_KEY"],
         gateway=os.environ["VIJIL_GATEWAY_URL"],
     )
-    if not hasattr(client, "agent_tunnel"):
-        raise RuntimeError("Install a Vijil SDK build that includes agent_tunnel")
 
-    server_thread = threading.Thread(target=start_server, daemon=True)
-    server_thread.start()
-    wait_for_server()
-
+    # 1. Fetch tunnel credentials from Vijil
     print("Fetching tunnel credentials")
     tunnel = client.agent_tunnel.get()
+
+    # 2. Start the local proxy
+    server_thread = threading.Thread(target=start_server, daemon=True)
+    server_thread.start()
+    time.sleep(1)
+
     conf.get_default().auth_token = tunnel.token
 
-    public_url: str | None = None
+    # 3. Open the ngrok tunnel
+    print("Opening the ngrok tunnel")
+    connection = ngrok.connect(
+        LOCAL_PORT,
+        "http",
+        hostname=tunnel.binding_url,
+    )
+    public_url = connection.public_url
+    print(f"Tunnel URL: {public_url}")
+
     try:
-        print("Opening the ngrok tunnel")
-        connection = ngrok.connect(
-            LOCAL_PORT,
-            "http",
-            hostname=tunnel.binding_url,
-        )
-        public_url = connection.public_url
-        print(f"Tunnel URL: {public_url}")
-
-        response = httpx.get(f"{public_url}/health", timeout=10)
-        response.raise_for_status()
-
+        # 4. Register the Agent in Vijil Console
         print("Registering the Agent")
         agent = client.agents.create(
-            name=AGENT_NAME,
+            name="market-researcher-local",
             url=public_url,
             model_name=MODEL_NAME,
             hub="custom",
@@ -316,6 +269,7 @@ def run_evaluation() -> None:
         )
         print(f"Agent ID: {agent.id}")
 
+        # 5. Run the Evaluation
         print("Running a five-Probe security Evaluation")
         evaluation = client.evaluate(
             agent.id,
@@ -328,32 +282,12 @@ def run_evaluation() -> None:
         print(f"Status: {evaluation.status}")
         if evaluation.trust_score is not None:
             print(f"Trust Score: {evaluation.trust_score}")
-        if evaluation.dimensions is not None:
+        if evaluation.dimensions:
             print(f"Security: {evaluation.dimensions.security}")
     finally:
-        if public_url is not None:
-            ngrok.disconnect(public_url)
-            print("Tunnel closed")
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--smoke-test",
-        action="store_true",
-        help="Run one Agent request without starting the proxy or tunnel",
-    )
-    args = parser.parse_args()
-
-    if args.smoke_test:
-        result = run_market_researcher(
-            "Give a short overview of the semiconductor equipment market. "
-            "Mark every unsupported figure as [UNSOURCED]."
-        )
-        print(json.dumps({"result": result}))
-        return
-
-    run_evaluation()
+        # 6. Close the tunnel
+        ngrok.disconnect(public_url)
+        print("Tunnel closed")
 
 
 if __name__ == "__main__":
@@ -364,15 +298,7 @@ The proxy accepts Vijil's chat-completion requests at `/v1/chat/completions`. It
 
 The proxy does not treat the labels as native Claude message roles. It also ignores the request's `temperature` and `max_tokens` values.
 
-## Run a Smoke Test
-
-Run the same restricted Agent invocation that the proxy will use:
-
-```bash
-python local_agent_evaluation.py --smoke-test
-```
-
-Continue only after the command returns JSON with a non-empty `result` field. Because the command uses `--bare`, `--tools ""`, and `--strict-mcp-config`, the Agent has no runtime file, shell, Skill, or MCP tools.
+This example keeps validation and error handling brief so that the proxy flow is easy to see. Because the command uses `--bare`, `--tools ""`, and `--strict-mcp-config`, the Agent has no runtime file, shell, Skill, or MCP tools.
 
 ## Run the Evaluation
 
@@ -384,13 +310,12 @@ python local_agent_evaluation.py
 
 Keep the process running until the Evaluation finishes. The script:
 
-1. Starts the proxy on your computer.
-2. Fetches your tunnel credentials from Vijil.
+1. Fetches your tunnel credentials from Vijil.
+2. Starts the proxy on your computer.
 3. Opens the public ngrok tunnel.
-4. Checks the public `/health` endpoint.
-5. Registers the tunnel URL as an Agent in Vijil Console.
-6. Starts a security Evaluation and waits for it to finish.
-7. Closes the tunnel.
+4. Registers the tunnel URL as an Agent in Vijil Console.
+5. Starts a security Evaluation and waits for it to finish.
+6. Closes the tunnel.
 
 The `sample_size=5` setting runs five Probes from the security Harness. This small run helps you check the full connection quickly. Five Probes do not provide a complete security assessment.
 
@@ -401,5 +326,3 @@ The script prints the Agent ID and Evaluation ID. It also prints the Trust Score
 The script closes the ngrok connection after each run. The public binding becomes unreachable when the tunnel closes. It does not revoke your tunnel credentials or archive the Agent in Console.
 
 `client.agent_tunnel.get()` returns the same tunnel credentials on later runs, so you can open the same binding again. Keep the Agent ID if you want to compare future Evaluations. If you rerun the full script, it registers another Agent record.
-
-
