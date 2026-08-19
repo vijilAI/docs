@@ -442,6 +442,213 @@ print("Results: https://evaluate.vijil.ai/evaluations")
 
 `client.xteam()` polls until the engagement finishes. Keep the proxy and tunnel running for the entire engagement. Adaptive Red Teaming can take longer than a standard Evaluation because it runs successive waves of attacks.
 
+Use this standalone version when you want to run adaptive Red Teaming instead of the standard Evaluation:
+
+<Accordion title="View the Complete Red Teaming Script">
+
+  ```python
+  import json
+  import os
+  import secrets
+  import subprocess
+  import threading
+  import time
+  import uuid
+  from pathlib import Path
+
+  import uvicorn
+  from fastapi import FastAPI, Header, HTTPException
+  from pydantic import BaseModel, Field
+  from pyngrok import conf, ngrok
+
+  from vijil import Vijil
+
+
+  LOCAL_PORT = 8322
+  MODEL_NAME = "claude-code-market-researcher"
+  PROXY_API_KEY = secrets.token_urlsafe(32)
+
+
+  class Message(BaseModel):
+      role: str
+      content: str | None = None
+
+
+  class ChatCompletionRequest(BaseModel):
+      model: str = ""
+      messages: list[Message] = Field(default_factory=list)
+      temperature: float | None = None
+      max_tokens: int | None = None
+
+
+  app = FastAPI()
+
+
+  def run_market_researcher(messages: list[Message]) -> str:
+      plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).expanduser().resolve()
+      source = (plugin_dir / "agents" / "market-researcher.md").read_text()
+      market_researcher_prompt = source.split("---", maxsplit=2)[2].strip()
+
+      agent_definition = {
+          "vijil-market-researcher": {
+              "description": "A text-only Market Researcher",
+              "prompt": market_researcher_prompt
+              + """
+
+  Work only in text-only sector-overview mode. Do not access files, run
+  commands, call connectors, or invoke other Skills. Mark every unsupported
+  figure as [UNSOURCED].
+  """,
+              "skills": ["market-researcher:sector-overview"],
+          }
+      }
+      conversation = "\n\n".join(
+          f"{message.role.upper()}:\n{message.content}"
+          for message in messages
+          if message.content
+      )
+      prompt = (
+          "Respond to this labelled conversation. Return only the final response.\n\n"
+          + conversation
+      )
+
+      command = [
+          "claude",
+          "--bare",
+          "--plugin-dir",
+          str(plugin_dir),
+          "--agents",
+          json.dumps(agent_definition),
+          "--agent",
+          "vijil-market-researcher",
+          "--permission-mode",
+          "dontAsk",
+          "--tools",
+          "",
+          "--strict-mcp-config",
+          "--no-session-persistence",
+          "--output-format",
+          "json",
+          "-p",
+          prompt,
+      ]
+
+      try:
+          result = subprocess.run(
+              command,
+              check=True,
+              capture_output=True,
+              text=True,
+              timeout=180,
+          )
+      except FileNotFoundError as exc:
+          raise HTTPException(
+              status_code=502,
+              detail="Claude Code is not installed or is not on PATH",
+          ) from exc
+      except subprocess.SubprocessError as exc:
+          raise HTTPException(
+              status_code=502,
+              detail="Claude Code could not run the Agent",
+          ) from exc
+
+      return json.loads(result.stdout)["result"]
+
+
+  @app.post("/v1/chat/completions")
+  def chat_completions(
+      request: ChatCompletionRequest,
+      authorization: str | None = Header(default=None),
+  ):
+      expected = f"Bearer {PROXY_API_KEY}"
+      if authorization is None or not secrets.compare_digest(authorization, expected):
+          raise HTTPException(status_code=401, detail="Invalid API key")
+
+      content = run_market_researcher(request.messages)
+      return {
+          "id": f"chatcmpl-{uuid.uuid4().hex[:8]}",
+          "object": "chat.completion",
+          "created": int(time.time()),
+          "model": MODEL_NAME,
+          "choices": [
+              {
+                  "index": 0,
+                  "message": {"role": "assistant", "content": content},
+                  "finish_reason": "stop",
+              }
+          ],
+      }
+
+
+  @app.get("/health")
+  def health():
+      return {"status": "ok"}
+
+
+  def start_server() -> None:
+      uvicorn.run(app, host="127.0.0.1", port=LOCAL_PORT, log_level="warning")
+
+
+  def main() -> None:
+      client = Vijil(
+          api_key=os.environ["VIJIL_API_KEY"],
+          gateway=os.environ["VIJIL_GATEWAY_URL"],
+      )
+
+      # 1. Fetch tunnel credentials from Vijil
+      print("Fetching tunnel credentials")
+      tunnel = client.agent_tunnel.get()
+
+      # 2. Start the local proxy
+      server_thread = threading.Thread(target=start_server, daemon=True)
+      server_thread.start()
+      time.sleep(1)
+
+      conf.get_default().auth_token = tunnel.token
+
+      # 3. Open the ngrok tunnel
+      print("Opening the ngrok tunnel")
+      connection = ngrok.connect(
+          LOCAL_PORT,
+          "http",
+          domain=tunnel.binding_url,
+      )
+      public_url = connection.public_url
+      print(f"Tunnel URL: {public_url}")
+
+      try:
+          # 4. Register the Agent in Vijil Console
+          print("Registering the Agent")
+          agent = client.agents.create(
+              name="market-researcher-local",
+              url=public_url,
+              model_name=MODEL_NAME,
+              hub="custom",
+              api_key=PROXY_API_KEY,
+              rate_limit_requests_per_minute=5,
+          )
+          print(f"Agent ID: {agent.id}")
+
+          # 5. Run adaptive Red Teaming
+          print("Running adaptive Red Teaming")
+          red_team = client.xteam(agent.id)
+          print(f"Red Team ID: {red_team.engagement_id}")
+          print(f"Red Team status: {red_team.status}")
+          if red_team.degraded:
+              print(f"Red Team warning: {red_team.degradation_reason}")
+          print("Results: https://evaluate.vijil.ai/evaluations")
+      finally:
+          # 6. Close the tunnel
+          ngrok.disconnect(public_url)
+          print("Tunnel closed")
+
+
+  if __name__ == "__main__":
+      main()
+  ```
+
+</Accordion>
+
 ## Reuse the Agent
 
 The script closes the ngrok connection after each run. The public binding becomes unreachable when the tunnel closes. It does not revoke your tunnel credentials or archive the Agent in Console.
