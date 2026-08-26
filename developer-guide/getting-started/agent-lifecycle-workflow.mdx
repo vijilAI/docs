@@ -138,6 +138,10 @@ Use the Evaluation findings to choose runtime protection:
 | Harmful Agent responses | Moderation output Guard |
 | Agent-specific policy violation | Policy or custom Guard |
 
+<Note>
+Policy Guards are available through programmatic Dome. In the Console, create a custom Guard using one of the available Security, Moderation, or Privacy Guard types.
+</Note>
+
 <Tabs>
   <Tab title="Console">
     1. Open the Agent and select **Protect**.
@@ -185,7 +189,7 @@ Manual remediation is the default path. Depending on the finding, you might:
 - Fix vulnerable code.
 - Add or tune Dome Guards.
 - Update Policies or Personas.
-- Convert successful Red Team attacks into regression tests.
+- Save representative successful attack inputs and transcripts as regression cases.
 
 <Tabs>
   <Tab title="Console">
@@ -197,7 +201,6 @@ Manual remediation is the default path. Depending on the finding, you might:
     6. Review the findings and successful attack strategies.
     7. Update the Agent configuration and Dome settings.
     8. Record which finding each change addresses.
-    9. If the deployment includes Darwin, review its proposals before accepting them.
   </Tab>
   <Tab title="SDK">
     1. Use `client.xteam()` for the multi-wave seed, attack, judge, and reflect workflow.
@@ -223,7 +226,7 @@ Inspect:
 - Degraded or failed attacker runs.
 
 <Info>
-Darwin is not generally available in every Console deployment. Keep the manual remediation path complete even when Darwin is not enabled.
+Darwin is in development and not yet generally available. If your deployment includes Darwin, review every generated proposal before applying it. Keep the manual remediation path complete when Darwin is unavailable.
 </Info>
 
 ### Checkpoint
@@ -240,7 +243,7 @@ Repeat the tests that cover the changed behavior:
 
 - Run the complete baseline Evaluation.
 - Run targeted Harnesses for the changed areas.
-- Replay successful Red Team strategies.
+- Retest representative successful attacks through the Agent's regression test process.
 - Run another adaptive campaign after changes to tools, prompts, permissions, or data access.
 - Compare the results with the original baseline.
 
@@ -248,16 +251,17 @@ Repeat the tests that cover the changed behavior:
   <Tab title="Console">
     1. Create another baseline Trust Score Evaluation.
     2. Run targeted Harnesses for the changed areas.
-    3. Replay the relevant Red Team attacks.
+    3. Manually retest representative attack inputs saved from the previous campaign.
     4. Compare the new Trust Score, Dimension scores, and findings with the baseline.
     5. Confirm that staging telemetry still reaches the correct Agent.
   </Tab>
   <Tab title="SDK">
     1. Run `client.evaluate(agent_id, baseline=True)`.
-    2. Use `harness_id` to run targeted Harnesses when needed.
-    3. Replay relevant adaptive attacks with `client.xteam()`.
-    4. Compare the returned scores and findings with the saved baseline.
-    5. Check staging traces with `client.monitor.traces()`.
+    2. After the baseline completes, use `client.evaluate(agent_id, harness_id="<harness-id>")` to run one targeted Harness. Repeat the call for each Harness you need.
+    3. Retest saved attack inputs through the Agent's test suite.
+    4. Use `client.xteam()` to start a new adaptive campaign with the relevant Policies and Personas.
+    5. Compare the returned scores and findings with the saved baseline.
+    6. Check staging traces with `client.monitor.traces()`.
   </Tab>
 </Tabs>
 
