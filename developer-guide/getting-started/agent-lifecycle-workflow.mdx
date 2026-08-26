@@ -3,7 +3,7 @@ title: 'Agent Lifecycle Workflow'
 description: 'Take an existing Agent from registration to a hardened, evidence-backed production release.'
 ---
 
-This guide takes an existing AI Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. You can complete each stage through the Console or programmatically with the SDK.
+This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. Use [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, and your delivery pipeline to release it. Follow the Console or [Python SDK](/developer-guide/sdk/setup) path at each stage.
 
 <Info>
 This workflow starts with registration and does not cover Discover or creating a new Agent through generative evolution. Automated Darwin adaptation is available only where enabled. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
@@ -25,14 +25,14 @@ flowchart LR
 | Stage | Goal | Evidence Produced |
 |---|---|---|
 | **Register** | Connect the Agent to the platform | Active Agent and Agent ID |
-| **Evaluate** | Establish a trust baseline | Trust Score and Trust Report |
-| **Harden** | Add and validate runtime Guardrails | Applied Dome configuration and staging telemetry |
-| **Improve** | Find and address deeper weaknesses | Red Team findings and reviewed changes |
+| **Evaluate** | Establish a [Trust Score](/concepts/trust-score/introduction) baseline | Trust Score and Trust Report |
+| **Harden** | Add and test [runtime Guardrails](/developer-guide/protect/overview) | Applied Dome configuration and staging telemetry |
+| **Improve** | Find and address deeper weaknesses | [Red Team findings](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) and reviewed changes |
 | **Re-evaluate** | Confirm that the changes worked | Improved Evaluation results and release decision |
 | **Deploy** | Release through your delivery pipeline | Production Agent reconnected to the platform |
-| **Monitor** | Observe production behavior | Metrics, events, logs, and traces |
+| **Monitor** | Observe production behavior | [Dome Metrics](/owner-guide/protect-in-production/observability), events, logs, and traces |
 
-The Console tracks the Agent through the **Registered**, **Tested**, and **Protected** stages. Where Darwin is enabled, accepting a Darwin proposal moves the Agent to the **Adapted** stage.
+The Console records **Registered**, **Tested**, and **Protected** [Agent stages](/owner-guide/register-agents/registering-agents#agent-stage). If you use [Darwin](/concepts/platform/darwin), accepting a proposal moves the Agent to the **Adapted** stage.
 
 ## Before You Begin
 
@@ -42,15 +42,15 @@ You need:
 - An existing Agent with a reachable HTTP endpoint.
 - Credentials and rate-limit information for the Agent endpoint.
 - Permission to configure and deploy the Agent.
-- Python 3.12 or later, `vijil-sdk`, and the required `vijil-dome` extras for the SDK path.
-- Client credentials for the SDK path.
+- Python 3.12 or later, the [SDK](/developer-guide/sdk/setup#installation), and the required [Dome extras](/developer-guide/protect/installation) for the SDK path.
+- [Client credentials](/developer-guide/sdk/setup#authentication) for the SDK path.
 - Optional [Policies](/owner-guide/simulate-environment/policies) and [Personas](/owner-guide/simulate-environment/personas) for targeted Evaluations and Red Team campaigns.
 
 Define your release criteria before you begin. Decide:
 
-- The minimum acceptable Trust Score.
-- Which findings must be resolved before release.
-- The maximum acceptable Guardrail latency and error rate.
+- The Trust Score required for release.
+- Findings that block release.
+- Guardrail latency and error-rate limits.
 - How you will assess false positives.
 - Which reports or other evidence your reviewers need.
 
@@ -60,7 +60,7 @@ The Console presents Trust Scores on a 0–100 scale. The SDK returns scores on 
 
 ## 1. Register the Agent
 
-Registration tells the platform how to reach the Agent and how much context it can use during testing. Choose the access level that matches the information you can provide:
+Registration tells the platform how to reach the Agent and how much context it can use during testing. Choose the [access level](/owner-guide/register-agents/registering-agents#access-levels) that matches the information you can provide:
 
 | Access Level | What You Provide | When to Use It |
 |---|---|---|
@@ -73,15 +73,15 @@ Registration tells the platform how to reach the Agent and how much context it c
     1. Open **Agents**.
     2. Select **+ Register Agent**.
     3. Enter the required Black Box fields.
-    4. Add Grey Box or White Box context when it is available.
+    4. Add Grey Box or White Box context when available.
     5. Register the Agent and save its ID.
   </Tab>
   <Tab title="SDK">
     1. Create a `Vijil` client.
-    2. Register the current Agent configuration with `client.agents.create()`.
+    2. Register the current Agent configuration with [`client.agents.create()`](/developer-guide/sdk/resources#client-agents).
     3. Save `agent.id` for the remaining stages.
 
-    Use `client.agents.create()` for this workflow. Do not use `client.register()`, which depends on a preview source-to-genome Console route.
+    Use `client.agents.create()` for this workflow. Do not use [`client.register()`](/developer-guide/sdk/lifecycle-methods#preview-methods), which depends on a preview source-to-genome Console route.
   </Tab>
 </Tabs>
 
@@ -95,26 +95,26 @@ If the Agent runs only on your workstation, follow [Evaluate a Local Agent](/dev
 
 ## 2. Establish a Baseline
 
-An Evaluation measures the Agent against known standards. A Red Team campaign searches for weaknesses that fixed tests might miss. Start with a baseline Trust Score Evaluation across Reliability, Security, and Safety.
+A [Diamond Evaluation](/developer-guide/evaluate/overview) measures the Agent against known standards. A [Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) searches for weaknesses that fixed tests might miss. Start with a baseline Trust Score Evaluation across Reliability, Security, and Safety.
 
 <Tabs>
   <Tab title="Console">
-    1. Open **Tests** and create an Evaluation.
+    1. Open **Tests** and [create an Evaluation](/owner-guide/run-evaluations/running-evaluations#creating-an-evaluation).
     2. Select the registered Agent.
     3. Choose **Trust Score** and **Baseline**.
     4. Enable Reliability, Security, and Safety.
     5. Run the Evaluation.
   </Tab>
   <Tab title="SDK">
-    1. Run `client.evaluate(agent_id, baseline=True)`.
-    2. Record the overall Trust Score and the Reliability, Security, and Safety scores.
+    1. Run [`client.evaluate(agent_id, baseline=True)`](/developer-guide/sdk/lifecycle-methods#client-evaluate).
+    2. Record the Trust Score and the Reliability, Security, and Safety scores.
     3. Save the Evaluation ID.
   </Tab>
 </Tabs>
 
-Review:
+Review the [Evaluation results](/developer-guide/evaluate/understanding-results):
 
-- The overall pass or fail result.
+- The Trust Score pass or fail result.
 - The lowest-scoring Dimension.
 - Critical and high-severity findings.
 - Failure patterns and recommended fixes.
@@ -123,12 +123,12 @@ Review:
 ### Checkpoint
 
 - The Evaluation completed successfully.
-- You saved the Trust Report.
+- You saved the [Trust Report](/developer-guide/evaluate/understanding-results#reading-the-trust-report).
 - You have a prioritized list of weaknesses.
 
 ## 3. Harden the Agent With Dome
 
-Use the Evaluation findings to choose runtime protection:
+Use the [Evaluation findings](/developer-guide/evaluate/understanding-results#reading-findings) to choose [Dome runtime protection](/developer-guide/protect/overview):
 
 | Finding | Likely Protection |
 |---|---|
@@ -142,6 +142,8 @@ Use the Evaluation findings to choose runtime protection:
 Policy Guards are available through programmatic Dome. In the Console, create a custom Guard using one of the available Security, Moderation, or Privacy Guard types.
 </Note>
 
+Use the [Console Guardrail guide](/owner-guide/protect-in-production/configuring-guardrails) for UI details and the [Dome configuration reference](/developer-guide/protect/configuring-guardrails) for code-level options.
+
 <Tabs>
   <Tab title="Console">
     1. Open the Agent and select **Protect**.
@@ -154,16 +156,16 @@ Policy Guards are available through programmatic Dome. In the Console, create a 
     8. Send staging traffic through the Agent and confirm that Dome Metrics receives it.
   </Tab>
   <Tab title="SDK">
-    1. Use `client.protect()` to associate the Dome configuration with the Agent.
-    2. Where enabled, load the configuration with `Dome.create_from_vijil_agent()`. Otherwise, use a reviewed, version-controlled Dome configuration.
-    3. Wrap both Agent inputs and Agent outputs.
+    1. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) to associate the Dome configuration with the Agent.
+    2. Where enabled, [load the Guardrail configuration](/developer-guide/protect/overview#configuration-sources) with `Dome.create_from_vijil_agent()`. Otherwise, use a reviewed, version-controlled Dome configuration.
+    3. [Wrap both Agent inputs and Agent outputs with Guardrails](/owner-guide/protect-in-production/deploying-dome#integration-pattern).
     4. Handle blocked and sanitized results explicitly.
     5. Send staging traffic through the hardened Agent and confirm that telemetry reaches the platform.
   </Tab>
 </Tabs>
 
 <Warning>
-Saving a Dome configuration does not protect runtime traffic by itself. Integrate Dome into the Agent request path before relying on the configuration.
+Saving a Dome configuration does not protect runtime traffic by itself. [Integrate Dome Guardrails into the Agent request path](/owner-guide/protect-in-production/deploying-dome#integration-pattern) before relying on the configuration.
 </Warning>
 
 <Note>
@@ -179,7 +181,7 @@ Hardening adds and validates runtime protection. It does not deploy the Agent ap
 
 ## 4. Improve the Agent
 
-Start by running adaptive attacks against the hardened Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose. Use the findings to decide what to change.
+Start with an [adaptive Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) against the hardened Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose. Use the findings to decide what to change.
 
 Manual remediation is the default path. Depending on the finding, you might:
 
@@ -207,16 +209,16 @@ Manual remediation is the default path. Depending on the finding, you might:
     2. Poll until the campaign reaches a terminal state.
     3. Retrieve and review the findings.
     4. Apply code and configuration fixes through the application repository.
-    5. Where Darwin is available, run `client.adapt()`.
-    6. Review the generated proposals with `client.proposals`.
+    5. Where Darwin is available, run [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
+    6. Review the generated proposals with [`client.proposals`](/developer-guide/sdk/resources#client-proposals).
     7. Approve and apply only reviewed proposals.
     8. Preserve genome versions for comparison and audit.
   </Tab>
 </Tabs>
 
-Use `client.test()` only when the simpler campaign interface matches your deployment.
+Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#client-test) only when the simpler campaign interface matches your deployment.
 
-Inspect:
+Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
 
 - `FULL`, `PARTIAL`, and `NONE` judgments.
 - Confirmed policy violations.
@@ -226,7 +228,7 @@ Inspect:
 - Degraded or failed attacker runs.
 
 <Info>
-Darwin is in development and not yet generally available. If your deployment includes Darwin, review every generated proposal before applying it. Keep the manual remediation path complete when Darwin is unavailable.
+[Darwin](/concepts/platform/darwin) is in development and not yet generally available. If your deployment includes Darwin, review every generated proposal before applying it. Keep the manual remediation path complete when Darwin is unavailable.
 </Info>
 
 ### Checkpoint
@@ -234,7 +236,7 @@ Darwin is in development and not yet generally available. If your deployment inc
 - Critical and high-risk findings have an owner.
 - Successful attack transcripts are available as regression cases.
 - Every important finding maps to a reviewed change or documented exception.
-- You reviewed every automated proposal before applying it.
+- If you used Darwin, you reviewed every automated proposal before applying it.
 - The improved Agent is ready for another Evaluation.
 
 ## 5. Re-evaluate the Agent
@@ -242,10 +244,10 @@ Darwin is in development and not yet generally available. If your deployment inc
 Repeat the tests that cover the changed behavior:
 
 - Run the complete baseline Evaluation.
-- Run targeted Harnesses for the changed areas.
+- Run [targeted Harnesses](/developer-guide/evaluate/custom-harnesses) for the changed areas.
 - Retest representative successful attacks through the Agent's regression test process.
 - Run another adaptive campaign after changes to tools, prompts, permissions, or data access.
-- Compare the results with the original baseline.
+- [Compare the results](/developer-guide/evaluate/understanding-results#comparing-evaluations) with the original baseline.
 
 <Tabs>
   <Tab title="Console">
@@ -286,7 +288,7 @@ Deploy the hardened Agent through your delivery pipeline of choice. The platform
 
 ### Gate Deployment in CI/CD
 
-Run a final baseline Evaluation before your pipeline pushes the release to production. Store `VIJIL_CLIENT_ID`, `VIJIL_CLIENT_SECRET`, and `VIJIL_AGENT_ID` as CI/CD secrets or protected variables.
+Run a final baseline Evaluation before your pipeline pushes the release to production. Store [`VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET`](/developer-guide/sdk/setup#authentication) and `VIJIL_AGENT_ID` as CI/CD secrets or protected variables.
 
 ```python
 import os
@@ -322,16 +324,16 @@ Use `0.70` only as an example. Set `VIJIL_TRUST_THRESHOLD` to the threshold appr
   <Tab title="Console">
     1. Confirm that the latest Evaluation meets the release criteria.
     2. Deploy the hardened Agent through your delivery pipeline.
-    3. If the endpoint or credentials changed, open **Agents**, edit the registered Agent, and save the production configuration.
-    4. Reapply the reviewed Dome configuration.
+    3. If the endpoint or credentials changed, open **Agents**, [edit the registered Agent](/owner-guide/register-agents/registering-agents#manage-agents), and save the production configuration.
+    4. Reapply the reviewed [Dome configuration](/owner-guide/protect-in-production/deploying-dome#configuration-sync).
     5. Run a production smoke test.
     6. Confirm that production traffic appears under the correct Agent.
   </Tab>
   <Tab title="SDK">
     1. Run the SDK release gate before the production deployment job.
     2. Deploy the hardened Agent through your delivery pipeline.
-    3. If the endpoint or configuration changed, update the registered Agent with `client.agents.update()`.
-    4. Reload or reapply the reviewed Dome configuration.
+    3. If the endpoint or configuration changed, update the registered Agent with [`client.agents.update()`](/developer-guide/sdk/resources#client-agents).
+    4. Reload or reapply the reviewed [Dome configuration](/owner-guide/protect-in-production/deploying-dome#configuration-sync).
     5. Run a production smoke test.
     6. Confirm that production traces use the expected Agent ID.
   </Tab>
@@ -339,7 +341,7 @@ Use `0.70` only as an example. Set `VIJIL_TRUST_THRESHOLD` to the threshold appr
 
 Your deployment artifact should:
 
-1. Include `vijil-dome` and the required extras in the deployment artifact.
+1. Include [`vijil-dome` and the required extras](/developer-guide/protect/installation) in the deployment artifact.
 2. Load the reviewed Dome configuration.
 3. Keep credentials and other secrets outside source control.
 4. Keep a rollback path for Agent and Guardrail changes.
@@ -353,7 +355,7 @@ Your deployment artifact should:
 
 ## 7. Monitor and Continue the Lifecycle
 
-Monitor the production Agent to investigate threats, tune protection, and catch behavior changes after deployment.
+Use [Dome Metrics](/owner-guide/protect-in-production/observability) to investigate threats, tune protection, and catch behavior changes after deployment.
 
 <Tabs>
   <Tab title="Console">
@@ -390,31 +392,31 @@ New findings restart the lifecycle at Improve. Apply a reviewed change, re-evalu
 
 ## Production Readiness Checklist
 
-- [ ] Register the Agent and verify that its endpoint is reachable.
-- [ ] Complete the baseline Evaluation and review the Trust Report.
-- [ ] Configure input and output Guards and integrate Dome into the Agent runtime.
-- [ ] Confirm that staging telemetry reaches the correct Agent.
-- [ ] Complete an adaptive Red Team campaign.
-- [ ] Address critical and high-risk findings.
-- [ ] Add successful attacks to regression testing.
-- [ ] Re-evaluate the Agent and confirm that it meets the release criteria.
-- [ ] Configure and pass the CI/CD Trust Score gate.
-- [ ] Deploy the hardened Agent and update its registered production configuration.
-- [ ] Verify production telemetry, Guardrail latency, and false-positive behavior.
-- [ ] Assign monitoring and rollback owners.
+- Register the Agent and verify that its endpoint is reachable.
+- Complete the baseline Evaluation and review the Trust Report.
+- Configure input and output Guards and integrate Dome into the Agent runtime.
+- Confirm that staging telemetry reaches the correct Agent.
+- Complete an adaptive Red Team campaign.
+- Address critical and high-risk findings.
+- Add successful attacks to regression testing.
+- Re-evaluate the Agent and confirm that it meets the release criteria.
+- Configure and pass the CI/CD Trust Score gate.
+- Deploy the hardened Agent and update its registered production configuration.
+- Verify production telemetry, Guardrail latency, and false-positive behavior.
+- Assign monitoring and rollback owners.
 
 ## Troubleshooting
 
 | Problem | What to Check |
 |---|---|
-| The Agent cannot be evaluated | Verify endpoint compatibility, credentials, availability, and rate limits |
-| The Evaluation takes too long | Use a small sample while iterating, then run full coverage before release |
-| Red Team is too slow or expensive | Reduce waves, seeds, or parallel attackers |
-| Dome blocks normal traffic | Inspect traces and tune the responsible Detector |
-| The CI/CD gate fails | Check the Evaluation status, Trust Score, configured threshold, and CI/CD credentials |
-| The platform uses the old Agent endpoint | Update the registered Agent configuration after deployment |
-| Dome Metrics is empty | Verify Dome integration, Agent traffic, Agent ID, and telemetry export |
-| Adaptation calls fail | Confirm that Darwin is enabled for the deployment |
+| The Evaluation cannot reach the Agent | Review [Agent availability](/owner-guide/run-evaluations/running-evaluations#agent-availability), endpoint compatibility, credentials, and rate limits |
+| The Evaluation takes too long | Review [Evaluation rate limits](/developer-guide/evaluate/overview#rate-limiting), use a small sample while iterating, then run full coverage before release |
+| Red Team is too slow or expensive | Review [Red Team runtime and cost](/owner-guide/run-evaluations/running-evaluations#red-team-runtime-and-cost), then reduce waves, seeds, or parallel attackers |
+| Dome blocks normal traffic | Inspect [Dome traces](/owner-guide/protect-in-production/observability#open-logs-and-traces) and tune the responsible Detector |
+| The CI/CD gate fails | Check the Evaluation status, Trust Score, configured threshold, and [SDK credentials](/developer-guide/sdk/setup#authentication) |
+| The platform uses the old Agent endpoint | [Update the registered Agent](/owner-guide/register-agents/registering-agents#manage-agents) after deployment |
+| Dome Metrics is empty | Follow the [empty-state checks](/owner-guide/protect-in-production/observability#empty-states) for integration, traffic, Agent ID, and telemetry |
+| Adaptation calls fail | Confirm [Darwin availability](/concepts/platform/darwin) for the deployment |
 
 ## Next Steps
 
@@ -426,7 +428,7 @@ New findings restart the lifecycle at Improve. Apply a reviewed change, re-evalu
     Start, monitor, and retrieve Diamond Evaluations.
   </Card>
   <Card title="Understand Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
-    Interpret Trust Scores and prioritize findings.
+    Interpret Trust Scores and rank findings.
   </Card>
   <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
     Configure Guards, Detectors, and execution behavior.
