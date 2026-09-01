@@ -1,0 +1,44 @@
+---
+title: "Red Team"
+description: "Adversarial Engagements that search for unknown weaknesses instead of measuring against a fixed Harness."
+---
+
+<Tip>
+**TL;DR:** Red Team attacks your [Agent](/owner-guide/register-agents/what-is-an-agent) to find weaknesses a fixed [Harness](/concepts/evaluation-components/harness) would miss. It creates an **Engagement** that runs in waves, learning from each attack to plan the next. The result is campaign evidence, not a [Trust Score](/concepts/trust-score/introduction).
+</Tip>
+
+A standard [Evaluation](/concepts/evaluation-components/introduction) answers a closed question: how does this Agent score against tests you already chose? That is the right question for release evidence, because the answer is reproducible and comparable over time.
+
+Red Team answers an open question instead: what can an attacker actually get this Agent to do? You cannot enumerate that in advance, so Red Team explores rather than measures.
+
+## Red Team Versus Standard Evaluations
+
+| Mode | How It Works | Use It When |
+|------|--------------|-------------|
+| **Standard Evaluations** | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). | You need a reproducible Trust Score, baseline readiness evidence, or a focused custom Harness. |
+| **Red Team** | Runs an adversarial Engagement against a registered Agent, adaptively over multiple waves. | You need deeper adversarial testing, want to uncover unknown vulnerabilities, or need evidence for security and risk review. |
+
+Red Team does not replace Trust Score Evaluations. Use a Trust Score for reproducible readiness evidence, then use Red Team to search for harder-to-find vulnerabilities and successful attack strategies.
+
+## When To Choose Red Team
+
+Choose Red Team when the Agent handles sensitive data, regulated workflows, or privileged actions, when it uses tools, MCP servers, delegated Agents, or external data stores, or when a release needs security and risk-owner review.
+
+Red Team is also the right choice when a Trust Score finding needs deeper investigation, because an Engagement can pursue a weakness across many turns instead of recording a single failed Probe.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Engagements" icon="crosshair" href="/concepts/red-team/engagements">
+    How waves, seeds, judgments, and reflections work
+  </Card>
+  <Card title="Run a Campaign" icon="play" href="/owner-guide/red-team/running-campaigns">
+    Launch Red Team from the Console
+  </Card>
+  <Card title="Understand Results" icon="brain" href="/owner-guide/red-team/understanding-results">
+    Read waves, judgments, and the final report
+  </Card>
+  <Card title="Red Team for Developers" icon="terminal" href="/developer-guide/red-team/overview">
+    Reach Red Team from the CLI, MCP, and REST API
+  </Card>
+</CardGroup>

@@ -1,9 +1,11 @@
 ---
 title: "Red Team"
-description: "Manage Personas, Policies, and run adversarial red team campaigns."
+description: "Manage Personas and Policies, and run adversarial Red Team Engagements."
 ---
 
-Red teaming goes beyond standard [Harnesses](/concepts/evaluation-components/harness) by simulating realistic adversarial users. [Personas](/owner-guide/simulate-environment/personas) define who is attacking, [Policies](/owner-guide/simulate-environment/policies) define the rules [Agents](/owner-guide/register-agents/what-is-an-agent) must follow, and red team campaigns execute multi-strategy attack sequences.
+This page is the full command reference. For what Red Team does and which interfaces reach it, start with the [Red Team Overview](/developer-guide/red-team/overview).
+
+Red Team goes beyond standard [Harnesses](/concepts/evaluation-components/harness) by simulating realistic adversarial users. [Personas](/owner-guide/simulate-environment/personas) define who is attacking, [Policies](/owner-guide/simulate-environment/policies) define the rules [Agents](/owner-guide/register-agents/what-is-an-agent) must follow, and Engagements execute multi-strategy attack sequences over several waves.
 
 ## Personas
 
@@ -287,110 +289,171 @@ vijil policy rule-list --policy-id <policy_id>
 
 ---
 
-## Red Team Campaigns
+## Red Team Engagements
 
-Red team campaigns run adversarial attack sequences against your Agent using dedicated tools such as Garak, PromptFoo, and PyRIT.
+A Red Team Engagement runs adversarial attacks against your Agent in waves, learning from each wave to plan the next. See [Engagements](/concepts/red-team/engagements) for how the loop works.
 
 | Command | Description |
 |---------|-------------|
-| `vijil redteam tools` | List available red team tools |
-| `vijil redteam run` | Start a campaign |
-| `vijil redteam status` | Check campaign status |
-| `vijil redteam results` | Get campaign results |
-| `vijil redteam logs` | Get campaign logs |
-| `vijil redteam list` | List campaigns |
-| `vijil redteam cancel` | Cancel a running campaign |
-| `vijil redteam delete` | Delete a campaign |
+| `vijil xteaming create` | Create an Engagement |
+| `vijil xteaming list` | List Engagements |
+| `vijil xteaming status` | Get Engagement status |
+| `vijil xteaming results` | Get Engagement results |
+| `vijil xteaming cancel` | Cancel a running Engagement |
+| `vijil xteaming delete` | Delete an Engagement |
+| `vijil xteaming seeds` | List attack seeds |
+| `vijil xteaming attacks` | List attacker runs |
+| `vijil xteaming attack` | Get one attacker run |
+| `vijil xteaming judgments` | List judgments |
+| `vijil xteaming judgment` | Get one judgment |
+| `vijil xteaming reflections` | List reflections |
+| `vijil xteaming reflection` | Get one wave's reflection |
+| `vijil xteaming report` | Get the final report |
+| `vijil xteaming report-md` | Get the final report as Markdown |
 
-### `vijil redteam tools`
+### `vijil xteaming create`
 
-List available red team tools and their supported attack categories.
+Create and start an Engagement. Only `--agent-id` is required, because the service fetches the target endpoint and Agent card from the Agent registry.
 
 ```bash
-vijil redteam tools --json
-```
-
-### `vijil redteam run`
-
-Create and start a red team campaign.
-
-```bash
-vijil redteam run \
-  --tool garak \
+vijil xteaming create \
   --agent-id "$AGENT_ID" \
-  --purpose "Customer support chatbot" \
-  --categories '["jailbreak", "prompt_injection"]' \
-  --num-tests 20 \
+  --policy-ids '["<policy_id>"]' \
+  --persona-ids '["<persona_id>"]' \
+  --redteam '{"max_waves": 3, "max_seeds_per_wave": 5}' \
   --wait
 ```
 
 | Flag | Description | Required |
 |------|-------------|----------|
-| `--tool` | `diamond_security`, `promptfoo`, `garak`, `pyrit`, or `unknown` | Yes |
-| `--purpose` | Agent purpose description (used for context-aware attacks) | Yes |
-| `--categories` | Attack categories to test (JSON array) | Yes |
-| `--agent-id` | Agent ID (resolves the endpoint URL automatically) | |
-| `--agent-url` | Target Agent endpoint URL (if not using `--agent-id`) | |
-| `--agent-api-key` | API key for the target Agent | |
-| `--agent-model-name` | Model name if the Agent is an LLM gateway | |
-| `--num-tests` | Number of test cases per category | |
-| `--strategies` | Evaluation strategies (JSON array, tool-specific) | |
-| `--custom-plugins` | Custom plugin names (JSON array, for `CUSTOM` category) | |
-| `--provider-config` | Provider-specific configuration (JSON object) | |
-| `--wait` | Poll until the campaign completes | |
+| `--agent-id` | Agent to attack. The service resolves its endpoint and Agent card. | Yes |
+| `--persona-ids` | [Persona](/owner-guide/simulate-environment/personas) IDs to use (JSON array) | |
+| `--policy-ids` | [Policy](/owner-guide/simulate-environment/policies) IDs the judge tests against (JSON array) | |
+| `--redteam` | Wave and seed overrides (JSON object) | |
+| `--xteaming` | Attacker behavior overrides (JSON object) | |
+| `--wait` | Poll until the Engagement completes | |
 | `--json` | Output as JSON | |
 
-Save the campaign ID from the output:
+Save the Engagement ID from the output:
 
 ```bash
-export CAMPAIGN_ID="c1d2e3f4-..."
+export ENGAGEMENT_ID="e1d2c3b4-..."
 ```
 
-### `vijil redteam status`
+<Note>
+`--redteam` controls the shape of the run, such as `min_waves`, `max_waves`, `max_seeds_per_wave`, and `max_parallel_attackers`. `--xteaming` controls how hard each attacker works before giving up. Both map onto the Console sliders described in [Run a Red Team Campaign](/owner-guide/red-team/running-campaigns). The exact JSON keys come from the `vijil-redteam` schemas package, so check `vijil xteaming create --help` for the set your deployment accepts.
+</Note>
 
-Check the status of a campaign.
+### `vijil xteaming list`
+
+List Engagements for the active team, showing `engagement_id`, `status`, `phase`, and `created_at`.
 
 ```bash
-vijil redteam status <campaign_id> --json
+vijil xteaming list
 ```
 
-### `vijil redteam results`
+### `vijil xteaming status`
 
-Get the results of a completed campaign.
+Get one Engagement's live state, including phase, current wave, attackers completed, and attackers errored.
 
 ```bash
-vijil redteam results <campaign_id> --json
+vijil xteaming status <engagement_id> --json
 ```
 
-### `vijil redteam logs`
+### `vijil xteaming results`
 
-Get execution logs for a campaign.
+Get the aggregated results for an Engagement.
 
 ```bash
-vijil redteam logs <campaign_id> --json
+vijil xteaming results <engagement_id> --json
 ```
 
-### `vijil redteam list`
+### `vijil xteaming cancel`
 
-List all red team campaigns for the active team.
+Cancel a running Engagement.
 
 ```bash
-vijil redteam list --json
+vijil xteaming cancel <engagement_id>
 ```
 
-### `vijil redteam cancel`
+### `vijil xteaming delete`
 
-Cancel a running campaign.
+Delete an Engagement.
 
 ```bash
-vijil redteam cancel <campaign_id>
+vijil xteaming delete <engagement_id>
+vijil xteaming delete <engagement_id> --yes   # skip confirmation
 ```
 
-### `vijil redteam delete`
+### `vijil xteaming seeds`
 
-Delete a campaign.
+List the attack seeds generated for an Engagement, showing `wave_id`, `seed_id`, `instruction`, and `risk_type`.
 
 ```bash
-vijil redteam delete <campaign_id>
-vijil redteam delete <campaign_id> --yes
+vijil xteaming seeds <engagement_id>
+vijil xteaming seeds <engagement_id> --wave-id 1
+```
+
+### `vijil xteaming attacks`
+
+List attacker runs, showing `wave_id`, `seed_id`, `attacker_type`, and `status`.
+
+```bash
+vijil xteaming attacks <engagement_id> --wave-id 1
+```
+
+### `vijil xteaming attack`
+
+Get one attacker run, including its strategy and transcript.
+
+```bash
+vijil xteaming attack <engagement_id> <wave_id> <seed_id> --json
+```
+
+### `vijil xteaming judgments`
+
+List judgments, showing `wave_id`, `seed_id`, `is_success`, and `potential_harm`.
+
+```bash
+vijil xteaming judgments <engagement_id> --wave-id 1
+```
+
+### `vijil xteaming judgment`
+
+Get one judgment in full.
+
+```bash
+vijil xteaming judgment <engagement_id> <wave_id> <seed_id> --json
+```
+
+### `vijil xteaming reflections`
+
+List every wave's reflection, which is the Engagement's own account of what worked.
+
+```bash
+vijil xteaming reflections <engagement_id>
+```
+
+### `vijil xteaming reflection`
+
+Get one wave's reflection.
+
+```bash
+vijil xteaming reflection <engagement_id> <wave_id> --json
+```
+
+### `vijil xteaming report`
+
+Get the final report, with clustered vulnerabilities, policy violations, leaked artifacts, and successful strategies.
+
+```bash
+vijil xteaming report <engagement_id> --json
+```
+
+### `vijil xteaming report-md`
+
+Get the final report rendered as Markdown, which is convenient for pasting into tickets.
+
+```bash
+vijil xteaming report-md <engagement_id>
 ```

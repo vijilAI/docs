@@ -1,0 +1,144 @@
+---
+title: 'Red Team Overview'
+description: 'Create and inspect Red Team Engagements from the CLI, MCP, or REST API.'
+---
+
+Red Team attacks a registered [Agent](/owner-guide/register-agents/what-is-an-agent) to find weaknesses a fixed [Harness](/concepts/evaluation-components/harness) would miss. It creates an **Engagement** that runs in waves: each wave generates attack seeds from a risk taxonomy, pursues them over multiple turns, judges the transcripts, and reflects on what worked before planning the next wave.
+
+For the mechanics, see [Engagements](/concepts/red-team/engagements). This page covers reaching Red Team from outside the Console.
+
+## Interfaces
+
+| Interface | How To Reach It |
+|-----------|-----------------|
+| **Console** | The **Adaptive** tab in **Create Evaluation**. See [Run a Red Team Campaign](/owner-guide/red-team/running-campaigns). |
+| **CLI** | `vijil xteaming`, 15 commands. See the [Red Team CLI Reference](/developer-guide/cli/red-team#red-team-engagements). |
+| **MCP** | The `xteaming_*` tools, 16 of them. See the [MCP tool catalog](/developer-guide/agentic/tools#red-team-engagements). |
+| **REST API** | The Engagements endpoints under `/v1/xteaming/engagements`. |
+
+## Create an Engagement
+
+Only the Agent ID is required. The service resolves the target endpoint and Agent card from the Agent registry, so you never pass an endpoint directly.
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    vijil xteaming create \
+      --agent-id "$AGENT_ID" \
+      --policy-ids '["<policy_id>"]' \
+      --redteam '{"max_waves": 3, "max_seeds_per_wave": 5}' \
+      --wait
+    ```
+  </Tab>
+  <Tab title="MCP">
+    <Prompt description="Red team the customer support agent over 3 waves with 5 seeds each">
+    Red team the customer support agent over 3 waves with 5 seeds each
+    </Prompt>
+  </Tab>
+  <Tab title="REST API">
+    ```bash
+    curl -X POST "$VIJIL_API_URL/v1/xteaming/engagements" \
+      -H "Authorization: Bearer $VIJIL_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_id": "'"$AGENT_ID"'",
+        "team_id": "'"$TEAM_ID"'",
+        "policy_ids": ["<policy_id>"],
+        "redteam": {"max_waves": 3, "max_seeds_per_wave": 5}
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+Both override blocks are optional:
+
+| Block | What It Controls |
+|-------|------------------|
+| `redteam` | The shape of the run: minimum and maximum waves, seeds per wave, and parallel attackers |
+| `xteaming` | How hard each attacker works before giving up |
+| `target_resilience` | Rate limiting, circuit breaker, and a pre-wave reachability check, for flaky or capacity-limited targets |
+
+<Note>
+The exact override keys come from the `vijil-redteam` schemas package rather than from the Console, so run `vijil xteaming create --help` to see the set your deployment accepts.
+</Note>
+
+## Follow a Run
+
+An Engagement reports `status`, `phase`, `current_wave`, `attackers_completed`, and `attackers_errored` while it runs.
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    vijil xteaming status "$ENGAGEMENT_ID" --json
+    vijil xteaming seeds "$ENGAGEMENT_ID" --wave-id 1
+    vijil xteaming judgments "$ENGAGEMENT_ID" --wave-id 1
+    vijil xteaming cancel "$ENGAGEMENT_ID"
+    ```
+  </Tab>
+  <Tab title="MCP">
+    <Prompt description="What wave is the red team engagement on, and has anything succeeded yet?">
+    What wave is the red team engagement on, and has anything succeeded yet?
+    </Prompt>
+  </Tab>
+  <Tab title="REST API">
+    ```bash
+    curl "$VIJIL_API_URL/v1/xteaming/engagements/$ENGAGEMENT_ID?team_id=$TEAM_ID" \
+      -H "Authorization: Bearer $VIJIL_TOKEN"
+    ```
+  </Tab>
+</Tabs>
+
+A completed Engagement can report `degraded` with a `degradation_reason` when the target failed mid-run, which means the report is partial rather than a clean pass.
+
+## Read the Results
+
+Findings are addressable per wave and per seed, so you can pull one transcript rather than the whole run.
+
+| What You Want | Endpoint |
+|---------------|----------|
+| Attack seeds | `GET /v1/xteaming/engagements/{id}/seeds` |
+| Attacker runs | `GET /v1/xteaming/engagements/{id}/attacks` |
+| One attacker run | `GET /v1/xteaming/engagements/{id}/attacks/{wave_id}/{seed_id}` |
+| Judgments | `GET /v1/xteaming/engagements/{id}/judgments` |
+| One judgment | `GET /v1/xteaming/engagements/{id}/judgments/{wave_id}/{seed_id}` |
+| Reflections | `GET /v1/xteaming/engagements/{id}/reflections[/{wave_id}]` |
+| Final report | `GET /v1/xteaming/engagements/{id}/report` |
+| Report as Markdown or PDF | `GET /v1/xteaming/engagements/{id}/report.md` or `report.pdf` |
+
+Every endpoint takes `team_id` as a query parameter.
+
+## Personas and Policies
+
+Personas and Policies are the context an Engagement attacks with and judges against. An Engagement given neither still runs, but its judgments fall back on general safety and security expectations rather than your rules.
+
+| Input | What It Contributes |
+|-------|---------------------|
+| [Personas](/owner-guide/simulate-environment/personas) | Who is attacking. Personas shape attacker behavior. |
+| [Policies](/owner-guide/simulate-environment/policies) | The rules the Agent must follow, so a judge can identify a concrete policy violation. |
+
+Create both from presets:
+
+```bash
+vijil persona preset-list --preset-category adversarial
+vijil persona from-preset <preset_id>
+
+vijil policy preset-list
+vijil policy from-preset <preset_id>
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="How Engagements Work" icon="crosshair" href="/concepts/red-team/engagements">
+    Waves, seeds, judgments, and reflections
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/developer-guide/cli/red-team">
+    Every Persona, Policy, and Engagement command
+  </Card>
+  <Card title="MCP Tools" icon="plug" href="/developer-guide/agentic/tools#red-team-engagements">
+    The Red Team tool catalog for Agents
+  </Card>
+  <Card title="Run From the Console" icon="play" href="/owner-guide/red-team/running-campaigns">
+    Launch Red Team from the UI
+  </Card>
+</CardGroup>

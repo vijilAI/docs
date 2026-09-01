@@ -1,0 +1,122 @@
+---
+title: 'Run a Red Team Campaign'
+description: 'Launch an adaptive Red Team campaign against a registered Agent from the Console.'
+---
+
+A Red Team campaign explores your Agent for weaknesses instead of measuring it against a fixed [Harness](/concepts/evaluation-components/harness). It runs in waves: each wave generates a batch of attack goals tied to an OWASP-aligned taxonomy of Agent risks, runs them in parallel, then uses what worked to plan the next wave. The run stops when new findings dry up or the wave budget is reached.
+
+Red Team is designed for deeper adversarial exploration than a standard [Trust Score](/concepts/trust-score/introduction) or custom Harness Evaluation. It is useful when:
+
+- The Agent handles sensitive data, regulated workflows, or privileged actions
+- The Agent uses tools, MCP servers, delegated Agents, or external data stores
+- A Trust Score or custom Harness finding needs deeper investigation
+- A release needs security, safety, or risk-owner review before deployment
+- You want to validate whether previous fixes reduced exploitable behavior
+
+Red Team does not replace Trust Score Evaluations. Use Trust Score for reproducible readiness evidence, then use Red Team to search for harder-to-find vulnerabilities and successful attack strategies.
+
+<Note>
+Red Team is enabled per deployment. Where it is not enabled, the **Adaptive** tab appears but stays disabled, and selecting it reports `Red Team is not enabled for this deployment.` Contact your Vijil account team to have it turned on.
+</Note>
+
+## Before You Start
+
+For best results, make sure the selected Agent is <Badge color="green">Active</Badge> and has as much context as you can safely provide. Attaching [Policies](/owner-guide/simulate-environment/policies) and [Personas](/owner-guide/simulate-environment/personas) improves both the attack seeds the campaign generates and the accuracy of its judgments.
+
+## Launch a Campaign
+
+<Steps>
+  <Step title="Create an Evaluation">
+    Navigate to **Tests** in the Console sidebar, then click **Create Evaluation**.
+  </Step>
+  <Step title="Choose an Agent">
+    Select the registered Agent you want to test. Only Agents with status <Badge color="green">Active</Badge> can be tested.
+  </Step>
+  <Step title="Select the Adaptive tab">
+    In the **Test Configuration** panel, choose the **Adaptive** tab, which runs Red Team. The other two tabs, **Baseline** and **Bespoke**, run standard Trust Score Evaluations.
+  </Step>
+  <Step title="Configure the campaign">
+    Set the sliders under **General Settings**, press the <Icon icon="settings-2" /> icon in the top right corner for **Advanced settings** if you need finer control, then attach Personas and Policies <Badge>OPTIONAL</Badge>.
+  </Step>
+  <Step title="Start the campaign">
+    Click **Run Evaluation**.
+  </Step>
+</Steps>
+
+<Note>
+For how waves, seeds, judgments, and reflections work, see [Engagements](/concepts/red-team/engagements).
+</Note>
+
+## General Settings
+
+Four sliders control the shape and cost of the run. An **Estimated time** panel updates as you move them, and **Reset to defaults** restores the starting values.
+
+| Setting | Range | What It Controls |
+|---------|-------|------------------|
+| **Min waves** | 1 to 5 | Minimum number of waves to run even if no new successes appear. Forces deeper exploration before the campaign gives up. |
+| **Max waves** | 1 to 20 | Hard ceiling on waves. More waves give more chances to learn from prior attacks and find new vulnerabilities, at roughly linear cost. |
+| **Max seeds per wave** | 1 to 50 | Attack seeds generated per wave. Each seed is one full multi-turn conversation, so more seeds improve taxonomy coverage and diversity with linear cost and latency. |
+| **Max parallel attackers** | 1 to 10 | How many attackers run concurrently within a wave. Higher values lower wall-clock time per wave but increase requests per second and rate-limit risk. |
+
+Setting **Min waves** above **Max waves** is rejected with `Min waves cannot exceed max waves`.
+
+## Advanced Settings
+
+Four further settings control how hard each attacker works before it gives up. To reach them, press the <Icon icon="settings-2" /> icon in the top right corner of the **General Settings** section header.
+
+The settings open in a dialog with its own **Estimated time** panel and **Reset to defaults** control. Click **Save** to apply your changes, or **Cancel** to discard them.
+
+Use these only when you understand the cost and runtime impact of the campaign.
+
+| Setting | Range | Default | What It Controls |
+|---------|-------|---------|------------------|
+| **Max attempts per phase** | 1 to 8 | 4 | Attempts at one conversation phase before the attacker is forced to advance. A phase is one stage of the attack plan. On a stateless target each attempt rewrites the current turn. On a stateful target each attempt appends a new message within the phase. |
+| **Max retries** | 1 to 50 | 25 | Retries per run. A retry fires when a turn scores below the best score reached so far on the current attack path. On a stateless target the retry rewrites and resends that turn, which is a rollback. On a stateful target, which cannot rewind, it appends a new message at the same point. The cap is global across the whole run, not per strategy. |
+| **Max strategies** | 1 to 20 | | How many distinct strategies the attacker tries per seed before giving up. Higher values mean more creative attempts per seed, with diminishing returns. |
+| **Max turns** | 1 to 15 | | Committed-turn budget per strategy, counted as attacker and target exchange pairs. Caps conversation depth. |
+
+## Personas and Policies
+
+Below the settings, the **Personas** and **Policies** sections each provide a searchable list of what your team has created.
+
+| Input | Why It Matters |
+|-------|----------------|
+| **Policies** | Gives the judge clear rules for identifying policy violations |
+| **Personas** | Helps generate realistic attacker and user behavior |
+
+If Policies are missing, Red Team still runs, but judgments rely more heavily on general safety and security expectations rather than your rules.
+
+## Monitor a Campaign
+
+Red Team campaigns take longer than a standard Evaluation because each wave may run several attackers and an analysis step. Open the run from **Evaluation Results** to follow it live, and use **Cancel run** to stop it early. See [Understand Red Team Results](/owner-guide/red-team/understanding-results) for what the run page shows.
+
+## Runtime and Cost
+
+Red Team campaigns generate more traffic than a standard Harness because each wave may launch several attackers and each attacker can run multi-turn conversations.
+
+Start with conservative wave, seed, and parallel attacker settings. Increase them only after you have confirmed your Agent's rate limits and the campaign cost profile. The **Estimated time** panel is the fastest way to see what a change to the sliders will cost you in wall-clock time.
+
+## Best Practices
+
+**Run Red Team for deeper security review**: Run a campaign after baseline Evaluation, before major releases, and after changes to tools, prompts, policies, or access controls.
+
+**Give Red Team enough context**: Policies and Personas improve seed quality and judgment accuracy.
+
+**Start small**: Run a short campaign with low wave and seed budgets first to confirm your Agent holds up under adversarial traffic, then widen them.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Understand Results" icon="brain" href="/owner-guide/red-team/understanding-results">
+    Read waves, judgments, and the final report
+  </Card>
+  <Card title="How Engagements Work" icon="crosshair" href="/concepts/red-team/engagements">
+    Waves, seeds, judgments, and reflections
+  </Card>
+  <Card title="Personas" icon="users" href="/owner-guide/simulate-environment/personas">
+    Define who is attacking your Agent
+  </Card>
+  <Card title="Policies" icon="scale-balanced" href="/owner-guide/simulate-environment/policies">
+    Give the judge rules to test against
+  </Card>
+</CardGroup>

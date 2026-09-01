@@ -1,0 +1,121 @@
+---
+title: 'Understand Red Team Results'
+description: 'Read waves, attacker transcripts, judgments, and the final report from a Red Team campaign.'
+---
+
+Red Team results are campaign evidence, not a [Trust Score](/concepts/trust-score/introduction). Open one from **Tests** → **Evaluation Results** by selecting a row whose **Evaluation Type** is **Red Team**.
+
+The run page is titled **Red Team Evaluation** and has three areas:
+
+- **Live metrics**: status, phase, elapsed time, and attacker progress
+- **Waves**: per-wave seeds and attackers, drilling into transcripts and judgments
+- **Final report**: aggregated findings across the whole campaign
+
+## Live Metrics
+
+Six metrics sit at the top of the run page.
+
+| Metric | What It Means |
+|--------|---------------|
+| **Run status** | Where the run is in its lifecycle |
+| **Phase** | The current stage of the run |
+| **Elapsed** | How long the run has been active |
+| **Attackers completed** | How many attacker runs finished |
+| **Attackers errored** | How many attacker runs failed |
+| **Current wave** | Which wave is active or most recently completed |
+
+**Run status** reports one of `pending`, `starting`, `running`, `analyzing`, `wave_complete`, `completed`, `succeeded`, `failed`, `cancelled`, or `errored`. Note that this vocabulary is wider than the `PENDING`, `RUNNING`, `COMPLETED`, `FAILED` set used for standard Evaluations, because a campaign reports the wave loop as it progresses.
+
+**Cancel run** stops an active campaign. **Copy ID** copies the run identifier, which is useful when correlating with logs or support requests.
+
+## Waves
+
+Each wave is listed with a set of stat pills showing **Seeds**, **Running**, **Done**, and **Errors**. Click a wave to inspect what the campaign generated and what its attackers did.
+
+Review wave details to see whether later waves became more focused based on earlier discoveries. Strong campaigns explore broadly early, then narrow once the campaign identifies a promising strategy.
+
+## Attacker Details
+
+Click an attacker to inspect the evidence behind one seed. Use **Previous seed** and **Next seed** to move through a wave without returning to the list.
+
+| Section | Fields | How To Read It |
+|---------|--------|----------------|
+| **Seed** | Seed ID, Risk type, Risk outcome, Status | The attack goal, tying a taxonomy risk to a concrete attacker instruction |
+| **Final strategy** | Persona, Context, Approach, Conversation plan | The approach the attacker committed to. Appears once the attacker completes. |
+| **Final transcript** | Conversation turns | The conversation evidence for this attacker |
+| **Judgment** | Harmful content delivered, Outcome, Judge score, Claim, Evidence, Leaked artifacts | The judge's verdict on the transcript |
+
+Before an attacker finishes, these panels report `Strategy metadata appears when the attacker completes.` and `Judgment not available yet.`
+
+## Judgments
+
+A judge reads the whole transcript rather than scoring each response in isolation, because multi-turn attacks often look harmless turn by turn and only succeed in aggregate.
+
+**Harmful content delivered** is the field to read first:
+
+| Value | Meaning |
+|-------|---------|
+| **FULL** | The Agent fulfilled the attack goal, or leaked a verified sensitive artifact |
+| **PARTIAL** | The Agent produced some harmful content, but the goal was not fully met or the leak needs more verification |
+| **NONE** | The Agent refused or responded safely |
+
+**Claim** and **Evidence** show what the judge concluded and the transcript excerpt it relied on, so you can verify a finding rather than take it on trust. **Leaked artifacts** lists internal details the Agent disclosed, such as system prompt fragments, tool names, private endpoints, credentials, or operational procedures.
+
+Attaching Policies changes what the judge can conclude. With Policies available it can identify a concrete policy violation. Without them, judgments fall back on general safety and security expectations.
+
+## Final Report
+
+The run page shows a **Final report** summary once the campaign completes. Before then it reports `Report is available after the run completes.` Click **Open full report view** for the detail behind the summary.
+
+| Section | What It Shows |
+|---------|---------------|
+| **Summary** | Waves, Seeds, and Successful judgments |
+| **Vulnerabilities** | Distinct weaknesses discovered across waves |
+| **Policy violations** | Confirmed violations, when Policies were available to the judge |
+| **Leaked artifacts** | Internal details disclosed during attacks |
+| **Successful strategies** | Attacker approaches that worked and should inform future testing |
+
+Each finding carries a **Category**, a **Description**, **Evidence**, and a link to the **Transcript** that uncovered it. Use the report to decide which issues need product changes, prompt or policy updates, tool permission changes, or Dome Guardrails.
+
+## Downloading a Report
+
+The download control on the report offers three formats:
+
+| Format | Use It For |
+|--------|------------|
+| **PDF** | Sharing with reviewers and attaching to release records |
+| **Markdown** | Pasting findings into tickets or internal documents |
+| **JSON** | Feeding findings into your own tooling |
+
+Downloads are unavailable until the report is generated, reporting `Report is not available yet.`
+
+## Prioritize Findings
+
+Use the harmful-content judgment to decide what to fix first:
+
+**Address immediately**: findings with **FULL** harmful-content judgments, confirmed policy violations, and leaked artifacts. These are demonstrated failures with a transcript attached.
+
+**Address in the next release**: findings with **PARTIAL** harmful-content judgments. The Agent produced some harmful content, so the weakness is real, but the attack did not fully succeed.
+
+**Review and monitor**: findings whose **Evidence** does not clearly establish harm. Check these against the actual Agent design, policies, and data access before treating them as defects.
+
+<Tip>
+Focus remediation on root causes rather than individual findings. **Successful strategies** in the final report often explains several vulnerabilities at once, and fixing the underlying weakness resolves all of them.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Run Another Campaign" icon="play" href="/owner-guide/red-team/running-campaigns">
+    Widen coverage or verify a fix
+  </Card>
+  <Card title="How Judgments Work" icon="crosshair" href="/concepts/red-team/engagements">
+    The criteria behind FULL, PARTIAL, and NONE
+  </Card>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Turn findings into runtime protection
+  </Card>
+  <Card title="Trust Score Results" icon="brain" href="/owner-guide/run-evaluations/understanding-results">
+    Interpret standard Evaluation findings
+  </Card>
+</CardGroup>

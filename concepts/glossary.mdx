@@ -219,6 +219,11 @@ Vijil's runtime defense platform that protects agents in production through conf
 
 ---
 
+**Engagement**
+The object created by a Red Team run. An Engagement runs in Waves, generating Attack Seeds, attacking the Agent over multiple turns, judging transcripts, and reflecting to plan the next Wave.
+
+---
+
 **Guard**
 A protection category within a Guardrail that addresses a specific threat type, such as prompt injection, PII exposure, or toxicity.
 
@@ -231,6 +236,11 @@ A configurable pipeline of Guards that filter agent inputs and outputs. Guardrai
 
 **Harness**
 A collection of Scenarios that define a complete evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+
+---
+
+**Judgment**
+A judge's verdict on one Red Team attack transcript. A Judgment records whether harmful content was delivered (FULL, PARTIAL, or NONE) and whether the harm is verified or needs owner review.
 
 ---
 
@@ -250,7 +260,12 @@ A specific test case that challenges an agent with a potentially harmful or prob
 ---
 
 **Red Team**
-A Diamond evaluation mode that runs adaptive, multi-wave adversarial campaigns against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies.
+A Diamond mode that runs adversarial attacks against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies. A Red Team run creates an Engagement and attacks in Waves. In the Console it is the Adaptive tab; from the CLI and MCP it is the xteaming command group.
+
+---
+
+**Reflection**
+A Red Team Engagement's summary of one Wave, recording which strategies worked and which risks remain uncovered. Reflections are what make later Waves more targeted than earlier ones.
 
 ---
 
@@ -265,6 +280,6 @@ Vijil's composite measure of agent trustworthiness across three dimensions: Reli
 ---
 
 **Wave**
-One iteration of a Red Team campaign. A wave generates seeds, runs attackers, judges transcripts, and produces reflections that guide the next wave.
+One iteration of a Red Team Engagement. A wave generates seeds, runs attackers, judges transcripts, and produces reflections that guide the next wave.
 
 ---

@@ -70,7 +70,7 @@ Configure each side based on what you want Dome to check before and after the Ag
 8. Click **Save**, then **Apply** when you are ready to activate the configuration for the Agent.
 
 <Tip>
-Review [Evaluation and Red Team findings](/owner-guide/run-evaluations/understanding-results) before choosing Guards. Successful jailbreak, prompt injection, or tool-misuse strategies point to Security input Guards. Leaked personal or internal data points to Privacy output Guards. Harmful-content failures point to Moderation Guards on inputs, outputs, or both.
+Review [Evaluation](/owner-guide/run-evaluations/understanding-results) and [Red Team](/owner-guide/red-team/understanding-results) findings before choosing Guards. Successful jailbreak, prompt injection, or tool-misuse strategies point to Security input Guards. Leaked personal or internal data points to Privacy output Guards. Harmful-content failures point to Moderation Guards on inputs, outputs, or both.
 </Tip>
 
 ## Choose Guard Types
@@ -210,7 +210,7 @@ After you configure and enable Dome, the Agent can move to the **Protected** sta
 ## Best Practices
 
 - **Start with the highest-risk path**: Use Security input Guards first for customer-facing Agents and Agents with tools or sensitive data.
-- **Map Guards to evidence**: Use evaluation failures, Red Team findings, and policy requirements to justify each Guard.
+- **Map Guards to evidence**: Use evaluation failures, [Red Team findings](/owner-guide/red-team/understanding-results), and policy requirements to justify each Guard.
 - **Keep latency visible**: Use Parallel execution only when Guards are independent, then watch P99 latency after applying changes.
 - **Test before applying**: Use known attack, privacy, and moderation examples before activating the configuration.
 - **Track after applying**: Review [Observability](/owner-guide/protect-in-production/observability) for false positives, missed detections, and latency changes.

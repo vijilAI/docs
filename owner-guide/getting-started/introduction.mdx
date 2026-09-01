@@ -7,7 +7,7 @@ description: 'Why teams use Vijil for trust evidence, then register an Agent, ru
 
 AI agents often stall between build and production: security and compliance want proof; the business wants to move. Without shared, objective evidence, approvals turn into opinion-based negotiation.
 
-This page explains how Vijil helps both sides, then walks through the **Console**: register an Agent, run an Evaluation, optionally run [Red Team](/concepts/platform/diamond#red-team-in-diamond), read your [Trust Report](#read-the-trust-report), and configure **[Dome](/concepts/welcome#build-ship-run-evolve)** Guardrails.
+This page explains how Vijil helps both sides, then walks through the **Console**: register an Agent, run an Evaluation, optionally run [Red Team](/owner-guide/red-team/running-campaigns), read your [Trust Report](#read-the-trust-report), and configure **[Dome](/concepts/welcome#build-ship-run-evolve)** Guardrails.
 
 <Warning>
     This guide assumes you have Vijil Console deployed. See [how to deploy Vijil Console in your environment](#).
@@ -92,18 +92,18 @@ First you will need to **register** an Agent, then **run** an [Evaluation](/conc
     <Badge color="gray">Optional Step.</Badge>
 
     <Info>
-      [Red Team](/concepts/platform/diamond#red-team-in-diamond) is Diamond's adaptive adversarial evaluation mode for uncovering vulnerabilities, policy violations, leaked artifacts, and successful attack strategies.
+      [Red Team](/concepts/red-team/introduction) is Diamond's adaptive adversarial evaluation mode for uncovering vulnerabilities, policy violations, leaked artifacts, and successful attack strategies.
     </Info>
 
     Use Red Team when the Agent handles sensitive data, calls tools, delegates to other Agents, or needs a deeper security and safety review than a standard Harness provides.
     
     1. Open **Tests** in the **Console** and click **Create Evaluation**. 
     2. Choose the registered Agent.
-    3. In the **Test Configuration** panel select the **Red Team** tab.
+    3. In the **Test Configuration** panel select the **Adaptive** tab.
     4. Configure the Red Team settings.
     5. Start the run.
 
-    Red Team runs adaptive waves of attacks. It uses the Agent context, selected policies, and available personas to generate attack seeds, run attackers, judge transcripts, and produce a final report with vulnerabilities, leaked artifacts, policy violations, and successful strategies.
+    See [Run a Red Team Campaign](/owner-guide/red-team/running-campaigns) for every setting and its tradeoff, and [Understand Red Team Results](/owner-guide/red-team/understanding-results) for reading what comes back.
 
     <Tip>Start with a small campaign, then increase waves, seeds, and parallel attackers when you understand cost and runtime for your Agent.</Tip>
   </Step>

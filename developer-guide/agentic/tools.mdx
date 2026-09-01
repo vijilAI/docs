@@ -558,7 +558,7 @@ Check the status of a detection request.
 
 ## Red Team
 
-Red team tools manage [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies), and adversarial campaigns.
+Red Team tools manage [Personas](/owner-guide/simulate-environment/personas), [Policies](/owner-guide/simulate-environment/policies), and adversarial [Engagements](/concepts/red-team/engagements).
 
 ### Personas
 
@@ -736,67 +736,67 @@ Add a rule to policy p1q2r3s4-… that prohibits sharing customer PII with third
 
 ---
 
-### Red Team Campaigns
+### Red Team Engagements
 
-Red team campaigns run adversarial attack sequences using tools such as [Garak](https://github.com/NVIDIA/garak), [PromptFoo](https://www.promptfoo.dev/), and [PyRIT](https://github.com/Azure/PyRIT).
+An Engagement runs adversarial attacks in waves, learning from each wave to plan the next. See [Engagements](/concepts/red-team/engagements) for the mechanics.
 
 | Tool | Description |
 |------|-------------|
-| `redteam_tools` | List available red team tools |
-| `redteam_run` | Start a campaign |
-| `redteam_status` | Check campaign status |
-| `redteam_results` | Get campaign results |
-| `redteam_list` | List campaigns |
-| `redteam_logs` | Get campaign logs |
-| `redteam_cancel` | Cancel a campaign |
-| `redteam_delete` | Delete a campaign |
+| `xteaming_create` | Create an Engagement |
+| `xteaming_list` | List Engagements |
+| `xteaming_status` | Get Engagement status |
+| `xteaming_results` | Get Engagement results |
+| `xteaming_cancel` | Cancel a running Engagement |
+| `xteaming_delete` | Delete an Engagement |
+| `xteaming_seeds` | List attack seeds |
+| `xteaming_attacks` | List attacker runs |
+| `xteaming_attack` | Get one attacker run |
+| `xteaming_judgments` | List judgments |
+| `xteaming_judgment` | Get one judgment |
+| `xteaming_reflections` | List reflections |
+| `xteaming_reflection` | Get one wave's reflection |
+| `xteaming_report` | Get the final report |
+| `xteaming_report_md` | Get the final report as Markdown |
+| `xteaming_report_pdf` | Get the final report as PDF |
 
-### `redteam_tools`
+### `xteaming_create`
 
-List available red team tools and their supported attack categories.
+Create and start an Engagement against a registered Agent.
 
-<Prompt description="What red team tools are available?">
-What red team tools are available?
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `agent_id` | str | Agent to attack. Required. |
+| `persona_ids` | list | Persona IDs to use |
+| `policy_ids` | list | Policy IDs the judge tests against |
+| `redteam` | dict | Wave and seed overrides |
+| `xteaming` | dict | Attacker behavior overrides |
+
+<Prompt description="Red team the customer support agent over 3 waves with 5 seeds each">
+Red team the customer support agent over 3 waves with 5 seeds each
 </Prompt>
 
-### `redteam_run`
+### `xteaming_status`
 
-Create and start a red team campaign.
+Get an Engagement's live state: phase, current wave, attackers completed, and attackers errored.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `tool` | str | `diamond_security`, `promptfoo`, `garak`, `pyrit`, or `unknown` (required) |
-| `purpose` | str | Agent purpose description, used for context-aware attacks (required) |
-| `categories` | str | Attack categories to test (JSON array, required) |
-| `agent_id` | str | Agent ID (resolves the endpoint URL automatically) |
-| `agent_url` | str | Target Agent endpoint URL (if not using `agent_id`) |
-| `agent_api_key` | str | API key for the target Agent |
-| `agent_model_name` | str | Model name if the Agent is an LLM gateway |
-| `num_tests` | int | Number of test cases per category |
-| `wait` | bool | Poll until the campaign completes |
-
-<Prompt description="Run a garak red team campaign against agent a1b2c3d4-… with the purpose 'customer support chatbot' testing jailbreaks and prompt injection, with 20 tests per category, and wait for it to finish">
-Run a garak red team campaign against agent a1b2c3d4-… with the purpose 'customer support chatbot' testing jailbreaks and prompt injection, with 20 tests per category, and wait for it to finish
+<Prompt description="What wave is the red team engagement on?">
+What wave is the red team engagement on?
 </Prompt>
 
-### `redteam_status`
+### `xteaming_judgments`
 
-Check the status of a campaign.
+List judgments for an Engagement, optionally filtered to one wave. Each judgment reports whether the attack succeeded and the potential harm.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `campaign_id` | str | Campaign UUID |
+<Prompt description="Show me every successful red team judgment and what was leaked">
+Show me every successful red team judgment and what was leaked
+</Prompt>
 
-### `redteam_results`
+### `xteaming_report`
 
-Get the results of a completed campaign.
+Get the final report, with clustered vulnerabilities, policy violations, leaked artifacts, and successful strategies. Use `xteaming_report_md` or `xteaming_report_pdf` for a shareable rendering.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `campaign_id` | str | Campaign UUID |
-
-<Prompt description="Show me the results of red team campaign c1d2e3f4-…">
-Show me the results of red team campaign c1d2e3f4-…
+<Prompt description="Summarize the red team report and tell me what to fix first">
+Summarize the red team report and tell me what to fix first
 </Prompt>
 
 ---

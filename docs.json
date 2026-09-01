@@ -119,6 +119,13 @@
             ]
           },
           {
+            "group": "Red Team",
+            "pages": [
+              "concepts/red-team/introduction",
+              "concepts/red-team/engagements"
+            ]
+          },
+          {
             "group": "Runtime Defense",
             "pages": [
               "concepts/defense/introduction",
@@ -181,6 +188,13 @@
             ]
           },
           {
+            "group": "Red Team",
+            "pages": [
+              "owner-guide/red-team/running-campaigns",
+              "owner-guide/red-team/understanding-results"
+            ]
+          },
+          {
             "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
@@ -209,6 +223,12 @@
               "developer-guide/evaluate/understanding-results",
               "developer-guide/evaluate/custom-harnesses",
               "developer-guide/evaluate/cloud-providers"
+            ]
+          },
+          {
+            "group": "Red Team",
+            "pages": [
+              "developer-guide/red-team/overview"
             ]
           },
           {
