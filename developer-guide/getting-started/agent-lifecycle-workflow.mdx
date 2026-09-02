@@ -25,9 +25,9 @@ flowchart LR
 | Stage | Goal | Evidence Produced |
 |---|---|---|
 | **Register** | Connect the Agent to the platform | Active Agent and Agent ID |
-| **Evaluate** | Establish a [Trust Score](/concepts/trust-score/introduction) baseline | Trust Score and Trust Report |
+| **Evaluate** | Measure trustworthiness and search for deeper weaknesses | [Trust Score](/concepts/trust-score/introduction), Trust Report, and Red Team findings |
 | **Harden** | Add and test [runtime Guardrails](/developer-guide/protect/overview) | Applied Dome configuration and staging telemetry |
-| **Improve** | Find and address deeper weaknesses | [Red Team findings](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) and reviewed changes |
+| **Improve** | Remediate weaknesses found during Evaluate | Reviewed Agent, Policy, and Guard changes |
 | **Re-evaluate** | Confirm that the changes worked | Improved Evaluation results and release decision |
 | **Deploy** | Release through your delivery pipeline | Production Agent reconnected to the platform |
 | **Monitor** | Observe production behavior | [Dome Metrics](/owner-guide/protect-in-production/observability), events, logs, and traces |
@@ -93,9 +93,11 @@ Registration tells the platform how to reach the Agent and how much context it c
 
 If the Agent runs only on your workstation, follow [Evaluate a Local Agent](/developer-guide/evaluate/local-agent) before continuing.
 
-## 2. Establish a Baseline
+## 2. Evaluate the Agent
 
-A [Diamond Evaluation](/developer-guide/evaluate/overview) measures the Agent against known standards. A [Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) searches for weaknesses that fixed tests might miss. Start with a baseline Trust Score Evaluation across Reliability, Security, and Safety.
+A [Diamond Evaluation](/developer-guide/evaluate/overview) measures the Agent against known standards. Start with a baseline Trust Score Evaluation, then run adaptive Red Teaming to search for weaknesses that fixed tests might miss.
+
+### Establish the Trust Baseline
 
 <Tabs>
   <Tab title="Console">
@@ -120,15 +122,48 @@ Review the [Evaluation results](/developer-guide/evaluate/understanding-results)
 - Failure patterns and recommended fixes.
 - Whether the Harness coverage matches the Agent's actual risks.
 
+### Run an Adaptive Red Team Campaign
+
+After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) against the registered Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose.
+
+<Tabs>
+  <Tab title="Console">
+    1. Create a new test for the Agent.
+    2. Select the **Adaptive** Red Team configuration.
+    3. Add relevant Policies and Personas.
+    4. Start with conservative wave and concurrency settings.
+    5. Run the campaign.
+    6. Review the findings and successful attack strategies.
+  </Tab>
+  <Tab title="SDK">
+    1. Use `client.xteam()` for the multi-wave seed, attack, judge, and reflect workflow.
+    2. Poll until the campaign reaches a terminal state.
+    3. Retrieve and review the findings.
+  </Tab>
+</Tabs>
+
+Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#client-test) only when the simpler campaign interface matches your deployment.
+
+Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
+
+- `FULL`, `PARTIAL`, and `NONE` judgments.
+- Confirmed policy violations.
+- Leaked artifacts.
+- Successful attack strategies.
+- Which findings require runtime protection from Dome.
+- Degraded or failed attacker runs.
+
 ### Checkpoint
 
-- The Evaluation completed successfully.
+- The baseline Evaluation completed successfully.
 - You saved the [Trust Report](/developer-guide/evaluate/understanding-results#reading-the-trust-report).
+- The adaptive Red Team campaign completed successfully.
+- You saved its findings, transcripts, and successful strategies.
 - You have a prioritized list of weaknesses.
 
 ## 3. Harden the Agent With Dome
 
-Use the [Evaluation findings](/developer-guide/evaluate/understanding-results#reading-findings) to choose [Dome runtime protection](/developer-guide/protect/overview):
+Use the [Trust Score findings](/developer-guide/evaluate/understanding-results#reading-findings) and [Red Team evidence](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to choose [Dome runtime protection](/developer-guide/protect/overview):
 
 | Finding | Likely Protection |
 |---|---|
@@ -181,7 +216,7 @@ Hardening adds and validates runtime protection. It does not deploy the Agent ap
 
 ## 4. Improve the Agent
 
-Start with an [adaptive Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) against the hardened Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose. Use the findings to decide what to change.
+The platform provides Evaluation evidence and, where available, optional Darwin proposals. You are responsible for reviewing that evidence and applying remediation to the Agent.
 
 Manual remediation is the default path. Depending on the finding, you might:
 
@@ -195,37 +230,20 @@ Manual remediation is the default path. Depending on the finding, you might:
 
 <Tabs>
   <Tab title="Console">
-    1. Create a new test for the Agent.
-    2. Select the **Adaptive** Red Team configuration.
-    3. Add relevant Policies and Personas.
-    4. Start with conservative wave and concurrency settings.
-    5. Run the campaign.
-    6. Review the findings and successful attack strategies.
-    7. Update the Agent configuration and Dome settings.
-    8. Record which finding each change addresses.
+    1. Review the prioritized Trust Score and Red Team findings.
+    2. Apply prompt, code, model, or tool-permission changes through your development workflow.
+    3. Update the registered Agent configuration and Dome settings in the Console when needed.
+    4. Record which finding each change addresses.
   </Tab>
   <Tab title="SDK">
-    1. Use `client.xteam()` for the multi-wave seed, attack, judge, and reflect workflow.
-    2. Poll until the campaign reaches a terminal state.
-    3. Retrieve and review the findings.
-    4. Apply code and configuration fixes through the application repository.
-    5. Where Darwin is available, run [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
-    6. Review the generated proposals with [`client.proposals`](/developer-guide/sdk/resources#client-proposals).
-    7. Approve and apply only reviewed proposals.
-    8. Preserve genome versions for comparison and audit.
+    1. Apply code and configuration fixes through the application repository.
+    2. Update the relevant Agent, Policy, or Dome configuration through the SDK when needed.
+    3. Where Darwin is available, run [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
+    4. Review the generated proposals with [`client.proposals`](/developer-guide/sdk/resources#client-proposals).
+    5. Approve and apply only reviewed proposals.
+    6. Preserve genome versions for comparison and audit.
   </Tab>
 </Tabs>
-
-Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#client-test) only when the simpler campaign interface matches your deployment.
-
-Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
-
-- `FULL`, `PARTIAL`, and `NONE` judgments.
-- Confirmed policy violations.
-- Leaked artifacts.
-- Successful attack strategies.
-- Whether Dome blocked or reduced the attacks.
-- Degraded or failed attacker runs.
 
 <Info>
 [Darwin](/concepts/platform/darwin) is in development and not yet generally available. If your deployment includes Darwin, review every generated proposal before applying it. Keep the manual remediation path complete when Darwin is unavailable.
@@ -394,9 +412,9 @@ New findings restart the lifecycle at Improve. Apply a reviewed change, re-evalu
 
 - Register the Agent and verify that its endpoint is reachable.
 - Complete the baseline Evaluation and review the Trust Report.
+- Complete an adaptive Red Team campaign.
 - Configure input and output Guards and integrate Dome into the Agent runtime.
 - Confirm that staging telemetry reaches the correct Agent.
-- Complete an adaptive Red Team campaign.
 - Address critical and high-risk findings.
 - Add successful attacks to regression testing.
 - Re-evaluate the Agent and confirm that it meets the release criteria.
