@@ -742,24 +742,24 @@ An Engagement runs adversarial attacks in waves, learning from each wave to plan
 
 | Tool | Description |
 |------|-------------|
-| `xteaming_create` | Create an Engagement |
-| `xteaming_list` | List Engagements |
-| `xteaming_status` | Get Engagement status |
-| `xteaming_results` | Get Engagement results |
-| `xteaming_cancel` | Cancel a running Engagement |
-| `xteaming_delete` | Delete an Engagement |
-| `xteaming_seeds` | List attack seeds |
-| `xteaming_attacks` | List attacker runs |
-| `xteaming_attack` | Get one attacker run |
-| `xteaming_judgments` | List judgments |
-| `xteaming_judgment` | Get one judgment |
-| `xteaming_reflections` | List reflections |
-| `xteaming_reflection` | Get one wave's reflection |
-| `xteaming_report` | Get the final report |
-| `xteaming_report_md` | Get the final report as Markdown |
-| `xteaming_report_pdf` | Get the final report as PDF |
+| `redteam_create` | Create an Engagement |
+| `redteam_list` | List Engagements |
+| `redteam_status` | Get Engagement status |
+| `redteam_results` | Get Engagement results |
+| `redteam_cancel` | Cancel a running Engagement |
+| `redteam_delete` | Delete an Engagement |
+| `redteam_seeds` | List attack seeds |
+| `redteam_attacks` | List attacker runs |
+| `redteam_attack` | Get one attacker run |
+| `redteam_judgments` | List judgments |
+| `redteam_judgment` | Get one judgment |
+| `redteam_reflections` | List reflections |
+| `redteam_reflection` | Get one wave's reflection |
+| `redteam_report` | Get the final report |
+| `redteam_report_md` | Get the final report as Markdown |
+| `redteam_report_pdf` | Get the final report as PDF |
 
-### `xteaming_create`
+### `redteam_create`
 
 Create and start an Engagement against a registered Agent.
 
@@ -769,13 +769,13 @@ Create and start an Engagement against a registered Agent.
 | `persona_ids` | list | Persona IDs to use |
 | `policy_ids` | list | Policy IDs the judge tests against |
 | `redteam` | dict | Wave and seed overrides |
-| `xteaming` | dict | Attacker behavior overrides |
+| `attacker` | dict | Attacker behavior overrides |
 
 <Prompt description="Red team the customer support agent over 3 waves with 5 seeds each">
 Red team the customer support agent over 3 waves with 5 seeds each
 </Prompt>
 
-### `xteaming_status`
+### `redteam_status`
 
 Get an Engagement's live state: phase, current wave, attackers completed, and attackers errored.
 
@@ -783,7 +783,7 @@ Get an Engagement's live state: phase, current wave, attackers completed, and at
 What wave is the red team engagement on?
 </Prompt>
 
-### `xteaming_judgments`
+### `redteam_judgments`
 
 List judgments for an Engagement, optionally filtered to one wave. Each judgment reports whether the attack succeeded and the potential harm.
 
@@ -791,9 +791,9 @@ List judgments for an Engagement, optionally filtered to one wave. Each judgment
 Show me every successful red team judgment and what was leaked
 </Prompt>
 
-### `xteaming_report`
+### `redteam_report`
 
-Get the final report, with clustered vulnerabilities, policy violations, leaked artifacts, and successful strategies. Use `xteaming_report_md` or `xteaming_report_pdf` for a shareable rendering.
+Get the final report, with clustered vulnerabilities, policy violations, leaked artifacts, and successful strategies. Use `redteam_report_md` or `redteam_report_pdf` for a shareable rendering.
 
 <Prompt description="Summarize the red team report and tell me what to fix first">
 Summarize the red team report and tell me what to fix first

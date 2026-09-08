@@ -12,9 +12,9 @@ For the mechanics, see [Engagements](/concepts/red-team/engagements). This page 
 | Interface | How To Reach It |
 |-----------|-----------------|
 | **Console** | The **Adaptive** tab in **Create Evaluation**. See [Run a Red Team Campaign](/owner-guide/red-team/running-campaigns). |
-| **CLI** | `vijil xteaming`, 15 commands. See the [Red Team CLI Reference](/developer-guide/cli/red-team#red-team-engagements). |
-| **MCP** | The `xteaming_*` tools, 16 of them. See the [MCP tool catalog](/developer-guide/agentic/tools#red-team-engagements). |
-| **REST API** | The Engagements endpoints under `/v1/xteaming/engagements`. |
+| **CLI** | `vijil redteam`, 15 commands. See the [Red Team CLI Reference](/developer-guide/cli/red-team#red-team-engagements). |
+| **MCP** | The `redteam_*` tools, 16 of them. See the [MCP tool catalog](/developer-guide/agentic/tools#red-team-engagements). |
+| **REST API** | The Engagements endpoints under `/v1/redteam/engagements`. |
 
 ## Create an Engagement
 
@@ -23,7 +23,7 @@ Only the Agent ID is required. The service resolves the target endpoint and Agen
 <Tabs>
   <Tab title="CLI">
     ```bash
-    vijil xteaming create \
+    vijil redteam create \
       --agent-id "$AGENT_ID" \
       --policy-ids '["<policy_id>"]' \
       --redteam '{"max_waves": 3, "max_seeds_per_wave": 5}' \
@@ -37,7 +37,7 @@ Only the Agent ID is required. The service resolves the target endpoint and Agen
   </Tab>
   <Tab title="REST API">
     ```bash
-    curl -X POST "$VIJIL_API_URL/v1/xteaming/engagements" \
+    curl -X POST "$VIJIL_API_URL/v1/redteam/engagements" \
       -H "Authorization: Bearer $VIJIL_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
@@ -55,11 +55,11 @@ Both override blocks are optional:
 | Block | What It Controls |
 |-------|------------------|
 | `redteam` | The shape of the run: minimum and maximum waves, seeds per wave, and parallel attackers |
-| `xteaming` | How hard each attacker works before giving up |
+| `attacker` | How hard each attacker works before giving up |
 | `target_resilience` | Rate limiting, circuit breaker, and a pre-wave reachability check, for flaky or capacity-limited targets |
 
 <Note>
-The exact override keys come from the `vijil-redteam` schemas package rather than from the Console, so run `vijil xteaming create --help` to see the set your deployment accepts.
+The exact override keys come from the `vijil-redteam` schemas package rather than from the Console, so run `vijil redteam create --help` to see the set your deployment accepts.
 </Note>
 
 ## Follow a Run
@@ -69,10 +69,10 @@ An Engagement reports `status`, `phase`, `current_wave`, `attackers_completed`, 
 <Tabs>
   <Tab title="CLI">
     ```bash
-    vijil xteaming status "$ENGAGEMENT_ID" --json
-    vijil xteaming seeds "$ENGAGEMENT_ID" --wave-id 1
-    vijil xteaming judgments "$ENGAGEMENT_ID" --wave-id 1
-    vijil xteaming cancel "$ENGAGEMENT_ID"
+    vijil redteam status "$ENGAGEMENT_ID" --json
+    vijil redteam seeds "$ENGAGEMENT_ID" --wave-id 1
+    vijil redteam judgments "$ENGAGEMENT_ID" --wave-id 1
+    vijil redteam cancel "$ENGAGEMENT_ID"
     ```
   </Tab>
   <Tab title="MCP">
@@ -82,7 +82,7 @@ An Engagement reports `status`, `phase`, `current_wave`, `attackers_completed`, 
   </Tab>
   <Tab title="REST API">
     ```bash
-    curl "$VIJIL_API_URL/v1/xteaming/engagements/$ENGAGEMENT_ID?team_id=$TEAM_ID" \
+    curl "$VIJIL_API_URL/v1/redteam/engagements/$ENGAGEMENT_ID?team_id=$TEAM_ID" \
       -H "Authorization: Bearer $VIJIL_TOKEN"
     ```
   </Tab>
@@ -96,14 +96,14 @@ Findings are addressable per wave and per seed, so you can pull one transcript r
 
 | What You Want | Endpoint |
 |---------------|----------|
-| Attack seeds | `GET /v1/xteaming/engagements/{id}/seeds` |
-| Attacker runs | `GET /v1/xteaming/engagements/{id}/attacks` |
-| One attacker run | `GET /v1/xteaming/engagements/{id}/attacks/{wave_id}/{seed_id}` |
-| Judgments | `GET /v1/xteaming/engagements/{id}/judgments` |
-| One judgment | `GET /v1/xteaming/engagements/{id}/judgments/{wave_id}/{seed_id}` |
-| Reflections | `GET /v1/xteaming/engagements/{id}/reflections[/{wave_id}]` |
-| Final report | `GET /v1/xteaming/engagements/{id}/report` |
-| Report as Markdown or PDF | `GET /v1/xteaming/engagements/{id}/report.md` or `report.pdf` |
+| Attack seeds | `GET /v1/redteam/engagements/{id}/seeds` |
+| Attacker runs | `GET /v1/redteam/engagements/{id}/attacks` |
+| One attacker run | `GET /v1/redteam/engagements/{id}/attacks/{wave_id}/{seed_id}` |
+| Judgments | `GET /v1/redteam/engagements/{id}/judgments` |
+| One judgment | `GET /v1/redteam/engagements/{id}/judgments/{wave_id}/{seed_id}` |
+| Reflections | `GET /v1/redteam/engagements/{id}/reflections[/{wave_id}]` |
+| Final report | `GET /v1/redteam/engagements/{id}/report` |
+| Report as Markdown or PDF | `GET /v1/redteam/engagements/{id}/report.md` or `report.pdf` |
 
 Every endpoint takes `team_id` as a query parameter.
 
