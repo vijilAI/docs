@@ -4,26 +4,26 @@ description: 'Integrate evaluation and protection into your development workflow
 ---
 
 <Tip>
-**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), REST API, or the Python SDK (`vijil-sdk`). Diamond evaluates your [agent](/owner-guide/register-agents/what-is-an-agent) before deployment; Dome protects it at runtime. You get a [Trust Score](/concepts/trust-score/introduction) (0–100) with specific failures you can fix and a deployment gate you can automate in CI/CD.
+**TL;DR:** Vijil integrates into your development workflow through MCP, the `vijil` CLI, the REST API, or the `vijil-sdk` Python package. [Diamond](/developer-guide/evaluate/overview) tests your [Agent](/owner-guide/register-agents/what-is-an-agent), while [Dome](/developer-guide/protect/overview) adds runtime protection. Evaluations produce specific findings and can produce a [Trust Score](/concepts/trust-score/introduction) (0–100) that you can use as an automated CI/CD gate.
 </Tip>
 
 ## The Problem with Testing Agents
 
-Traditional software testing catches bugs. But agents fail in ways that do not look like bugs, they hallucinate confidently, comply with requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit tests pass, your integration tests pass, and then your agent leaks customer data in production.
+Traditional software testing catches bugs, but Agents also fail in ways that do not look like bugs. They hallucinate confidently, follow requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit and integration tests can pass even when your Agent remains vulnerable in production.
 
-This guide shows you how to catch those failures before deployment. You'll learn to evaluate agents against adversarial [Scenarios](/concepts/evaluation-components/scenario), integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations did not anticipate.
+This guide shows you how to catch those failures before deployment. You will learn to run [Evaluations](/developer-guide/evaluate/overview), integrate trust gates into your CI/CD pipeline, and add [runtime protection](/developer-guide/protect/overview) for risks that your Evaluations did not cover.
 
 <Info>
-If you manage agents through a web Console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
+If you manage Agents through a web Console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
 </Info>
 
 ## What You Get from Vijil
 
 Vijil provides two products that work together:
 
-**Diamond** evaluates your agent by sending hundreds of adversarial Probes and measuring how it responds. You get a Trust Score, a quantified measure of reliability, security, and safety, plus specific findings you can fix.
+**[Diamond](/developer-guide/evaluate/overview)** sends configured Probes to your Agent and analyzes its responses. A Trust Score Evaluation measures reliability, security, and safety and returns specific findings you can address.
 
-**Dome** protects your agent at runtime by intercepting inputs and outputs. When Diamond identifies vulnerabilities you cannot immediately fix, Dome blocks the attack patterns in production.
+**[Dome](/developer-guide/protect/overview)** scans Agent inputs and outputs at runtime. Your application or framework integration can use the scan result to block or sanitize flagged content, while `secure_agent()` can apply configured Trust Runtime controls.
 
 ## Integration Methods
 
@@ -40,16 +40,16 @@ Vijil exposes four interfaces. Choose the one that fits your workflow, or mix th
 
 <CardGroup cols={2}>
   <Card title="MCP" icon="plug" href="/developer-guide/agentic/quickstart">
-    **Natural language, no commands.** Connect Claude Code to your Console and evaluate agents through conversation. Best for interactive development and exploration.
+    **Natural language, no commands.** Connect Claude Code to your Console and run Agent Evaluations through conversation. Best for interactive development and exploration.
   </Card>
-  <Card title="CLI" icon="terminal" href="/developer-guide/agentic/quickstart">
-    **Terminal commands.** Install `vijil-console` and run evaluations from the shell. Best for scripting, CI/CD gates, and headless automation.
+  <Card title="CLI" icon="terminal" href="/developer-guide/cli/setup">
+    **Terminal commands.** Install `vijil-sdk` and use the `vijil` command for scripts, CI/CD gates, and headless automation.
   </Card>
   <Card title="REST API" icon="code" href="/developer-guide/agentic/quickstart">
     **HTTP requests.** Call the Console API directly from any language. Best for custom integrations, dashboards, and non-Python environments.
   </Card>
   <Card title="SDK" icon="worm" href="/developer-guide/sdk/setup">
-    **Native Python.** Install `vijil-sdk` and drive evaluations from your own code. Best for Python apps, notebooks, and programmatic pipelines.
+    **Native Python.** Install `vijil-sdk` and run Evaluations from Python applications, notebooks, and pipelines.
   </Card>
 </CardGroup>
 
@@ -61,18 +61,18 @@ Different roles use Vijil differently. This guide serves all three:
   <Card title="Build & Test" icon="code">
     **Individual Developer**
 
-    You're building an agent and want fast feedback on whether it's trustworthy. Run evaluations locally, see results in minutes, iterate quickly.
+    You are building an Agent and want fast feedback on its trustworthiness. [Run Evaluations](/developer-guide/evaluate/running-evaluations), review the results, and iterate.
 
   </Card>
   <Card title="Automate & Gate" icon="binoculars">
-    Platform Engineer
+    **Platform Engineer**
 
-    You're integrating Vijil into CI/CD. Evaluations run on every PR, Trust Scores gate deployments, and failures block merges.
+    You are integrating Vijil into CI/CD. Use the [CLI](/developer-guide/cli/setup) or [Python SDK](/developer-guide/sdk/setup) to run Evaluations and apply Trust Score thresholds.
   </Card>
   <Card title="Protect & Audit" icon="shield">
-    Security and Compliance
+    **Security and Compliance**
 
-    You need evidence that agents meet security requirements. Trust Reports document what was tested, and Dome provides runtime defense-in-depth.
+    You need evidence that Agents meet security requirements. Trust Reports document what Diamond tested, and Dome provides runtime defense-in-depth.
 
     **Start here:**
     <ul className="card-no-bullets" style={{ paddingLeft: 0, marginTop: '0.5rem' }}>
@@ -84,21 +84,21 @@ Different roles use Vijil differently. This guide serves all three:
 
 ## What Vijil Measures
 
-Agents fail across three dimensions. Vijil tests all of them:
+Agents can fail across three dimensions measured by a Trust Score Evaluation:
 
 | Dimension | What It Measures | Example Failures |
 |-----------|------------------|------------------|
-| **Reliability** | Does the agent do what it is supposed to do? | Hallucinations, task failures, inconsistent responses |
-| **Security** | Can the agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
-| **Safety** | Does the agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
+| **Reliability** | Does the Agent complete intended tasks accurately and consistently? | Hallucinations, task failures, inconsistent responses |
+| **Security** | Can the Agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
+| **Safety** | Does the Agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
 
-Each evaluation produces a **Trust Score** (0–100) with breakdowns by dimension. The score tells you where your agent is strong, where it is vulnerable, and whether it meets your deployment threshold.
+A Trust Score Evaluation produces a score from 0 to 100 with breakdowns by dimension. The score shows your Agent's strengths, its vulnerabilities, and whether it meets your deployment threshold.
 
 ## Time to First Trust Score
 
-The fastest path is [MCP](/developer-guide/agentic/quickstart): install `vijil-mcp`, connect Claude Code, and ask it to run an evaluation, with no commands to learn. If you prefer the terminal, the [CLI path in the Quickstart](/developer-guide/agentic/quickstart) takes you from install to a completed evaluation in minutes. For custom integrations or non-Python environments, the [REST API](/developer-guide/agentic/quickstart) accepts standard HTTP requests and returns results as JSON. To drive evaluations from Python code, the [SDK](/developer-guide/sdk/setup) wraps the same workflow in a typed client.
+Start with [MCP](/developer-guide/agentic/quickstart) to use natural-language requests from Claude Code. For terminal automation, configure the [CLI](/developer-guide/cli/setup). For custom or non-Python integrations, follow the [REST API path](/developer-guide/agentic/quickstart). For Python code, install and configure the [SDK](/developer-guide/sdk/setup). Then [run an Evaluation](/developer-guide/evaluate/running-evaluations) and add [Dome protection](/developer-guide/protect/overview) when you need runtime controls.
 
-All four paths require a running [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
+All four paths require access to a [Vijil Console gateway](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
 
 ## Integration Points
 
