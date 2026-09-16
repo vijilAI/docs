@@ -1,15 +1,15 @@
 ---
 title: "How Evaluation Works"
-description: "How Diamond structures Agent testing, from Harness and Scenario through Probe and Detector to a Trust Score."
+description: "How Diamond runs behavioral evaluations with Harnesses and Red Team evaluations with adaptive waves."
 ---
 
 <Tip>
-**TL;DR:** Vijil evaluates [Agents](/owner-guide/register-agents/what-is-an-agent) using a four-layer hierarchy: [Harness](/concepts/evaluation-components/harness), [Scenario](/concepts/evaluation-components/scenario), [Probe](/concepts/evaluation-components/probe), and [Detector](/concepts/evaluation-components/detector). You select one or more Harnesses and the platform runs the full test suite automatically, with each layer narrowing scope from the overall evaluation environment down to individual response checks.
+**TL;DR:** Diamond supports behavioral and Red Team evaluations. Behavioral evaluations use a four-layer hierarchy: [Harness](/concepts/evaluation-components/harness), [Scenario](/concepts/evaluation-components/scenario), [Probe](/concepts/evaluation-components/probe), and [Detector](/concepts/evaluation-components/detector). Red Team evaluations use adaptive waves to find vulnerabilities and produce a report.
 </Tip>
 
 The [Trust Score](/concepts/trust-score/introduction) measures [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety). But how do you actually test for these properties? You cannot just ask an agent *"**are you trustworthy?**"*. You need to [Probe](/concepts/evaluation-components/probe) its behavior systematically, across hundreds of [Scenarios](concepts/evaluation-components/scenario), looking for specific failure modes.
 
-Vijil’s evaluation service consists of [Harnesses](concepts/evaluation-components/harness), [Scenarios](concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector):
+A behavioral evaluation uses [Harnesses](/concepts/evaluation-components/harness), [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector):
 
 ```mermaid actions={false}
 %%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':30,'padding':6}}}%%
@@ -41,7 +41,7 @@ flowchart TD
     class Detector1,Detector2,Detector3 detector;
 ```
 
-## Evaluation Hierarchy at a Glance
+## Behavioral Evaluation Hierarchy at a Glance
 
 | Layer | What It Is | Your Role |
 |-------|-----------|-----------|
@@ -56,15 +56,15 @@ At the next level, each [Probe](/concepts/evaluation-components/probe) consists 
 
 The next highest level consists of [Scenarios](/concepts/evaluation-components/scenario), which are collections of Probes that have similar goals.
 
-At the topmost level, [Harnesses](/concepts/evaluation-components/harness) are collections of one or more Scenarios that you run to generate an overall trust score/report from. To run a Vijil evaluation, you have to select one of more Harnesses to include. The current Vijil Trust Score consists of three Harnesses: Security, Safety, and Reliability.
+At the topmost level, [Harnesses](/concepts/evaluation-components/harness) group Scenarios to produce a Trust Score or custom report. A behavioral evaluation requires at least one Harness. The Vijil Trust Score combines Security, Safety, and Reliability Harnesses.
 
 ## Where Red Team Fits
 
-Standard Diamond evaluations use the Harness hierarchy to run a known set of test cases and produce a Trust Score or custom evaluation report. Red Team is also part of Diamond, but it uses an adaptive campaign loop instead of a fixed Harness.
+Red Team is another Diamond evaluation type. It runs adaptive waves against a registered [Agent](/owner-guide/register-agents/what-is-an-agent) without a Harness. A Red Team run produces findings and a report rather than a Trust Score.
 
-A Red Team campaign starts from a risk taxonomy and the registered agent context, generates attack seeds for each wave, runs attackers against the target, judges the transcripts, reflects on what worked, and uses those observations to plan later waves. 
+The Red Team evaluation starts from a risk taxonomy and the registered Agent context. In each wave it generates attack seeds, runs attackers against the Agent, judges the transcripts, and reflects on what worked to plan the next wave.
 
-Use standard evaluations when you need reproducible score evidence. Use Red Team when you need deeper adversarial exploration of security, safety, policy, and data leakage risks.
+Use behavioral evaluations when you need reproducible score evidence. Use Red Team when you need deeper adversarial exploration of security, safety, policy, and data leakage risks. Both appear in Diamond's [evaluation workflow](/owner-guide/run-evaluations/running-evaluations).
 
 Learn more about Trust Score components:
 <Columns cols={2}>

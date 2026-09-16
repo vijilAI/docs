@@ -1,13 +1,13 @@
 ---
 title: "Diamond"
-description: "Evaluation product that sends adversarial Probes and returns a Trust Score across Reliability, Security, and Safety."
+description: "Evaluation product that runs behavioral and Red Team evaluations to assess Agent trustworthiness and uncover risks."
 ---
 
 Diamond is Vijil’s evaluation engine - the part of the platform responsible for putting your Agent to the test before it ever reaches production.
 
-Instead of relying on generic checks, Diamond actively challenges the Agent by sending **results from stress tests,** inputs that simulate real risks like prompt injection, unsafe requests, or edge-case failures. The goal is simply to expose weaknesses early, in a controlled environment.
+In a behavioral evaluation, Diamond challenges the Agent with [Probes](/concepts/evaluation-components/probe) that simulate real risks like prompt injection, unsafe requests, or edge-case failures. The goal is to expose weaknesses early, in a controlled environment.
 
-Based on how the Agent responds, Diamond then produces a **Trust Score** that shows its overall readiness in three important areas: 
+Based on how the Agent responds, a behavioral evaluation produces a **Trust Score** that shows its readiness in three areas:
 
 - Reliability 
 - Security 
@@ -15,14 +15,14 @@ Based on how the Agent responds, Diamond then produces a **Trust Score** that sh
 
 ## **Red Team in Diamond**
 
-Diamond supports two complementary ways to evaluate an Agent:
+Diamond supports two evaluation types for a registered Agent:
 
-| Mode | How It Works | Use It When |
+| Type | How It Works | Use It When |
 |------|--------------|-------------|
-| **Standard Evaluations** | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). | You need a reproducible Trust Score, baseline readiness evidence, or a focused custom Harness, and produces a Trust Score. |
-| **Red Team campaigns** | Runs an adaptive, multi-wave adversarial campaign against a registered [Agent](/owner-guide/register-agents/what-is-an-agent). Each wave generates attack seeds, launches attackers, judges transcripts, reflects on findings, and uses that feedback to plan the next wave. | You need deeper adversarial testing, want to uncover unknown vulnerabilities, or need evidence for security and risk review. |
+| **Behavioral** (`behavioral`) | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). Produces a Trust Score. | You need reproducible readiness evidence or a focused custom Harness. |
+| **Red Team** (`redteam`) | Runs adaptive waves of adversarial attacks. Each wave generates seeds, launches attackers, judges transcripts, and uses reflections to plan the next wave. Produces findings and a report. | You need deeper security and safety testing or evidence of unknown vulnerabilities. |
 
-Red Team uses the Agent context available in Diamond, including its purpose, policies, personas, tools, workflows, and known risks where available. Instead of sending a fixed set of Probes, it works through an iterative campaign:
+Red Team uses the Agent context available in Diamond, including its purpose, policies, personas, tools, workflows, and known risks where available. Its adaptive campaign works through this loop:
 
 ```mermaid
 ---
@@ -51,7 +51,7 @@ The taxonomy defines the risk areas to explore. Attack seeds translate those ris
 
 ## **The Trust Score**
 
-At a high level, the Trust Score is a single, easy-to-understand number that answers to a particularly complicated question: _“Can this Agent be trusted in the real world?”_
+For behavioral evaluations, the Trust Score is a single, easy-to-understand number that answers a complicated question: _“Can this Agent be trusted in the real world?”_
 
 Behind that number is a combination of structured testing and analysis, but what matters here is that it gives teams a clear signal. If an Agent is ready to move forward, or if it still needs more work.
 
@@ -70,7 +70,7 @@ Each of these Dimensions contributes to the final score and gives teams a cleare
 
 ## **Evaluation Components**
 
-To make sure that all of this works, Diamond organizes Evaluations into a structured hierarchy. You do not really need to think about it all the time, but it does help to understand how the system breaks things down:
+For behavioral evaluations, Diamond organizes testing into a structured hierarchy:
 
 **Harness → Scenario → Probe → Detector**
 
@@ -78,7 +78,7 @@ Each layer adds more details, going from high-level testing setups down to indiv
 
 ### **Trust Score Components**
 
-Here is how that hierarchy translates into an actual Evaluation process:
+Here is how that hierarchy translates into a behavioral Evaluation process:
 
 - **Harness**\
   This is the top-level setup for an Evaluation. What it does, is that defines the overall testing environment meaning what kind of Agent is being tested, under which conditions, and what are the goals in there.
@@ -122,7 +122,7 @@ Pick the path that matches what you need to do next. Learn the ideas behind Diam
     Start an Evaluation on a registered Agent from the Console.
   </Card>
   <Card title="Understand Results" icon="chart-bar" href="/owner-guide/run-evaluations/understanding-results">
-    Read the Trust Report and act on the findings.
+    Read Trust Scores and Red Team findings.
   </Card>
 </CardGroup>
 
@@ -143,10 +143,10 @@ Pick the path that matches what you need to do next. Learn the ideas behind Diam
   </Card>
 </CardGroup>
 
-### Red Team Campaigns
+### Red Team Evaluations
 
 <CardGroup cols={2}>
-  <Card title="Run a Red Team Campaign" icon="crosshair" href="/developer-guide/cli/red-team">
-    Launch Diamond's [adaptive adversarial mode](#red-team-in-diamond) for deeper security and safety testing.
+  <Card title="Run a Red Team Evaluation" icon="crosshair" href="/developer-guide/cli/red-team">
+    Launch and inspect Diamond's [adaptive adversarial evaluation](#red-team-in-diamond).
   </Card>
 </CardGroup>
