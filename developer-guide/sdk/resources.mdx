@@ -5,12 +5,12 @@ description: "Low-level resource accessors on the Vijil client for CRUD operatio
 
 Resource accessors are low-level attributes on the `Vijil` client. Where [lifecycle methods](/developer-guide/sdk/lifecycle-methods) run whole workflows, resources give you direct create, read, update, and delete access to individual platform objects.
 
-List methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `page.items` for the results.
+Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `page.items` for the results. Red Team artifact methods return their own typed responses.
 
 | Accessor | Methods |
 |----------|---------|
 | `client.agents` | `list`, `show`, `create`, `update`, `delete` |
-| `client.evaluations` | `list`, `show`, `create` |
+| `client.evaluations` | `list`, `show`, `create`, `poll_status`, `delete`, and Red Team reads below |
 | `client.harnesses` | `list`, `show`, `create`, `delete` |
 | `client.scores` | `show`, `history` |
 | `client.reports` | `list`, `show`, `download` |
@@ -36,13 +36,50 @@ client.agents.delete("agent-id")
 
 ## `client.evaluations`
 
-Manage [Evaluations](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#client-evaluate) for the polling workflow; `create()` here starts one without waiting.
+Manage both [Evaluation types](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#client-evaluate) for the polling workflow; `create()` starts an evaluation without waiting.
 
 ```python
 page = client.evaluations.list(agent_id="optional-agent-id")
 evaluation = client.evaluations.show("evaluation-id")
-evaluation = client.evaluations.create(agent_id="agent-id", baseline=True)
+behavioral = client.evaluations.create(agent_id="agent-id", baseline=True)
+redteam = client.evaluations.create(
+    agent_id="agent-id",
+    type="redteam",
+    redteam={"max_waves": 2},
+)
+evaluation_id = redteam.id
+status = client.evaluations.redteam_status(evaluation_id)
 ```
+
+Red Team creation returns an `Evaluation` with an ID. Use that `evaluation_id` for all Red Team status, artifact, and report reads. `poll_status()` is for behavioral evaluations; use `redteam_status()` for Red Team. Red Team does not accept `baseline`, Harness, or `sample_size` settings.
+
+### Red Team Status, Artifacts, and Reports
+
+All methods below take an `evaluation_id` and an optional `team_id`.
+
+| Method | Other Arguments | Returns |
+|--------|----------------------|---------|
+| `redteam_status` | — | `RedteamStatusResponse` with run and wave progress |
+| `redteam_seeds` | Optional `wave_id` filter | `SeedListResponse` |
+| `redteam_attacks` | Optional `wave_id` filter | `AttackListResponse` |
+| `redteam_attack` | `wave_id`, `seed_id` | `AttackResultResponse` |
+| `redteam_judgments` | Optional `wave_id` filter | `JudgmentListResponse` |
+| `redteam_judgment` | `wave_id`, `seed_id` | `JudgmentResponse` |
+| `redteam_reflections` | — | `ReflectionListResponse` |
+| `redteam_reflection` | `wave_id` | `ReflectionResponse` |
+| `redteam_report` | — | Structured `ReportResponse` |
+| `redteam_report_markdown` | — | Markdown `str` |
+| `redteam_report_pdf` | Optional `force_regenerate` | PDF `bytes` |
+
+For example, inspect an attack and its judgment after the run completes:
+
+```python
+attack = client.evaluations.redteam_attack(evaluation_id, "wave-id", "seed-id")
+judgment = client.evaluations.redteam_judgment(evaluation_id, "wave-id", "seed-id")
+report = client.evaluations.redteam_report(evaluation_id)
+```
+
+See [`RedteamStatusResponse`](/developer-guide/sdk/models-errors#redteamstatusresponse) for progress fields and terminal statuses.
 
 ## `client.harnesses`
 
@@ -74,7 +111,7 @@ page = client.scores.history("agent-id", limit=20)
 
 ## `client.reports`
 
-List, fetch, and download Trust Reports. `download()` returns PDF bytes.
+List, fetch, and download Trust Reports. `download()` returns PDF bytes. For a Red Team report, use `client.evaluations.redteam_report()`, `redteam_report_markdown()`, or `redteam_report_pdf()`.
 
 ```python
 page = client.reports.list(agent_id="optional-agent-id")
