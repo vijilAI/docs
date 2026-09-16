@@ -36,7 +36,7 @@ client.agents.delete("agent-id")
 
 ## `client.evaluations`
 
-Manage [Evaluations](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#client-evaluate) for the polling workflow; `create()` here starts one without waiting.
+Manage [Evaluations](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#clientevaluate) for the polling workflow; `create()` here starts one without waiting.
 
 ```python
 page = client.evaluations.list(agent_id="optional-agent-id")
@@ -87,7 +87,7 @@ with open("report.pdf", "wb") as f:
 
 ## `client.dome`
 
-Read and update [Dome](/developer-guide/protect/overview) Guardrail configurations. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) for the common case.
+Read and update [Dome](/developer-guide/protect/overview) Guardrail configurations. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#clientprotect) for the common case.
 
 ```python
 page = client.dome.list()
@@ -122,7 +122,7 @@ diff = client.genomes.diff("genome-id", v1=1, v2=3)
 
 ## `client.proposals`
 
-Review and apply the adaptation proposals produced by [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
+Review and apply the adaptation proposals produced by [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#clientadapt).
 
 ```python
 page = client.proposals.list(agent_id="optional", status="pending")
