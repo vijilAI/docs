@@ -14,13 +14,24 @@ Agents' evaluation is at the core of Vijil.
 </Note>
 
 
-Your agent works in demos. Your unit tests pass. But how do you know it will not hallucinate facts, leak customer data, or comply with malicious instructions when it encounters inputs you did not anticipate?
+Your Agent works in demos. Your unit tests pass. But how do you know it will not hallucinate facts, leak customer data, or comply with malicious instructions when it encounters inputs you did not anticipate?
 
-Diamond is Vijil's evaluation platform. It sends hundreds of adversarial Probes to your agent (prompt injections, jailbreak attempts, data exfiltration payload, etc.) and measures how your agent responds. You get a quantified Trust Score and specific findings you can fix before deployment.
+Diamond is Vijil's evaluation platform. Choose a behavioral evaluation for a Trust Score and Probe-level findings, or a Red Team evaluation for deeper exploration of vulnerabilities and successful attack strategies.
+
+
+| Type | Inputs | Results |
+|------|--------|---------|
+| **Behavioral** | Registered Agent, baseline or custom Harness, and optional Probe sample size | Trust Score, dimension scores, and Probe findings |
+| **Red Team** | Registered Agent and optional Red Team settings such as wave, seed, and parallel attacker limits | Attack evidence, findings, and a report; no Trust Score |
+
+A behavioral evaluation sends hundreds of adversarial Probes to your agent (prompt injections, jailbreak attempts, data exfiltration payload, etc.) and measures how your agent responds. You get a quantified Trust Score and specific findings you can fix before deployment.
+
 
 ## How Evaluation Works
 
-Diamond sends test Probes to your agent and analyzes the responses:
+### Behavioral Evaluations
+
+Diamond sends test Probes from a Harness to your Agent and analyzes the responses:
 
 ```mermaid actions={false}
 %%{init: {'theme':'base', 'themeVariables': {'fontFamily':'Futura Medium, Futura, sans-serif','fontSize':'13px'}, 'flowchart': {'nodeSpacing':25,'rankSpacing':40,'padding':6}}}%%
@@ -53,12 +64,16 @@ flowchart LR
 |-----------|---------|
 | **Harness** | Collection of Scenarios to run (e.g., `trust_score`, `security`) |
 | **Scenario** | Testing context with personas and policies |
-| **Probe** | Individual test case sent to your agent |
-| **Detector** | Analyzes agent responses to identify failures |
+| **Probe** | Individual test case sent to your Agent |
+| **Detector** | Analyzes Agent responses to identify failures |
 
-## Trust Score
+### Red Team Evaluations
 
-The Trust Score is a composite metric (0 to 100) based on three pillars:
+Red Team uses the registered Agent's context to generate attack seeds, run attackers, judge transcripts, and use reflections to guide later waves. Its report groups vulnerabilities and successful attack strategies. See [Red Team in Diamond](/concepts/platform/diamond#red-team-in-diamond) for the wave loop.
+
+## Behavioral Results: Trust Score
+
+Behavioral evaluations produce a Trust Score, a composite metric (0 to 100) based on three pillars:
 
 | Dimension | What It Measures |
 |-----------|------------------|
@@ -69,21 +84,32 @@ The Trust Score is a composite metric (0 to 100) based on three pillars:
 Higher scores indicate more trustworthy behavior. Use scores to:
 
 - Set deployment gates (e.g., require Trust Score ≥ 70)
-- Compare agent versions
+- Compare Agent versions
 - Track improvements over time
 - Identify specific vulnerabilities
+
+## Evaluation Status
+
+Both evaluation types use an `evaluation_id`, but they have different status vocabularies and result endpoints. The SDK treats these as terminal statuses:
+
+| Type | Terminal Statuses | Results to Inspect |
+|------|-------------------|--------------------|
+| **Behavioral** | `completed`, `succeeded`, `saved`, `failed`, `cancelled` | Evaluation summary and Trust Score when available |
+| **Red Team** | `succeeded`, `failed`, `cancelled`, `degraded` | Red Team status; waves, attacks, and report when available |
+
+A `degraded` Red Team run has finished with some attackers lost along the way. Check the findings and failure details before relying on its report.
 
 ## Evaluation Options
 
 ### Cloud-Hosted Agents
 
-Evaluate agents deployed on supported cloud platforms such as OpenAI, Anthropic, AWS Bedrock, Google Vertex AI, DigitalOcean, and any OpenAI-compatible endpoint.
+Evaluate Agents deployed on supported cloud platforms such as OpenAI, Anthropic, AWS Bedrock, Google Vertex AI, DigitalOcean, and any OpenAI-compatible endpoint.
 
 ### Local Agents
 
-Evaluate agents running locally without deployment. This creates a temporary authenticated tunnel (via ngrok) for Vijil to communicate with your local agent.
+Run behavioral evaluations against Agents running locally without deployment. This creates a temporary authenticated tunnel (via ngrok) for Vijil to communicate with your local Agent. Red Team requires a registered Agent and cannot run in local mode.
 
-## Available Harnesses
+## Behavioral Harnesses
 
 | Harness | Description | Use Case |
 |---------|-------------|----------|
@@ -101,14 +127,17 @@ Add `_Small` suffix (e.g., `security_Small`) for faster iterations during develo
   <Step title="Choose your integration method">
     Use cloud provider integration for deployed agents, or LocalAgentExecutor for local development
   </Step>
-  <Step title="Select harnesses">
-    Start with `trust_score` for comprehensive coverage, or specific Harnesses for targeted testing
+  <Step title="Select an evaluation type">
+    Choose `behavioral` and a Harness for a Trust Score, or `redteam` and optional wave settings for adaptive attacks
   </Step>
   <Step title="Run evaluation">
-    Execute via Python client, REST API, or console
+    Execute via the CLI, Python SDK, REST API, or Console
+  </Step>
+  <Step title="Track status">
+    Use the evaluation ID to follow the status for the selected type until it reaches a terminal state
   </Step>
   <Step title="Analyze results">
-    Review Trust Score, dimension scores, and individual failures
+    Review Trust Score and Probe findings for behavioral evaluations, or attack evidence and the report for Red Team evaluations
   </Step>
   <Step title="Remediate issues">
     Fix vulnerabilities, improve prompts, add Guardrails
@@ -118,9 +147,9 @@ Add `_Small` suffix (e.g., `security_Small`) for faster iterations during develo
   </Step>
 </Steps>
 
-## Rate Limiting
+## Behavioral Sample Size
 
-Control the evaluation pace to avoid overwhelming your agent or hitting API limits during evaluations.
+Use a smaller Probe sample during behavioral evaluations to avoid overwhelming your Agent or hitting API limits. Red Team uses wave, seed, and parallel attacker limits instead.
 
 | Sample Size | Use Case |
 |-------------|----------|
