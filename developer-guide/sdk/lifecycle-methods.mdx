@@ -7,69 +7,61 @@ Lifecycle methods are high-level workflows on the `Vijil` client. Each maps to a
 
 | Method | What It Does | Returns |
 |--------|--------------|---------|
-| `client.evaluate()` | Measure an Agent against known standards | `Evaluation` |
-| `client.test()` | Explore for weaknesses under adversarial pressure | `Job` |
+| `client.evaluate()` | Run a behavioral or Red Team evaluation | `Evaluation` or `RedteamStatusResponse` |
 | `client.adapt()` | Improve an Agent through corrective evolution | `Job` |
 | `client.protect()` | Configure Dome runtime Guardrails | `DomeConfig` |
 
 <Tip>
-`evaluate` measures against known standards, like a certification exam. `test` explores for unknown weaknesses through adversarial pressure, like a penetration test. Both produce Trust Scores.
+Use `client.evaluate()` for both Diamond evaluation types. Behavioral evaluations produce a Trust Score; Red Team evaluations produce attack findings and a report.
 </Tip>
 
 ## `client.evaluate()`
 
-Run an Evaluation and poll until it completes.
+Run a behavioral or Red Team evaluation and poll until it reaches a terminal status.
+
+For a behavioral evaluation, use a baseline or a specific Harness:
 
 ```python
 evaluation = client.evaluate(
     "agent-id",
-    baseline=True,          # use the standard trust Harnesses
-    # harness_id="h-abc",  # OR use a specific Harness (mutually exclusive with baseline)
+    baseline=True,
 )
 
-print(evaluation.status)         # "completed"
-print(evaluation.trust_score)    # 0.82
-print(evaluation.dimensions)     # Dimensions(reliability=0.9, security=0.8, safety=0.75)
+print(evaluation.status)
+print(evaluation.trust_score)
+print(evaluation.dimensions)
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `agent_id` | `str` | — | Agent ID or alias |
-| `baseline` | `bool` | `False` | Run the standard trust Harnesses (reliability, security, safety) |
-| `harness_id` | `str \| None` | `None` | Run a specific [Harness](/concepts/evaluation-components/harness) instead of the baseline |
-| `_poll_interval` | `float` | `5.0` | Seconds between status checks |
-
-Returns an [`Evaluation`](/developer-guide/sdk/models-errors). Pass either `baseline=True` or a `harness_id`, not both.
-
-## `client.test()`
-
-Create a Red Swarm test engagement and, by default, poll until it finishes.
+For a Red Team evaluation, set `type="redteam"` and optionally override its wave settings:
 
 ```python
-job = client.test(
+status = client.evaluate(
     "agent-id",
-    mode="adaptive",        # or "comprehensive"
-    no_wait=False,          # True to return immediately
+    type="redteam",
+    redteam={"max_waves": 2},
 )
 
-print(job.status)   # "completed"
-print(job.id)       # "job-abc123"
+print(status.evaluation_id)
+print(status.status)
+print(status.current_wave)
 ```
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `agent_id` | `str` | — | Agent ID or alias |
-| `mode` | `str` | `"adaptive"` | `"adaptive"` adjusts strategy from responses; `"comprehensive"` sweeps all categories |
-| `no_wait` | `bool` | `False` | Return immediately without polling |
-| `tool` | `str` | `"diamond_security"` | Red-team tool to use |
-| `purpose` | `str` | `""` | Description of the Agent's purpose |
-| `categories` | `list[str] \| None` | `None` | Test categories, for example `["injection"]` |
+| `type` | `str` | `"behavioral"` | `"behavioral"` or `"redteam"` |
+| `baseline` | `bool` | `False` | Run the standard trust Harnesses for a behavioral evaluation |
+| `harness_id` | `str \| None` | `None` | Run a specific [Harness](/concepts/evaluation-components/harness) for a behavioral evaluation |
+| `sample_size` | `int \| None` | `None` | Positive number of Probes per Harness for a behavioral evaluation |
+| `redteam` | `Mapping[str, Any] \| None` | `None` | Optional Red Team settings, such as `max_waves` |
+| `on_poll` | `Callable \| None` | `None` | Callback invoked after each status poll |
+| `_poll_interval` | `float` | `5.0` | Seconds between status checks |
 
-Returns a [`Job`](/developer-guide/sdk/models-errors).
+Returns an [`Evaluation`](/developer-guide/sdk/models-errors) for behavioral runs or a `RedteamStatusResponse` for Red Team runs. Pass either `baseline=True` or a `harness_id` for a behavioral run; neither is valid for Red Team. Red Team also rejects `sample_size`.
 
 ## `client.adapt()`
 
-Create a corrective evolution job that improves an existing Agent based on weaknesses found by evaluation or testing.
+Create a corrective evolution job that improves an existing Agent based on weaknesses found by behavioral or Red Team evaluations.
 
 ```python
 job = client.adapt("agent-id", mode="config")
