@@ -14,8 +14,8 @@ Evaluation tells you how trustworthy your agent is. Defense keeps it that way in
 | | Diamond (Evaluation) | Dome (Defense) |
 |--|----------------------|----------------|
 | **When it runs** | Before deployment | On every production request |
-| **What it does** | Sends adversarial [Probes](/concepts/evaluation-components/probe); returns a [Trust Score](/concepts/trust-score/introduction) | Intercepts inputs/outputs; blocks flagged content |
-| **Output** | Trust Score + findings report | Allow / block decision + audit trace |
+| **What it does** | Runs behavioral evaluations with [Probes](/concepts/evaluation-components/probe) or adaptive [Red Team](/concepts/platform/diamond#red-team-in-diamond) evaluations | Intercepts inputs/outputs; blocks flagged content |
+| **Output** | [Trust Score](/concepts/trust-score/introduction) for behavioral evaluations; findings and a report for Red Team evaluations | Allow / block decision + audit trace |
 | **Primary user** | Developer, security reviewer | Production agent deployment |
 
 Dome implements the defensive counterpart to evaluation, acting as the runtime enforcement layer that keeps tested policies active under real-world conditions.
