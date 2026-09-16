@@ -4,7 +4,7 @@ description: 'An overview of AI agents and how to test them with Vijil.'
 ---
 
 <Tip>
-**TL;DR:** An AI agent is an autonomous system that can observe its environment, make decisions, and take actions, often using external tools. Vijil evaluates Agents using automated adversarial testing and assigns a [Trust Score](/concepts/trust-score/introduction) (0–100) measuring [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety).
+**TL;DR:** An AI agent is an autonomous system that can observe its environment, make decisions, and take actions, often using external tools. Vijil offers behavioral evaluations that assign a [Trust Score](/concepts/trust-score/introduction) (0–100) across [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety), and Red Team evaluations that uncover vulnerabilities through adaptive attacks.
 </Tip>
 
 An AI agent is an autonomous system powered by artificial intelligence designed to achieve specific goals. Unlike standard software that follows rigid rules, an Agent can observe its environment, make decisions, take actions and use external tools to complete tasks.
@@ -48,9 +48,9 @@ Agents are commonly tested in these three ways:
 |----------|-------------|------------|
 | **Manual Testing** | Humans interact with the agent to check behavior | Slow, does not scale, misses adversarial edge cases |
 | **Unit Testing** | Tests individual components in isolation | Misses failures that only emerge when the full system runs |
-| **Automated Evaluation** | Sends hundreds of adversarial [Probes](/concepts/evaluation-components/probe) across [Scenarios](/concepts/evaluation-components/scenario) | Requires agent registration and [Harness](/concepts/evaluation-components/harness) configuration |
+| **Automated Evaluation** | Uses [Probes](/concepts/evaluation-components/probe) across [Scenarios](/concepts/evaluation-components/scenario) for a Trust Score, or adaptive [Red Team](/concepts/platform/diamond#red-team-in-diamond) attacks for deeper exploration | Requires Agent registration; only behavioral evaluations use a [Harness](/concepts/evaluation-components/harness) |
 
-Vijil measures your Agent's performance and assigns a [Trust Score](/concepts/trust-score/introduction). The Trust Score helps you understand if the Agent is safe, secure, and reliable enough for production.
+Choose a behavioral evaluation for a measurable [Trust Score](/concepts/trust-score/introduction) or a Red Team evaluation for findings about harder-to-detect vulnerabilities and successful attack strategies.
 
 ## Managing Your Agents as an Owner
 
