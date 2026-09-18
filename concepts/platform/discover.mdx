@@ -1,0 +1,66 @@
+---
+title: "Discover"
+description: "Discovery product that finds the AI agents, models, and services running in your estate, including the ones nobody registered."
+---
+
+Diamond evaluates an Agent you have registered. [Dome](/concepts/platform/dome) protects an Agent you have registered. Both start from the same assumption: that you know the Agent exists.
+
+Discover removes that assumption. It finds the AI agents, models, and services actually running across your estate, classifies what it finds, and hands the ones worth governing to the [Agent Registry](/owner-guide/register-agents/registering-agents) so the rest of the platform can act on them.
+
+Most organizations underestimate this number. Agents appear on developer laptops, inside clusters nobody audits, and behind managed cloud services that no network scan can reach. An inventory assembled by asking teams what they built is a record of what people remembered to mention.
+
+## How Discover Works
+
+Discover has four moving parts. Everything else in the product is built from them.
+
+| Part | What it is |
+|------|------------|
+| **[Target](/concepts/discovery/target)** | A place you want looked at: a fleet of laptops, a network, a cluster, a cloud account |
+| **[Collector](/concepts/discovery/collector)** | The software that does the looking, installed at or near the Target |
+| **[Resource](/concepts/discovery/resource)** | A single thing a Collector found, with the evidence for it |
+| **[Classification](/concepts/discovery/classification)** | The verdict on whether a Resource is AI, and why |
+
+A Collector reports into a Target. Many Collectors can report into one Target: every laptop in a fleet is its own Collector on a single Target.
+
+## What Discover Finds
+
+Coverage depends on which Collectors you install, and each kind sees something different.
+These are the four most estates start with; a browser extension and several one-shot
+Collectors cover the rest.
+
+| Collector | Reaches |
+|-----------|---------|
+| **Endpoint** | AI applications running on laptops and servers |
+| **Network scanner** | Private-network services that no endpoint covers |
+| **In-cluster** | Kubernetes services, read from the cluster's own catalogue |
+| **Cloud API** | Managed AI such as Bedrock, SageMaker, and AgentCore, which no scanner can reach |
+
+The last row matters more than it looks. A managed Bedrock Agent exposes no port and runs no process you can inspect. Nothing but an API call to the provider will find it.
+
+## How Discover Fits In
+
+The platform reads as a sequence, and Discover is the step before the one most teams start at:
+
+- **Discover** finds what exists and classifies it.
+- **[Diamond](/concepts/platform/diamond)** evaluates what you registered and produces a [Trust Score](/concepts/trust-score/introduction).
+- **[Dome](/concepts/platform/dome)** protects what you deployed and logs what it sees.
+- **[Darwin](/concepts/platform/darwin)** learns from that telemetry and proposes improvements.
+
+Discover supplies the input the other three products consume. An Agent found by a Collector can be registered from the Resources list, and once you have supplied the details Vijil needs to reach it, every Diamond and Dome workflow applies to it like any other Agent.
+
+## Evidence, Not Assertions
+
+Every Resource carries the evidence behind its verdict: where it was seen, what answered on which port, what the Classification was based on, and every scan that has observed it. A Classification you cannot audit is an opinion.
+
+Discover also records what each scan could **not** reach. A Collector with no route to a subnet reports a blind spot rather than an empty result, because those two findings mean opposite things and only one of them is good news.
+
+## Continue With Discover
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="radar" href="/owner-guide/discover/introduction">
+    Create a Target, install your first Collector, and read your first inventory.
+  </Card>
+  <Card title="Discovery Components" icon="book-open-text" href="/concepts/discovery/introduction">
+    The mental model: Target, Collector, Resource, and Classification.
+  </Card>
+</CardGroup>

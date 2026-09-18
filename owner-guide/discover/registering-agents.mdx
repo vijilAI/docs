@@ -1,0 +1,110 @@
+---
+title: 'Register a Discovered Agent'
+description: 'Move a discovered Resource into the Agent Registry so Diamond and Dome can act on it.'
+---
+
+Discovery is only half the value. The other half is turning a discovered Agent into a
+registered [Agent](/owner-guide/register-agents/what-is-an-agent), so that every
+[Diamond](/concepts/platform/diamond) and [Dome](/concepts/platform/dome) workflow applies
+to it.
+
+This page covers what is eligible, the two steps registration takes, and why some Resources
+cannot be registered at all.
+
+## Register a Resource
+
+Open the **Resources** tab, find the Resource, and use **Register** on its row.
+
+Registration is a decision you made about a Resource, not a copy of it. Discover continues
+to own what exists in your estate. The registry owns what you decided about it.
+
+## Registration Takes Two Steps
+
+This is the part most people are surprised by, so it is worth stating plainly.
+
+**Step one — Register.** The Resource becomes an Agent in the
+[Agent Registry](/owner-guide/register-agents/registering-agents), in a **pending** state.
+A scan found the service; it did not find the credentials Vijil needs to talk to it.
+
+**Step two — Continue registration.** Supply what only you can supply: the endpoint, the
+access key, the access level, and the rate limit. See
+[Access Levels](/owner-guide/register-agents/registering-agents#access-levels).
+
+<Warning>
+A pending Agent cannot be evaluated. Until you complete step two, an Evaluation against it
+is refused with a message telling you to activate it first. Discovery gives you the Agent;
+it cannot give you the way in.
+</Warning>
+
+## What Is Eligible
+
+Two conditions have to hold.
+
+**It has to be an Agent.** A model, a function, a runtime, or a knowledge base is inventory. It is worth knowing about, and it is not something the platform can evaluate or protect as an Agent.
+
+**It has to have a durable identity.** A Resource identified by what a scan observed rather than by name will come back under a different identifier next time a certificate is renewed or an address changes. Registering against one of those would produce a registration that silently stops pointing at anything. See [Identity Across Rescans](/concepts/discovery/resource#identity-across-rescans).
+
+Where a Resource fails either test, the Console says which:
+
+| Reason shown | What it means |
+|--------------|---------------|
+| Only Resources classified as an agent can be registered | The Resource is inventory rather than an Agent |
+| Identified by what the scan observed rather than by name | The identity would not survive the next scan |
+| Could not be read well enough to decide | The record was incomplete, which is a defect worth reporting |
+
+<Note>
+Endpoint Collectors find real Agents, and those Agents are not registerable today. The reason is reachability rather than type: an Agent on a laptop is identified by a machine-local address the platform cannot call. This is expected behavior, not a gap in the scan.
+</Note>
+
+## Resource Status
+
+Every Resource carries a status. One you have not acted on reads **Candidate**.
+
+| Status | Meaning |
+|--------|---------|
+| **Candidate** | Found and awaiting review |
+| **Matched** | An Agent already registered in the registry corresponds to this Resource |
+| **Saved** | Registered from this Resource |
+| **Dismissed** | Marked out of scope |
+
+A **Matched** Resource is already a registered Agent. Follow the link to it rather than registering it again.
+
+## Dismissal Sticks
+
+Dismissing a Resource is permanent across rescans. Later scans update when it was last seen and leave your decision alone, so a Resource you ruled out does not reappear every time the scan runs.
+
+This is the behavior you want from an inventory you have to review repeatedly. It also means a dismissal is worth a moment of thought, because nothing will prompt you about it again.
+
+You can dismiss a Resource you have already registered. The product unlinks the Agent for
+you as part of dismissing it, so there is no order you have to follow.
+
+## Registering From a Code Scan
+
+Agents found by a [code repository scan](/owner-guide/discover/code-scans) register the same
+way, from the discovered-agents list on the scan result. The two-step shape above applies
+there too: register first, then supply the endpoint and credentials.
+
+## After You Register
+
+Once the Agent is active it enters the registry at the **Registered** stage and moves
+through the lifecycle from there:
+
+| Stage | Reached when |
+|-------|--------------|
+| **Registered** | The Agent is in the registry |
+| **Tested** | At least one evaluation has been run against it |
+| **Protected** | Dome is configured and enabled for it |
+| **Adapted** | A Darwin proposal has been accepted for it |
+
+Nothing about the Agent's later life depends on how it entered the registry. A discovered Agent and a manually registered one are the same kind of thing from this point on.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Manage Agents" icon="bot" href="/owner-guide/register-agents/registering-agents">
+    Access levels, registry columns, and the lifecycle stages.
+  </Card>
+  <Card title="Run an Evaluation" icon="flask-conical" href="/owner-guide/run-evaluations/running-evaluations">
+    Produce a Trust Score for the Agent you just registered.
+  </Card>
+</CardGroup>

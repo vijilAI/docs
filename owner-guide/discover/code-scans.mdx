@@ -1,0 +1,73 @@
+---
+title: 'Scan Code Repositories'
+description: 'Inspect GitHub repositories for Agents and related source-code findings during development.'
+---
+
+Everything else in [Discover](/concepts/platform/discover) inventories things that are running. Code repository scans look at something different: source that may become a running Agent, or already describes one.
+
+A repository is not a service, so code scans have their own tab rather than sharing the [Target](/concepts/discovery/target) and [Collector](/concepts/discovery/collector) model. There is nothing to install.
+
+## Run a Code Repository Scan
+
+1. Open **Discover** in the sidebar and choose the **Code** tab.
+2. Start a new scan.
+3. Enter the **GitHub connection** identifier provided by your GitHub administrator, and
+   choose the installation it belongs to.
+4. Select a repository from the **Repositories** list. The **Scan** button stays disabled
+   until you pick one from the list, so typing a repository name alone is not enough.
+5. Click **Scan**.
+
+## Read Scan Results
+
+Each completed scan reports summary counts for what it found in the repository:
+
+| Metric | What it shows |
+|--------|---------------|
+| **Agent count** | Agents reported by the scan |
+| **Tool count** | Tools reported by the scan |
+| **Data source count** | Data sources reported by the scan |
+| **Sensitive data count** | Sensitive-data findings reported by the scan |
+| **Workflow count** | Workflows reported by the scan |
+
+The scan overview also lists the Agents it discovered, each with a **Register** action. See
+[Register a Discovered Agent](/owner-guide/discover/registering-agents) for what registering
+does and the second step it needs. Other findings give you context about the repository and are not registered as Agents.
+
+## Scan Records
+
+| Column | What it shows |
+|--------|---------------|
+| **Repository name** | Repository included in the scan |
+| **Repository owner** | GitHub organization or owner |
+| **Status** | One of Created, Running, Succeeded, Failed, or Cancelled |
+| **Linked agent(s)** | Associated Agent Registry entries, or a dash if none exist |
+| **Created at** | When the scan started |
+| **Completed at** | When the scan finished |
+| **Actions** | Download the scan output, or delete the record |
+
+You can download a scan record as JSON for offline review or audit evidence, or delete it.
+
+<Warning>
+Deleting a scan record removes the historical record of that scan. Download the output first if you need it for audit or troubleshooting.
+</Warning>
+
+## Troubleshooting
+
+**No GitHub connection appears.** The connection identifier comes from your GitHub
+administrator, who installs the Vijil GitHub App against the organization. There is nothing
+you can do from the Console until that exists.
+
+**The scan failed.** Check the connection identifier, repository access, and organization
+permissions before retrying. A repository the installation cannot read fails rather than
+returning an empty result.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Register a Discovered Agent" icon="bot" href="/owner-guide/discover/registering-agents">
+    Move a finding into the Agent Registry.
+  </Card>
+  <Card title="Run an Evaluation" icon="flask-conical" href="/owner-guide/run-evaluations/running-evaluations">
+    Test an Agent you registered.
+  </Card>
+</CardGroup>

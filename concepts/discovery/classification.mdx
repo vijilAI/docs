@@ -1,0 +1,66 @@
+---
+title: "Classification"
+description: "How Discover decides whether a Resource is AI, and why some Resources stay undecided."
+---
+
+**Classification** is the verdict on whether a [Resource](/concepts/discovery/resource) is an AI workload. Every Resource carries one, along with the written reason behind it.
+
+## The Three Verdicts
+
+| Verdict | Meaning |
+|---------|---------|
+| **AI** | Identified as an AI or generative AI workload |
+| **Non-AI** | Ruled out, with the reason recorded |
+| **Uncertain** | The Collector could not decide |
+
+Uncertain is a real answer, not a failure. It means the evidence was genuinely ambiguous, and Discover reports that rather than guessing. What you do about it is covered below.
+
+## How a Verdict Is Reached
+
+Classification runs in two stages.
+
+**Deterministic signals come first.** The [Collector](/concepts/discovery/collector) works from what it can establish directly: the process and binary behind a listening port, the container image, the entry in a cluster catalogue, an API specification the service publishes, the content it returns. Most Resources are settled here, in both directions. A listening socket owned by a known operating system process is ruled out on evidence, not on a guess.
+
+**Language model reasoning comes second, and only when it is needed.** Where the deterministic signals are suggestive but not conclusive, the Collector can ask a language model to weigh the assembled evidence and decide. This stage is what turns an ambiguous service into a decided one.
+
+The second stage is optional, and it is where most of the practical questions come from.
+
+## Turning On Reasoning
+
+Language model classification is **off unless you give the Collector an API key**. A scan still runs and still reports without one. It stops short of deciding the ambiguous cases.
+
+Two consequences are worth planning around:
+
+- **Without a key**, services that clear the cheap first-stage filter land in **Uncertain** and stay there. They are never evaluated, and the recorded reason says so.
+- **The key is set per Collector**, not once for your account, and the spend cap it carries applies per scan rather than per month. Budget for it across the scope and across the scan schedule, not for a single machine one time.
+
+Where the deterministic evidence is strong, this costs you little. An endpoint Collector can see the process and the binary, so it settles most of what it finds without ever reaching the second stage. A network scanner sees a port and whatever answers on it, which is exactly the case where the second stage earns its cost.
+
+## What Leaves Your Machine
+
+Worth knowing before you enable the second stage, because it is the question a security
+review will ask.
+
+The evidence a Collector assembles is sent to the **language model provider whose key you
+configured**. That evidence is the material the Collector gathered about the service: an
+excerpt of what the service returned, its API specification if it publishes one, and similar
+detail.
+
+What the Collector uploads to the Console is the **verdict**, not the evidence. The service
+identity, type, framework, models, endpoints, authentication state and the classification
+result travel; the raw page content and specifications do not.
+
+So the second stage is a decision about your relationship with a language model provider,
+not about what Vijil stores.
+
+## Reading Each Reason
+
+Every Classification records why it was reached, and the reason is the fastest way to tell the two kinds of Uncertain apart.
+
+A Resource that was genuinely ambiguous reads differently from one that was never evaluated: a Collector with no key configured records that fact as the reason. If a scope returns a large Uncertain group, open one and read the reason before assuming the estate is unusual.
+
+## Next
+
+<Card title="Read Your Inventory" icon="scan-search" href="/owner-guide/discover/reviewing-resources">
+  Work through AI, Non-AI, and Uncertain in the Console.
+</Card>

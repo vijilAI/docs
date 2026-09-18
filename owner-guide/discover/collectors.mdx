@@ -1,0 +1,296 @@
+---
+title: 'Install a Collector'
+description: 'Credentials, prerequisites, and install steps for endpoint, network scanner, in-cluster, and cloud API Collectors.'
+---
+
+A [Collector](/concepts/discovery/collector) is the software that does the looking. This page covers the four kinds, what each needs from you, and how to install it against a [Target](/owner-guide/discover/targets).
+
+## Before You Install
+
+**Vijil provides the Collector artifacts.** They carry the engineering name `vijil-shadow`, which is why it appears in package filenames, environment variables, Helm releases, and log paths throughout this page. Packages and container images are delivered as part of your Discover entitlement rather than downloaded from a public location. Arrange them before you book an install window, because the rest of this page assumes you have them.
+
+| Kind | Artifact you receive |
+|------|----------------------|
+| **Endpoint** | A `.deb`, `.rpm`, or platform installer |
+| **Network scanner** | A container image, and access to the registry that holds it |
+| **In-cluster** | A Helm chart and the same container image |
+| **Cloud API** | The same Helm chart |
+| **Browser extension** | A Chrome or Edge extension, and the policy to push it |
+
+## Network Requirements
+
+Collectors need outbound DNS and HTTPS to the control plane on port 443. Nothing needs to
+reach a Collector inbound, so no firewall rule has to be opened toward the machine, the
+virtual machine, or the cluster.
+
+Tell your security operations team before the first network-scanner sweep. A scanner
+sweeping a `/16` reaches 65,536 addresses and will register on intrusion detection as a port
+scan, because that is what it is.
+
+## Values Every Collector Needs
+
+Whichever kind you install, the Collector needs to know two things: where to report, and how to prove it belongs to your Target.
+
+**Where to report.** The control plane address your Collectors reach:
+
+```bash
+vijil discover2 setup-info
+```
+
+**Which Target.** The `id` returned when you created the Target. See [Create and Manage Targets](/owner-guide/discover/targets).
+
+## Choose a Credential
+
+| Credential | Use when | Mint it with |
+|------------|----------|--------------|
+| **Scanner token** | You install by hand: a virtual machine, a Helm release, a cloud connector. One token per Collector, revocable on its own. | `vijil discover2 scanner-mint <target-id>` |
+| **Enrollment code** | The install is unattended and repeated: a laptop fleet through device management. One code serves the whole wave, and each machine registers as its own Collector. | `vijil discover2 enrollment-code-create <target-id>` |
+
+Both are also available in the Console, on the **Scanners** sub-tab of the Target.
+
+<Frame>
+  <img src="/images/owner-guide/discover/scanners-tab-empty.jpg" alt="The Scanners sub-tab of a Target before any Collector has enrolled" />
+</Frame>
+
+An enrollment code takes two settings: the scanner kinds it is allowed to enroll, and how long it stays usable. Size the lifetime to your rollout window rather than to your convenience.
+
+<Frame>
+  <img src="/images/owner-guide/discover/enrollment-code-form.jpg" alt="The enrollment code form showing allowed scanner kinds and a time to live in hours" />
+</Frame>
+
+The code is shown in full **once**, immediately after you generate it. Copy it then and distribute it through your device management tooling. Afterwards only the identifier and the expiry remain visible.
+
+## Endpoint Collectors
+
+The endpoint Collector runs as a service on the machine you want inventoried and inspects that machine directly: its processes, its container runtime, its GPUs, and the ports it is listening on.
+
+Use an **enrollment code** for a fleet.
+
+### Linux
+
+Install the package with the control plane address and the enrollment code in the environment:
+
+```bash
+sudo VIJIL_SHADOW_CONTROL_PLANE_URL='<control-plane-url>' \
+     VIJIL_SHADOW_ENROLLMENT_CODE='<enrollment-code>' \
+     dpkg -i vijil-shadow-endpoint-<version>.x86_64.deb
+```
+
+On Fedora or RHEL, substitute `rpm -i` and the `.rpm` artifact. The RPM filename carries an
+extra release segment, as in `vijil-shadow-endpoint-<version>-1.x86_64.rpm`.
+
+The postinstall script lays down the binary, writes a systemd unit, persists the enrollment code readable only by root, then enables and starts the service. The machine keeps its code on disk so it can re-register if its Collector is ever revoked.
+
+First-launch logs land at `/var/log/vijil-shadow/endpoint.log`. If that file is empty after
+a failed start, read `/var/log/vijil-shadow/endpoint.err.log`, which captures stderr.
+
+### Other Endpoint Platforms
+
+Both ship their own installers. On macOS, write the enrollment code to
+`/etc/vijil-shadow/enrollment-code` **before** running the installer: the sandboxed
+postinstall script strips most environment variables, so the environment-variable form used
+for Linux does not reach it.
+
+## Network Scanner Collectors
+
+The network scanner runs as a container on a virtual machine you place inside the network. It finds services by reaching out to hosts it can route to, so its coverage is decided by the routes you give it.
+
+**What you supply**
+
+- A virtual machine inside the target network, with routes to the subnets you want swept
+- Docker installed on it
+- A language model API key for classification, unless you accept an Uncertain group. See [Classification](/concepts/discovery/classification).
+
+Mint a **scanner token**, then write the Collector's environment to a file. Keep the
+values in a file rather than on the command line: anything passed with `-e` is visible
+to every user who can run `ps` on the host, and is recorded in the audit log of whatever
+pushed the command.
+
+```bash
+sudo install -m 600 /dev/null /etc/vijil-shadow/secrets.env
+sudo tee /etc/vijil-shadow/secrets.env >/dev/null <<'EOF'
+LLM_API_KEY=<language-model-api-key>
+ANTHROPIC_API_KEY=<language-model-api-key>
+SCAN_CIDRS=10.0.0.0/16
+CONTROL_PLANE_URL=<control-plane-url>
+CONTROL_PLANE_DEPLOYMENT_ID=<target-id>
+CONTROL_PLANE_TOKEN=<scanner-token>
+EOF
+```
+
+Then run the Collector as a resident daemon:
+
+```bash
+sudo docker run -d --restart unless-stopped \
+    --network=host \
+    --cap-add=NET_RAW \
+    --name vijil-shadow \
+    --env-file /etc/vijil-shadow/secrets.env \
+    -v /var/lib/vijil-shadow:/out \
+    <image> \
+    daemon
+```
+
+<Warning>
+**`daemon` is the subcommand that makes Scan now work.** The `scan` subcommand runs once
+and exits, and **Scan now** queues work for a Collector to pick up. Against a Collector
+that has already exited, the button appears to do nothing.
+</Warning>
+
+`--network=host` and `--cap-add=NET_RAW` are both required. Without `NET_RAW` the port
+sweep cannot open raw sockets and exits with a permission error.
+
+## In-Cluster Collectors
+
+The in-cluster Collector reads Services, Endpoints, and Pods through the Kubernetes API. There is no virtual machine to provision, and it returns the richest inventory of the four kinds because it reads the cluster's own catalogue rather than inferring from the network.
+
+**What you supply**
+
+- A Kubernetes cluster, 1.27 or later, with `kubectl` configured against it
+- Helm 3.8 or later
+- A language model API key for classification
+
+Mint a **scanner token**, then install the chart:
+
+```bash
+helm install vijil-shadow ./vijil-shadow \
+    --set scan.mode=k8s \
+    --set daemonMode.enabled=true \
+    --set daemonMode.persistence.enabled=true \
+    --set llmApiKey="$LLM_API_KEY" \
+    --set controlPlane.enabled=true \
+    --set controlPlane.url="$CONTROL_PLANE_URL" \
+    --set controlPlane.deploymentId="$TARGET_ID" \
+    --set controlPlane.token="$SCANNER_TOKEN"
+```
+
+The daemon polls for schedule changes and queued scans every 30 seconds, and a volume persists its state across pod restarts. To keep the key out of your shell history and out of the release values, pre-create a Secret and reference it with `--set existingSecret.name=<secret-name>` instead of `--set llmApiKey`. The chart reads the key `LLM_API_KEY` from that Secret unless you override `existingSecret.key`.
+
+Dropping `daemonMode.enabled` installs the Collector as a one-shot Job instead, which gives you a single scan and an exit.
+
+## Cloud API Collectors
+
+The cloud API Collector does not scan the network at all. It calls the provider APIs directly to enumerate managed AI that no scanner can reach: Bedrock models and agents, SageMaker endpoints, AgentCore runtimes and gateways, and the Guardrails attached to them.
+
+**What you supply**
+
+- An Amazon EKS cluster with an OIDC provider configured
+- `kubectl` and Helm 3.8 or later against that cluster
+- An IAM role holding read-only list permissions for the services you want enumerated, with a trust policy admitting your cluster's OIDC issuer
+
+This Collector needs **no language model API key**. A cloud provider catalogue is authoritative, so there is nothing ambiguous left to reason about.
+
+Mint a **scanner token**, then install the chart with the role attached to its service account:
+
+```bash
+helm install vijil-shadow-aws ./vijil-shadow \
+    --set connector.enabled=true \
+    --set connector.mode=cloud-api/aws \
+    --set connector.useLlm=false \
+    --set connector.aws.region=us-east-1 \
+    --set serviceAccount.create=true \
+    --set 'serviceAccount.annotations.eks\.amazonaws\.com/role-arn=<role-arn>' \
+    --set controlPlane.enabled=true \
+    --set controlPlane.url="$CONTROL_PLANE_URL" \
+    --set controlPlane.deploymentId="$TARGET_ID" \
+    --set controlPlane.token="$SCANNER_TOKEN"
+```
+
+It runs on a schedule as a CronJob rather than as a resident daemon.
+
+## Browser Extension Collectors
+
+The browser extension reports the AI assistants people use in the browser, per tab:
+ChatGPT, Claude, Copilot and the rest. For shadow AI it is often the highest-yield
+Collector you can deploy, because browser-based assistants leave no process on the host
+and open no port for a scanner to find.
+
+Use an **enrollment code** and push the extension through browser policy, the same way you
+would any other managed extension.
+
+## One-Shot Collectors
+
+Alongside the resident kinds above, Discover ships Collectors that run once against a
+specific source and exit. They take the same credentials and report into the same Target.
+
+| Collector | Reports |
+|-----------|---------|
+| **EASM** | Internet-facing surface for a domain you own |
+| **Egress** | AI destinations reached from your network, read from egress records |
+| **Logs** | AI usage found in logs you already collect |
+| **Identity provider** | AI applications authorized through your identity provider |
+| **Gateway** | AI traffic seen by an API gateway |
+
+These answer a different question from a scanner. A scanner tells you what exists; these
+tell you what is being **used**, which is often the faster route to the shadow AI nobody
+declared.
+
+## Verify a Collector Connected
+
+Open the Target in the Console. The header badge shows one of four states, and the
+Collector appears on the **Scanners** sub-tab once it checks in.
+
+| Badge | Meaning |
+|-------|---------|
+| **Agent online** | Reported within the last 75 seconds |
+| **Agent stale** | Last reported between 75 and 150 seconds ago |
+| **No agent reporting** | Has reported before, but not recently |
+| **No agent connected** | Has never reported |
+
+**Agent stale** and **No agent reporting** are the states a Collector enters when it
+quietly stops working. Neither raises an error anywhere else, so the badge is the signal.
+
+From the command line:
+
+```bash
+vijil discover2 scanner-list <target-id>
+```
+
+A Collector registers on its first poll, and Collectors poll every 30 seconds by default.
+
+## Troubleshooting
+
+**The Collector never appears on the Scanners sub-tab.** Work down this list:
+
+1. Confirm the service is running on the host, and read its log. On Linux that is
+   `/var/log/vijil-shadow/endpoint.log`, and `endpoint.err.log` if the first is empty.
+2. Confirm the host can reach the control plane outbound on port 443. Collectors need
+   outbound DNS and HTTPS; nothing needs to reach them inbound.
+3. Confirm the control plane address matches the one `vijil discover2 setup-info` returns.
+   A wrong address fails as a connection error, which looks nothing like a credential
+   problem.
+4. Confirm the credential has not expired or been revoked, and that it belongs to **this**
+   Target.
+
+**Uploads fail with HTTP 401.** The usual cause is a token minted for a different Target
+than the one the Collector is configured with. A mismatched token and Target identifier
+pair always returns 401, with nothing to distinguish it from a bad token. Re-mint against
+the Target you meant.
+
+**Scan now appears to do nothing.** Two causes. Either the Collector is a one-shot that has
+already exited, in which case reinstall it with the `daemon` subcommand; or no Collector has
+checked in for 24 hours, in which case the Console tells you plainly: *"No agent has checked
+in during the last 24 hours, so nothing was queued."* A queued scan is dropped if no
+Collector collects it within 24 hours.
+
+## Revoke Credentials
+
+Revoking takes effect immediately.
+
+```bash
+vijil discover2 scanner-revoke <scanner-id>
+vijil discover2 enrollment-code-revoke <code-id>
+```
+
+Revoke enrollment codes once the rollout that needed them is finished. A code outlives the wave it was minted for, and every machine that holds it can still enroll.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Review Discovered Resources" icon="scan-search" href="/owner-guide/discover/reviewing-resources">
+    Read what the scan returned, including what it could not see.
+  </Card>
+  <Card title="Register a Discovered Agent" icon="bot" href="/owner-guide/discover/registering-agents">
+    Move a finding into the Agent Registry.
+  </Card>
+</CardGroup>

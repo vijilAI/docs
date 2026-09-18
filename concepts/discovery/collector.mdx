@@ -1,0 +1,78 @@
+---
+title: "Collector"
+description: "The software that does the looking, in four kinds, each reaching a different part of your estate."
+---
+
+A **Collector** is the software that looks. You install it at or near a [Target](/concepts/discovery/target), it registers itself, and from then on it reports what it finds and waits for scans you queue.
+
+Coverage is a property of your Collectors, not of Discover. A scope with no Collector returns nothing. A scope whose Collector cannot route to half the network returns half the estate and records the other half as a blind spot.
+
+## Collector Kinds
+
+Collectors come in several kinds. These four cover most estates, and only one of them is
+"a virtual machine with Vijil software on it". Check what you have to supply before you choose.
+
+| Kind | You supply | What gets installed | What it reaches |
+|------|------------|---------------------|-----------------|
+| **Endpoint** | The machine itself | A package running as a service | AI applications on laptops and servers |
+| **Network scanner** | A virtual machine inside the network, with routes to the subnets you want swept | A Docker container | Private-network services that no endpoint covers |
+| **In-cluster** | An existing Kubernetes cluster, 1.27 or later | A Helm release | Cluster services, read from the cluster's own catalogue |
+| **Cloud API** | An Amazon EKS cluster and an IAM role | A Helm CronJob | Managed AI such as Bedrock, SageMaker, and AgentCore |
+
+### Endpoint
+
+Runs as a service on the machine you want inventoried, and inspects that machine directly: its processes, its container runtime, its GPUs, and the ports it is listening on. This is the richest local evidence available anywhere in the product, because the Collector can see the binary name rather than guessing from what answers on a port.
+
+Use it for laptop fleets and individual servers. Enrollment scales through configuration management rather than one install at a time.
+
+### Network Scanner
+
+Runs as a Docker container on a virtual machine you place inside the network. It finds services by probing reachable hosts, which makes routing the thing that determines its coverage: anything it cannot route to is a blind spot, not an empty result.
+
+Use it for private-network services that no endpoint agent covers.
+
+### In-Cluster
+
+Installs as a Helm release into a Kubernetes cluster you already run. There is no virtual machine to provision, because the Collector reads Services, Endpoints, and Pods through the in-cluster API.
+
+This kind returns the richest inventory of the four, because it reads the cluster's own catalogue rather than inferring from the network.
+
+### Cloud API
+
+Probes nothing and sweeps no network. It calls the cloud provider APIs directly to enumerate managed AI that no scanner can reach: Bedrock models and agents, SageMaker endpoints, AgentCore runtimes and gateways, and the Guardrails attached to them.
+
+It runs as a Helm CronJob authenticated by the cluster's IAM integration, so it needs an EKS cluster with an OIDC provider plus an IAM role that trusts it.
+
+### Two More Worth Knowing
+
+A **browser extension** Collector reports the AI assistants people use in the browser, per
+tab. It reaches what nothing else can: a browser-based assistant leaves no process on the
+host and opens no port, so no scanner will ever find it.
+
+**One-shot Collectors** run once against a specific source and exit, reading your existing
+records rather than scanning: internet-facing surface, egress records, logs, identity
+provider grants, and API gateway traffic. They answer a different question from a scanner.
+A scanner tells you what exists; these tell you what is being used.
+
+## How Collectors Join a Target
+
+A Collector proves it belongs to a Target with one of two credentials, and which you want depends on how the install happens.
+
+| Credential | Use when | Scope |
+|------------|----------|-------|
+| **Scanner token** | You install by hand: a Helm release, a virtual machine, a cloud connector | One token per Collector, revocable on its own |
+| **Enrollment code** | The install is unattended: laptops through device management, an extension pushed by policy | One code serves a whole rollout wave; each machine that uses it registers as its own Collector |
+
+Both revoke at any time, and revoking takes effect immediately. See [Install a Collector](/owner-guide/discover/collectors) for the mechanics.
+
+## Resident Collectors Versus One-Shot Scans
+
+Some Collectors can run either as a resident daemon that polls for queued work, or as a single scan that runs once and exits.
+
+The distinction matters because **Scan now** queues work for a Collector to pick up. Against a one-shot Collector that has already exited, the button appears to do nothing. Run Collectors as residents unless you specifically want a single point-in-time sweep.
+
+## Next
+
+<Card title="Install a Collector" icon="satellite-dish" href="/owner-guide/discover/collectors">
+  Credentials, prerequisites, and the install steps for each kind.
+</Card>

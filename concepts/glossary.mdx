@@ -199,6 +199,16 @@ A concrete Red Team goal generated from a risk taxonomy and Agent context. Each 
 
 ---
 
+**Classification**
+The verdict Discover records on whether a discovered Resource is an AI workload: AI, Non-AI, or Uncertain. Every Classification carries the written reason behind it.
+
+---
+
+**Collector**
+The Discover software that inspects a Target and reports what it finds. Four kinds exist: endpoint, network scanner, in-cluster, and cloud API. Many Collectors can report into one Target.
+
+---
+
 **Darwin**
 Vijil's evolution engine (in development). Uses reinforcement learning over production telemetry to continuously improve agent resilience as behavior drifts over time.
 
@@ -211,6 +221,11 @@ A component that analyzes agent responses to determine if they contain threats, 
 
 **Diamond**
 Vijil's evaluation platform that tests agents against comprehensive threat Scenarios to produce Trust Scores and identify vulnerabilities before deployment.
+
+---
+
+**Discover**
+Vijil's discovery product. Finds the AI agents, models, and services running across an estate, classifies them, and makes the eligible ones registerable as Agents.
 
 ---
 
@@ -254,8 +269,18 @@ A Diamond evaluation mode that runs adaptive, multi-wave adversarial campaigns a
 
 ---
 
+**Resource**
+A single thing a Collector found, carrying the evidence behind its Classification and every scan that has observed it. An Agent is one Resource type; models, functions, and runtimes are others.
+
+---
+
 **Scenario**
 A group of related Probes that test a specific attack pattern or vulnerability class. Scenarios provide structure between Probes and Harnesses.
+
+---
+
+**Target**
+A place you want Discover to look at: a fleet of laptops, a network, a cluster, or a cloud account. Findings group under the Target, and many Collectors can report into one.
 
 ---
 

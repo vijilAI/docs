@@ -1,0 +1,151 @@
+---
+title: 'Get Started with Discover'
+description: 'Create a Target, install a Collector, run your first scan, and register what you find.'
+---
+
+Every other workflow in the Console starts from an Agent you already registered. [Discover](/concepts/platform/discover) is the step before that: it finds the AI running in your estate, including the parts nobody told you about, and hands the ones worth governing to the [Agent Registry](/owner-guide/register-agents/registering-agents).
+
+By the end of this page you will have one [Target](/concepts/discovery/target), one [Collector](/concepts/discovery/collector) reporting into it, and a first inventory to read.
+
+<Info>
+This page uses the `vijil` command line tool for the first two steps. Creating a Target is not yet available in the Console, so this is the one Owner's Guide workflow that starts in a terminal. Everything after step 2 is Console work.
+</Info>
+
+## What You Need
+
+- A Vijil Console account, and membership of the team the estate belongs to.
+- Collector artifacts from Vijil. They carry the engineering name `vijil-shadow`, which is why that name appears in package filenames, environment variables, and log paths.
+- The `vijil` command line tool. Install it with `pip install vijil-console`: the package is named `vijil-console`, and the command it installs is `vijil`.
+- One machine, network, or cluster you want scanned, and the access to install software on it.
+
+## Decide Your Targets First
+
+A Target is a place you want looked at. A Collector is the software that does the looking, and many Collectors can report into one Target: every laptop in a fleet is its own Collector on a single Targets entry.
+
+Decide your Targets before you install anything. One per source, one for endpoints, one per network, one per cluster, one per cloud account, keeps findings attributable and is how Vijil runs its own estate.
+
+## Working With Discover
+
+<Steps>
+  <Step title="Point the Command Line Tool at Your Console">
+    ```bash
+    vijil auth init --url https://console-api.<your-domain>
+    vijil auth login --email you@example.com
+    ```
+
+    Leave `--password` off and the tool prompts for it. Passing a password on the command line puts it in your shell history, and in `zsh` a `!` or `$` in the password is expanded before it is ever sent.
+
+    Then select the team the estate belongs to:
+
+    ```bash
+    vijil team list
+    vijil team use <team-id>
+    ```
+  </Step>
+
+  <Step title="Create Your First Target">
+    ```bash
+    vijil discover2 target-create --name "laptops" --type scanner --json
+    ```
+
+    Use `--type scanner` for anything that goes looking for services. Use `--type dlp` only for a Target that receives events from a Vijil [Dome](/concepts/platform/dome) proxy rather than running scans.
+
+    <Warning>
+    The response contains a live credential. It includes an `install_token` in plaintext. Do not pipe this command to a file or into a continuous integration log. Copy the `id`, which is the Target identifier you use everywhere below, and let the rest scroll away.
+    </Warning>
+
+    <Tip>More detail on [Create and Manage Targets](/owner-guide/discover/targets).</Tip>
+  </Step>
+
+  <Step title="Find It in the Console">
+    Open **Discover** and choose the **Targets** tab. Your new Target appears in the list, with no kind, no scan, and no agents, because nothing has reported yet.
+
+    <Frame>
+      <img src="/images/owner-guide/discover/targets-new-target.jpg" alt="The Targets tab in the Vijil Console showing a newly created Target with no kind, no scan, and no agents recorded" />
+    </Frame>
+
+    Click it. This is a Target on day zero: zeroes across the top, each panel telling you what will fill it.
+
+    <Note>
+    **"Agent" on these screens means Collector.** The **Agents** count and the connection badge both refer to the scanning software installed against this Target, not to an AI [Agent](/owner-guide/register-agents/what-is-an-agent) in the Agent Registry.
+    </Note>
+
+    <Frame>
+      <img src="/images/owner-guide/discover/target-day-zero.jpg" alt="A Target detail page before any Collector connects, showing zero counts across every panel" />
+    </Frame>
+
+    Note **No agent connected** beside the title. Until that changes, **Scan now** has nothing to run on, and the Console asks you to confirm before it queues anything.
+  </Step>
+
+  <Step title="Create a Credential for Your First Collector">
+    Open the **Scanners** sub-tab. There are two kinds of credential, and which you want depends on how the Collector gets installed.
+
+    | Credential | Use when |
+    |------------|----------|
+    | **Scanner token** | You install by hand: a Helm release, a virtual machine, a cloud connector. One token per Collector, revocable on its own. |
+    | **Enrollment code** | The install is unattended: laptops through device management, an extension pushed by policy. One code serves the whole rollout wave, and each machine that uses it registers as its own Collector. |
+
+    Choose an enrollment code for a fleet.
+
+    <Frame>
+      <img src="/images/owner-guide/discover/enrollment-code-form.jpg" alt="The enrollment code generation form showing the allowed scanner kinds field and the time to live field" />
+    </Frame>
+
+    <Tip>More detail on [Install a Collector](/owner-guide/discover/collectors).</Tip>
+  </Step>
+
+  <Step title="Install the Collector">
+    Pick the kind that matches what you want reached: an **endpoint** package on the machine itself, a **network scanner** container on a virtual machine inside the network, an **in-cluster** Helm release, or a **cloud API** connector for managed AI no scanner can reach.
+
+    The Target header changes to **Agent online** once the Collector checks in.
+
+    <Tip>Prerequisites and install steps for each kind: [Install a Collector](/owner-guide/discover/collectors).</Tip>
+  </Step>
+
+  <Step title="Run Your First Scan">
+    Either press **Scan now** on the Target, or:
+
+    ```bash
+    vijil discover2 scan-now <target-id>
+    ```
+
+    Collectors poll every 30 seconds by default, so expect a short delay before the scan starts. Progress appears on the Target as it runs, and how long a scan takes depends on the scope: a single machine is quick, while a network sweep is bounded by the size of the range you gave it.
+  </Step>
+
+  <Step title="Read What Came Back">
+    The **Resources** tab lists everything found, grouped into **AI**, **Non-AI**, and **Uncertain**. Open any Resource for its evidence.
+
+    Then look at what the scan could **not** reach. An empty finding list from a Collector that could see nothing is not a clean estate.
+
+    <Tip>How to work through the list: [Review Discovered Resources](/owner-guide/discover/reviewing-resources).</Tip>
+  </Step>
+
+  <Step title="Register What Matters">
+    Register a discovered Agent from the Resources list, then supply the endpoint and credentials Vijil needs to reach it. After that, every [Diamond](/concepts/platform/diamond) and [Dome](/concepts/platform/dome) workflow applies to it like any other Agent.
+
+    <Tip>What is eligible and why: [Register a Discovered Agent](/owner-guide/discover/registering-agents).</Tip>
+  </Step>
+</Steps>
+
+## Housekeeping
+
+- **Revoke credentials you are done with.** Enrollment codes outlive the rollout that needed them, and scanner tokens outlive the machine they were minted for. Both revoke from the Scanners sub-tab, and revoking takes effect immediately.
+- **Keep one Target per source.** Mixing sources makes findings harder to attribute and complicates retiring a machine.
+- **Re-check blind spots after any access change.** A Collector that loses a permission does not fail loudly, its coverage just narrows.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create and Manage Targets" icon="crosshair" href="/owner-guide/discover/targets">
+    Target types, credentials, and scheduling.
+  </Card>
+  <Card title="Install a Collector" icon="satellite-dish" href="/owner-guide/discover/collectors">
+    Prerequisites and steps for each of the four kinds.
+  </Card>
+  <Card title="Review Discovered Resources" icon="scan-search" href="/owner-guide/discover/reviewing-resources">
+    Work through AI, Non-AI, and Uncertain.
+  </Card>
+  <Card title="Register a Discovered Agent" icon="bot" href="/owner-guide/discover/registering-agents">
+    Move a finding into the Agent Registry.
+  </Card>
+</CardGroup>

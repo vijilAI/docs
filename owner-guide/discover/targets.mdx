@@ -1,0 +1,142 @@
+---
+title: 'Create and Manage Targets'
+description: 'Create a Target, read the Targets tab, and schedule recurring scans.'
+---
+
+A [Target](/concepts/discovery/target) is a place you want looked at, and the unit findings group under. This page covers creating one and working with it in the Console.
+
+## Create a Target
+
+Creating a Target is not yet available in the Console. Use the `vijil` command line tool:
+
+```bash
+vijil discover2 target-create --name "laptops" --type scanner --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Display name for the Target |
+| `--type` | `scanner` for anything that scans, `dlp` for a Target fed by Dome telemetry |
+| `--json` | Output as JSON |
+
+<Warning>
+The response contains a live credential. It includes an `install_token` in plaintext. Do not pipe this command to a file or into a continuous integration log. Copy the `id` and let the rest scroll away.
+</Warning>
+
+The `id` in the response is the Target identifier. You need it for every command that acts on this Target.
+
+## The Targets Tab
+
+Open **Discover** in the sidebar and choose the **Targets** tab. Filter chips across the top
+count Targets by kind: **All**, Endpoint, Browser, Network, Cloud, and Source code. A
+Kubernetes cluster is counted under **Network**, because the in-cluster Collector and the
+network scanner report as the same scanner kind.
+
+<Frame>
+  <img src="/images/owner-guide/discover/targets-new-target.jpg" alt="The Targets tab listing six Targets with columns for source, kind, last scan, and agents" />
+</Frame>
+
+| Column | What it shows |
+|--------|---------------|
+| **Source** | The Target name you gave it |
+| **Kind** | What kind of Collector reports into it, or a dash if none has yet |
+| **Last scan** | How long ago the most recent scan ran |
+| **Agents** | How many Collectors are reporting into this Target |
+| **Actions** | Copy the Target identifier |
+
+A chevron at the start of each row expands it to show that Target's findings, grouped into
+AI, Non-AI, and Uncertain.
+
+<Warning>
+The **Agents** column counts **Collectors**, not AI Agents. A Target showing three agents has three scanners installed against it. This is unrelated to the [Agent Registry](/owner-guide/register-agents/registering-agents).
+</Warning>
+
+A Target with a dash for kind and zero agents has never been reported into. That is the expected state immediately after you create one.
+
+## Inside a Target
+
+Click a Target to open it. The identifier sits under the title with a copy button, and the top right shows connection state and a **Scan now** button.
+
+<Frame>
+  <img src="/images/owner-guide/discover/target-day-zero.jpg" alt="A Target detail page on day zero showing zero in scope, zero external providers, and no scan history" />
+</Frame>
+
+Two counters sit across the top:
+
+| Counter | Meaning |
+|---------|---------|
+| **In scope** | Discovered and probed in this environment |
+| **External providers** | Providers the network can reach. This is capability, not usage. |
+
+Between the counters and the sub-tabs sit two panels, **DLP sample** and **Agent activity**.
+Both fill only from Vijil [Dome](/concepts/platform/dome) telemetry pointed at this Target,
+and both stay empty on a Target that only runs scans.
+
+<Warning>
+"Agent" means two different things on this one screen. In the **Agent activity** panel it
+means an AI Agent, whose prompts and tool calls Dome reports. In the **Agents** column and
+the connection badge it means a Collector.
+</Warning>
+
+Below them, five sub-tabs:
+
+| Sub-tab | What it holds |
+|---------|---------------|
+| **Scan history** | Every scan run against this Target and what each returned |
+| **Schedule** | Recurring scan configuration |
+| **Scanners** | Scanner tokens and enrollment codes for this Target |
+| **Policies** | Rules about what is allowed in this scope |
+| **Violations** | Findings that breached those rules |
+
+The header badge reads one of four states: **Agent online**, **Agent stale**, **No agent
+reporting**, or **No agent connected**. The middle two are what a Collector that has quietly
+stopped working looks like.
+
+## Run a Scan
+
+Press **Scan now**, or:
+
+```bash
+vijil discover2 scan-now <target-id>
+```
+
+Collectors poll every 30 seconds by default, so expect a short delay before the scan starts.
+
+**Scan now** reaches only Collectors that have checked in within the last 24 hours. With
+none, the Console tells you nothing was queued rather than leaving you waiting. Pressing it
+against a Target with no Collector connected asks you to confirm first.
+
+## Schedule Recurring Scans
+
+Open the **Schedule** sub-tab to set a recurring scan, or read and set the same configuration from the command line:
+
+```bash
+vijil discover2 config-get <target-id>
+vijil discover2 config-set <target-id>
+```
+
+A one-off inventory ages quickly. Schedule a recurring scan for any Target you intend to keep.
+
+## Delete a Target
+
+```bash
+vijil discover2 target-delete <target-id>
+```
+
+Deleting a Target removes the scope and everything under it: its scan history, its
+Collectors, its credentials, its policies and its violations. You do not need to revoke
+credentials first. Any Collector still installed on a machine will simply stop being able to
+report, so uninstall those separately.
+
+The command asks for confirmation before it acts. Pass `--yes` in a script.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Install a Collector" icon="satellite-dish" href="/owner-guide/discover/collectors">
+    Credentials and install steps for each kind.
+  </Card>
+  <Card title="Review Discovered Resources" icon="scan-search" href="/owner-guide/discover/reviewing-resources">
+    Read what a scan returned.
+  </Card>
+</CardGroup>

@@ -1,0 +1,44 @@
+---
+title: "Target"
+description: "A place you want looked at, and the unit that discovery findings are grouped under."
+---
+
+A **Target** is a place you want looked at: a fleet of laptops, a network, a Kubernetes cluster, a cloud account. It is the unit findings are grouped under, and the thing you run a scan against.
+
+A Target is not a machine. It is a scope. The machines are [Collectors](/concepts/discovery/collector), and many of them can report into one Target.
+
+## What a Target Holds
+
+| Holds | Meaning |
+|-------|---------|
+| **Collectors** | Every scanner reporting into this scope, and whether each is connected |
+| **Scans** | Every scan run against the Target, and what each returned |
+| **Resources** | Everything found in this scope |
+| **Credentials** | The scanner tokens and enrollment codes that let Collectors join |
+| **Policies** | Rules about what is allowed in this scope, and violations against them |
+
+Until a Collector connects, a Target shows zeroes and the Console reads **No agent
+connected**. "Agent" there means Collector, not an AI Agent in the
+[Agent Registry](/owner-guide/register-agents/registering-agents). The state is accurate
+rather than empty: nothing has looked yet, so nothing is known.
+
+## Target Types
+
+| Type | Use it for |
+|------|------------|
+| **`scanner`** | Anything that goes looking for services. This covers all four Collector kinds. |
+| **`dlp`** | A scope that receives runtime events from a Vijil [Dome](/concepts/platform/dome) proxy rather than running scans. |
+
+Most Targets are `scanner`. Choose `dlp` only when the scope is fed by Dome telemetry instead of by a Collector that scans.
+
+## How Many Targets You Need
+
+One Target per source. One for endpoints, one per network, one per cluster, one per cloud account.
+
+Deciding this before you install anything is worth the few minutes it takes. Mixing sources under a single Target makes findings harder to attribute and complicates retiring a machine later, and Targets are not something you want to reorganize once Collectors are enrolled against them.
+
+## Next
+
+<Card title="Create a Target" icon="crosshair" href="/owner-guide/discover/targets">
+  Create your first Target and find it in the Console.
+</Card>

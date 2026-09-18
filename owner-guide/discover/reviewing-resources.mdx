@@ -1,0 +1,80 @@
+---
+title: 'Review Discovered Resources'
+description: 'Read what a scan returned, work through the Uncertain group, and check what the scan could not reach.'
+---
+
+A scan returns [Resources](/concepts/discovery/resource). This page is about reading them: what the groups mean, how to judge a verdict, and why the most important part of a scan report is the part that lists what it missed.
+
+## Two Inventory Views
+
+Discover gives you the inventory in two places, and they answer different questions.
+
+**The Resources tab** is the whole estate in one list, every [Target](/concepts/discovery/target)
+together. Each row carries a **Classification** column reading AI or Non-AI, and a dash where
+the Collector could not decide. Filter it by resource type, source, or source type.
+
+**A Target's findings** are reached from the **Targets** tab by expanding a Target's row.
+This is where the three groups are split out:
+
+| Group | Meaning |
+|-------|---------|
+| **AI** | Identified as an AI or generative AI workload |
+| **Non-AI** | Ruled out, with the reason recorded |
+| **Uncertain** | The Collector could not decide |
+
+Use the Resources tab to ask what exists across the estate; use a Target's findings to work
+through one scope's results.
+
+Non-AI rows are worth keeping visible rather than filtering away permanently. A Resource
+ruled out on weak evidence is a different thing from one ruled out because the listening
+socket belongs to a known operating system process, and you can only tell them apart by
+reading the reason.
+
+## Open a Resource
+
+Open a Resource from its identifier. A Resource carries the evidence that produced its verdict:
+
+- Where it was seen, and which [Target](/concepts/discovery/target) and Collector kind reported it
+- What answered, on which port
+- What the Classification was based on, in writing
+- Every scan that has observed it, including when it was first and last seen
+
+Read the evidence before you act on the verdict. A Classification you cannot audit is an opinion, and Discover is built so that you never have to accept one.
+
+## Work Through Uncertain
+
+Uncertain means the evidence was ambiguous, not that something went wrong. There are two reasons a Resource lands there, and they call for different responses.
+
+**The Collector had no language model configured.** The reason recorded on the Resource says so. Nothing was ever evaluated, and the size of the group tells you about your configuration rather than about your estate. See [Classification](/concepts/discovery/classification) for how to turn reasoning on.
+
+**The evidence was genuinely thin.** The Collector reached the service, gathered what it could, and the result was not conclusive. This is common for network scanner Collectors, which see a port and whatever answers on it. An endpoint or in-cluster Collector covering the same service will usually settle it, because both can read a name rather than infer from a response.
+
+A persistent Uncertain group is a signal about coverage. The fix is usually a Collector closer to the thing, not more reasoning about the same thin evidence.
+
+## Check What a Scan Could Not Reach
+
+Every scan records its blind spots: subnets with no route, catalogues with no read permission, hosts that did not answer.
+
+<Warning>
+An empty finding list from a Collector that could see nothing is not a clean estate. Read the blind spots before you read the findings.
+</Warning>
+
+Re-check blind spots after any access change. A Collector that loses a permission does not fail loudly. Its coverage narrows, the scan still reports success, and the inventory quietly stops describing part of your estate.
+
+## Keep Your Inventory Current
+
+A one-off scan ages from the moment it finishes. Set a recurring scan on the **Schedule** sub-tab of each Target you intend to keep, and treat **Last scan** on the Targets tab as a freshness indicator rather than a detail.
+
+A registered Agent's card lists the Resources linked to it with the time each was last seen,
+so an Agent whose service stopped being found does not silently look healthy.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Register a Discovered Agent" icon="bot" href="/owner-guide/discover/registering-agents">
+    Move a finding into the Agent Registry.
+  </Card>
+  <Card title="Classification" icon="scan-search" href="/concepts/discovery/classification">
+    How each verdict is reached.
+  </Card>
+</CardGroup>

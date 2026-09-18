@@ -78,6 +78,7 @@
                 "expanded": true,
                 "pages": [
                   "concepts/platform/console",
+                  "concepts/platform/discover",
                   "concepts/platform/diamond",
                   "concepts/platform/dome",
                   "concepts/platform/darwin"
@@ -97,6 +98,21 @@
                   "concepts/trust-score/reliability",
                   "concepts/trust-score/safety",
                   "concepts/trust-score/security"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Discovery",
+            "pages": [
+              "concepts/discovery/introduction",
+              {
+                "group": "Discovery Components",
+                "pages": [
+                  "concepts/discovery/target",
+                  "concepts/discovery/collector",
+                  "concepts/discovery/resource",
+                  "concepts/discovery/classification"
                 ]
               }
             ]
@@ -151,6 +167,17 @@
           {
             "group": "Teams",
             "pages": ["owner-guide/getting-started/teams"]
+          },
+          {
+            "group": "Discover Agents",
+            "pages": [
+              "owner-guide/discover/introduction",
+              "owner-guide/discover/targets",
+              "owner-guide/discover/collectors",
+              "owner-guide/discover/reviewing-resources",
+              "owner-guide/discover/registering-agents",
+              "owner-guide/discover/code-scans"
+            ]
           },
           {
             "group": "Agents",
@@ -233,6 +260,7 @@
                 "group": "CLI Reference",
                 "pages": [
                   "developer-guide/cli/setup",
+                  "developer-guide/cli/discover",
                   "developer-guide/cli/agents",
                   "developer-guide/cli/evaluate",
                   "developer-guide/cli/protect",

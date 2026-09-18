@@ -1,0 +1,48 @@
+---
+title: "Resource"
+description: "A single thing a Collector found, the evidence behind it, and how its identity survives a rescan."
+---
+
+A **Resource** is one thing a [Collector](/concepts/discovery/collector) found: a service, a model, an agent, a function. It is the row you read in the Console and the unit you act on.
+
+A Resource is not only a name. It carries the evidence that produced it, which is what separates an inventory you can act on from a list you have to take on faith.
+
+## What a Resource Carries
+
+| Field | What it tells you |
+|-------|-------------------|
+| **Identity** | A stable identifier for the thing itself, distinct from what any single scan observed |
+| **Type** | What kind of thing it is: agent, model, function, runtime |
+| **[Classification](/concepts/discovery/classification)** | Whether it is AI, and the written reason for that verdict |
+| **Evidence** | Where it was seen, what answered on which port, and what the verdict was based on |
+| **Sightings** | Every scan that has observed it, including first seen and last seen |
+| **Source** | Which Collector reported it, and from which [Target](/concepts/discovery/target) |
+
+Open any Resource to read its evidence. A Classification without evidence behind it is an opinion, and Discover is built so you never have to accept one.
+
+## Identity Across Rescans
+
+A Resource has to survive being found again. If identity changed every scan, a Resource you registered on Monday would return on Tuesday as a stranger, and anything you attached to it would quietly point at nothing.
+
+Discover identifies a Resource by the most durable signal available to the Collector that found it. Identifiers fall into two groups:
+
+| Group | Based on | Survives a rescan |
+|-------|----------|-------------------|
+| **Name-based** | What the thing is called in a catalogue: a Kubernetes service path, a deterministic cloud resource identifier | Yes |
+| **Observation-based** | What the thing looked like: a certificate, a host and port, an inferred fingerprint | Not reliably |
+
+Observation-based identities shift under ordinary operations. A certificate is renewed, a host gets a new address, a model list changes, and the same service returns under a different identifier.
+
+This is why only Resources on a name-based identity can be registered as Agents. An Agent registration anchored to something that changes would orphan itself on the next scan, and nothing in the Console would tell you it had. See [Register a Discovered Agent](/owner-guide/discover/registering-agents).
+
+## Blind Spots Are Findings Too
+
+Every scan records what it could **not** reach alongside what it found. A Collector without a route to a subnet, or without permission to read a catalogue, reports the gap.
+
+Treat an empty finding list from a Collector that could see nothing as a failed scan, not a clean estate. Re-check blind spots after any access change: a Collector that loses a permission does not fail loudly, its coverage just narrows.
+
+## Next
+
+<Card title="Read Your Inventory" icon="list-tree" href="/owner-guide/discover/reviewing-resources">
+  Work through what a scan returned, including what it could not see.
+</Card>
