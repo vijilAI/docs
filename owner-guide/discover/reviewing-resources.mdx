@@ -1,0 +1,75 @@
+---
+title: 'Review Discovered Resources'
+description: 'Read what a scan returned.'
+---
+
+A scan returns [Resources](/concepts/discovery/resource). This page covers where to read them and what the verdicts mean.
+
+## Two Inventory Views
+
+**The Findings tab** lists every Resource across every [Target](/concepts/discovery/target).
+Each row has a **Classification** column showing `AI` or `Non-AI`, and a dash where the
+Collector could not decide. The **Type**, **Source**, and **Kind** headers each carry a
+filter.
+
+**A Target's findings** open from the **Targets** tab. Expand a Target's row, and the
+Console splits the results into three groups:
+
+| Group | Meaning |
+|-------|---------|
+| **`AI`** | Identified as an AI or generative AI workload |
+| **`Non-AI`** | Ruled out, with the reason recorded |
+| **`Uncertain`** | The Collector could not decide |
+
+Use the Findings tab for the whole estate. Use a Target's findings for one scope.
+
+## Open a Resource
+
+Open a Resource from its identifier to see the evidence behind its verdict:
+
+- Where the Collector saw it, and which Target and Collector kind reported it
+- What answered, on which port
+- What the Classification rests on
+- Every scan that has observed it, with first and last seen
+
+## Work Through Uncertain
+
+A Resource lands in `Uncertain` for one of two reasons.
+
+**The Collector had no language model configured.** The reason recorded on the Resource says
+so. See [Classification](/concepts/discovery/classification).
+
+**The evidence was thin.** This is common for network scanner Collectors, which see a port
+and whatever answers on it. An endpoint or in-cluster Collector covering the same service
+will usually settle it.
+
+## Check What a Scan Could Not Reach
+
+Every scan records its blind spots: subnets it could not route to, catalogues it could not
+read, and hosts that gave no reply.
+
+<Warning>
+An empty finding list has two possible meanings. The scope may be clean, or the Collector
+may have seen nothing. Read the blind spots first to tell the two apart.
+</Warning>
+
+Re-check blind spots after any access change. A Collector that loses a permission still
+reports success, and its coverage shrinks.
+
+## Keep Your Inventory Current
+
+Set a recurring scan on the **Schedule** sub-tab of each Target you keep. **Last scan** on
+the Targets tab shows how fresh each one is.
+
+A registered Agent's card lists the Resources linked to it, with the time each was last seen.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Register a Discovered Agent" icon="bot" href="/owner-guide/discover/registering-agents">
+    Move a finding into the Agent Registry.
+  </Card>
+  <Card title="Classification" icon="scan-search" href="/concepts/discovery/classification">
+    How Discover reaches each verdict.
+  </Card>
+</CardGroup>

@@ -1,0 +1,34 @@
+---
+title: "Resource"
+description: "A single thing a Collector found."
+---
+
+A **Resource** is one thing a [Collector](/concepts/discovery/collector) found: a service, a model, an agent, a function.
+
+## What a Resource Carries
+
+| Field | What it tells you |
+|-------|-------------------|
+| **Identity** | A stable identifier for the thing itself, distinct from what any single scan observed |
+| **Type** | What kind of thing it is: agent, model, function, runtime |
+| **[Classification](/concepts/discovery/classification)** | Whether it is AI, and the written reason for that verdict |
+| **Evidence** | Where the Collector saw it, what answered on which port, and what the verdict rests on |
+| **Sightings** | Every scan that has observed it, including first seen and last seen |
+| **Source** | Which Collector reported it, and from which [Target](/concepts/discovery/target) |
+
+## Identity Across Rescans
+
+Discover identifies a Resource by the most durable signal available to the Collector that found it. Identifiers fall into two groups:
+
+| Group | Based on | Survives a rescan |
+|-------|----------|-------------------|
+| **Name-based** | The name a catalogue gives it: a Kubernetes service path, a deterministic cloud resource identifier | Yes |
+| **Observation-based** | What the thing looked like: a certificate, a host and port, an inferred fingerprint | Not reliably |
+
+Observation-based identities shift during ordinary operations. A certificate renews, a host takes a new address, or a model list changes. The same service then returns under a different identifier.
+
+## Next
+
+<Card title="Read Your Inventory" icon="list-tree" href="/owner-guide/discover/reviewing-resources">
+  Work through what a scan returned, including what it could not see.
+</Card>

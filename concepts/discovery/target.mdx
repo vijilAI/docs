@@ -1,0 +1,42 @@
+---
+title: "Target"
+description: "A place you want to search."
+---
+
+A **Target** is a place you want looked at: a fleet of laptops, a network, a Kubernetes cluster, a cloud account.
+
+A Target is a scope. It names the place, and the [Collectors](/concepts/discovery/collector) do the looking inside it. Many Collectors can report into one Target.
+
+## What a Target Holds
+
+| Holds | Meaning |
+|-------|---------|
+| **Collectors** | Every scanner reporting into this scope, and whether each is connected |
+| **Scans** | Every scan run against the Target, and what each returned |
+| **Resources** | Everything found in this scope |
+| **Credentials** | The scanner tokens and enrollment codes that let Collectors join |
+| **Policies** | Rules that say what this scope allows, and violations against them |
+
+Until a Collector connects, a Target shows zeroes and the Console reads **No agent
+connected**. Here the word "Agent" means Collector. The
+[Agent Registry](/owner-guide/register-agents/registering-agents) uses the same word for an
+AI Agent, which is a different thing.
+
+## Target Types
+
+| Type | Use it for |
+|------|------------|
+| **`scanner`** | Anything that goes looking for services. This covers all four Collector kinds. |
+| **`dlp`** | A scope that receives runtime events from a Vijil [Dome](/concepts/platform/dome) proxy. It runs no scans. |
+
+Most Targets are `scanner`. Choose `dlp` only when Dome telemetry feeds the scope.
+
+## How Many Targets You Need
+
+One Target per source. One for endpoints, one per network, one per cluster, one per cloud account.
+
+## Next
+
+<Card title="Create a Target" icon="crosshair" href="/owner-guide/discover/targets">
+  Create your first Target and find it in the Console.
+</Card>

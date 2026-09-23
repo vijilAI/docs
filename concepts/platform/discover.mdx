@@ -1,0 +1,55 @@
+---
+title: "Discover"
+description: "Discover AI agents, models, and services running in your estate."
+---
+
+Diamond evaluates an Agent you have registered. [Dome](/concepts/platform/dome) protects an Agent you have registered. Both start from the same assumption: that you know the Agent exists.
+
+Discover removes that assumption. It finds the AI agents, models, and services running across your estate and classifies each one. You then hand the ones worth governing to the [Agent Registry](/owner-guide/register-agents/registering-agents), where the rest of the platform can act on them.
+
+## How Discover Works
+
+| Part | What it is |
+|------|------------|
+| **[Target](/concepts/discovery/target)** | A place you want looked at: a fleet of laptops, a network, a cluster, a cloud account |
+| **[Collector](/concepts/discovery/collector)** | The software that does the looking, installed at or near the Target |
+| **[Resource](/concepts/discovery/resource)** | A single thing a Collector found, with the evidence for it |
+| **[Classification](/concepts/discovery/classification)** | The verdict on whether a Resource is AI, and why |
+
+## What Discover Finds
+
+Coverage depends on which Collectors you install.
+
+| Collector | Reaches |
+|-----------|---------|
+| **Endpoint** | AI applications running on macOS laptops and servers |
+| **Network scanner** | Private-network services that no endpoint covers |
+| **In-cluster** | Kubernetes services, read from the cluster's own catalogue |
+| **Cloud API** | Managed AI such as Bedrock, SageMaker, and AgentCore, which no scanner can reach |
+
+## How Discover Fits In
+
+The platform works as a sequence:
+
+- **Discover** finds what exists and classifies it.
+- **[Diamond](/concepts/platform/diamond)** evaluates what you registered and produces a [Trust Score](/concepts/trust-score/introduction).
+- **[Dome](/concepts/platform/dome)** protects what you deployed and logs what it sees.
+- **[Darwin](/concepts/platform/darwin)** learns from that telemetry and proposes improvements.
+
+
+## Evidence
+
+Every Resource carries the evidence behind its verdict: where the Collector saw it, what answered on which port, what the Classification rests on, and every scan that has observed it.
+
+Discover also records what each scan could **not** reach.
+
+## Continue With Discover
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="radar" href="/owner-guide/discover/introduction">
+    Create a Target, install your first Collector, and read your first inventory.
+  </Card>
+  <Card title="Discovery Components" icon="book-open-text" href="/concepts/discovery/introduction">
+    The mental model: Target, Collector, Resource, and Classification.
+  </Card>
+</CardGroup>

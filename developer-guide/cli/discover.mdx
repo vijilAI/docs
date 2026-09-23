@@ -1,0 +1,151 @@
+---
+title: "Discover Resources"
+description: "Run Discover from the command line."
+---
+
+The `vijil discover2` command group is the command line interface for [Discover](/concepts/platform/discover). Every command acts on the team selected with `vijil team use`, so set that first.
+
+```bash
+vijil team list
+vijil team use <team-id>
+```
+
+Most commands accept `--json` for machine-readable output.
+
+<Note>
+The command group uses the name `discover2`. Type it exactly. Only `discover2` exists.
+</Note>
+
+<Warning>
+Every destructive command prompts for confirmation: `deployment-delete`,
+`policy-delete`, `scanner-revoke`, `enrollment-code-revoke`, `spiffe-id-set` and
+`alert-rules-set`. In a script, pass `--yes` or the command blocks waiting on input.
+</Warning>
+
+## Setup
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 setup-info` | Get the control plane address Collectors report to |
+
+Collectors need this address at install time. See [Install a Collector](/owner-guide/discover/collectors).
+
+## Targets
+
+A [Target](/concepts/discovery/target) is a place you want looked at.
+
+<Note>
+The Console calls this object a **Target**. The command line and the API still call it a
+**deployment**, which is why these commands use the `deployment-*` name and the API path
+reads `/v1/discover2/deployments`. They are the same object.
+</Note>
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 deployment-create` | Create a Target |
+| `vijil discover2 deployment-list` | List Targets |
+| `vijil discover2 deployment-get <target-id>` | Get one Target |
+| `vijil discover2 deployment-delete <target-id>` | Delete a Target |
+| `vijil discover2 config-get <target-id>` | Read the scan schedule and configuration |
+| `vijil discover2 config-set <target-id> --body <json>` | Set the scan schedule and configuration |
+| `vijil discover2 spiffe-id-set <target-id>` | Set the SPIFFE identity for a Target |
+
+```bash
+vijil discover2 deployment-create --name "laptops" --type scanner --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Display name for the Target |
+| `--type` | `scanner` for anything that scans, `dlp` for a Target fed by Dome telemetry |
+| `--json` | Output as JSON |
+
+<Warning>
+The response to `deployment-create` contains a live credential in plaintext. Never pipe it to a file or into a continuous integration log.
+</Warning>
+
+## Collector Credentials
+
+A [Collector](/concepts/discovery/collector) proves it belongs to a Target with a scanner
+token or an enrollment code.
+
+Minting requires `--scanner-kind`, and it accepts any string. The values in circulation are
+`endpoint_linux`, `endpoint_macos`, `endpoint_windows`, `browser_ext`, `vpc_scanner` and
+`cloud_api_aws`.
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 scanner-mint <target-id> --scanner-kind <kind>` | Mint a scanner token for one Collector |
+| `vijil discover2 scanner-list <target-id>` | List Collectors reporting into a Target |
+| `vijil discover2 scanner-revoke <scanner-id>` | Revoke one Collector immediately |
+| `vijil discover2 enrollment-code-create <target-id>` | Create an enrollment code for a rollout wave |
+| `vijil discover2 enrollment-code-list <target-id>` | List enrollment codes |
+| `vijil discover2 enrollment-code-revoke <code-id>` | Revoke an enrollment code immediately |
+
+## Scans
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 scan-now <target-id>` | Queue a scan for a Collector to pick up |
+| `vijil discover2 scan-list` | List scans |
+| `vijil discover2 scan-run-list` | List scan runs |
+| `vijil discover2 scan-run-cancel <run-id>` | Cancel a running scan |
+
+
+## Reports
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 report-list <target-id>` | List scan reports for a Target |
+| `vijil discover2 report-get <target-id> <scan-id>` | Get one scan report |
+
+## Resources
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 inventory` | Get the inventory summary across Targets |
+| `vijil discover2 resource-list` | List discovered [Resources](/concepts/discovery/resource) |
+| `vijil discover2 resource-get <resource-id> --query source_id=<source-id>` | Get one Resource with its evidence |
+
+## Policies
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 policy-list <target-id>` | List policies on a Target |
+| `vijil discover2 policy-create <target-id>` | Create a policy |
+| `vijil discover2 policy-preview <target-id>` | Preview what a policy would match before saving it |
+| `vijil discover2 policy-update <target-id> <policy-id>` | Update a policy |
+| `vijil discover2 policy-delete <target-id> <policy-id>` | Delete a policy |
+
+Run `policy-preview` before `policy-create` to see what a policy matches before it starts producing violations.
+
+## Violations
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 violation-list <target-id>` | List violations on a Target |
+| `vijil discover2 violation-summary <target-id>` | Summarize violations for a Target |
+| `vijil discover2 team-violation-summary` | Summarize violations across the team |
+
+## Alerts
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 alert-rules-get` | Read alert rules |
+| `vijil discover2 alert-rules-set` | Set alert rules |
+| `vijil discover2 alert-list` | List alerts |
+| `vijil discover2 alert-dismiss` | Dismiss alerts |
+
+## Runtime Events
+
+These read from a `dlp` Target. A Vijil [Dome](/concepts/platform/dome) proxy feeds it, and no scanning Collector reports into it.
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover2 dlp-event-list <target-id>` | List data-loss detections |
+| `vijil discover2 dlp-event-summary <target-id>` | Summarize data-loss detections |
+| `vijil discover2 dlp-event-get <target-id> <event-id>` | Get one detection |
+| `vijil discover2 agent-event-list <target-id>` | List Agent runtime events |
+| `vijil discover2 agent-event-summary <target-id>` | Summarize Agent runtime events |
+| `vijil discover2 agent-event-get <target-id> <event-id>` | Get one Agent runtime event |
+| `vijil discover2 agent-session-list <target-id>` | List Agent sessions |

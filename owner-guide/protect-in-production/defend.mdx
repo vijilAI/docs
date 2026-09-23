@@ -1,0 +1,112 @@
+---
+title: 'Monitor Protection with Defend'
+description: 'Read what the data loss Guardrail saw, flagged, or missed.'
+---
+
+**Defend** shows what [Dome](/concepts/platform/dome) detected in production across every
+Agent. Open **Defend** in the Console sidebar.
+
+## What Feeds Defend
+
+Defend reads runtime events from [Targets](/concepts/discovery/target) of type `dlp`. A
+`dlp` Target receives its events from a Dome proxy. It runs no scans, and no
+[Collector](/concepts/discovery/collector) reports into it.
+
+<Note>
+Create one with `vijil discover2 deployment-create --name "<name>" --type dlp`. See
+[Create and Manage Targets](/owner-guide/discover/targets).
+</Note>
+
+With no `dlp` Target configured, Defend loads and reports no events.
+
+## Scope the View
+
+Two controls sit above everything else. Both change every number below them.
+
+| Control | Options |
+|---------|---------|
+| **Target** | **All targets**, or a single `dlp` Target |
+| **Time range** | **24h**, **7d**, or **30d**. The default is 7d. |
+
+## Read the Counters
+
+| Counter | What it counts |
+|---------|----------------|
+| **Flagged** | Events the Guardrail flagged |
+| **Clean** | Events that passed |
+| **Errored** | Events where a [Detector](/concepts/defense/detector) failed to return a verdict |
+| **Last event** | How long ago the most recent event arrived |
+| **Unattributed flagged** | Flagged events that Dome could not tie to a known Agent |
+
+An errored event means the Guardrail failed to reach a verdict, so the traffic passed
+unchecked. Watch this counter.
+
+**Unattributed flagged** counts detections that Dome failed to tie to a registered Agent.
+Any number above zero means traffic is routing through the proxy from a source your
+[Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
+
+<Warning>
+When the window holds more events than the page can chart, the counters and charts use the
+most recent sample, and each counter shows a **Sample** badge. Use the command line for
+exact figures over a busy window.
+</Warning>
+
+## Read the Charts
+
+| Chart | Shows |
+|-------|-------|
+| **DLP series** | Detection volume over the window |
+| **DLP label totals** | Flagged, Clean, and Errored, grouped by **Agent**, **Team**, **User**, or **Detector** |
+| **Direction mix** | Whether detections came from **Input** or **Output** |
+| **Flagged rate** | What share of traffic the Guardrail flags |
+| **Score histogram** | How detection scores spread across the range |
+
+Group **DLP label totals** by Detector to see which rule is firing, or by Agent to see where.
+
+An **Input** detection is something a user sent toward an Agent. An **Output** detection is
+something an Agent was about to send back.
+
+## Read the Events Table
+
+The table below the charts lists individual detections. Filter it by **Input** or **Output**.
+
+| Column | What it shows |
+|--------|---------------|
+| **When** | When Dome emitted the event |
+| **Label** | Flagged, Clean, or Errored |
+| **Direction** | Input or Output |
+| **Detector** | The detection method that produced the verdict |
+| **Score** | The score behind the verdict |
+| **Agent** | The Agent that Dome tied the event to |
+| **Preview** | An excerpt of the content that triggered it |
+
+Expand a row for the full event.
+
+## Read the Same Data From the Command Line
+
+```bash
+vijil discover2 dlp-event-summary <target-id>
+vijil discover2 dlp-event-list <target-id>
+vijil discover2 dlp-event-get <target-id> <event-id>
+```
+
+Agent runtime events read from the same Target:
+
+```bash
+vijil discover2 agent-event-summary <target-id>
+vijil discover2 agent-event-list <target-id>
+vijil discover2 agent-session-list <target-id>
+```
+
+See the [Discover CLI reference](/developer-guide/cli/discover) for the full set.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Guardrails" icon="shield-check" href="/owner-guide/protect-in-production/configuring-guardrails">
+    Change what Dome enforces for an Agent.
+  </Card>
+  <Card title="Observability" icon="chart-line" href="/owner-guide/protect-in-production/observability">
+    Per-Agent Guard execution logs and telemetry.
+  </Card>
+</CardGroup>

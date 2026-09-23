@@ -1,0 +1,61 @@
+---
+title: "Collector"
+description: "The software that does the looking."
+---
+
+A **Collector** is the software that looks. You install it at or near a [Target](/concepts/discovery/target). It registers itself, reports what it finds, and waits for the scans you queue.
+
+Your Collectors decide your coverage. A scope with one Collector returns what that Collector can reach. A scope with no Collector returns an empty list. If the Collector can route to half the network, it returns half the estate and records the rest as a blind spot.
+
+## Collector Kinds
+
+| Kind | You supply | What you install | What it reaches |
+|------|------------|---------------------|-----------------|
+| **Endpoint** | The machine itself | A package running as a service | AI applications on macOS laptops and servers |
+| **Network scanner** | A virtual machine inside the network, with routes to the subnets you want swept | A Docker container | Private-network services that endpoints miss |
+| **In-cluster** | An existing Kubernetes cluster, 1.27 or later | A Helm release | Cluster services, read from the cluster's own catalogue |
+| **Cloud API** | An Amazon EKS cluster and an IAM role | A Helm CronJob | Managed AI such as Bedrock, SageMaker, and AgentCore |
+
+### Endpoint
+
+Runs as a service on the machine you want inventoried. It inspects that machine directly: its processes, its container runtime, its GPUs, and the ports it listens on. It reads the binary name straight from the process, so it gives the most detailed local evidence.
+
+Use it for laptop fleets and single servers. Roll it out through your configuration management tool.
+
+<Note>
+macOS is the endpoint platform available today. Linux and Windows endpoint Collectors are
+still in development.
+</Note>
+
+### Network Scanner
+
+Runs as a Docker container on a virtual machine inside the network. It finds services by probing the hosts it can route to. It records every host it cannot route to as a blind spot.
+
+Use it for private-network services that endpoint Collectors miss.
+
+### In-Cluster
+
+Installs as a Helm release into a Kubernetes cluster you already run. The Collector reads Services, Endpoints, and Pods through the in-cluster API, so you can skip provisioning a virtual machine.
+
+### Cloud API
+
+Calls the cloud provider APIs directly to list managed AI: Bedrock models and agents, SageMaker endpoints, AgentCore runtimes and gateways, and the Guardrails attached to them. These services expose no port and run no process you can inspect, so the provider API is the only way to see them.
+
+It runs as a Helm CronJob and authenticates through the cluster's IAM integration. It needs an EKS cluster with an OIDC provider, plus an IAM role that trusts it.
+
+## How Collectors Join a Target
+
+A Collector proves it belongs to a Target with one of two credentials. Pick the one that matches how you install.
+
+| Credential | Use when | Scope |
+|------------|----------|-------|
+| **Scanner token** | You install by hand: a Helm release, a virtual machine, a cloud connector | One token per Collector, revocable on its own |
+| **Enrollment code** | The install is unattended: laptops through device management, an extension pushed by policy | One code serves a whole rollout wave. Each machine that uses it registers as its own Collector. |
+
+You can revoke both at any time. Revoking takes effect immediately. See [Install a Collector](/owner-guide/discover/collectors) for the steps.
+
+## Next
+
+<Card title="Install a Collector" icon="satellite-dish" href="/owner-guide/discover/collectors">
+  Credentials, prerequisites, and the install steps for each kind.
+</Card>

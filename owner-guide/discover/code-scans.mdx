@@ -1,0 +1,65 @@
+---
+title: 'Scan Code Repositories'
+description: 'Scan GitHub repositories for Agents.'
+---
+
+Everything else in [Discover](/concepts/platform/discover) inventories things that are running. Code repository scans read source code instead.
+
+A code scan runs from the Console and needs only a GitHub connection. You install nothing.
+
+## Run a Code Repository Scan
+
+<Steps>
+  <Step title="Open the New Scan Modal">
+    Open **Discover** in the sidebar and press **+ New Scan**. Choose the **Source code**
+    tab in the modal that opens.
+  </Step>
+
+  <Step title="Choose the GitHub Connection">
+    Enter the **GitHub connection** identifier provided by your GitHub administrator, then
+    choose the installation it belongs to. The repository list loads once this is valid.
+  </Step>
+
+  <Step title="Select a Repository">
+    Pick a repository from the **Repositories** list, filtering by name or path if the list
+    is long, and confirm the **Repository owner**.
+
+    <Note>
+    The **Scan** button stays disabled until you select a repository from the list. Typing a
+    name into the filter only narrows the list, so remember to click a repository.
+    </Note>
+  </Step>
+
+  <Step title="Start the Scan">
+    Click **Scan**. Progress appears in the **Code scan progress** panel, where you can also
+    cancel a scan that is still running.
+  </Step>
+</Steps>
+
+## Read the Results
+
+A finished scan appears on the **Targets** tab as a Target of kind **Source code**. Expand
+its row for the counts of Agents, tools, data sources, sensitive data, and workflows found.
+
+A succeeded scan also lists the Agents it discovered, each with a **Register** action. See
+[Register a Discovered Agent](/owner-guide/discover/registering-agents).
+
+## Troubleshooting
+
+**No GitHub connection appears.** The connection identifier comes from your GitHub
+administrator, who installs the Vijil GitHub App against the organization. Wait for that
+install before you try again.
+
+**The scan failed.** Check the connection identifier, repository access, and organization
+permissions before retrying. A repository the installation cannot read fails with an error.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Register a Discovered Agent" icon="bot" href="/owner-guide/discover/registering-agents">
+    Move a finding into the Agent Registry.
+  </Card>
+  <Card title="Run an Evaluation" icon="flask-conical" href="/owner-guide/run-evaluations/running-evaluations">
+    Test an Agent you registered.
+  </Card>
+</CardGroup>

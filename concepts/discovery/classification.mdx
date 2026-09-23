@@ -1,0 +1,43 @@
+---
+title: "Classification"
+description: "How Discover decides whether a Resource is AI."
+---
+
+**Classification** is the verdict on whether a [Resource](/concepts/discovery/resource) is an AI workload. Every Resource has one verdict and a written reason for it.
+
+## The Three Verdicts
+
+| Verdict | Meaning |
+|---------|---------|
+| **`AI`** | Identified as an AI or generative AI workload |
+| **`Non-AI`** | Ruled out, with the reason recorded |
+| **`Uncertain`** | The Collector could not decide |
+
+`Uncertain` means the evidence was unclear. Discover reports the doubt and leaves the
+decision to you.
+
+## What Leaves Your Machine
+
+The Collector sends its evidence to the **language model provider whose key you
+configured**. The evidence covers what the Collector learned about the service: an excerpt
+of what the service returned, its API specification if it publishes one, and similar detail.
+
+The Collector sends only the **verdict** to the Console. It uploads the service identity,
+type, framework, models, endpoints, authentication state, and the classification result. The
+raw page content and the API specifications stay on the machine.
+
+## Reading Each Reason
+
+Every Classification records the reason behind its verdict.
+
+Read the reason to tell two cases apart. In the first case, the Collector looked at the
+evidence and the evidence was unclear. In the second case, the Collector had no key, so it
+never ran the check. The recorded reason names which case applies.
+
+If a scope returns a large `Uncertain` group, open one Resource and read its reason first.
+
+## Next
+
+<Card title="Read Your Inventory" icon="scan-search" href="/owner-guide/discover/reviewing-resources">
+  Work through `AI`, `Non-AI`, and `Uncertain` in the Console.
+</Card>
