@@ -6,7 +6,7 @@ description: 'Register and evaluate a locally running Agent with the Vijil SDK a
 Use local mode to evaluate an Agent before you deploy it. Agent invocation and Evaluation orchestration run on your computer, while Vijil Console supplies the Harness and records the Evaluation. Remote Vijil Detectors score each response.
 
 <Tip>
-  **TL;DR:** Start an Agent locally, register it with `vijil register --local`, then run one standard Harness with `vijil evaluate --local`. Local mode uses outbound requests from your computer. It does not expose your Agent through a tunnel or require Vijil services to connect to `localhost`.
+  **TL;DR:** Start an Agent locally, register it with `vijil register --local`, then run one standard Harness with `vijil evaluate --local`. Local mode supports behavioral evaluations only; `--type redteam` is incompatible with `--local`. Local mode uses outbound requests from your computer. It does not expose your Agent through a tunnel or require Vijil services to connect to `localhost`.
 </Tip>
 
 <Warning>
@@ -271,7 +271,7 @@ Dome can block or replace content, but it does not cover every Evaluation Probe.
 | Cloud Evaluation flags | `--baseline`, `--bespoke`, and `--no-wait` are incompatible with `--local` |
 | Sampling | `--sample-size` is currently ignored in local mode; omit it |
 | Other Harness types | Multiple Harnesses, Custom Harnesses, `trust_score`, and OWASP Harnesses are not supported |
-| Red Team and adaptation | `vijil test --local` is not implemented; there is no local Darwin workflow |
+| Red Team | `--type redteam` is incompatible with `--local`; run Red Team evaluations without local mode |
 | Protection and monitoring | `vijil protect --local` and `vijil monitor --local` are not available; protection must be integrated into the Agent |
 | SDK interfaces | The legacy `local_agents.create()` and `local_agents.evaluate()` workflow is not part of the current SDK; custom adapter plugins are not exposed |
 | Agent responses | Final text only; no streaming, image or audio content, tool calls, retrieval context, or action traces |
