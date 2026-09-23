@@ -1,38 +1,42 @@
 ---
 title: 'Run Evaluations'
-description: 'Start, monitor, and retrieve Diamond Evaluations programmatically using the CLI, MCP, REST API, or Python SDK.'
+description: 'Start and inspect behavioral and Red Team evaluations with the CLI, MCP, REST API, or Python SDK.'
 ---
 
-[Vijil Evaluate](https://vijil.ai/evaluate) is a quality assurance framework that automates the testing of LLM applications. An **Evaluation** in Vijil is an automated test run where you select one or more AI agents and a test [Harness](/concepts/evaluation-components/harness) (covering [Security](/concepts/trust-score/security), [Reliability](/concepts/trust-score/reliability), and [Safety](/concepts/trust-score/safety)) to systematically assess the quality, safety, and reliability of LLM applications.
+Diamond supports two evaluation types. Both run against a registered [Agent](/tutorials/manage-agents) and use an `evaluation_id`, but they accept different settings and produce different evidence.
+
+| Evaluation Type | Inputs | Output |
+| --- | --- | --- |
+| Behavioral | Standard or custom Harnesses and an optional sample size | Trust Score and Harness results |
+| Red Team | Optional wave and attack settings | Attack evidence and a Red Team report |
+
+Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
 
 ## Prerequisites
 
-- CLI configured and authenticated, a Bearer token from `POST /auth/jwt/login`, or the SDK authenticated with a Vijil API key, see the [Quickstart](/developer-guide/agentic/quickstart)
-- A registered [Agent](/tutorials/manage-agents) and its UUID
+- An authenticated CLI or SDK client, or a bearer token for REST requests. See [SDK Setup](/developer-guide/sdk/setup).
+- A registered Agent and its ID or alias.
 
 ## Start an Evaluation
 
 <Tabs>
   <Tab title="CLI">
 
+  Run the standard Trust Score Harnesses:
+
   ```bash
-  vijil eval run \
-    --agent-id "$AGENT_ID" \
-    --harness-names '["safety", "security"]' \
-    --sample-size 50 \
-    --wait
+  vijil evaluate "$AGENT_ID" --baseline --sample-size 50
   ```
 
-  | Flag | Description | Required |
-  |------|-------------|----------|
-  | `--agent-id` | UUID of the Agent to evaluate | Yes |
-  | `--harness-names` | JSON array of Harness names | Yes |
-  | `--sample-size` | Probes per Harness (1–1000); omit to run all | |
-  | `--harness-type` | `standard` (default) or `custom` | |
-  | `--wait` | Block until the evaluation completes | |
-  | `--json` | Output as JSON | |
+  Run a Red Team evaluation:
 
-  <Tip>Use `--sample-size 10` for fast iteration during development. Run the full Harness before releasing to production.</Tip>
+  ```bash
+  vijil evaluate "$AGENT_ID" \
+    --type redteam \
+    --redteam '{"max_waves": 3}'
+  ```
+
+  The command waits for a terminal status. Add `--no-wait` to return after creation, or place `--output json` before `evaluate` for JSON output.
 
   </Tab>
   <Tab title="MCP">
@@ -48,188 +52,249 @@ description: 'Start, monitor, and retrieve Diamond Evaluations programmatically 
   </Tab>
   <Tab title="SDK">
 
-  `client.evaluate()` starts the Evaluation and polls until it completes, then returns the result:
+  `client.evaluate()` creates an evaluation and polls until it reaches a terminal status:
 
   ```python
   from vijil import Vijil
 
   client = Vijil()
-  evaluation = client.evaluate("<agent-id>", baseline=True)
 
-  print(evaluation.trust_score)              # 0.82
-  print(evaluation.dimensions.reliability)
-  print(evaluation.dimensions.security)
-  print(evaluation.dimensions.safety)
+  behavioral = client.evaluate("<agent-id>", baseline=True, sample_size=50)
+  print(behavioral.trust_score)
+
+  redteam = client.evaluate(
+      "<agent-id>",
+      type="redteam",
+      redteam={"max_waves": 3},
+  )
+  print(redteam.evaluation_id, redteam.status)
   ```
 
-  | Parameter | Description | Required |
-  |-----------|-------------|----------|
-  | `agent_id` | Agent ID or alias | Yes |
-  | `baseline` | Run the standard trust Harnesses (reliability, security, safety) | |
-  | `harness_id` | Run a specific custom Harness instead of the baseline | |
-  | `_poll_interval` | Seconds between status checks (default `5.0`) | |
+  To start without polling, use the evaluation resource:
 
-  Pass either `baseline=True` or a `harness_id`. To start without blocking, call `client.evaluations.create(agent_id="<agent-id>", baseline=True)` and poll `client.evaluations.show()` yourself.
+  ```python
+  behavioral = client.evaluations.create(
+      agent_id="<agent-id>",
+      baseline=True,
+      sample_size=50,
+  )
+  redteam = client.evaluations.create(
+      agent_id="<agent-id>",
+      type="redteam",
+      redteam={"max_waves": 3},
+  )
+  ```
 
   </Tab>
   <Tab title="REST API">
 
-  The API returns `202 Accepted` immediately. Use the returned `evaluation_id` to poll for status.
+  Create a behavioral evaluation:
 
   ```bash
-  curl -s -X POST "$VIJIL_URL/evaluations/" \
+  curl -s -X POST "$VIJIL_URL/v1/evaluations/" \
     -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
     -d "{
       \"agent_id\": \"$AGENT_ID\",
       \"team_id\": \"$TEAM_ID\",
+      \"type\": \"behavioral\",
       \"harness_names\": [\"safety\", \"security\"],
       \"sample_size\": 50
     }"
   ```
 
-  Response:
-
-  ```json
-  {
-    "evaluation_id": "e5f6a7b8-...",
-    "status": "starting"
-  }
-  ```
-
-  Save the evaluation ID:
+  Create a Red Team evaluation through the same endpoint:
 
   ```bash
-  export EVAL_ID="e5f6a7b8-..."
+  curl -s -X POST "$VIJIL_URL/v1/evaluations/" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"agent_id\": \"$AGENT_ID\",
+      \"team_id\": \"$TEAM_ID\",
+      \"type\": \"redteam\",
+      \"redteam\": {\"max_waves\": 3}
+    }"
   ```
 
-  | Field | Description | Required |
-  |-------|-------------|----------|
-  | `agent_id` | UUID of the Agent to evaluate | Yes |
-  | `team_id` | UUID of your team | Yes |
-  | `harness_names` | Array of Harness names | Yes |
-  | `sample_size` | Probes per Harness (1–1000); omit to run all | |
-  | `harness_type` | `"standard"` (default) or `"custom"` | |
+  Both requests return `202 Accepted` with an `evaluation_id` and initial status.
 
   </Tab>
 </Tabs>
 
 ## Check Status
 
-Status progresses through: `starting` → `pending` → `running` → `completed` → `saving` → `saved`. It may also be `failed` or `canceled`.
+Behavioral evaluations can move through `starting`, `pending`, `running`, `completed`, and `saving` before reaching `saved`. They can also end as `succeeded`, `failed`, or `cancelled`.
 
 <CodeGroup>
 ```bash title="CLI"
-vijil eval status <evaluation_id>
-```
-
-```bash title="API"
-curl -s "$VIJIL_URL/evaluations/$EVAL_ID" \
-  -H "Authorization: Bearer $TOKEN"
+vijil evaluations show "$EVALUATION_ID"
 ```
 
 ```python title="SDK"
 evaluation = client.evaluations.show("<evaluation-id>")
 print(evaluation.status)
 ```
+
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
 </CodeGroup>
 
-When the status reaches `completed`, the response includes per-Harness Trust Scores:
-
-```json
-{
-  "evaluation_id": "e5f6a7b8-...",
-  "status": "completed",
-  "scores": {
-    "safety": 0.82,
-    "security": 0.67
-  },
-  "completed_at": 1712506200
-}
-```
-
-## Retrieve Results
-
-Get the full per-Probe breakdown once the evaluation status is `saved`.
+Red Team uses its own progress response and terminal statuses: `succeeded`, `failed`, `cancelled`, or `degraded`.
 
 <CodeGroup>
 ```bash title="CLI"
-vijil eval results-detail <evaluation_id> --json | jq '.scores'
-```
-
-```bash title="API"
-curl -s "$VIJIL_URL/evaluation-results/$EVAL_ID/results?team_id=$TEAM_ID" \
-  -H "Authorization: Bearer $TOKEN"
+vijil evaluations redteam-status "$EVALUATION_ID"
 ```
 
 ```python title="SDK"
-score = client.scores.show("<agent-id>")
-print(score.trust_score, score.reliability, score.security, score.safety)
+status = client.evaluations.redteam_status("<evaluation-id>")
+print(status.phase, status.current_wave, status.status)
+```
+
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/redteam?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
 ```
 </CodeGroup>
 
-## Generate a Report
+A `degraded` Red Team evaluation completed with some attacker failures. Inspect its error fields and wave breakdown before using its report.
 
-Produce a Trust Report for sharing or archiving.
+## Retrieve Results
+
+### Behavioral Results
+
+Behavioral evaluations produce a Trust Score and a hierarchy of Harness, Scenario, and Probe results.
 
 <CodeGroup>
 ```bash title="CLI"
-vijil eval report <evaluation_id>
+vijil scores show "$AGENT_ID"
 ```
 
-```bash title="HTML"
-curl -s "$VIJIL_URL/evaluations/$EVAL_ID/html?team_id=$TEAM_ID" \
-  -H "Authorization: Bearer $TOKEN" \
-  -o report.html
+```python title="SDK"
+score = client.scores.get("<evaluation-id>")
+results = client.scores.results("<evaluation-id>")
+print(score.trust_score, score.reliability, score.security, score.safety)
 ```
 
-```bash title="PDF"
-curl -s "$VIJIL_URL/evaluations/$EVAL_ID/pdf?team_id=$TEAM_ID" \
-  -H "Authorization: Bearer $TOKEN" \
-  -o report.pdf
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluation-results/$EVALUATION_ID/results?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
+
+### Red Team Evidence
+
+Red Team evaluations expose seeds, attacks, judgments, and reflections under the evaluation ID:
+
+<CodeGroup>
+```bash title="CLI"
+vijil evaluations redteam-seeds "$EVALUATION_ID"
+vijil evaluations redteam-attacks "$EVALUATION_ID"
+vijil evaluations redteam-judgments "$EVALUATION_ID"
+vijil evaluations redteam-reflections "$EVALUATION_ID"
+```
+
+```python title="SDK"
+seeds = client.evaluations.redteam_seeds("<evaluation-id>")
+attacks = client.evaluations.redteam_attacks("<evaluation-id>")
+judgments = client.evaluations.redteam_judgments("<evaluation-id>")
+reflections = client.evaluations.redteam_reflections("<evaluation-id>")
+```
+
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/redteam/attacks?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
+
+Use `--wave` to filter the CLI seed, attack, or judgment commands. The attack and judgment commands also accept `--seed` with `--wave`. See the [Red Team CLI guide](/developer-guide/cli/red-team) for the complete workflow.
+
+## Retrieve Reports
+
+Download the behavioral evaluation PDF:
+
+<CodeGroup>
+```bash title="CLI"
+vijil reports download "$EVALUATION_ID"
 ```
 
 ```python title="SDK"
 pdf_bytes = client.reports.download("<evaluation-id>")
-with open("report.pdf", "wb") as f:
-    f.write(pdf_bytes)
+with open("report.pdf", "wb") as report_file:
+    report_file.write(pdf_bytes)
+```
+
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/pdf?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -o report.pdf
 ```
 </CodeGroup>
 
-## List and Cancel Evaluations
+Retrieve the Red Team report as structured JSON, Markdown, or PDF:
 
 <CodeGroup>
-```bash title="List"
-vijil eval list --agent-id "$AGENT_ID" --status completed
+```bash title="CLI"
+vijil evaluations redteam-report "$EVALUATION_ID" --format md
 ```
 
-```bash title="Cancel"
-vijil eval cancel <evaluation_id>
+```python title="SDK"
+report = client.evaluations.redteam_report("<evaluation-id>")
+markdown = client.evaluations.redteam_report_markdown("<evaluation-id>")
+pdf_bytes = client.evaluations.redteam_report_pdf("<evaluation-id>")
 ```
 
-```bash title="Delete"
-vijil eval delete <evaluation_id>
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/redteam/report?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+```
+</CodeGroup>
+
+## List and Manage Evaluations
+
+<CodeGroup>
+```bash title="CLI"
+vijil evaluations list --agent "$AGENT_ID"
 ```
 
 ```python title="SDK"
 page = client.evaluations.list(agent_id="<agent-id>")
 for evaluation in page.items:
     print(evaluation.id, evaluation.status)
+
+client.evaluations.delete("<evaluation-id>")
+```
+
+```bash title="REST"
+curl -s "$VIJIL_URL/v1/evaluations/" \
+  -H "Authorization: Bearer $TOKEN"
+
+curl -s -X POST "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/cancel" \
+  -H "Authorization: Bearer $TOKEN"
+
+curl -s -X DELETE "$VIJIL_URL/v1/evaluations/$EVALUATION_ID" \
+  -H "Authorization: Bearer $TOKEN"
 ```
 </CodeGroup>
 
-Use `GET /evaluations/` and `POST /evaluations/{evaluation_id}/cancel` for the REST API equivalents. The SDK exposes `client.evaluations.list()` and `client.evaluations.show()`; cancel and delete are available through the CLI and REST API.
+The current CLI supports listing and showing evaluations. Use the SDK or REST API when you need to delete an evaluation, and use REST to cancel one.
 
 ## Next Steps
 
-<CardGroup cols={1}>
+<CardGroup cols={2}>
   <Card title="Understand Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
-    Deep dive into scores and failures
+    Interpret behavioral Trust Scores and Red Team evidence
+  </Card>
+  <Card title="Red Team CLI" icon="shield" href="/developer-guide/cli/red-team">
+    Inspect waves, attacks, judgments, and reports
   </Card>
   <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
-    Create targeted Evaluations
+    Create targeted behavioral evaluations
   </Card>
-  <Card title="Cloud Providers" icon="cloud" href="/developer-guide/evaluate/cloud-providers">
-    Configure provider integrations
+  <Card title="Local Agents" icon="laptop" href="/developer-guide/evaluate/local-agent">
+    Run behavioral evaluations against local Agents
   </Card>
 </CardGroup>

@@ -1,396 +1,159 @@
 ---
 title: "Red Team"
-description: "Manage Personas, Policies, and run adversarial red team campaigns."
+description: "Start and inspect Red Team evaluations with the CLI."
 ---
 
-Red teaming goes beyond standard [Harnesses](/concepts/evaluation-components/harness) by simulating realistic adversarial users. [Personas](/owner-guide/simulate-environment/personas) define who is attacking, [Policies](/owner-guide/simulate-environment/policies) define the rules [Agents](/owner-guide/register-agents/what-is-an-agent) must follow, and red team campaigns execute multi-strategy attack sequences.
+Red Team is a [Diamond](/developer-guide/evaluate/overview) evaluation type that tests a registered Agent through adaptive waves. Each wave generates attack seeds, runs attackers, judges their results, and reflects on what worked before planning the next wave. The evaluation produces findings and a report rather than a Trust Score.
 
-## Personas
+Each Red Team run and its results share one `evaluation_id`. Use `vijil evaluate` to start the evaluation, then use `vijil evaluations redteam-*` to inspect it.
 
-Personas represent user archetypes — from benign customers to malicious attackers — that shape how [Probes](/concepts/evaluation-components/probe) are generated for [custom Harnesses](/developer-guide/evaluate/custom-harnesses).
+## Start a Red Team Evaluation
+
+Run a Red Team evaluation and wait for a terminal status:
+
+```bash
+vijil evaluate "$AGENT_ID" --type redteam
+```
+
+The command prints progress while the evaluation runs. Its terminal statuses are `succeeded`, `failed`, `cancelled`, and `degraded`. A `degraded` evaluation finished with some attacker failures; inspect its status details before using the report.
+
+Add `--no-wait` to return immediately after creation. Save the evaluation ID from the output for later commands:
+
+```bash
+vijil evaluate "$AGENT_ID" --type redteam --no-wait
+export EVALUATION_ID="<evaluation-id>"
+```
+
+### Configure the Evaluation
+
+Pass a JSON object through `--redteam` to override the default wave settings:
+
+```bash
+vijil evaluate "$AGENT_ID" \
+  --type redteam \
+  --redteam '{"max_waves": 3, "max_seeds_per_wave": 5}'
+```
+
+The configuration accepts these fields:
+
+| Field | Description |
+| --- | --- |
+| `min_waves` | Lower bound for adaptive waves |
+| `max_waves` | Upper bound for adaptive waves |
+| `max_seeds_per_wave` | Seed limit for each wave |
+| `max_parallel_attackers` | Concurrent attacker limit |
+| `attack_execution` | Attack timeout settings |
+| `taxonomy_file` | Risk taxonomy file |
+| `advanced` | Attempts, retries, strategies, turns, and text gradient settings |
+
+Red Team runs directly against the registered Agent. It does not accept `--baseline`, `--bespoke`, `--sample-size`, `--local`, or `--harness-name`.
+
+## Inspect Progress and Evidence
 
 | Command | Description |
-|---------|-------------|
-| `vijil persona preset-list` | List built-in Persona presets |
-| `vijil persona from-preset` | Create a Persona from a preset |
-| `vijil persona create` | Create a custom Persona |
-| `vijil persona list` | List Personas |
-| `vijil persona get` | Get a specific Persona |
-| `vijil persona update` | Update a Persona |
-| `vijil persona delete` | Delete a Persona |
+| --- | --- |
+| `vijil evaluations redteam-status <evaluation-id>` | Show run and wave progress |
+| `vijil evaluations redteam-seeds <evaluation-id>` | List generated attack seeds |
+| `vijil evaluations redteam-attacks <evaluation-id>` | List attacks or return one attack |
+| `vijil evaluations redteam-judgments <evaluation-id>` | List judgments or return one judgment |
+| `vijil evaluations redteam-reflections <evaluation-id>` | List reflections or return one wave's reflection |
+| `vijil evaluations redteam-report <evaluation-id>` | Retrieve the final report |
 
-### `vijil persona preset-list`
+Each command accepts `--team <team-id>`. If you omit it, the CLI uses the default team from your configuration.
 
-List built-in Persona presets. Presets are categorized as `professional`, `adversarial`, or `support`.
+### Status
 
-```bash
-vijil persona preset-list
-vijil persona preset-list --preset-category adversarial
-```
-
-| Flag | Description |
-|------|-------------|
-| `--preset-category` | Filter by category: `professional`, `adversarial`, `support` |
-| `--limit` | Maximum number of results |
-| `--offset` | Number of results to skip |
-| `--json` | Output as JSON |
-
-### `vijil persona from-preset`
-
-Create a Persona from a preset.
+Show the evaluation's status, current phase, wave progress, attacker counts, errors, and degradation details:
 
 ```bash
-vijil persona from-preset <preset_id>
-vijil persona from-preset <preset_id> --name-override "Custom Attacker"
+vijil evaluations redteam-status "$EVALUATION_ID"
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--name-override` | Override the preset's default name |
-| `--json` | Output as JSON |
-
-### `vijil persona create`
-
-Create a custom Persona.
+Use the global output option before the command when you need JSON:
 
 ```bash
-vijil persona create \
-  --name "Frustrated Customer" \
-  --role "End user" \
-  --intent adversarial \
-  --knowledge-level intermediate
+vijil --output json evaluations redteam-status "$EVALUATION_ID"
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--name` | Persona display name (required) |
-| `--role` | Persona role (required) |
-| `--role-description` | Extended role description |
-| `--intent` | `benign`, `curious`, `adversarial`, or `malicious` |
-| `--knowledge-level` | `beginner`, `intermediate`, `advanced`, or `expert` |
-| `--skill-level` | `novice`, `competent`, `proficient`, or `expert` |
-| `--language` | Language the Persona uses |
-| `--tags` | Tags (JSON array) |
-| `--json` | Output as JSON |
+### Seeds
 
-### `vijil persona list`
-
-List Personas for the active team.
+Seeds describe the risks and instructions that attackers explore. List every seed or filter by wave:
 
 ```bash
-vijil persona list
-vijil persona list --intents adversarial,malicious
+vijil evaluations redteam-seeds "$EVALUATION_ID"
+vijil evaluations redteam-seeds "$EVALUATION_ID" --wave "$WAVE_ID"
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--intents` | Filter by intent(s): `benign`, `curious`, `adversarial`, `malicious` |
-| `--is-preset` | Show only presets |
-| `--search` | Search in name, description, and role |
-| `--limit` | Maximum number of results |
-| `--offset` | Number of results to skip |
-| `--json` | Output as JSON |
+### Attacks
 
-### `vijil persona get`
-
-Get a specific Persona.
+Attack results include the attacker type, execution status, transcript, and error details. List results by evaluation or wave:
 
 ```bash
-vijil persona get <persona_id> --json
+vijil evaluations redteam-attacks "$EVALUATION_ID"
+vijil evaluations redteam-attacks "$EVALUATION_ID" --wave "$WAVE_ID"
 ```
 
-### `vijil persona update`
-
-Update a Persona.
+Return one attack by combining `--wave` and `--seed`:
 
 ```bash
-vijil persona update <persona_id> --intent malicious --skill-level expert
+vijil evaluations redteam-attacks "$EVALUATION_ID" \
+  --wave "$WAVE_ID" \
+  --seed "$SEED_ID"
 ```
 
-Accepts the same flags as `vijil persona create`.
+### Judgments
 
-### `vijil persona delete`
-
-Delete a Persona.
+Judgments record whether an attack succeeded, whether it could cause harm, and whether the response leaked artifacts:
 
 ```bash
-vijil persona delete <persona_id>
-vijil persona delete <persona_id> --yes   # skip confirmation
+vijil evaluations redteam-judgments "$EVALUATION_ID"
+vijil evaluations redteam-judgments "$EVALUATION_ID" --wave "$WAVE_ID"
 ```
 
----
-
-## Policies
-
-Policies define the rules and constraints agents must follow. Attaching Policies to a [custom Harness](/developer-guide/evaluate/custom-harnesses) generates Probes that specifically test compliance.
-
-| Command | Description |
-|---------|-------------|
-| `vijil policy preset-list` | List built-in Policy presets |
-| `vijil policy from-preset` | Create a Policy from a preset |
-| `vijil policy create` | Create a custom Policy |
-| `vijil policy list` | List Policies |
-| `vijil policy get` | Get a specific Policy |
-| `vijil policy activate` | Activate a Policy |
-| `vijil policy patch` | Update a Policy |
-| `vijil policy delete` | Delete a Policy |
-| `vijil policy add-rule` | Add a rule to a Policy |
-| `vijil policy rule-list` | List rules in a Policy |
-
-### `vijil policy preset-list`
-
-List built-in Policy presets.
+Return one judgment by combining `--wave` and `--seed`:
 
 ```bash
-vijil policy preset-list
-vijil policy preset-list --category compliance
+vijil evaluations redteam-judgments "$EVALUATION_ID" \
+  --wave "$WAVE_ID" \
+  --seed "$SEED_ID"
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--category` | Filter by category |
-| `--limit` | Maximum number of results |
-| `--offset` | Number of results to skip |
-| `--json` | Output as JSON |
+### Reflections
 
-### `vijil policy from-preset`
-
-Copy a preset Policy into your team.
+After each completed wave, the evaluation summarizes successful seeds, saturated outcomes, and new strategy patterns. List all reflections or select one wave:
 
 ```bash
-vijil policy from-preset <preset_id>
-vijil policy from-preset <preset_id> --name-override "GDPR Policy"
+vijil evaluations redteam-reflections "$EVALUATION_ID"
+vijil evaluations redteam-reflections "$EVALUATION_ID" --wave "$WAVE_ID"
 ```
 
-### `vijil policy create`
+## Retrieve the Report
 
-Create a Policy from text.
+The final report summarizes vulnerabilities, policy violations, leaked artifacts, and successful strategies. JSON is the default format:
 
 ```bash
-vijil policy create \
-  --name "Data Handling Policy" \
-  --category privacy \
-  --source-text "The agent must not store or repeat personal data..."
+vijil evaluations redteam-report "$EVALUATION_ID"
 ```
 
-| Flag | Description | Required |
-|------|-------------|----------|
-| `--name` | Policy display name | Yes |
-| `--category` | `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom` | Yes |
-| `--description` | Policy description | |
-| `--source-text` | Full policy text | |
-| `--tags` | Tags (JSON array) | |
-| `--json` | Output as JSON | |
-
-### `vijil policy list`
-
-List Policies for the active team.
+Choose Markdown or PDF with `--format`. Use `--output` to write the report to a file; PDF output requires it:
 
 ```bash
-vijil policy list
-vijil policy list --category security --status active
+vijil evaluations redteam-report "$EVALUATION_ID" \
+  --format md \
+  --output red-team-report.md
+
+vijil evaluations redteam-report "$EVALUATION_ID" \
+  --format pdf \
+  --output red-team-report.pdf
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--category` | Filter by category |
-| `--status` | Filter by status |
-| `--search` | Search in name and description |
-| `--limit` | Maximum number of results |
-| `--offset` | Number of results to skip |
-| `--json` | Output as JSON |
-
-### `vijil policy get`
-
-Get a specific Policy.
+Add `--force-regenerate` to rebuild a cached PDF:
 
 ```bash
-vijil policy get <policy_id> --json
+vijil evaluations redteam-report "$EVALUATION_ID" \
+  --format pdf \
+  --output red-team-report.pdf \
+  --force-regenerate
 ```
 
-### `vijil policy activate`
-
-Activate a draft Policy so it can be used in Harness generation.
-
-```bash
-vijil policy activate <policy_id>
-```
-
-### `vijil policy patch`
-
-Update Policy metadata.
-
-```bash
-vijil policy patch <policy_id> \
-  --name "Updated Policy Name" \
-  --status active
-```
-
-| Flag | Description |
-|------|-------------|
-| `--name` | New name |
-| `--description` | New description |
-| `--category` | New category |
-| `--status` | `draft`, `active`, or `archived` |
-| `--source-text` | New policy text |
-| `--tags` | Tags (JSON array) |
-| `--json` | Output as JSON |
-
-### `vijil policy delete`
-
-Delete a Policy.
-
-```bash
-vijil policy delete <policy_id>
-vijil policy delete <policy_id> --yes
-```
-
-### `vijil policy add-rule`
-
-Add a structured rule to a Policy.
-
-```bash
-vijil policy add-rule <policy_id> \
-  --rule-type prohibition \
-  --action "share" \
-  --natural-language "The agent must not share customer PII with third parties." \
-  --consequence '{}'
-```
-
-| Flag | Description | Required |
-|------|-------------|----------|
-| `--rule-type` | `permission`, `prohibition`, `obligation`, or `recommendation` | Yes |
-| `--action` | Action the rule governs | Yes |
-| `--natural-language` | Human-readable rule statement | Yes |
-| `--consequence` | Consequence definition (JSON object) | Yes |
-| `--target` | Target entity | |
-| `--assignee` | Assignee entity | |
-| `--category` | Rule category | |
-| `--json` | Output as JSON | |
-
-### `vijil policy rule-list`
-
-List rules within a Policy.
-
-```bash
-vijil policy rule-list --policy-id <policy_id>
-```
-
-| Flag | Description |
-|------|-------------|
-| `--policy-id` | Filter by policy ID |
-| `--status` | Filter by rule status |
-| `--category` | Filter by category |
-| `--limit` | Maximum number of results |
-| `--offset` | Number of results to skip |
-| `--json` | Output as JSON |
-
----
-
-## Red Team Campaigns
-
-Red team campaigns run adversarial attack sequences against your Agent using dedicated tools such as Garak, PromptFoo, and PyRIT.
-
-| Command | Description |
-|---------|-------------|
-| `vijil redteam tools` | List available red team tools |
-| `vijil redteam run` | Start a campaign |
-| `vijil redteam status` | Check campaign status |
-| `vijil redteam results` | Get campaign results |
-| `vijil redteam logs` | Get campaign logs |
-| `vijil redteam list` | List campaigns |
-| `vijil redteam cancel` | Cancel a running campaign |
-| `vijil redteam delete` | Delete a campaign |
-
-### `vijil redteam tools`
-
-List available red team tools and their supported attack categories.
-
-```bash
-vijil redteam tools --json
-```
-
-### `vijil redteam run`
-
-Create and start a red team campaign.
-
-```bash
-vijil redteam run \
-  --tool garak \
-  --agent-id "$AGENT_ID" \
-  --purpose "Customer support chatbot" \
-  --categories '["jailbreak", "prompt_injection"]' \
-  --num-tests 20 \
-  --wait
-```
-
-| Flag | Description | Required |
-|------|-------------|----------|
-| `--tool` | `diamond_security`, `promptfoo`, `garak`, `pyrit`, or `unknown` | Yes |
-| `--purpose` | Agent purpose description (used for context-aware attacks) | Yes |
-| `--categories` | Attack categories to test (JSON array) | Yes |
-| `--agent-id` | Agent ID (resolves the endpoint URL automatically) | |
-| `--agent-url` | Target Agent endpoint URL (if not using `--agent-id`) | |
-| `--agent-api-key` | API key for the target Agent | |
-| `--agent-model-name` | Model name if the Agent is an LLM gateway | |
-| `--num-tests` | Number of test cases per category | |
-| `--strategies` | Evaluation strategies (JSON array, tool-specific) | |
-| `--custom-plugins` | Custom plugin names (JSON array, for `CUSTOM` category) | |
-| `--provider-config` | Provider-specific configuration (JSON object) | |
-| `--wait` | Poll until the campaign completes | |
-| `--json` | Output as JSON | |
-
-Save the campaign ID from the output:
-
-```bash
-export CAMPAIGN_ID="c1d2e3f4-..."
-```
-
-### `vijil redteam status`
-
-Check the status of a campaign.
-
-```bash
-vijil redteam status <campaign_id> --json
-```
-
-### `vijil redteam results`
-
-Get the results of a completed campaign.
-
-```bash
-vijil redteam results <campaign_id> --json
-```
-
-### `vijil redteam logs`
-
-Get execution logs for a campaign.
-
-```bash
-vijil redteam logs <campaign_id> --json
-```
-
-### `vijil redteam list`
-
-List all red team campaigns for the active team.
-
-```bash
-vijil redteam list --json
-```
-
-### `vijil redteam cancel`
-
-Cancel a running campaign.
-
-```bash
-vijil redteam cancel <campaign_id>
-```
-
-### `vijil redteam delete`
-
-Delete a campaign.
-
-```bash
-vijil redteam delete <campaign_id>
-vijil redteam delete <campaign_id> --yes
-```
+For the shared behavioral and Red Team startup options, see the [CLI evaluation guide](/developer-guide/cli/evaluate).

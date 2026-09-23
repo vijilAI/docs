@@ -195,7 +195,7 @@ A flaw or deficiency in design, implementation, or operation that could potentia
 ## Vijil
 
 **Attack Seed**
-A concrete Red Team goal generated from a risk taxonomy and Agent context. Each seed gives an attacker a specific failure mode to explore.
+An adversarial goal generated from a risk taxonomy and Agent context for a Red Team evaluation. Each seed guides an attacker toward a specific failure mode.
 
 ---
 
@@ -210,7 +210,7 @@ A component that analyzes agent responses to determine if they contain threats, 
 ---
 
 **Diamond**
-Vijil's evaluation platform that tests agents against comprehensive threat Scenarios to produce Trust Scores and identify vulnerabilities before deployment.
+Vijil's evaluation platform. Behavioral evaluations use Harnesses to produce Trust Scores; Red Team evaluations use adaptive attacks to uncover vulnerabilities.
 
 ---
 
@@ -230,7 +230,12 @@ A configurable pipeline of Guards that filter agent inputs and outputs. Guardrai
 ---
 
 **Harness**
-A collection of Scenarios that define a complete evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+A collection of Scenarios used in a behavioral evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+
+---
+
+**Judgment**
+The assessment of one Red Team attack transcript. It records attack success, potential harm, harmful content, and leaked artifacts.
 
 ---
 
@@ -250,7 +255,12 @@ A specific test case that challenges an agent with a potentially harmful or prob
 ---
 
 **Red Team**
-A Diamond evaluation mode that runs adaptive, multi-wave adversarial campaigns against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies.
+A Diamond evaluation type that runs adaptive waves of adversarial attacks against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies. Its output is a findings report; Trust Scores come from behavioral evaluations.
+
+---
+
+**Reflection**
+A summary produced after a Red Team wave. It records successful seeds and new attack patterns that guide later waves.
 
 ---
 
@@ -265,6 +275,6 @@ Vijil's composite measure of agent trustworthiness across three dimensions: Reli
 ---
 
 **Wave**
-One iteration of a Red Team campaign. A wave generates seeds, runs attackers, judges transcripts, and produces reflections that guide the next wave.
+One iteration of a Red Team evaluation. Each wave generates seeds, runs attackers, judges transcripts, and produces a reflection that guides the next wave.
 
 ---
