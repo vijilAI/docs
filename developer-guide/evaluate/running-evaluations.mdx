@@ -185,6 +185,41 @@ curl -s "$VIJIL_URL/v1/evaluation-results/$EVALUATION_ID/results?team_id=$TEAM_I
 ```
 </CodeGroup>
 
+Use `client.scores.results()` or the corresponding REST endpoint when you need the complete nested result hierarchy. Use the response listing below when you need filterable, paginated prompt-level evidence.
+
+### Prompt-Level Responses
+
+Retrieve individual prompt and Agent response rows from a completed behavioral evaluation. The method supports both standard and custom Harness evaluations.
+
+<CodeGroup>
+```python title="SDK"
+page = client.evaluations.responses(
+    "<evaluation-id>",
+    status="failed",
+    limit=50,
+    offset=0,
+)
+
+for response in page.items:
+    print(response.prompt_text)
+    print(response.response_text)
+    print(response.probe_score)
+```
+
+```bash title="REST"
+curl -sG "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/responses" \
+  -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode "team_id=$TEAM_ID" \
+  --data-urlencode "status=failed" \
+  --data-urlencode "limit=50" \
+  --data-urlencode "offset=0"
+```
+</CodeGroup>
+
+Each row identifies its parent Harness, Scenario, and Probe and includes the prompt, Agent response, parent Probe score, and raw Detector results. A `failed` row belongs to a Probe that scored below the evaluation's pass threshold. Filter by `harness_id`, `scenario_id`, or `probe_id` to narrow the results further.
+
+The CLI does not currently expose this response listing. Red Team evaluations do not support it; use the Red Team evidence methods below instead. See the [`client.evaluations` SDK reference](/developer-guide/sdk/resources#prompt-level-behavioral-responses) for all arguments and the return type.
+
 ### Red Team Evidence
 
 Red Team evaluations expose seeds, attacks, judgments, and reflections under the evaluation ID:

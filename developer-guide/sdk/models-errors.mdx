@@ -9,7 +9,7 @@ Structured SDK responses use Pydantic models. Resource models such as `Evaluatio
 
 ### `Page[T]`
 
-Generic paginated response returned by every `list()` method.
+Generic paginated response returned by resource collection methods such as `list()` and `client.evaluations.responses()`.
 
 ```python
 page = client.agents.list()
@@ -34,6 +34,24 @@ evaluation.dimensions     # Dimensions | None
 ```
 
 The behavioral poller treats `completed`, `succeeded`, `saved`, `failed`, and `cancelled` as terminal statuses.
+
+### `EvaluationResponse`
+
+Returned in the `page.items` list from `client.evaluations.responses()`. Each model represents one prompt and Agent response from a completed behavioral evaluation.
+
+```python
+response.harness_id       # str
+response.scenario_id      # str
+response.probe_id         # str
+response.probe_score      # float
+response.prompt_id        # str
+response.prompt_text      # str | None
+response.response_text    # str
+response.status           # "passed" | "failed"
+response.detector_results # dict[str, Any]
+```
+
+`probe_score` and `status` describe the parent Probe and repeat on each of its prompt rows. `detector_results` contains the raw per-Detector results for that prompt. This model does not apply to Red Team evaluations.
 
 ### `RedteamStatusResponse`
 
