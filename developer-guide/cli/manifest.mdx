@@ -1,0 +1,58 @@
+---
+title: "Manifest CLI"
+description: "Sign and verify Trust Runtime tool manifests with the Console."
+---
+
+Use the Manifest CLI to sign a tool manifest and verify its Ed25519 signature before you load it into [Trust Runtime](/developer-guide/protect/trust-runtime).
+
+
+| Command | Description |
+|---------|-------------|
+| `vijil manifest sign` | Sign a tool manifest through the Console |
+| `vijil manifest verify` | Verify a signed tool manifest against the Console public key |
+
+## `vijil manifest sign`
+
+Request a signature from the Console and add it to a manifest JSON file.
+
+```bash
+vijil manifest sign <input_path> [OPTIONS]
+```
+
+| Argument or Flag | Description | Required |
+|------------------|-------------|----------|
+| `<input_path>` | Path to the unsigned manifest JSON file | Yes |
+| `--console-url` | Console base URL. You can set `VIJIL_CONSOLE_URL` instead | Yes |
+| `--api-key` | Console API key. You can set `VIJIL_API_KEY` instead | Yes |
+| `--output`, `-o` | Output path. If omitted, the command overwrites the input file | |
+
+```bash
+# Sign in place
+vijil manifest sign agent.manifest.json
+
+# Write the signed manifest to another file
+vijil manifest sign agent.manifest.json \
+  --output agent.manifest.signed.json
+```
+
+The command sends the manifest to `POST /manifests/sign` and adds the returned `signature` to the output file.
+
+## `vijil manifest verify`
+
+Verify a signed manifest against the Console public key.
+
+```bash
+vijil manifest verify <path> [OPTIONS]
+```
+
+| Argument or Flag | Description | Required |
+|------------------|-------------|----------|
+| `<path>` | Path to the signed manifest JSON file | Yes |
+| `--console-url` | Console base URL. You can set `VIJIL_CONSOLE_URL` instead | Yes |
+| `--api-key` | Console API key. You can set `VIJIL_API_KEY` instead | Yes |
+
+```bash
+vijil manifest verify agent.manifest.signed.json
+```
+
+The command retrieves the public key from `GET /manifests/public-key` and verifies the manifest's hex-encoded Ed25519 signature. A valid signature prints `Manifest signature valid.` An invalid or missing signature prints `Manifest signature INVALID.` and exits with code `4`.

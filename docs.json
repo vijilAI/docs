@@ -220,6 +220,7 @@
             "pages": [
               "developer-guide/evaluate/overview",
               "developer-guide/evaluate/running-evaluations",
+              "developer-guide/evaluate/local-agent",
               "developer-guide/evaluate/understanding-results",
               "developer-guide/evaluate/custom-harnesses",
               "developer-guide/evaluate/cloud-providers"
@@ -269,7 +270,8 @@
                   "developer-guide/cli/evaluate",
                   "developer-guide/cli/protect",
                   "developer-guide/cli/red-team",
-                  "developer-guide/cli/telemetry"
+                  "developer-guide/cli/telemetry",
+                  "developer-guide/cli/manifest"
                 ]
               },
               {
@@ -433,6 +435,11 @@
     ],
     "global": {
       "anchors": [
+        {
+          "anchor": "Diamond",
+          "href": "/concepts/platform/diamond",
+          "icon": "diamond"
+        },
         {
           "anchor": "Blog",
           "href": "https://www.vijil.ai/blog",
