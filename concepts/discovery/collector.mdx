@@ -11,7 +11,7 @@ Your Collectors decide your coverage. A scope with one Collector returns what th
 
 | Kind | You supply | What you install | What it reaches |
 |------|------------|---------------------|-----------------|
-| **Endpoint** | The machine itself | A package running as a service | AI applications on macOS laptops and servers |
+| **Endpoint** | The machine itself | A package running as a service | AI applications on macOS, Linux, and Windows laptops and servers |
 | **Network scanner** | A virtual machine inside the network, with routes to the subnets you want swept | A Docker container | Private-network services that endpoints miss |
 | **In-cluster** | An existing Kubernetes cluster, 1.27 or later | A Helm release | Cluster services, read from the cluster's own catalogue |
 | **Cloud API** | An Amazon EKS cluster and an IAM role | A Helm CronJob | Managed AI such as Bedrock, SageMaker, and AgentCore |
@@ -22,16 +22,13 @@ Runs as a service on the machine you want inventoried. It inspects that machine 
 
 Use it for laptop fleets and single servers. Roll it out through your configuration management tool.
 
-<Note>
-macOS is the endpoint platform available today. Linux and Windows endpoint Collectors are
-still in development.
-</Note>
+Endpoint Collectors are available for macOS, Linux, and Windows.
 
 ### Network Scanner
 
 Runs as a Docker container on a virtual machine inside the network. It finds services by probing the hosts it can route to. It records every host it cannot route to as a blind spot.
 
-Use it for private-network services that endpoint Collectors miss.
+Use it for detecting the AI services in private-network.
 
 ### In-Cluster
 
@@ -39,7 +36,7 @@ Installs as a Helm release into a Kubernetes cluster you already run. The Collec
 
 ### Cloud API
 
-Calls the cloud provider APIs directly to list managed AI: Bedrock models and agents, SageMaker endpoints, AgentCore runtimes and gateways, and the Guardrails attached to them. These services expose no port and run no process you can inspect, so the provider API is the only way to see them.
+Calls the cloud provider APIs directly to list managed AI: Bedrock models and agents, SageMaker endpoints, AgentCore runtimes and gateways, and attached Guardrails.
 
 It runs as a Helm CronJob and authenticates through the cluster's IAM integration. It needs an EKS cluster with an OIDC provider, plus an IAM role that trusts it.
 

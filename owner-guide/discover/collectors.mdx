@@ -8,13 +8,12 @@ it against a [Target](/owner-guide/discover/targets).
 
 ## Before You Install
 
-**Vijil provides the Collector artifacts.** They carry the engineering name `vijil-shadow`,
-which is why that name appears in package filenames, environment variables, Helm releases,
-and log paths throughout this page. Arrange them before you book an install window.
+**Vijil provides the Collector artifacts.** Arrange them before you book an install window.
+Package names, services, and paths on this page use the name `vijil-shadow`.
 
 | Kind | Artifact you receive |
 |------|----------------------|
-| **Endpoint** | A macOS platform installer |
+| **Endpoint** | A platform package: a `.pkg` for macOS, a `.deb` or `.rpm` for Linux, a ZIP archive for Windows |
 | **Network scanner** | A container image, and access to the registry that holds it |
 | **In-cluster** | A Helm chart and the same container image |
 | **Cloud API** | The same Helm chart |
@@ -55,8 +54,8 @@ Both are also available in the Console, on the **Scanners** sub-tab of the Targe
   <img src="/images/owner-guide/discover/scanners-tab-empty.jpg" alt="The Scanners sub-tab of a Target before any Collector has enrolled" />
 </Frame>
 
-The sub-tab holds two panels. **Scanners** carries **+ Mint scanner token**, one row per
-logical scanner. **Enrollment codes** carries **+ Generate code**.
+Use **+ Mint scanner token** for a scanner token, or **+ Generate code** for an enrollment
+code.
 
 An enrollment code takes two settings:
 
@@ -64,6 +63,9 @@ An enrollment code takes two settings:
 |-------|---------------|
 | **Allowed scanner kinds** | The kinds this code may enroll, comma separated. Enter `*` to allow any. |
 | **TTL (hours)** | How long the code stays usable, up to a maximum of 720 hours. |
+
+For an endpoint rollout, allow only the platform you are deploying to: `endpoint_macos`,
+`endpoint_linux`, or `endpoint_windows`.
 
 A code allowing `*` for 720 hours enrolls anything for 30 days. Scope both settings to the
 rollout you are running.
@@ -77,18 +79,11 @@ Afterwards only the identifier and the expiry remain visible.
 
 ## Endpoint Collectors
 
-The endpoint Collector runs as a service on the machine you want inventoried. It inspects
-that machine directly: its processes, its container runtime, its GPUs, and the ports it is
-listening on.
+The endpoint Collector runs as a service on the machine you want inventoried. It runs on
+macOS, Linux, and Windows.
 
-Use an **enrollment code** for a fleet.
-
-<Note>
-**macOS is the endpoint platform available today.** Linux and Windows endpoint Collectors
-are still in development. Both already appear as source filter options on the Findings tab,
-which can be confusing. To reach Linux servers now, use an in-cluster or network scanner
-Collector.
-</Note>
+Use an **enrollment code** for a fleet, and push the package through your device management
+or configuration management tool. Every install needs administrator or root privileges.
 
 ### macOS
 
@@ -101,20 +96,120 @@ printf '%s' '<enrollment-code>' | sudo tee /etc/vijil-shadow/enrollment-code >/d
 sudo chmod 600 /etc/vijil-shadow/enrollment-code
 ```
 
-The order matters. The macOS postinstall script runs sandboxed and strips most environment
-variables, so an environment variable never reaches it. Write the file first.
-
-Then run the platform installer Vijil supplied. It lays down the binary, registers a launch
-daemon, and starts the service.
+The macOS installer does not read environment variables, so the file is the only way to pass
+the code. Then run the installer Vijil supplied. It starts the Collector as a service.
 
 Logs land under `/var/log/vijil-shadow/`. Read `endpoint.log` first, then `endpoint.err.log`
 if the first is empty.
 
-### Linux and Windows
+### Linux
 
-<Note>
-Both are still in development. Contact Vijil if endpoint coverage on either platform blocks a rollout.
-</Note>
+Vijil supplies a `.deb` package for Debian and Ubuntu, and a `.rpm` package for Fedora and
+RHEL. Vijil tests both on Ubuntu 22.04 and 24.04, and on RHEL 8 and 9.
+
+Pass the control plane address and the enrollment code on the install command:
+
+<CodeGroup>
+
+```bash Debian / Ubuntu
+sudo VIJIL_SHADOW_CONTROL_PLANE_URL='<control-plane-url>' \
+     VIJIL_SHADOW_ENROLLMENT_CODE='<enrollment-code>' \
+     dpkg -i vijil-shadow-endpoint-<version>.x86_64.deb
+```
+
+```bash Fedora / RHEL
+sudo VIJIL_SHADOW_CONTROL_PLANE_URL='<control-plane-url>' \
+     VIJIL_SHADOW_ENROLLMENT_CODE='<enrollment-code>' \
+     rpm -i vijil-shadow-endpoint-<version>-1.x86_64.rpm
+```
+
+</CodeGroup>
+
+Keep both variables on the `sudo` line, as shown. `sudo -E` does not pass them through on
+every distribution, and the install then warns `VIJIL_SHADOW_CONTROL_PLANE_URL not set`.
+
+The package starts the `vijil-shadow-endpoint` service. Confirm it runs:
+
+```bash
+sudo systemctl status vijil-shadow-endpoint
+sudo journalctl -u vijil-shadow-endpoint -f
+```
+
+Logs also land in `/var/log/vijil-shadow/endpoint.log`.
+
+### Windows
+
+Vijil supplies a ZIP archive with the Collector and two PowerShell scripts,
+`install-service.ps1` and `uninstall-service.ps1`.
+
+Run the install from an elevated PowerShell session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+Expand-Archive vijil-shadow-endpoint-<version>.x86_64.zip -DestinationPath C:\vijil
+cd C:\vijil
+
+.\install-service.ps1 `
+    -ControlPlaneUrl '<control-plane-url>' `
+    -EnrollmentCode '<enrollment-code>'
+```
+
+The script installs and starts the `VijilShadowEndpoint` service, then waits for the
+Collector to enroll. If enrollment fails, it exits with an error and prints the log lines
+that explain why.
+
+<Warning>
+`Get-Service` can report **Running** for a Collector that never enrolled. Confirm that
+`C:\ProgramData\vijil-shadow\identity.json` exists instead.
+</Warning>
+
+If the file is missing, read the service log:
+
+```powershell
+Get-Content 'C:\ProgramData\vijil-shadow\service-stderr.log' -Tail 20 -Wait
+```
+
+The Windows Collector does not cover WSL2. Install the Linux endpoint Collector inside WSL2
+as well.
+
+To remove the Collector, [revoke it](#revoke-credentials) first, then run
+`.\uninstall-service.ps1`.
+
+### Self-Signed Control Plane Certificates
+
+If your control plane uses a self-signed certificate, trust it on the machine before you
+install. Otherwise the Collector logs `CERTIFICATE_VERIFY_FAILED` and cannot enroll.
+
+<CodeGroup>
+
+```bash Fedora / RHEL
+sudo cp <control-plane-cert>.crt /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust
+```
+
+```bash Debian / Ubuntu
+sudo cp <control-plane-cert>.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
+```powershell Windows
+Import-Certificate -FilePath <control-plane-cert>.crt `
+    -CertStoreLocation Cert:\LocalMachine\Root
+```
+
+</CodeGroup>
+
+### Upgrades and Re-Enrollment
+
+An upgrade needs no new enrollment code. On Linux, remove the old package and install the
+new one. On Windows, run `install-service.ps1` from the new archive with only
+`-ControlPlaneUrl`.
+
+If you revoke a Collector or recreate its Target, give the machine a fresh enrollment code.
+Write it to `/etc/vijil-shadow/enrollment-code` on macOS or Linux, or to
+`C:\ProgramData\vijil-shadow\config\enrollment-code` on Windows. The Collector re-enrolls
+within five minutes and appears as a new Collector, so revoke the old one.
 
 ## Network Scanner Collectors
 
@@ -160,13 +255,13 @@ Use the `daemon` subcommand. The `scan` subcommand runs once and then exits. **S
 queues work for a Collector to pick up, so it only works while a Collector stays running.
 </Warning>
 
-`--network=host` and `--cap-add=NET_RAW` are both required. The port sweep needs `NET_RAW`
-to open raw sockets. Leave it out and the sweep exits with a permission error.
+`--network=host` and `--cap-add=NET_RAW` are both required. Without them, the sweep exits
+with a permission error.
 
 ## In-Cluster Collectors
 
-The in-cluster Collector reads Services, Endpoints, and Pods through the Kubernetes API, so
-you can skip provisioning a virtual machine.
+The in-cluster Collector reads your cluster's services through the Kubernetes API, so you
+can skip provisioning a virtual machine.
 
 **What you supply**
 
@@ -188,21 +283,15 @@ helm install vijil-shadow ./vijil-shadow \
     --set controlPlane.token="$SCANNER_TOKEN"
 ```
 
-The daemon polls for schedule changes and queued scans every 30 seconds, and a volume
-persists its state across pod restarts.
-
 To keep the key out of the release values, pre-create a Secret and reference it with
 `--set existingSecret.name=<secret-name>` instead of `--set llmApiKey`. The chart reads the
 key `LLM_API_KEY` from that Secret unless you override `existingSecret.key`.
 
-Dropping `daemonMode.enabled` installs the Collector as a one-shot Job instead.
 
 ## Cloud API Collectors
 
-The cloud API Collector calls the provider APIs directly to list managed AI. It covers
-Bedrock models and agents, SageMaker endpoints, AgentCore runtimes and gateways, and the
-Guardrails attached to them. These services expose no port, so the provider API is the only
-way to see them.
+The cloud API Collector lists managed AI in your AWS account: Bedrock models and agents,
+SageMaker endpoints, AgentCore runtimes and gateways, and the Guardrails attached to them.
 
 **What you supply**
 
@@ -229,7 +318,7 @@ helm install vijil-shadow-aws ./vijil-shadow \
     --set controlPlane.token="$SCANNER_TOKEN"
 ```
 
-It runs on a schedule as a CronJob and exits after each run.
+It runs on a schedule.
 
 ## Browser Extension Collectors
 
@@ -260,8 +349,8 @@ checks in, and the header badge shows one of four states:
 
 | Badge | Meaning |
 |-------|---------|
-| **Agent online** | Reported within the last 75 seconds |
-| **Agent stale** | Last reported between 75 and 150 seconds ago |
+| **Agent online** | Reporting normally |
+| **Agent stale** | Missed its last check-in |
 | **No agent reporting** | Has reported before, but not recently |
 | **No agent connected** | Has never reported |
 
@@ -274,17 +363,17 @@ From the command line:
 vijil discover2 scanner-list <target-id>
 ```
 
-A Collector registers on its first poll. Collectors poll every 30 seconds by default.
+A new Collector appears within a minute of starting.
 
 ## Troubleshooting
 
 **The Collector never appears on the Scanners sub-tab.** Work down this list:
 
-1. Confirm the service is running, and read its log under `/var/log/vijil-shadow/`:
-   `endpoint.log` first, then `endpoint.err.log` if the first is empty.
-2. On an endpoint Collector, confirm `/etc/vijil-shadow/enrollment-code` exists and holds
-   the code. If the file is missing, the Collector starts normally and then stays
-   unenrolled.
+1. Confirm the service is running, and read its log. On macOS and Linux, read
+   `endpoint.log` under `/var/log/vijil-shadow/` first, then `endpoint.err.log` if the first
+   is empty. On Windows, read `C:\ProgramData\vijil-shadow\service-stderr.log`.
+2. On a macOS or Linux endpoint Collector, confirm `/etc/vijil-shadow/enrollment-code`
+   exists and holds the code. On Windows, confirm `C:\ProgramData\vijil-shadow\identity.json` exists.
 3. Confirm the host can reach the control plane outbound on port `443`.
 4. Confirm the control plane address matches the one `vijil discover2 setup-info` returns.
 5. Confirm the credential is still valid and belongs to **this** Target.
@@ -292,10 +381,10 @@ A Collector registers on its first poll. Collectors poll every 30 seconds by def
 **Uploads fail with HTTP 401.** You minted the token for a different Target than the one the
 Collector uses. Re-mint against the Target you meant.
 
-**Scan now appears to do nothing.** This has two causes. The Collector may be a one-shot
-that already exited, so reinstall it with the `daemon` subcommand. Or every Collector has
-stayed silent for 24 hours, and the Console says *"No agent has checked in during the last
-24 hours, so nothing was queued."* Discover drops a queued scan after 24 hours.
+**Scan now appears to do nothing.** Either the Collector ran once and exited, so reinstall
+it with the `daemon` subcommand, or no Collector has checked in for 24 hours. In the second
+case the Console says *"No agent has checked in during the last 24 hours, so nothing was
+queued."*
 
 ## Revoke Credentials
 
