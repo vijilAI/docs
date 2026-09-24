@@ -10,7 +10,7 @@ Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-error
 | Accessor | Methods |
 |----------|---------|
 | `client.agents` | `list`, `show`, `create`, `update`, `delete` |
-| `client.evaluations` | `list`, `show`, `create`, `poll_status`, `delete`, and Red Team reads below |
+| `client.evaluations` | `list`, `show`, `create`, `poll_status`, `responses`, `delete`, and Red Team reads below |
 | `client.harnesses` | `list`, `show`, `create`, `delete` |
 | `client.scores` | `show`, `history` |
 | `client.reports` | `list`, `show`, `download` |
@@ -52,6 +52,40 @@ status = client.evaluations.redteam_status(evaluation_id)
 ```
 
 Red Team creation returns an `Evaluation` with an ID. Use that `evaluation_id` for all Red Team status, artifact, and report reads. `poll_status()` is for behavioral evaluations; use `redteam_status()` for Red Team. Red Team does not accept `baseline`, Harness, or `sample_size` settings.
+
+### Prompt-Level Behavioral Responses
+
+Use `responses()` to retrieve flattened prompt and response rows from a completed behavioral evaluation, including an evaluation that uses a custom Harness. Each item identifies its parent Harness, Scenario, and Probe and includes the Agent response and raw Detector results.
+
+```python
+page = client.evaluations.responses(
+    "evaluation-id",
+    status="failed",
+    limit=50,
+    offset=0,
+)
+
+for response in page.items:
+    print(response.prompt_text)
+    print(response.response_text)
+    print(response.probe_score)
+    print(response.detector_results)
+```
+
+The method returns a [`Page[EvaluationResponse]`](/developer-guide/sdk/models-errors#evaluationresponse). `page.total` is the number of rows that match the filters before pagination.
+
+| Argument | Description |
+|----------|-------------|
+| `evaluation_id` | Required evaluation UUID |
+| `team_id` | Team UUID; defaults to the team configured on the client |
+| `harness_id` | Include rows from one Harness |
+| `scenario_id` | Include rows from one Scenario |
+| `probe_id` | Include rows from one Probe |
+| `status` | Include `passed` or `failed` Probe results; omit it to include all results |
+| `limit` | Rows to return, from 1 to 500; defaults to 50 |
+| `offset` | Matching rows to skip; defaults to 0 |
+
+`failed` means that the parent Probe scored below the evaluation's pass threshold. It does not describe an individual Detector result. Call `responses()` after the Console saves the evaluation results. The method is not available for Red Team evaluations; use the Red Team artifact methods instead.
 
 ### Red Team Status, Artifacts, and Reports
 
