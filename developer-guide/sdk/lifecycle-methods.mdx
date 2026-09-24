@@ -37,35 +37,21 @@ print(evaluation.dimensions)     # Dimensions(reliability=0.9, security=0.8, saf
 | `agent_id` | `str` | — | Agent ID or alias |
 | `baseline` | `bool` | `False` | Run the standard trust Harnesses (reliability, security, safety) |
 | `harness_id` | `str \| None` | `None` | Run a specific [Harness](/concepts/evaluation-components/harness) instead of the baseline |
+| `sample_size` | `int \| None` | `None` | [Probes](/concepts/evaluation-components/probe) per Harness. Lower values finish faster. Must be a positive integer. |
+| `on_poll` | `Callable \| None` | `None` | Callback invoked with the current `Evaluation` after each poll, for progress reporting |
 | `_poll_interval` | `float` | `5.0` | Seconds between status checks |
 
 Returns an [`Evaluation`](/developer-guide/sdk/models-errors). Pass either `baseline=True` or a `harness_id`, not both.
 
 ## `client.test()`
 
-Create a Red Swarm test engagement and, by default, poll until it finishes.
+<Warning>
+`client.test()` no longer works. It posts to the standalone Red Team campaign service, which has been removed from the Console along with its Garak, PromptFoo, and PyRIT tools. Use [Red Team Engagements](/developer-guide/red-team/overview) instead.
+</Warning>
 
-```python
-job = client.test(
-    "agent-id",
-    mode="adaptive",        # or "comprehensive"
-    no_wait=False,          # True to return immediately
-)
+The method posts to the removed campaign service, so every call fails. It is documented only so readers recognize it in existing code.
 
-print(job.status)   # "completed"
-print(job.id)       # "job-abc123"
-```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `agent_id` | `str` | — | Agent ID or alias |
-| `mode` | `str` | `"adaptive"` | `"adaptive"` adjusts strategy from responses; `"comprehensive"` sweeps all categories |
-| `no_wait` | `bool` | `False` | Return immediately without polling |
-| `tool` | `str` | `"diamond_security"` | Red-team tool to use |
-| `purpose` | `str` | `""` | Description of the Agent's purpose |
-| `categories` | `list[str] \| None` | `None` | Test categories, for example `["injection"]` |
-
-Returns a [`Job`](/developer-guide/sdk/models-errors).
 
 ## `client.adapt()`
 
@@ -79,7 +65,7 @@ print(job.status)   # "completed"
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `agent_id` | `str` | — | Agent ID or alias |
-| `mode` | `str` | `"config"` | `"prompt"`, `"config"`, `"code"`, or `"dome"` |
+| `mode` | `str` | `"config"` | `"config"` tunes Agent configuration, `"code"` rewrites Agent source, `"generative"` creates variants |
 | `no_wait` | `bool` | `False` | Return immediately without polling |
 
 Returns a [`Job`](/developer-guide/sdk/models-errors). After adaptation completes, review and apply the resulting [proposals](/developer-guide/sdk/resources#client-proposals).

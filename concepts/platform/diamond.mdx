@@ -19,35 +19,10 @@ Diamond supports two complementary ways to evaluate an Agent:
 
 | Mode | How It Works | Use It When |
 |------|--------------|-------------|
-| **Standard Evaluations** | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). | You need a reproducible Trust Score, baseline readiness evidence, or a focused custom Harness, and produces a Trust Score. |
-| **Red Team campaigns** | Runs an adaptive, multi-wave adversarial campaign against a registered [Agent](/owner-guide/register-agents/what-is-an-agent). Each wave generates attack seeds, launches attackers, judges transcripts, reflects on findings, and uses that feedback to plan the next wave. | You need deeper adversarial testing, want to uncover unknown vulnerabilities, or need evidence for security and risk review. |
+| **Standard Evaluations** | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). | You need a reproducible Trust Score, baseline readiness evidence, or a focused custom Harness. |
+| **[Red Team](/concepts/red-team/introduction)** | Runs an adversarial [Engagement](/concepts/red-team/engagements) against a registered [Agent](/owner-guide/register-agents/what-is-an-agent), adaptively over multiple waves. | You need deeper adversarial testing, want to uncover unknown vulnerabilities, or need evidence for security and risk review. |
 
-Red Team uses the Agent context available in Diamond, including its purpose, policies, personas, tools, workflows, and known risks where available. Instead of sending a fixed set of Probes, it works through an iterative campaign:
-
-```mermaid
----
-config:
-  layout: elk
----
-flowchart LR
-    Taxonomy[Taxonomy]
-    AttackSeeds[Attack seeds]
-    Attackers[Attackers]
-    Judgments[Judgments]
-    Reflections[Reflections]
-    Report[Report]
-    
-    Taxonomy --> AttackSeeds
-    AttackSeeds --> Attackers
-    Attackers --> Judgments
-    Judgments --> Reflections
-    Reflections --> Report
-    
-    classDef box stroke:#818cf8,fill:#eef2ff
-    class Taxonomy,AttackSeeds,Attackers,Judgments,Reflections,Report box
-```
-
-The taxonomy defines the risk areas to explore. Attack seeds translate those risks into concrete goals. Attackers then run against the target Agent, judgments evaluate the transcripts, reflections identify what worked and what remains uncovered, and the final report clusters vulnerabilities, policy violations, leaked artifacts, and successful strategies.
+A Red Team run creates an [Engagement](/concepts/red-team/engagements) that attacks the Agent over multiple waves. See [Red Team](/concepts/red-team/introduction) for when to choose it over a standard Evaluation.
 
 ## **The Trust Score**
 
