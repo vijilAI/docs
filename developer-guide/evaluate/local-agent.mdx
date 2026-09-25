@@ -1,296 +1,658 @@
 ---
-title: 'Evaluate a Local Agent'
-description: 'Register and evaluate a locally running Agent with the Vijil SDK and CLI.'
+title: 'Local Agent Evaluation'
+description: 'Expose a local Agent through a public HTTPS tunnel and run an Evaluation.'
 ---
 
-Use local mode to evaluate an Agent before you deploy it. Agent invocation and Evaluation orchestration run on your computer, while Vijil Console supplies the Harness and records the Evaluation. Remote Vijil Detectors score each response.
+Use this workflow when your Agent runs on your computer or does not support the request format that Vijil expects. You will place a small proxy in front of the Agent and expose that proxy through an ngrok tunnel.
 
-<Tip>
-  **TL;DR:** Start an Agent locally, register it with `vijil register --local`, then run one standard Harness with `vijil evaluate --local`. Local mode uses outbound requests from your computer. It does not expose your Agent through a tunnel or require Vijil services to connect to `localhost`.
-</Tip>
+A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel makes the proxy reachable at a public HTTPS URL while it runs.
+
+This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from Anthropic's financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
 
 <Warning>
-  Evaluation Probes are adversarial. If your Agent can call tools or modify external systems, use test accounts and test data, disable destructive actions, and isolate the Agent from production resources before you begin.
+  Evaluation Probes are adversarial. Use test data and test credentials. Disable write and destructive tools. If the Agent can access files or external systems, run it in a sandbox. Do not give it access to production resources.
+
+  The tunnel URL is public, but the example protects `/v1/chat/completions` with a random API key. Run the proxy only while you test the Agent. Enterprise deployments can also restrict tunnel traffic to Vijil.
 </Warning>
 
-## Understand What Runs Locally
+## Understand How Requests Move
 
-Local mode is not an offline Evaluation. It divides the work between your computer and Vijil services:
+Vijil sends each Probe to the public tunnel URL. The tunnel forwards the request to the proxy on your computer. The proxy calls the Agent under test and returns its response to Vijil.
 
 ```mermaid actions={false}
 flowchart LR
-    CLI[Vijil SDK and CLI]
-    Agent[Local Agent]
-    Console[Vijil Console]
-    Detectors[Vijil Detectors]
+    Vijil[Vijil Evaluation]
+    Tunnel[Public ngrok tunnel]
+    Proxy[Local FastAPI proxy]
+    Agent[Agent under test]
 
-    CLI -->|Register Agent and create Evaluation| Console
-    Console -->|Harness Detector map| CLI
-    CLI -->|Probe| Agent
-    Agent -->|Text response| CLI
-    CLI -->|Prompt and response| Detectors
-    Detectors -->|Verdict| CLI
-    CLI -->|Aggregate score| Console
+    Vijil -->|Probe| Tunnel
+    Tunnel --> Proxy
+    Proxy -->|Test prompt| Agent
+    Agent -->|Agent response| Proxy
+    Proxy --> Tunnel
+    Tunnel --> Vijil
 ```
 
-The CLI invokes the Agent and aggregates the results on your computer. Console remains required for Agent registration, Harness retrieval, Evaluation records, and score submission. The Detector service remains required to score each prompt and response.
+You do not need to send Probes one at a time. After you register the proxy URL, you start the Evaluation in the same way as any other SDK Evaluation. Vijil sends the Probes, collects the responses, and records the results.
 
-## Check Supported Adapters
+## Install the Tools
 
-Local mode includes three Agent adapters:
-
-| Adapter | Target | Registration Requirements |
-|---|---|---|
-| `openai_compat` | An HTTP server with an OpenAI-compatible chat-completions endpoint | Base URL, model name, and an optional environment variable containing an endpoint API key |
-| `openclaw` | An OpenClaw CLI executable | Absolute or relative path to the executable |
-| `claude_code` | A Claude Code CLI executable | Absolute or relative path to the executable |
-
-This guide uses `openai_compat` because it works with any framework that exposes the required HTTP response shape. The adapter sends each Probe to `<base-url>/chat/completions` and reads a text response from `choices[0].message.content`.
-
-<Note>
-  The [Vijil Travel Agent](https://github.com/vijilAI/vijil-travel-agent) can serve as an example when it is running behind an OpenAI-compatible endpoint. It is not otherwise required by this guide. Substitute its base URL and model name in the commands below, or use your own Agent.
-</Note>
-
-## Install and Verify the CLI
-
-The current SDK package supports Python 3.12 and 3.13. Local Evaluation also requires a `vijil-sdk` build that includes local mode.
+Create a Python 3.12 virtual environment and install the packages used by the proxy:
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
-python -m pip install --upgrade vijil-sdk
+python -m pip install "vijil-sdk>0.0.2" fastapi uvicorn pyngrok
 ```
 
-Verify the installed feature before configuring your Agent:
+## Set Up the Agent Under Test
+
+This example uses Claude Code to run Market Researcher. Install [Claude Code](https://code.claude.com/docs/en/overview), then confirm that the `claude` command is available:
 
 ```bash
-vijil register --help
-vijil evaluate --help
+claude --version
 ```
 
-Both commands must list `--local`. `vijil register --help` must also list the `openai_compat`, `openclaw`, and `claude_code` adapter types. If these options are missing, obtain a local-mode-enabled SDK build from your Vijil administrator.
+Clone Anthropic's financial services examples and save the absolute path to the Market Researcher plugin:
 
-## Configure Vijil Access
+```bash
+git clone https://github.com/anthropics/financial-services.git
+cd financial-services
 
-Export your Console gateway, team, and bearer access token in the terminal where you will run the Evaluation:
+export MARKET_RESEARCHER_PLUGIN="$PWD/plugins/agent-plugins/market-researcher"
+```
+
+The example reads Market Researcher's system prompt and preloads its `sector-overview` Skill. It creates a temporary Agent definition that has no runtime tools. The Agent cannot read, write, or edit files, run shell commands, invoke more Skills, or use MCP connectors.
+
+Claude Code still reads the plugin prompt and Skill during startup. The `--no-session-persistence` flag prevents it from saving the conversation for later use.
+
+## Configure Credentials
+
+Export the values used by the example:
 
 ```bash
 export VIJIL_GATEWAY_URL="<console-gateway-base-url>"
-export TEAM_ID="<team-id>"
-export VIJIL_API_KEY="<bearer-access-token>"
-
-vijil config set gateway.url "$VIJIL_GATEWAY_URL"
-vijil config set defaults.team_id "$TEAM_ID"
-
-export DOME_INFERENCE_URL="$VIJIL_GATEWAY_URL"
+export VIJIL_API_KEY="<vijil-access-token>"
+export ANTHROPIC_API_KEY="<test-only-anthropic-api-key>"
+export MARKET_RESEARCHER_PLUGIN="<absolute-path-to-market-researcher-plugin>"
 ```
 
-Set `DOME_INFERENCE_URL` to the base URL, not the full `/v1/detect` path. The local Evaluation runner appends `/v1/detect` when it calls the Detector service.
+Keep these values in the terminal where you run the proxy. Do not put them in the Python file or commit them to source control.
 
-`VIJIL_API_KEY` must remain exported during the Evaluation. The Console client can read a stored credential, but the local Detector client reads its bearer token directly from `VIJIL_API_KEY`.
+Claude Code uses `ANTHROPIC_API_KEY` to run Market Researcher. The key stays on your computer. The script generates a separate key to protect the proxy.
 
-Verify the active configuration and Console access:
+## Create the Proxy
 
-```bash
-vijil config show
-vijil agents list
+The integration has three parts. The complete file at the end of this section puts them together.
+
+### Call the Agent
+
+`run_market_researcher()` is the Agent-specific part. Replace this function when you use another Agent.
+
+```python
+def run_market_researcher(messages: list[Message]) -> str:
+    plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).resolve()
+    source = (plugin_dir / "agents" / "market-researcher.md").read_text()
+    market_researcher_prompt = source.split("---", maxsplit=2)[2].strip()
+
+    # Build the restricted Agent definition and labelled prompt
+    agent_definition = {"vijil-market-researcher": {...}}
+    prompt = "\n\n".join(
+        f"{message.role.upper()}:\n{message.content}"
+        for message in messages
+        if message.content
+    )
+
+    # Run the Agent and return its final text response
+    result = subprocess.run(
+        ["claude", "--agents", json.dumps(agent_definition), "-p", prompt],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(result.stdout)["result"]
 ```
 
-<Info>
-  Ask your Vijil administrator which gateway exposes `/v1/detect` and whether your team can access that route. Gateway addresses can differ between hosted and enterprise environments.
-</Info>
+The complete script includes the flags that load the Skill and remove runtime file, shell, Skill, and MCP tools.
 
-## Start and Test Your Agent
+### Add the Vijil Endpoint
 
-Run your Agent in a separate terminal. Keep that process running throughout registration and Evaluation.
+The proxy accepts an OpenAI-compatible request and returns the Agent response in `choices[0].message.content`. It rejects requests that do not contain the generated API key.
 
-In the Evaluation terminal, define its OpenAI-compatible base URL and model name:
+```python
+PROXY_API_KEY = secrets.token_urlsafe(32)
 
-```bash
-export LOCAL_AGENT_BASE_URL="http://127.0.0.1:8000/v1"
-export LOCAL_AGENT_MODEL="<model-name>"
+
+class Message(BaseModel):
+    role: str
+    content: str | None = None
+
+
+class ChatCompletionRequest(BaseModel):
+    messages: list[Message] = Field(default_factory=list)
+
+
+@app.post("/v1/chat/completions")
+def chat_completions(
+    request: ChatCompletionRequest,
+    authorization: str | None = Header(default=None),
+):
+    expected = f"Bearer {PROXY_API_KEY}"
+    if authorization is None or not secrets.compare_digest(authorization, expected):
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    content = run_market_researcher(request.messages)
+    return {
+        "model": MODEL_NAME,
+        "choices": [
+            {"message": {"role": "assistant", "content": content}}
+        ],
+    }
 ```
 
-The base URL must stop before `/chat/completions`. Smoke-test the endpoint directly:
+### Run the Evaluation
 
-```bash
-curl --fail-with-body "$LOCAL_AGENT_BASE_URL/chat/completions" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"model\": \"$LOCAL_AGENT_MODEL\",
-    \"messages\": [
-      {
-        \"role\": \"user\",
-        \"content\": \"Respond with: local agent is ready\"
+Start the proxy, open the tunnel, and register the generated proxy key with Console. Keep the tunnel open until `client.evaluate()` returns.
+
+```python
+# 1. Fetch tunnel credentials from Vijil
+tunnel = client.agent_tunnel.get()
+
+# 2. Start the local proxy
+threading.Thread(target=start_server, daemon=True).start()
+
+# 3. Open the ngrok tunnel
+connection = ngrok.connect(LOCAL_PORT, "http", domain=tunnel.binding_url)
+
+try:
+    # 4. Register the Agent in Vijil Console
+    agent = client.agents.create(
+        name="market-researcher-local",
+        url=connection.public_url,
+        model_name=MODEL_NAME,
+        hub="custom",
+        api_key=PROXY_API_KEY,
+        rate_limit_requests_per_minute=5,
+    )
+
+    # 5. Run the Evaluation and poll until it finishes
+    evaluation = client.evaluate(
+        agent.id,
+        harness_id="security",
+        sample_size=5,
+    )
+finally:
+    # 6. Close the tunnel
+    ngrok.disconnect(connection.public_url)
+```
+
+<Accordion title="View the Complete Script">
+
+  ```python
+  import json
+  import os
+  import secrets
+  import subprocess
+  import threading
+  import time
+  import uuid
+  from pathlib import Path
+
+  import uvicorn
+  from fastapi import FastAPI, Header, HTTPException
+  from pydantic import BaseModel, Field
+  from pyngrok import conf, ngrok
+
+  from vijil import Vijil
+
+
+  LOCAL_PORT = 8322
+  MODEL_NAME = "claude-code-market-researcher"
+  PROXY_API_KEY = secrets.token_urlsafe(32)
+
+
+  class Message(BaseModel):
+      role: str
+      content: str | None = None
+
+
+  class ChatCompletionRequest(BaseModel):
+      model: str = ""
+      messages: list[Message] = Field(default_factory=list)
+      temperature: float | None = None
+      max_tokens: int | None = None
+
+
+  app = FastAPI()
+
+
+  def run_market_researcher(messages: list[Message]) -> str:
+      plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).expanduser().resolve()
+      source = (plugin_dir / "agents" / "market-researcher.md").read_text()
+      market_researcher_prompt = source.split("---", maxsplit=2)[2].strip()
+
+      agent_definition = {
+          "vijil-market-researcher": {
+              "description": "A text-only Market Researcher",
+              "prompt": market_researcher_prompt
+              + """
+
+  Work only in text-only sector-overview mode. Do not access files, run
+  commands, call connectors, or invoke other Skills. Mark every unsupported
+  figure as [UNSOURCED].
+  """,
+              "skills": ["market-researcher:sector-overview"],
+          }
       }
-    ]
-  }"
-```
+      conversation = "\n\n".join(
+          f"{message.role.upper()}:\n{message.content}"
+          for message in messages
+          if message.content
+      )
+      prompt = (
+          "Respond to this labelled conversation. Return only the final response.\n\n"
+          + conversation
+      )
 
-Continue only after the endpoint returns JSON containing a non-empty `choices[0].message.content` string.
+      command = [
+          "claude",
+          "--bare",
+          "--plugin-dir",
+          str(plugin_dir),
+          "--agents",
+          json.dumps(agent_definition),
+          "--agent",
+          "vijil-market-researcher",
+          "--permission-mode",
+          "dontAsk",
+          "--tools",
+          "",
+          "--strict-mcp-config",
+          "--no-session-persistence",
+          "--output-format",
+          "json",
+          "-p",
+          prompt,
+      ]
 
-If the endpoint requires a bearer token, export it under an Agent-specific environment variable and add the Authorization header to the smoke test:
+      try:
+          result = subprocess.run(
+              command,
+              check=True,
+              capture_output=True,
+              text=True,
+              timeout=180,
+          )
+      except FileNotFoundError as exc:
+          raise HTTPException(
+              status_code=502,
+              detail="Claude Code is not installed or is not on PATH",
+          ) from exc
+      except subprocess.SubprocessError as exc:
+          raise HTTPException(
+              status_code=502,
+              detail="Claude Code could not run the Agent",
+          ) from exc
+
+      return json.loads(result.stdout)["result"]
+
+
+  @app.post("/v1/chat/completions")
+  def chat_completions(
+      request: ChatCompletionRequest,
+      authorization: str | None = Header(default=None),
+  ):
+      expected = f"Bearer {PROXY_API_KEY}"
+      if authorization is None or not secrets.compare_digest(authorization, expected):
+          raise HTTPException(status_code=401, detail="Invalid API key")
+
+      content = run_market_researcher(request.messages)
+      return {
+          "id": f"chatcmpl-{uuid.uuid4().hex[:8]}",
+          "object": "chat.completion",
+          "created": int(time.time()),
+          "model": MODEL_NAME,
+          "choices": [
+              {
+                  "index": 0,
+                  "message": {"role": "assistant", "content": content},
+                  "finish_reason": "stop",
+              }
+          ],
+      }
+
+
+  @app.get("/health")
+  def health():
+      return {"status": "ok"}
+
+
+  def start_server() -> None:
+      uvicorn.run(app, host="127.0.0.1", port=LOCAL_PORT, log_level="warning")
+
+
+  def main() -> None:
+      client = Vijil(
+          api_key=os.environ["VIJIL_API_KEY"],
+          gateway=os.environ["VIJIL_GATEWAY_URL"],
+      )
+
+      # 1. Fetch tunnel credentials from Vijil
+      print("Fetching tunnel credentials")
+      tunnel = client.agent_tunnel.get()
+
+      # 2. Start the local proxy
+      server_thread = threading.Thread(target=start_server, daemon=True)
+      server_thread.start()
+      time.sleep(1)
+
+      conf.get_default().auth_token = tunnel.token
+
+      # 3. Open the ngrok tunnel
+      print("Opening the ngrok tunnel")
+      connection = ngrok.connect(
+          LOCAL_PORT,
+          "http",
+          domain=tunnel.binding_url,
+      )
+      public_url = connection.public_url
+      print(f"Tunnel URL: {public_url}")
+
+      try:
+          # 4. Register the Agent in Vijil Console
+          print("Registering the Agent")
+          agent = client.agents.create(
+              name="market-researcher-local",
+              url=public_url,
+              model_name=MODEL_NAME,
+              hub="custom",
+              api_key=PROXY_API_KEY,
+              rate_limit_requests_per_minute=5,
+          )
+          print(f"Agent ID: {agent.id}")
+
+          # 5. Run the Evaluation
+          print("Running a small security Evaluation")
+          evaluation = client.evaluate(
+              agent.id,
+              harness_id="security",
+              sample_size=5,
+              on_poll=lambda current: print(f"Status: {current.status}"),
+          )
+
+          print(f"Evaluation ID: {evaluation.id}")
+          print(f"Status: {evaluation.status}")
+          if evaluation.trust_score is not None:
+              print(f"Trust Score: {evaluation.trust_score}")
+          if evaluation.dimensions:
+              print(f"Security: {evaluation.dimensions.security}")
+          print("Results: https://evaluate.vijil.ai/evaluations")
+      finally:
+          # 6. Close the tunnel
+          ngrok.disconnect(public_url)
+          print("Tunnel closed")
+
+
+  if __name__ == "__main__":
+      main()
+  ```
+
+</Accordion>
+
+The proxy converts each role and text value into a labelled section of one Claude Code prompt. It does not preserve native message-role semantics, and it ignores `temperature` and `max_tokens`.
+
+The example starts with a limit of five requests per minute. Increase `rate_limit_requests_per_minute` only after you confirm that the Agent and its model provider can handle more traffic.
+
+## Run the Complete Example
+
+Save the complete script as `local_agent_evaluation.py`. Run it from the terminal where you exported the credentials:
 
 ```bash
-export LOCAL_AGENT_API_KEY="<local-agent-api-key>"
-
-curl --fail-with-body "$LOCAL_AGENT_BASE_URL/chat/completions" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $LOCAL_AGENT_API_KEY" \
-  -d "{\"model\": \"$LOCAL_AGENT_MODEL\", \"messages\": [{\"role\": \"user\", \"content\": \"Respond with: local agent is ready\"}]}"
+python local_agent_evaluation.py
 ```
 
-Do not reuse `VIJIL_API_KEY` unless the local endpoint intentionally uses the same credential as Vijil Console.
+Keep the process running until the Evaluation finishes. The script:
 
-## Register the Local Agent
+1. Fetches your tunnel credentials from Vijil.
+2. Starts the proxy on your computer.
+3. Opens the public ngrok tunnel.
+4. Registers the tunnel URL and generated proxy key in Vijil Console.
+5. Starts a security Evaluation and polls until it finishes.
+6. Closes the tunnel.
 
-Register an unauthenticated OpenAI-compatible endpoint:
+The `sample_size=5` setting selects five test prompts for each Probe in the security Harness. This small sample helps you check the connection. It does not provide a complete security assessment.
 
-```bash
-vijil register "$LOCAL_AGENT_BASE_URL" \
-  --local \
-  --type openai_compat \
-  --model "$LOCAL_AGENT_MODEL"
+`client.evaluate()` polls until the Evaluation finishes and returns the final result. The script prints the Agent ID, Evaluation ID, status, Trust Score, Security score, and the Console results URL.
+
+## Run Adaptive Red Teaming
+
+SDK `0.1.0` adds adaptive Red Teaming. To run it against the same local Agent, add this code inside the existing `try` block, after the standard Evaluation and before `finally`:
+
+```python
+red_team = client.xteam(agent.id)
+print(f"Red Team ID: {red_team.engagement_id}")
+print(f"Red Team status: {red_team.status}")
+if red_team.degraded:
+    print(f"Red Team warning: {red_team.degradation_reason}")
+print("Results: https://evaluate.vijil.ai/evaluations")
 ```
 
-For an authenticated endpoint, tell the adapter which environment variable holds the key:
+`client.xteam()` polls until the engagement finishes. Keep the proxy and tunnel running for the entire engagement. Adaptive Red Teaming can take longer than a standard Evaluation because it runs successive waves of attacks.
 
-```bash
-vijil register "$LOCAL_AGENT_BASE_URL" \
-  --local \
-  --type openai_compat \
-  --model "$LOCAL_AGENT_MODEL" \
-  --api-key-env LOCAL_AGENT_API_KEY
-```
+Use this standalone version when you want to run adaptive Red Teaming instead of the standard Evaluation:
 
-The command creates two records:
+<Accordion title="View the Complete Red Teaming Script">
 
-- A laptop registration in `~/.vijil/local_agents.toml`.
-- An Agent with `deployment=local` in Vijil Console.
+  ```python
+  import json
+  import os
+  import secrets
+  import subprocess
+  import threading
+  import time
+  import uuid
+  from pathlib import Path
 
-The output must include `console: registered (deployment=local)`. Save the returned Agent ID:
+  import uvicorn
+  from fastapi import FastAPI, Header, HTTPException
+  from pydantic import BaseModel, Field
+  from pyngrok import conf, ngrok
 
-```bash
-export AGENT_ID="<agent-id>"
-```
+  from vijil import Vijil
 
-<Warning>
-  Treat `console: laptop-only` as an incomplete registration. Local Evaluation still requires Console. Fix the gateway or authentication problem, register again, and use the Agent ID from the successful registration.
-</Warning>
 
-For the CLI adapters, replace the HTTP registration command with one of these forms:
+  LOCAL_PORT = 8322
+  MODEL_NAME = "claude-code-market-researcher"
+  PROXY_API_KEY = secrets.token_urlsafe(32)
 
-```bash
-vijil register /path/to/openclaw --local --type openclaw
-vijil register /path/to/claude --local --type claude_code
-```
 
-## Run a Local Evaluation
+  class Message(BaseModel):
+      role: str
+      content: str | None = None
 
-Choose one supported standard Harness: `safety`, `security`, or `reliability`. Local mode runs one Harness at a time and defaults to `safety` when `--harness-name` is omitted.
 
-```bash
-export HARNESS_NAME="security"
+  class ChatCompletionRequest(BaseModel):
+      model: str = ""
+      messages: list[Message] = Field(default_factory=list)
+      temperature: float | None = None
+      max_tokens: int | None = None
 
-vijil --verbose evaluate "$AGENT_ID" \
-  --local \
-  --harness-name "$HARNESS_NAME"
-```
 
-The command runs synchronously and invokes the Agent sequentially for every Detector-map row. Keep the Agent process running until the command returns.
+  app = FastAPI()
 
-The CLI then:
 
-1. Creates an Evaluation record in Console.
-2. Fetches the selected Harness's Detector map.
-3. Sends each Probe to the Agent.
-4. Sends each prompt and text response to the configured Detector service.
-5. Averages row scores within each Probe, then averages the Probe scores.
-6. Submits the aggregate score and failure counts to Console.
+  def run_market_researcher(messages: list[Message]) -> str:
+      plugin_dir = Path(os.environ["MARKET_RESEARCHER_PLUGIN"]).expanduser().resolve()
+      source = (plugin_dir / "agents" / "market-researcher.md").read_text()
+      market_researcher_prompt = source.split("---", maxsplit=2)[2].strip()
 
-Copy the returned Evaluation ID:
+      agent_definition = {
+          "vijil-market-researcher": {
+              "description": "A text-only Market Researcher",
+              "prompt": market_researcher_prompt
+              + """
 
-```bash
-export EVALUATION_ID="<evaluation-id>"
-vijil evaluations show "$EVALUATION_ID"
-```
+  Work only in text-only sector-overview mode. Do not access files, run
+  commands, call connectors, or invoke other Skills. Mark every unsupported
+  figure as [UNSOURCED].
+  """,
+              "skills": ["market-researcher:sector-overview"],
+          }
+      }
+      conversation = "\n\n".join(
+          f"{message.role.upper()}:\n{message.content}"
+          for message in messages
+          if message.content
+      )
+      prompt = (
+          "Respond to this labelled conversation. Return only the final response.\n\n"
+          + conversation
+      )
 
-The SDK submits a normalized `behavioral_score` from `0.0` to `1.0`, where higher is better. The local runner submits only the aggregate score, the selected Harness score, and summary counts. Do not assume that row-level responses, detailed findings, or downloadable reports are available for a local Evaluation.
+      command = [
+          "claude",
+          "--bare",
+          "--plugin-dir",
+          str(plugin_dir),
+          "--agents",
+          json.dumps(agent_definition),
+          "--agent",
+          "vijil-market-researcher",
+          "--permission-mode",
+          "dontAsk",
+          "--tools",
+          "",
+          "--strict-mcp-config",
+          "--no-session-persistence",
+          "--output-format",
+          "json",
+          "-p",
+          prompt,
+      ]
 
-## Check Evaluation Failures
+      try:
+          result = subprocess.run(
+              command,
+              check=True,
+              capture_output=True,
+              text=True,
+              timeout=180,
+          )
+      except FileNotFoundError as exc:
+          raise HTTPException(
+              status_code=502,
+              detail="Claude Code is not installed or is not on PATH",
+          ) from exc
+      except subprocess.SubprocessError as exc:
+          raise HTTPException(
+              status_code=502,
+              detail="Claude Code could not run the Agent",
+          ) from exc
 
-Local mode continues after individual Agent or Detector failures, but the failures affect scoring differently:
+      return json.loads(result.stdout)["result"]
 
-| Failure | Local Runner Behavior | Scoring Effect |
-|---|---|---|
-| Agent adapter error, timeout, or malformed response | Records the row as an Agent failure and continues | Scores the affected row as `0.0` |
-| Detector error, timeout, or unavailable service | Records the row as a Detector failure and continues | Scores the affected row as `1.0` |
 
-<Warning>
-  Detector failures can inflate the aggregate score because affected rows receive `1.0`. Review the `--verbose` output for `RemoteDetectorDispatcher` or `LocalEvalRunner` warnings. Do not interpret or compare an Evaluation that reports Detector failures; fix the Detector connection and rerun it.
-</Warning>
+  @app.post("/v1/chat/completions")
+  def chat_completions(
+      request: ChatCompletionRequest,
+      authorization: str | None = Header(default=None),
+  ):
+      expected = f"Bearer {PROXY_API_KEY}"
+      if authorization is None or not secrets.compare_digest(authorization, expected):
+          raise HTTPException(status_code=401, detail="Invalid API key")
 
-## Modify and Re-Evaluate the Agent
+      content = run_market_researcher(request.messages)
+      return {
+          "id": f"chatcmpl-{uuid.uuid4().hex[:8]}",
+          "object": "chat.completion",
+          "created": int(time.time()),
+          "model": MODEL_NAME,
+          "choices": [
+              {
+                  "index": 0,
+                  "message": {"role": "assistant", "content": content},
+                  "finish_reason": "stop",
+              }
+          ],
+      }
 
-After reviewing the first result, update the Agent's prompt, model, tools, policies, or runtime protections. Restart it at the same registered endpoint, repeat the smoke test, and rerun the same Harness with the same Agent ID:
 
-```bash
-vijil --verbose evaluate "$AGENT_ID" \
-  --local \
-  --harness-name "$HARNESS_NAME"
-```
+  @app.get("/health")
+  def health():
+      return {"status": "ok"}
 
-Save the new Evaluation ID and retrieve both records:
 
-```bash
-export UPDATED_EVALUATION_ID="<updated-evaluation-id>"
+  def start_server() -> None:
+      uvicorn.run(app, host="127.0.0.1", port=LOCAL_PORT, log_level="warning")
 
-vijil evaluations show "$EVALUATION_ID"
-vijil evaluations show "$UPDATED_EVALUATION_ID"
-```
 
-Compare only runs that used the same Agent behavior, model configuration, Harness, and working Detector service. Model variability and provider limits can still change results between runs.
+  def main() -> None:
+      client = Vijil(
+          api_key=os.environ["VIJIL_API_KEY"],
+          gateway=os.environ["VIJIL_GATEWAY_URL"],
+      )
 
-## Optionally Add Dome Protection
+      # 1. Fetch tunnel credentials from Vijil
+      print("Fetching tunnel credentials")
+      tunnel = client.agent_tunnel.get()
 
-[Dome](/concepts/platform/dome) is one possible remediation for unsafe Agent inputs and outputs. Dome runs inside the Agent process; the local Evaluation command does not install or inject it, and `vijil protect --local` is not available.
+      # 2. Start the local proxy
+      server_thread = threading.Thread(target=start_server, daemon=True)
+      server_thread.start()
+      time.sleep(1)
 
-Follow [Use Guardrails](/developer-guide/protect/using-guardrails) to add Dome directly or through a supported framework integration. Then restart the same endpoint and repeat the smoke test and Evaluation above.
+      conf.get_default().auth_token = tunnel.token
 
-Keep `DOME_INFERENCE_URL` in the Evaluation terminal. Do not set it in the Agent terminal unless you intentionally want Dome's supported Detectors to use remote inference and have configured access to that service. Otherwise, Dome can route those Detectors away from the Agent process.
+      # 3. Open the ngrok tunnel
+      print("Opening the ngrok tunnel")
+      connection = ngrok.connect(
+          LOCAL_PORT,
+          "http",
+          domain=tunnel.binding_url,
+      )
+      public_url = connection.public_url
+      print(f"Tunnel URL: {public_url}")
 
-Dome can block or replace content, but it does not cover every Evaluation Probe. Do not assume that adding Dome must increase the aggregate score.
+      try:
+          # 4. Register the Agent in Vijil Console
+          print("Registering the Agent")
+          agent = client.agents.create(
+              name="market-researcher-local",
+              url=public_url,
+              model_name=MODEL_NAME,
+              hub="custom",
+              api_key=PROXY_API_KEY,
+              rate_limit_requests_per_minute=5,
+          )
+          print(f"Agent ID: {agent.id}")
 
-## Understand Current Limitations
+          # 5. Run adaptive Red Teaming
+          print("Running adaptive Red Teaming")
+          red_team = client.xteam(agent.id)
+          print(f"Red Team ID: {red_team.engagement_id}")
+          print(f"Red Team status: {red_team.status}")
+          if red_team.degraded:
+              print(f"Red Team warning: {red_team.degradation_reason}")
+          print("Results: https://evaluate.vijil.ai/evaluations")
+      finally:
+          # 6. Close the tunnel
+          ngrok.disconnect(public_url)
+          print("Tunnel closed")
 
-| Area | Current Local Support |
-|---|---|
-| Harnesses | One of `safety`, `security`, or `reliability` per run |
-| Cloud Evaluation flags | `--baseline`, `--bespoke`, and `--no-wait` are incompatible with `--local` |
-| Sampling | `--sample-size` is currently ignored in local mode; omit it |
-| Other Harness types | Multiple Harnesses, Custom Harnesses, `trust_score`, and OWASP Harnesses are not supported |
-| Red Team and adaptation | `vijil test --local` is not implemented; there is no local Darwin workflow |
-| Protection and monitoring | `vijil protect --local` and `vijil monitor --local` are not available; protection must be integrated into the Agent |
-| SDK interfaces | The legacy `local_agents.create()` and `local_agents.evaluate()` workflow is not part of the current SDK; custom adapter plugins are not exposed |
-| Agent responses | Final text only; no streaming, image or audio content, tool calls, retrieval context, or action traces |
-| Results | Aggregate score and summary counts only from the local runner; detailed findings and reports are not guaranteed |
-| Execution controls | Sequential execution with no local rate-limit setting, progress UI, resume operation, or safe cancellation workflow |
 
-## Troubleshoot Local Evaluation
+  if __name__ == "__main__":
+      main()
+  ```
 
-| Symptom | Cause and Resolution |
-|---|---|
-| `--local` is missing from CLI help | Install a local-mode-enabled `vijil-sdk` build and verify the feature again before continuing. |
-| Registration reports `console: laptop-only` | Fix `gateway.url` or `VIJIL_API_KEY`, register again, and use the new successfully registered Agent ID. |
-| The CLI cannot find a default team | Run `vijil config set defaults.team_id "<team-id>"`, then confirm it with `vijil config show`. |
-| The Agent returns HTTP 404 | Register the OpenAI-compatible base URL, such as `http://127.0.0.1:8000/v1`, rather than the server root or full `/chat/completions` route. |
-| The authenticated Agent rejects Evaluation requests | Export the environment variable named by `--api-key-env` in the Evaluation terminal. Register again if the stored variable name is wrong. |
-| The Evaluation reports Detector failures | Set `DOME_INFERENCE_URL` to the correct gateway base URL, export `VIJIL_API_KEY`, confirm `/v1/detect` access, and rerun the entire Evaluation. |
-| Agent calls time out | Fix the Agent or provider latency, or set `VIJIL_LOCAL_ADAPTER_TIMEOUT` to a larger positive number of seconds before rerunning. |
-| A local command rejects a flag | Remove cloud-only flags. Use only `--local` and one supported `--harness-name` for the Evaluation. |
+</Accordion>
 
-## Stop or Reuse the Agent
+## Reuse the Agent
 
-Stop the local Agent process when you finish. Its laptop registration remains in `~/.vijil/local_agents.toml`, so you can restart the same endpoint and reuse the Agent ID for another local Evaluation.
+The script closes the ngrok connection after each run. The public binding becomes unreachable when the tunnel closes. It does not revoke your tunnel credentials or archive the Agent in Console.
+
+You can run an Evaluation for this local Agent in Console only while its proxy and user-specific tunnel are running.
+
+`client.agent_tunnel.get()` returns the same tunnel credentials on later runs, so you can open the same binding again. Keep the Agent ID if you want to compare future Evaluations. If you rerun the full script, it registers another Agent record.
