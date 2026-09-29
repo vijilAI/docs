@@ -78,7 +78,7 @@ Registration tells the platform how to reach the Agent and how much context it c
   </Tab>
   <Tab title="SDK">
     1. Create a `Vijil` client.
-    2. Register the current Agent configuration with [`client.agents.create()`](/developer-guide/sdk/resources#client-agents).
+    2. Register the current Agent configuration with [`client.agents.create()`](/developer-guide/sdk/resources#clientagents).
     3. Save `agent.id` for the remaining stages.
 
     Use `client.agents.create()` for this workflow. Do not use [`client.register()`](/developer-guide/sdk/lifecycle-methods#preview-methods), which depends on a preview source-to-genome Console route.
@@ -108,7 +108,7 @@ A [Diamond Evaluation](/developer-guide/evaluate/overview) measures the Agent ag
     5. Run the Evaluation.
   </Tab>
   <Tab title="SDK">
-    1. Run [`client.evaluate(agent_id, baseline=True)`](/developer-guide/sdk/lifecycle-methods#client-evaluate).
+    1. Run [`client.evaluate(agent_id, baseline=True)`](/developer-guide/sdk/lifecycle-methods#clientevaluate).
     2. Record the Trust Score and the Reliability, Security, and Safety scores.
     3. Save the Evaluation ID.
   </Tab>
@@ -124,7 +124,7 @@ Review the [Evaluation results](/developer-guide/evaluate/understanding-results)
 
 ### Run an Adaptive Red Team Campaign
 
-After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) against the registered Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose.
+After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/red-team/running-campaigns) against the registered Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose.
 
 <Tabs>
   <Tab title="Console">
@@ -142,9 +142,9 @@ After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/
   </Tab>
 </Tabs>
 
-Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#client-test) only when the simpler campaign interface matches your deployment.
+Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#clienttest) only when the simpler campaign interface matches your deployment.
 
-Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
+Use the [Red Team results](/owner-guide/red-team/understanding-results) to inspect:
 
 - `FULL`, `PARTIAL`, and `NONE` judgments.
 - Confirmed policy violations.
@@ -163,7 +163,7 @@ Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#un
 
 ## 3. Harden the Agent With Dome
 
-Use the [Trust Score findings](/developer-guide/evaluate/understanding-results#reading-findings) and [Red Team evidence](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to choose [Dome runtime protection](/developer-guide/protect/overview):
+Use the [Trust Score findings](/developer-guide/evaluate/understanding-results#reading-findings) and [Red Team evidence](/owner-guide/red-team/understanding-results) to choose [Dome runtime protection](/developer-guide/protect/overview):
 
 | Finding | Likely Protection |
 |---|---|
@@ -191,7 +191,7 @@ Use the [Console Guardrail guide](/owner-guide/protect-in-production/configuring
     8. Send staging traffic through the Agent and confirm that Dome Metrics receives it.
   </Tab>
   <Tab title="SDK">
-    1. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) to associate the Dome configuration with the Agent.
+    1. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#clientprotect) to associate the Dome configuration with the Agent.
     2. Where enabled, [load the Guardrail configuration](/developer-guide/protect/overview#configuration-sources) with `Dome.create_from_vijil_agent()`. Otherwise, use a reviewed, version-controlled Dome configuration.
     3. [Wrap both Agent inputs and Agent outputs with Guardrails](/owner-guide/protect-in-production/deploying-dome#integration-pattern).
     4. Handle blocked and sanitized results explicitly.
@@ -238,8 +238,8 @@ Manual remediation is the default path. Depending on the finding, you might:
   <Tab title="SDK">
     1. Apply code and configuration fixes through the application repository.
     2. Update the relevant Agent, Policy, or Dome configuration through the SDK when needed.
-    3. Where Darwin is available, run [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
-    4. Review the generated proposals with [`client.proposals`](/developer-guide/sdk/resources#client-proposals).
+    3. Where Darwin is available, run [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#clientadapt).
+    4. Review the generated proposals with [`client.proposals`](/developer-guide/sdk/resources#clientproposals).
     5. Approve and apply only reviewed proposals.
     6. Preserve genome versions for comparison and audit.
   </Tab>
@@ -350,7 +350,7 @@ Use `0.70` only as an example. Set `VIJIL_TRUST_THRESHOLD` to the threshold appr
   <Tab title="SDK">
     1. Run the SDK release gate before the production deployment job.
     2. Deploy the hardened Agent through your delivery pipeline.
-    3. If the endpoint or configuration changed, update the registered Agent with [`client.agents.update()`](/developer-guide/sdk/resources#client-agents).
+    3. If the endpoint or configuration changed, update the registered Agent with [`client.agents.update()`](/developer-guide/sdk/resources#clientagents).
     4. Reload or reapply the reviewed [Dome configuration](/owner-guide/protect-in-production/deploying-dome#configuration-sync).
     5. Run a production smoke test.
     6. Confirm that production traces use the expected Agent ID.
@@ -429,7 +429,7 @@ New findings restart the lifecycle at Improve. Apply a reviewed change, re-evalu
 |---|---|
 | The Evaluation cannot reach the Agent | Review [Agent availability](/owner-guide/run-evaluations/running-evaluations#agent-availability), endpoint compatibility, credentials, and rate limits |
 | The Evaluation takes too long | Review [Evaluation rate limits](/developer-guide/evaluate/overview#rate-limiting), use a small sample while iterating, then run full coverage before release |
-| Red Team is too slow or expensive | Review [Red Team runtime and cost](/owner-guide/run-evaluations/running-evaluations#red-team-runtime-and-cost), then reduce waves, seeds, or parallel attackers |
+| Red Team is too slow or expensive | Review [Red Team runtime and cost](/owner-guide/red-team/running-campaigns#runtime-and-cost), then reduce waves, seeds, or parallel attackers |
 | Dome blocks normal traffic | Inspect [Dome traces](/owner-guide/protect-in-production/observability#open-logs-and-traces) and tune the responsible Detector |
 | The CI/CD gate fails | Check the Evaluation status, Trust Score, configured threshold, and [SDK credentials](/developer-guide/sdk/setup#authentication) |
 | The platform uses the old Agent endpoint | [Update the registered Agent](/owner-guide/register-agents/registering-agents#manage-agents) after deployment |
