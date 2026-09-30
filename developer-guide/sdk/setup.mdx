@@ -42,22 +42,35 @@ client = Vijil()
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `gateway` | `str \| None` | `None` | Gateway URL. Falls back to config, then `https://api.vijil.ai` |
-| `api_key` | `str \| None` | `None` | API key. Falls back to the `VIJIL_API_KEY` environment variable, then `~/.vijil/credentials.json` |
-| `config_dir` | `Path \| None` | `None` | Configuration directory. Defaults to `~/.vijil/` |
+| `gateway` | `str \| None` | `None` | Console API gateway URL. Overrides `gateway.url` in the configuration file |
+| `api_key` | `str \| None` | `None` | Explicit bearer access token |
+| `client_id` | `str \| None` | `None` | Client ID for an API credential pair |
+| `client_secret` | `str \| None` | `None` | One-time secret paired with `client_id` |
+| `config_dir` | `Path \| None` | `None` | Directory containing `config.toml` and `credentials.json`. Defaults to `~/.vijil/` |
 
-The constructor raises [`VijilAuthError`](/developer-guide/sdk/models-errors) if no API key can be resolved from any source.
+The constructor raises [`VijilAuthError`](/developer-guide/sdk/models-errors) if no API key can be resolved from any source. If you use client credentials, provide both `client_id` and `client_secret`.
 
 ## Authentication
 
-Create an API key in your [Vijil Console](/developer-guide/deploy-vijil/deploy-vijil-console) deployment under **Settings** > **API Keys** — a client ID (`vk_…`) plus a one-time secret shown only at creation. Export the pair; the SDK exchanges it for a short-lived access token automatically:
+Create API credentials under **Settings** > **API Keys** in your [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console). Each credential consists of a client ID (`vk_…`) and a secret that the Console shows only once. Provide the pair through environment variables or constructor arguments:
 
-```bash
-export VIJIL_CLIENT_ID="vk_..."
-export VIJIL_CLIENT_SECRET="..."   # shown once at creation
+<CodeGroup>
+```bash Environment variables
+export VIJIL_CLIENT_ID="<client-id>"
+export VIJIL_CLIENT_SECRET="<client-secret>"
 ```
 
-`Vijil()` reads these from the environment on construction.
+```python Constructor arguments
+from vijil import Vijil
+
+client = Vijil(
+    client_id="<client-id>",
+    client_secret="<client-secret>",
+)
+```
+</CodeGroup>
+
+When you provide no authentication arguments, `Vijil()` reads `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` from the environment. The SDK exchanges the pair for a bearer access token when it constructs the client. It does not store the client ID or secret.
 
 ### Bearer Token
 
@@ -79,10 +92,16 @@ vijil auth login   # paste the token; saved to ~/.vijil/credentials.json
 ```
 </CodeGroup>
 
-The `api_key` argument takes precedence over `VIJIL_API_KEY`, which takes precedence over the saved credentials file.
+Use one authentication method per client. The SDK resolves credentials in this order:
+
+1. A complete `client_id` and `client_secret` pair passed to `Vijil()`
+2. An `api_key` passed to `Vijil()`
+3. `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET`, when you pass no authentication arguments
+4. `VIJIL_API_KEY`
+5. The token in `~/.vijil/credentials.json`
 
 <Note>
-A bearer access token is a JWT that expires 24 hours after it is issued. For long-lived automation, authenticate with the client ID and secret instead — the SDK exchanges them for a fresh token automatically whenever the current one expires.
+The gateway determines the access token lifetime. The SDK does not store a client credential pair after its initial exchange. If that token expires, construct a new client or call `client.authenticate(client_id="<client-id>", client_secret="<client-secret>")`. Your application must replace bearer tokens supplied through `api_key` or `VIJIL_API_KEY`; tokens loaded from the saved credentials file can use the SDK's refresh flow.
 </Note>
 
 <Tip>
@@ -91,7 +110,7 @@ In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than
 
 ## Gateway Configuration
 
-By default the SDK connects to `https://api.vijil.ai`. Point it at your own Console deployment (enterprise or VPC) with the `gateway` argument or the `VIJIL_GATEWAY` environment variable:
+By default, the SDK connects to `https://console-api.vijil.ai`. Point it at another Console deployment with the `gateway` argument or save the URL in `~/.vijil/config.toml`:
 
 <CodeGroup>
 ```python Argument
@@ -100,21 +119,20 @@ from vijil import Vijil
 client = Vijil(gateway="https://console-api.example.com")
 ```
 
-```bash Environment variable
-export VIJIL_GATEWAY="https://console-api.example.com"
+```bash Saved configuration
+vijil config set gateway.url https://console-api.example.com
 ```
 </CodeGroup>
 
 All SDK calls route through the gateway. Resolution order, highest priority first:
 
 1. The `gateway` argument
-2. The `VIJIL_GATEWAY` environment variable
-3. The `gateway.url` value in `~/.vijil/config.toml`
-4. The built-in default, `https://api.vijil.ai`
+2. The `gateway.url` value in `~/.vijil/config.toml`
+3. The built-in default, `https://console-api.vijil.ai`
 
 ## Agent Aliases
 
-The SDK resolves short aliases defined in `~/.vijil/config.toml` anywhere an Agent ID is expected, so you can pass a memorable name instead of a UUID:
+Methods that support Agent aliases read them from `~/.vijil/config.toml`, so you can pass a memorable name instead of a UUID:
 
 ```python
 client = Vijil()
