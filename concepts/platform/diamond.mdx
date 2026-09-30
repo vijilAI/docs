@@ -20,7 +20,7 @@ Diamond supports two evaluation types for a registered Agent:
 | Type | How It Works | Use It When |
 |------|--------------|-------------|
 | **Behavioral** (`behavioral`) | Runs a structured [Harness](/concepts/evaluation-components/harness) made of [Scenarios](/concepts/evaluation-components/scenario), [Probes](/concepts/evaluation-components/probe), and [Detectors](/concepts/evaluation-components/detector). Produces a Trust Score. | You need reproducible readiness evidence or a focused custom Harness. |
-| **Red Team** (`redteam`) | Runs adaptive waves of adversarial attacks. Each wave generates seeds, launches attackers, judges transcripts, and uses reflections to plan the next wave. Produces findings and a report. | You need deeper security and safety testing or evidence of unknown vulnerabilities. |
+| **Red Team** (`redteam`) |  Runs an adversarial [Engagement](/concepts/red-team/engagements) against a registered [Agent](/owner-guide/register-agents/what-is-an-agent), adaptively over multiple waves. | You need deeper adversarial testing, want to uncover unknown vulnerabilities, or need evidence for security and risk review. |
 
 Red Team uses the Agent context available in Diamond, including its purpose, policies, personas, tools, workflows, and known risks where available. Its adaptive campaign works through this loop:
 

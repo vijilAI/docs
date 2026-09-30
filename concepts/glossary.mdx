@@ -219,6 +219,11 @@ Vijil's runtime defense platform that protects agents in production through conf
 
 ---
 
+**Engagement**
+The object created by a Red Team run. An Engagement runs in Waves, generating Attack Seeds, attacking the Agent over multiple turns, judging transcripts, and reflecting to plan the next Wave.
+
+---
+
 **Guard**
 A protection category within a Guardrail that addresses a specific threat type, such as prompt injection, PII exposure, or toxicity.
 
@@ -239,6 +244,11 @@ The assessment of one Red Team attack transcript. It records attack success, pot
 
 ---
 
+**Judgment**
+A judge's verdict on one Red Team attack transcript. A Judgment records whether harmful content was delivered (FULL, PARTIAL, or NONE) and whether the harm is verified or needs owner review.
+
+---
+
 **Persona**
 A profile representing who interacts with an agent. Personas inform evaluation Scenarios and defense configurations based on user characteristics and threat models.
 
@@ -255,12 +265,14 @@ A specific test case that challenges an agent with a potentially harmful or prob
 ---
 
 **Red Team**
-A Diamond evaluation type that runs adaptive waves of adversarial attacks against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies. Its output is a findings report; Trust Scores come from behavioral evaluations.
+A Diamond evaluation type that runs adaptive waves of adversarial attacks against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies. Its output is a findings report, Trust Scores come from behavioral evaluations.
+
+In the Console Red Team is the Adaptive tab. Red Team is also available from the CLI, MCP, and REST API.
 
 ---
 
 **Reflection**
-A summary produced after a Red Team wave. It records successful seeds and new attack patterns that guide later waves.
+A summary produced after one Red Team wave. It records successful seeds and new attack patterns that guide later waves.
 
 ---
 
