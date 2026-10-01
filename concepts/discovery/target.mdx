@@ -7,6 +7,12 @@ A **Target** is a place you want looked at: a fleet of laptops, a network, a Kub
 
 A Target is a scope. It names the place, and the [Collectors](/concepts/discovery/collector) do the looking inside it. Many Collectors can report into one Target.
 
+<Note>
+The command line and the API call a Target a **deployment**, which is why Target commands
+use the `deployment-*` names and the API path reads `/v1/discover/deployments`. The **New scan**
+modal in the Console calls them **scan surfaces**. All three names mean the same object.
+</Note>
+
 ## What a Target Holds
 
 | Holds | Meaning |

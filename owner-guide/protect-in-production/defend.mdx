@@ -13,7 +13,7 @@ Defend reads runtime events from [Targets](/concepts/discovery/target) of type `
 [Collector](/concepts/discovery/collector) reports into it.
 
 <Note>
-Create one with `vijil discover2 deployment-create --name "<name>" --type dlp`. See
+Create one with `vijil discover deployment-create --name "<name>" --type dlp`. See
 [Create and Manage Targets](/owner-guide/discover/targets).
 </Note>
 
@@ -85,17 +85,17 @@ Expand a row for the full event.
 ## Read the Same Data From the Command Line
 
 ```bash
-vijil discover2 dlp-event-summary <target-id>
-vijil discover2 dlp-event-list <target-id>
-vijil discover2 dlp-event-get <target-id> <event-id>
+vijil discover dlp-event-summary <target-id>
+vijil discover dlp-event-list <target-id>
+vijil discover dlp-event-get <target-id> <event-id>
 ```
 
 Agent runtime events read from the same Target:
 
 ```bash
-vijil discover2 agent-event-summary <target-id>
-vijil discover2 agent-event-list <target-id>
-vijil discover2 agent-session-list <target-id>
+vijil discover agent-event-summary <target-id>
+vijil discover agent-event-list <target-id>
+vijil discover agent-session-list <target-id>
 ```
 
 See the [Discover CLI reference](/developer-guide/cli/discover) for the full set.

@@ -32,10 +32,11 @@ scan.
 
 Every Collector needs two values.
 
-**Where to report.** The control plane address:
+**Where to report.** The control plane address. On Vijil's hosted service it is
+`https://discover.vijil.ai`. On a self-hosted Console, read it with:
 
 ```bash
-vijil discover2 setup-info
+vijil discover setup-info
 ```
 
 **Which Target.** The `id` returned when you created the Target. See
@@ -45,8 +46,8 @@ vijil discover2 setup-info
 
 | Credential | Use when | Mint it with |
 |------------|----------|--------------|
-| **Scanner token** | You install by hand: a virtual machine, a Helm release, a cloud connector. One token per Collector, revocable on its own. | `vijil discover2 scanner-mint <target-id>` |
-| **Enrollment code** | The install is unattended and repeated: a laptop fleet through device management. One code serves the whole wave, and each machine registers as its own Collector. | `vijil discover2 enrollment-code-create <target-id>` |
+| **Scanner token** | You install by hand: a virtual machine, a Helm release, a cloud connector. One token per Collector, revocable on its own. | `vijil discover scanner-mint <target-id> --scanner-kind <kind>` |
+| **Enrollment code** | The install is unattended and repeated: a laptop fleet through device management. One code serves the whole wave, and each machine registers as its own Collector. | `vijil discover enrollment-code-create <target-id>` |
 
 Both are also available in the Console, on the **Scanners** sub-tab of the Target.
 
@@ -360,10 +361,13 @@ Collector stops working.
 From the command line:
 
 ```bash
-vijil discover2 scanner-list <target-id>
+vijil discover scanner-list <target-id>
 ```
 
 A new Collector appears within a minute of starting.
+
+A Collector that stays silent for 30 days drops out of the current view, and its findings
+with it.
 
 ## Troubleshooting
 
@@ -375,7 +379,7 @@ A new Collector appears within a minute of starting.
 2. On a macOS or Linux endpoint Collector, confirm `/etc/vijil-shadow/enrollment-code`
    exists and holds the code. On Windows, confirm `C:\ProgramData\vijil-shadow\identity.json` exists.
 3. Confirm the host can reach the control plane outbound on port `443`.
-4. Confirm the control plane address matches the one `vijil discover2 setup-info` returns.
+4. Confirm the control plane address matches the one `vijil discover setup-info` returns.
 5. Confirm the credential is still valid and belongs to **this** Target.
 
 **Uploads fail with HTTP 401.** You minted the token for a different Target than the one the
@@ -388,12 +392,17 @@ queued."*
 
 ## Revoke Credentials
 
-Revoking takes effect immediately.
+Revoking takes effect immediately. Revoking a scanner also removes its findings from the
+current view at once, without waiting for the 30-day silence window. Its past reports stay in
+scan history.
 
 ```bash
-vijil discover2 scanner-revoke <scanner-id>
-vijil discover2 enrollment-code-revoke <code-id>
+vijil discover scanner-revoke <scanner-id>
+vijil discover enrollment-code-revoke <code-id>
 ```
+
+You cannot revoke the Collector that uses the Target's own install token. Rotate the install
+token instead.
 
 Revoke enrollment codes once you finish the rollout. Every machine that holds a live code
 can still enroll with it.

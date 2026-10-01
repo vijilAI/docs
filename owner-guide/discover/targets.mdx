@@ -11,7 +11,7 @@ group under.
 The Console cannot create Targets yet. Use the `vijil` command line tool:
 
 ```bash
-vijil discover2 deployment-create --name "laptops" --type scanner --json
+vijil discover deployment-create --name "laptops" --type scanner --json
 ```
 
 <Note>
@@ -106,11 +106,14 @@ agent connected**.
 
 ## Run a Scan
 
-Press **Scan now**, or:
+Press **Scan now** on the Target, or:
 
 ```bash
-vijil discover2 scan-now <target-id>
+vijil discover scan-now <target-id>
 ```
+
+You can also press **+ New Scan** on **Discover** and stay on the **Scan surfaces** tab.
+The modal calls Targets "scan surfaces". Pick one and press **Scan**.
 
 Collectors poll every 30 seconds by default, so expect a short delay before the scan starts.
 
@@ -123,16 +126,18 @@ connected, the Console asks you to confirm first.
 Open the **Schedule** sub-tab, or use the command line:
 
 ```bash
-vijil discover2 config-get <target-id>
-vijil discover2 config-set <target-id>
+vijil discover config-get <target-id>
+vijil discover config-set <target-id> --body @schedule.json
 ```
+
+`--body` takes a JSON object inline, or `@file` to read one from a file.
 
 Schedule a recurring scan for any Target you intend to keep.
 
 ## Delete a Target
 
 ```bash
-vijil discover2 deployment-delete <target-id>
+vijil discover deployment-delete <target-id>
 ```
 
 Deleting a Target removes its scan history, Collectors, credentials, policies, and
