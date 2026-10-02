@@ -3,129 +3,146 @@ title: 'Observability'
 description: 'Monitor Dome Guardrails with OpenTelemetry, tracing, and logging.'
 ---
 
-Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup.
+Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup for your [Guardrails](/concepts/defense/guardrail).
 
 If you use [Trust Runtime](/developer-guide/protect/trust-runtime), its structured audit events complement Dome telemetry with Agent identity, tool access, attestation, downgrade, and enforcement-heartbeat decisions. Every event includes the configured `agent_id`; cryptographic identity fields are available only when the runtime is attested.
 
-## Quick Setup
+## Install OpenTelemetry Support
 
-Install the [OpenTelemetry](https://opentelemetry.io/) support version of Dome using pip or your package manager.
+```bash
+pip install "vijil-dome[opentelemetry]"
+```
+
+Add the `google` extra as well when you export to Google Cloud Trace, Monitoring, or Logging.
+
+## Instrument Dome
+
+`instrument_dome()` attaches a logging handler, a tracer, and a meter to an existing [Dome](/concepts/platform/dome) instance. Every argument is optional, so you can enable only the signals you need:
+
+```python
+import logging
+from opentelemetry import metrics, trace
+
+from vijil_dome import Dome
+from vijil_dome.integrations.instrumentation.otel_instrumentation import instrument_dome
+
+dome = Dome()
+
+instrument_dome(
+    dome,
+    handler=logging.StreamHandler(),
+    tracer=trace.get_tracer("my-agent"),
+    meter=metrics.get_meter("my-agent"),
+)
+```
+
+Instrumentation is applied once per instance. Calling `instrument_dome()` again on the same instance is a no-op.
+
+<Note>
+Set up your tracer and meter providers, including exporters for Jaeger, Prometheus, or another OpenTelemetry backend, before you call `instrument_dome()`.
+</Note>
 
 ## LLM Tracing Platforms
 
+Dome exposes `apply_decorator()`, which wraps its scan methods with any decorator. Use it to add Dome activity to platforms that trace through decorators.
+
 ### Weights & Biases Weave
 
-[Weave](https://weave-docs.wandb.ai/) is W&B's toolkit for tracing LLM applications. You can use it with Dome to trace all inputs and outputs by wrapping Dome with Weave.
+[Weave](https://weave-docs.wandb.ai/) is W&B's toolkit for tracing LLM applications:
 
-In your Weave dashboard, you will see:
-- All `guard_input` and `guard_output` calls
-- Individual Guard execution within each Guardrail
-- Detector-level details for each Guard
+```python
+import weave
+from vijil_dome import Dome
+
+dome = Dome()
+dome.apply_decorator(weave.op)
+```
+
+Calls to `guard_input()`, `guard_output()`, and their asynchronous forms then appear in your Weave dashboard with per-Guard and per-Detector details.
 
 ### AgentOps
 
-[AgentOps](https://www.agentops.ai/) provides agent-focused observability. Initialize AgentOps and apply its tracking to the Dome instance.
+[AgentOps](https://www.agentops.ai/) provides Agent-focused observability. Install `agentops` separately, then apply its recorder:
 
-## OpenTelemetry Integration
+```python
+import os
 
-Dome works with OpenTelemetry-compliant platforms such as Jaeger, Uptrace, Signoz, etc.
+import agentops
+from vijil_dome import Dome
 
-### Basic Setup
+agentops.init(os.getenv("AGENTOPS_API_KEY"))
 
-You can instrument Dome with your tracer, meter, and handlers configuration via Dome's instrument method.
+dome = Dome()
+dome.apply_decorator(agentops.record_action())
+```
 
-### Full Example with Jaeger
-
-Specify your tracer provider and inject it into Dome's instrument method. All Guard calls will then create spans in Jaeger.
+<Warning>
+The decorator you pass to `apply_decorator()` must support both synchronous and asynchronous functions, because Dome wraps both scan variants.
+</Warning>
 
 ## Tracing
 
-When instrumented with a tracer, Dome creates spans for:
+When you supply a tracer, Dome creates spans for each [Guard](/concepts/defense/guard) and [Detector](/concepts/defense/detector) it runs:
 
-- **Guardrail execution**: Top-level span for `guard_input` / `guard_output`
-- **Guard execution**: Nested span for each Guard in the Guardrail
-- **Detector execution**: Nested span for each Detector in the Guard
+- **Guardrail execution**: top-level span for `guard_input()` and `guard_output()`
+- **Guard execution**: nested span for each Guard in the Guardrail
+- **Detector execution**: nested span for each Detector in the Guard
 
-Each span includes:
-- Input and output data
-- Execution time
-- Error information (if any)
-- Whether content was flagged
+Each span carries the input and output of the call, execution time, error information, and whether content was flagged. Dome also emits one `dome-detection` span per scan, carrying `dome.guardrail`, `detection.label`, `detection.score`, `detection.method`, `dome.guard.enforced`, and the `agent.id`, `team.id`, and `user.id` values you pass to the scan. The [Vijil Console](/concepts/platform/console) reads these spans and presents them in [Monitor Dome Metrics](/owner-guide/protect-in-production/observability).
 
 ### Span Hierarchy
 
 ```
-guard_input
-├── security-guard
-│   ├── prompt-injection-mbert
-│   └── encoding-heuristics
-└── moderation-guard
-    └── moderation-flashtext
+Dome-Input-Guardrail.scan
+├── Dome-Input-Guardrail.security_default.scan
+│   ├── Dome-Input-Guardrail.security_default.EncodingHeuristicsDetector.scan
+│   └── Dome-Input-Guardrail.security_default.MBertPromptInjectionModel.scan
+└── Dome-Input-Guardrail.moderation_default.scan
+    └── Dome-Input-Guardrail.moderation_default.KWBanList.scan
 ```
 
 ## Metrics
 
-When instrumented with a meter, Dome automatically tracks:
+When you supply a meter, Dome instruments every Guardrail, Guard, and Detector with four instruments:
 
-| Metric | Description |
-|--------|-------------|
-| `requests` | Total requests to each component |
-| `flagged` | Requests flagged by each component |
-| `errors` | Errors encountered |
-| `latency` | Execution time |
+| Instrument | Suffix | Description |
+|------------|--------|-------------|
+| Requests | `-requests_total` | Requests sent to the component |
+| Flagged | `-flagged_total` | Requests the component flagged |
+| Errors | `-error_total` | Errors the component raised |
+| Latency | `-latency_seconds` | Execution time of the component |
 
 ### Metric Naming
 
-Metrics follow the pattern: `[guardrail].[guard].[detector].[metric]`
+Names follow the pattern `[guardrail].[guard].[detector]` plus the instrument suffix. `instrument_dome()` names the two Guardrails `dome-input` and `dome-output`, and characters that OpenTelemetry does not accept in an instrument name become underscores:
 
-Examples:
-- `input_guardrail.security_guard.requests`
-- `input_guardrail.security_guard.prompt_injection_mbert.flagged`
-- `output_guardrail.latency`
+- `dome_input-requests_total`
+- `dome_input.security_default-flagged_total`
+- `dome_input.security_default.MBertPromptInjectionModel-latency_seconds`
 
-### Example: Prometheus
 
-You can export metrics from Dome to Prometheus by supplying a Prometheus metric reader and meter.
 
 ## Logging
 
-Dome logs to Python loggers under `vijil.dome`. You can add standard handlers to capture logs.
+Dome logs through Python loggers named `vijil.dome`. Any handler you pass to `instrument_dome()` is attached to those loggers.
 
-### Log Levels
-
-| Level | What is Logged |
-|-------|---------------|
-| `DEBUG` | Initialization details, parameters |
-| `INFO` | Inputs and outputs from each component |
-| `WARNING` | Missing configuration, context window exceeded, timeouts |
+| Level | What Is Logged |
+|-------|----------------|
+| `DEBUG` | Initialization of Guardrails, Guards, and Detectors, with their parameters |
+| `INFO` | Inputs and outputs of each component, and Detector routing decisions |
+| `WARNING` | Missing configuration, context window exceeded, timeouts, Detector errors |
 | `ERROR` | Handled exceptions during execution |
-| `CRITICAL` | Initialization failures, unhandled exceptions |
+| `CRITICAL` | Initialization failures and unhandled exceptions |
 
-### Structured Logging
-
-For JSON-structured logs, define a JSON formatter in your logging setup. 
-
-## Custom Metrics
-
-You can also add and merge your own custom metrics alongside Dome's built-in metrics using the meter provider.
-
-## Dashboard Examples
-
-### Grafana Dashboard
-
-You can track key metrics such as Blocked Request Rate, Average Latency, and Error Rates.
-
-### Alerts
-
-You can set up alerts for anomalies like high block rates or high latency directly in your observability solutions (e.g., Prometheus AlertManager).
+Set `VIJIL_LOG_PAYLOADS=1` to add a redacted payload record, which reports the payload type and length rather than its content, at `DEBUG` level for every scan.
 
 ## Best Practices
 
-1. **Always instrument in production**: Visibility is essential for security
-2. **Set appropriate log levels**: Use INFO for production, DEBUG for troubleshooting
-3. **Monitor block rates**: Sudden increases may indicate attacks
-4. **Track latency**: Ensure Guards do not impact user experience
-5. **Alert on errors**: Guard failures should be investigated immediately
+1. **Always instrument in production**: visibility is essential for security.
+2. **Set appropriate log levels**: use `INFO` in production and `DEBUG` for troubleshooting.
+3. **Monitor block rates**: sudden increases may indicate an attack.
+4. **Track latency**: confirm that Guards do not degrade the user experience.
+5. **Alert on errors**: a rise in `-error_total` means Detectors are failing, and the `on-error` policy is deciding outcomes instead of the Detectors.
 
 <Card title="Work in Progress" icon="pickaxe" badge="Private preview">
   The programmatic observability capabilities and integrations are currently in private preview and subject to change.
@@ -145,8 +162,5 @@ You can set up alerts for anomalies like high block rates or high latency direct
   </Card>
   <Card title="Custom Detectors" icon="wrench" href="/developer-guide/protect/custom-detectors">
     Build custom detection methods
-  </Card>
-  <Card title="Protection Overview" icon="book" href="/developer-guide/protect/overview">
-    Dome architecture overview
   </Card>
 </CardGroup>

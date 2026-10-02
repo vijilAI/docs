@@ -1,0 +1,92 @@
+---
+title: 'MCP Servers'
+description: 'Put Dome Guardrails in front of MCP servers with a guarded proxy.'
+---
+
+Dome can protect Model Context Protocol traffic by running as a proxy in front of one or more MCP servers. Every call passes through your [Guardrails](/concepts/defense/guardrail) before it reaches the server. `DomedMCPServer` builds a FastMCP proxy that scans every tool call on the way in and every tool result on the way out.
+
+## Install
+
+```bash
+pip install "vijil-dome[mcp]"
+```
+
+See [Install Dome](/developer-guide/protect/installation) for the other extras.
+
+## Run a Guarded Proxy
+
+Pass a standard MCP server configuration and a `Dome` instance, initialize the proxy, then run it:
+
+```python
+import asyncio
+
+from vijil_dome import Dome
+from vijil_dome.integrations.mcp.wrapper import DomedMCPServer
+
+config = {
+    "mcpServers": {
+        "search": {
+            "url": "https://mcp.example.com/mcp/",
+            "transport": "http",
+        },
+        "calculator": {
+            "command": "python",
+            "args": ["-m", "mcp_server_calculator"],
+            "transport": "stdio",
+        },
+    }
+}
+
+dome = Dome("dome_config.toml")
+domed_server = DomedMCPServer(config, dome)
+
+asyncio.run(domed_server.initialize())
+domed_server.run(transport="http", host="0.0.0.0", port=8080)
+```
+
+Call `domed_server.run()` without arguments to serve over stdio.
+
+## Constructor Options
+
+| Argument | Default | Purpose |
+|----------|---------|---------|
+| `mcp_server_config` | Required | MCP server configuration, in the same shape MCP clients use |
+| `dome` | Required | `Dome` instance whose Guardrails scan the traffic |
+| `server_name` | `Domed MCP Server` | Name the proxy advertises |
+| `tool_call_input_block_message` | Built-in message | Returned when an input Guard blocks a tool call |
+| `tool_call_output_block_message` | Built-in message | Returned when an output Guard blocks a tool result |
+| `enforce` | `True` | Set to `False` to scan and report without blocking |
+
+When a Guard blocks a call, the proxy returns a result carrying the blocked message along with the `blocked_by_guardrails` and `guardrail_message` fields, rather than raising an error at the client.
+
+## Configure the Guards for a Proxy
+
+The direction of protection is inverted compared with an [Agent](/owner-guide/register-agents/what-is-an-agent):
+
+- The **input** Guardrail protects the MCP server from risky model output, so it should carry the Guards you would normally use on Agent output.
+- The **output** Guardrail protects the calling model from server responses, so it should include the prompt injection [Detectors](/developer-guide/protect/detection-methods) that catch payloads embedded in tool results.
+
+```toml
+[guardrail]
+input-guards = ["tool-call-safety"]
+output-guards = ["tool-result-safety"]
+
+[tool-call-safety]
+type = "privacy"
+methods = ["privacy-presidio", "detect-secrets"]
+
+[tool-result-safety]
+type = "security"
+methods = ["prompt-injection-mbert", "encoding-heuristics"]
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
+    Build the configuration the proxy loads
+  </Card>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Identity-bound tool permissions inside the Agent
+  </Card>
+</CardGroup>

@@ -37,6 +37,8 @@ The `trust` and `trust-adapters` extras include SPIFFE identity support. If you 
 pip install "vijil-dome[identity]"
 ```
 
+See [Install Dome](/developer-guide/protect/installation) for the other extras and the environment variables Trust Runtime reads.
+
 ## Protect an Agent With `secure_agent()`
 
 Pass your agent object, its registered `agent_id`, and a constraint source to `secure_agent()`. The following examples use the local `constraints` dictionary from [Configure Constraints](#configure-constraints). Start in `warn` mode while you validate the integration:

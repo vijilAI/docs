@@ -141,6 +141,13 @@
             ]
           },
           {
+            "group": "Red Team",
+            "pages": [
+              "concepts/red-team/introduction",
+              "concepts/red-team/engagements"
+            ]
+          },
+          {
             "group": "Runtime Defense",
             "pages": [
               "concepts/defense/introduction",
@@ -214,10 +221,18 @@
             ]
           },
           {
+            "group": "Red Team",
+            "pages": [
+              "owner-guide/red-team/running-campaigns",
+              "owner-guide/red-team/understanding-results"
+            ]
+          },
+          {
             "group": "Protect Agents",
             "pages": [
               "owner-guide/protect-in-production/configuring-guardrails",
               "owner-guide/protect-in-production/defend",
+              "owner-guide/protect-in-production/deploying-dome",
               "owner-guide/protect-in-production/observability"
             ]
           }
@@ -230,6 +245,7 @@
             "group": "Get Started",
             "pages": [
               "developer-guide/getting-started/introduction",
+              "developer-guide/getting-started/agent-lifecycle-workflow",
               "developer-guide/agentic/quickstart",
               "developer-guide/deploy-vijil/deploy-vijil-console"
             ]
@@ -239,15 +255,23 @@
             "pages": [
               "developer-guide/evaluate/overview",
               "developer-guide/evaluate/running-evaluations",
+              "developer-guide/evaluate/local-agent",
               "developer-guide/evaluate/understanding-results",
               "developer-guide/evaluate/custom-harnesses",
               "developer-guide/evaluate/cloud-providers"
             ]
           },
           {
+            "group": "Red Team",
+            "pages": [
+              "developer-guide/red-team/overview"
+            ]
+          },
+          {
             "group": "Protect Agents",
             "pages": [
               "developer-guide/protect/overview",
+              "developer-guide/protect/installation",
               "developer-guide/protect/control-engine",
               "developer-guide/protect/trust-runtime",
               "developer-guide/protect/configuring-guardrails",
@@ -255,6 +279,16 @@
               "developer-guide/protect/custom-detectors",
               "developer-guide/protect/detection-methods",
               "developer-guide/protect/observability",
+              {
+                "group": "Framework Integrations",
+                "pages": [
+                  "developer-guide/protect/integrations/adk",
+                  "developer-guide/protect/integrations/langgraph",
+                  "developer-guide/protect/integrations/strands",
+                  "developer-guide/protect/integrations/langchain",
+                  "developer-guide/protect/integrations/mcp"
+                ]
+              },
               "tutorials/protect-agents/dome-containerized-deployment"
             ]
           },
@@ -272,7 +306,8 @@
                   "developer-guide/cli/evaluate",
                   "developer-guide/cli/protect",
                   "developer-guide/cli/red-team",
-                  "developer-guide/cli/telemetry"
+                  "developer-guide/cli/telemetry",
+                  "developer-guide/cli/manifest"
                 ]
               },
               {
@@ -436,6 +471,11 @@
     ],
     "global": {
       "anchors": [
+        {
+          "anchor": "Diamond",
+          "href": "/concepts/platform/diamond",
+          "icon": "diamond"
+        },
         {
           "anchor": "Blog",
           "href": "https://www.vijil.ai/blog",

@@ -3,13 +3,13 @@ title: "Models and Errors"
 description: "Return types the Vijil SDK produces and the exception hierarchy it raises."
 ---
 
-Every SDK call returns a typed model and raises a typed exception on failure. All models inherit from `VijilModel` (a Pydantic `BaseModel` configured with `extra="ignore"`), and all exceptions inherit from `VijilError`.
+Structured SDK responses use Pydantic models. Resource models such as `Evaluation` inherit from `VijilModel`, while generated API models such as `RedteamStatusResponse` inherit directly from `BaseModel`. SDK exceptions inherit from `VijilError`.
 
 ## Models
 
 ### `Page[T]`
 
-Generic paginated response returned by every `list()` method.
+Generic paginated response returned by resource collection methods such as `list()` and `client.evaluations.responses()`.
 
 ```python
 page = client.agents.list()
@@ -22,14 +22,59 @@ page.has_more  # bool — whether more results exist
 
 ### `Evaluation`
 
+Returned by `client.evaluate()` for behavioral evaluations. Trust Scores and Harness fields do not apply to Red Team evaluations.
+
 ```python
 evaluation.id             # str (UUID)
 evaluation.agent_id       # str | None
-evaluation.status         # str — "pending", "running", "completed", "failed"
-evaluation.harness_names  # list[str] | None
+evaluation.status         # str
+evaluation.harness_names  # list[str]
 evaluation.trust_score    # float | None
 evaluation.dimensions     # Dimensions | None
 ```
+
+The behavioral poller treats `completed`, `succeeded`, `saved`, `failed`, and `cancelled` as terminal statuses.
+
+### `EvaluationResponse`
+
+Returned in the `page.items` list from `client.evaluations.responses()`. Each model represents one prompt and Agent response from a completed behavioral evaluation.
+
+```python
+response.harness_id       # str
+response.scenario_id      # str
+response.probe_id         # str
+response.probe_score      # float
+response.prompt_id        # str
+response.prompt_text      # str | None
+response.response_text    # str
+response.status           # "passed" | "failed"
+response.detector_results # dict[str, Any]
+```
+
+`probe_score` and `status` describe the parent Probe and repeat on each of its prompt rows. `detector_results` contains the raw per-Detector results for that prompt. This model does not apply to Red Team evaluations.
+
+### `RedteamStatusResponse`
+
+Returned by `client.evaluate(..., type="redteam")` and `client.evaluations.redteam_status(evaluation_id)`. This is a Red Team progress snapshot, not a Trust Score.
+
+```python
+status.evaluation_id       # str
+status.status              # str
+status.phase               # str | None
+status.current_wave        # int | None
+status.attackers_completed # int | None
+status.degraded            # bool | None
+```
+
+| Fields | What They Show |
+|--------|----------------|
+| `phase`, `current_wave`, `max_waves`, `seeds_in_wave` | Current stage and wave progress |
+| `attackers_completed`, `attackers_errored`, `attackers_timed_out`, `attackers_cancelled`, `attackers_total` | Attacker outcomes and total count |
+| `wave_breakdown` | Per-wave attacker counts, judgments, errors, and degradation indicators |
+| `created_at`, `started_at`, `completed_at` | Run timestamps, when available |
+| `error_message`, `degraded`, `degradation_reason`, `attack_error_types` | Failure and degradation details |
+
+A Red Team run can report `created`, `starting`, or `running` before it reaches a terminal status: `succeeded`, `failed`, `cancelled`, or `degraded`. A `degraded` run has finished with some attackers lost, so inspect its error and wave details before relying on the report. Red Team does not use the behavioral `completed` or `saved` statuses.
 
 ### `Dimensions`
 

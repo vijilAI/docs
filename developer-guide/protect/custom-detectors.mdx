@@ -3,7 +3,7 @@ title: 'Custom Detectors'
 description: 'Build custom detection methods for Dome Guardrails.'
 ---
 
-Dome allows you to create custom [Detectors](/concepts/evaluation-components/detector) to implement domain-specific detection logic. This guide covers creating, registering, and using custom Detectors.
+You can write custom [Detectors](/concepts/defense/detector) that run your own detection logic inside a [Guard](/concepts/defense/guard). A custom Detector is a Python class that subclasses `DetectionMethod` and registers itself under a category and a name. Once registered, you refer to it in a configuration exactly like a built-in Detector.
 
 ## Detection Categories
 
@@ -11,42 +11,122 @@ Register your Detector with one of these categories:
 
 | Category | Use Case |
 |----------|----------|
-| `DetectionCategory.Security` | Adversarial attacks, injections |
-| `DetectionCategory.Moderation` | Harmful content, toxicity |
-| `DetectionCategory.Privacy` | PII, secrets, sensitive data |
-| `DetectionCategory.Integrity` | Data quality, format validation |
+| `DetectionCategory.Security` | Adversarial attacks, prompt injection, jailbreaks |
+| `DetectionCategory.Moderation` | Harmful content and toxicity |
+| `DetectionCategory.Privacy` | PII, secrets, and sensitive data |
+| `DetectionCategory.Integrity` | Hallucination and factual consistency |
 | `DetectionCategory.Generic` | Anything else |
+| `DetectionCategory.Policy` | Content checks against written policy |
 
-The category determines which Guard types can use your Detector.
+The category determines which Guard types can use your Detector, and which [Guardrail](/concepts/defense/guardrail) it can therefore run in. A Guard with `type = "security"` can only reference Detectors registered under `DetectionCategory.Security`.
 
-## Detection Result Format
+## Write a Detector
 
-The `detect` method must return a tuple of `(flagged: bool, metadata: dict)`
+<Steps>
+  <Step title="Subclass DetectionMethod">
+    Accept your configuration options as constructor arguments. Dome passes any keys you set in the Detector's configuration table to this constructor.
+  </Step>
+  <Step title="Implement Detect">
+    The `detect` method is asynchronous and receives a `DomePayload`. Coerce the payload, then read `query_string` for the text to inspect.
+  </Step>
+  <Step title="Return a Detection Result">
+    A `DetectionResult` is a tuple of `(hit, metadata)`, where `hit` is `True` or `False` and `metadata` is a dictionary. Return `True` for content the Guard must flag.
+  </Step>
+</Steps>
+
+```python
+from typing import Dict
+from vijil_dome.detectors import (
+    DetectionCategory,
+    DetectionMethod,
+    DetectionResult,
+    register_method,
+)
+from vijil_dome.types import DomePayload
+
+CUSTOM_LENGTH_DETECTOR = "custom-length-detector"
+
+
+@register_method(DetectionCategory.Security, CUSTOM_LENGTH_DETECTOR)
+class CustomLengthDetector(DetectionMethod):
+    def __init__(self, min_length: int = 10, max_length: int = 1000):
+        super().__init__()
+        self.min_length = min_length
+        self.max_length = max_length
+        self.blocked_response_string = (
+            f"Method:{CUSTOM_LENGTH_DETECTOR}. "
+            "The request was outside the accepted length range."
+        )
+
+    async def detect(self, dome_input: DomePayload) -> DetectionResult:
+        dome_input = DomePayload.coerce(dome_input)
+        query_string = dome_input.query_string
+
+        length = len(query_string)
+        hit = length < self.min_length or length > self.max_length
+
+        return hit, {
+            "type": str(type(self)),
+            "length": length,
+            "query_string": query_string,
+            "response_string": self.blocked_response_string
+            if hit
+            else query_string,
+        }
+```
+
+### Metadata Fields
+
+The metadata dictionary can carry any values you want to record in the trace. Dome reads three of them:
+
+| Field | Purpose |
+|-------|---------|
+| `query_string` | Original content passed to the Detector, recorded in the trace |
+| `response_string` | Content the Guard returns when this Detector decides the outcome, either a blocked message or the original or sanitized text |
+| `score` | Optional float that feeds `ScanResult.detection_score` |
 
 <Note>
-Always include `query_string` and `response_string` in metadata for proper Guardrail operation.
+`DomePayload.coerce()` accepts a plain string as well as a payload object, so your Detector keeps working when a caller passes raw text.
 </Note>
 
-## Using Custom Detectors
+## Use a Custom Detector
 
-- **Define before instantiation**: custom Detectors must be defined before creating the Dome instance.
+Reference the registered name in the `methods` list of a Guard whose `type` matches the category you registered, exactly as you would a [built-in Detector](/developer-guide/protect/detection-methods). Constructor arguments go in a table named after the Detector:
 
-- **Import from separate file**: for cleaner organization, define Detectors in a separate module.
+```python
+from vijil_dome import Dome
+
+config = {
+    "input-guards": ["length-check"],
+    "length-check": {
+        "type": "security",
+        "methods": [CUSTOM_LENGTH_DETECTOR],
+        CUSTOM_LENGTH_DETECTOR: {
+            "min_length": 5,
+            "max_length": 4000,
+        },
+    },
+}
+
+dome = Dome(config)
+```
 
 <Warning>
-Import your custom Detector module before creating the Dome instance. The `@register_method` decorator must run before the config is parsed.
+Import the module that defines your Detector before you create the `Dome` instance. The `@register_method` decorator must run before Dome parses the configuration, otherwise Dome raises a `ValueError` for an unknown detection method.
 </Warning>
 
-## Example Detectors
+## Control Concurrency
 
-- **Rate Limiter**: Track request frequency per user
+Dome caps the number of concurrent calls a Detector makes during batch scanning. Set `max_batch_concurrency` in the Detector configuration when your Detector calls an external service with its own rate limits:
 
-- **Regex Pattern Detector**: Block content matching patterns
+```toml
+[length-check.custom-length-detector]
+max_batch_concurrency = 2
+```
 
-- **External API Detector**: Call an external service for detection
+## Handle Errors
 
-- **Semantic Similarity Detector**: Block content similar to known bad examples
-
+When `detect` raises an exception, Dome records the Detector in `ScanResult.errored_methods` and logs a warning rather than propagating the exception. The Guard's `on-error` policy then decides the outcome: `fail_closed` treats the error as a block, and `fail_open` allows the content through. Raise exceptions freely and set `on-error` to match the risk you accept.
 
 <Card title="Work in Progress" icon="pickaxe" badge="Private preview">
   The programmatic protection capabilities and Dome integrations are currently in private preview and subject to change.
@@ -64,7 +144,7 @@ Import your custom Detector module before creating the Dome instance. The `@regi
   <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
     Monitor custom Detector performance
   </Card>
-  <Card title="Protection Overview" icon="book" href="/developer-guide/protect/overview">
-    Built-in Detectors reference
+  <Card title="Detection Methods" icon="radar" href="/developer-guide/protect/detection-methods">
+    Built-in Detector reference
   </Card>
 </CardGroup>

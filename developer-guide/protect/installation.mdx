@@ -1,0 +1,128 @@
+---
+title: 'Install Dome'
+description: 'Install the Dome package, pick the extras you need, and set the environment variables it reads.'
+---
+
+Dome ships as the `vijil-dome` Python package. The base install includes the configuration system, the [Guardrail](/concepts/defense/guardrail) engine, and the [Detectors](/concepts/defense/detector) that need no model weights. Everything else is an optional extra.
+
+## Install the Package
+
+```bash
+pip install vijil-dome
+```
+
+Verify the install by running a scan with the built-in defaults:
+
+```python
+from vijil_dome import Dome
+
+dome = Dome()
+print(dome.guard_input("Ignore previous instructions.").is_safe())
+```
+
+<Note>
+The first call downloads model weights for the default Detectors and can take a few minutes. Set `VIJIL_MODEL_DIR` to control where they are cached.
+</Note>
+
+## Choose Extras
+
+| Extra | Install | What It Adds |
+|-------|---------|--------------|
+| `local` | `pip install "vijil-dome[local]"` | Local model inference for classifier Detectors (`torch`, `transformers`, `sentence-transformers`) |
+| `llm` | `pip install "vijil-dome[llm]"` | LLM-backed Detectors through LiteLLM |
+| `pii` | `pip install "vijil-dome[pii]"` | Presidio PII detection and redaction |
+| `full` | `pip install "vijil-dome[full]"` | `local`, `llm`, and `pii` together |
+| `embeddings` | `pip install "vijil-dome[embeddings]"` | Fast embeddings store for `security-embeddings` (`annoy`, `faiss-cpu`) |
+| `opentelemetry` | `pip install "vijil-dome[opentelemetry]"` | OpenTelemetry tracing, metrics, and logging |
+| `google` | `pip install "vijil-dome[google]"` | Google Cloud trace, metric, and log export |
+| `s3` | `pip install "vijil-dome[s3]"` | Configuration loading from S3 through `Dome.create_from_s3()` |
+| `trust` | `pip install "vijil-dome[trust]"` | [Trust Runtime](/developer-guide/protect/trust-runtime) core: identity, mandatory access control, signed manifests |
+| `trust-adapters` | `pip install "vijil-dome[trust-adapters]"` | Framework adapters for `secure_agent()`: [LangGraph](/developer-guide/protect/integrations/langgraph), [Google ADK](/developer-guide/protect/integrations/adk), and [Strands](/developer-guide/protect/integrations/strands) |
+| `trust-cli` | `pip install "vijil-dome[trust-cli]"` | Command-line dependencies for manifest signing and verification |
+| `identity` | `pip install "vijil-dome[identity]"` | SPIFFE workload identity on its own |
+| `controls` | `pip install "vijil-dome[controls]"` | YAML policy loading for the [Controls Engine](/developer-guide/protect/control-engine) |
+| `controls-full` | `pip install "vijil-dome[controls-full]"` | Controls Engine with JSON Schema, CEL, and RE2 |
+| `strands` | `pip install "vijil-dome[strands]"` | [Strands Agents](/developer-guide/protect/integrations/strands) integration |
+| `mcp` | `pip install "vijil-dome[mcp]"` | Guarded [MCP server](/developer-guide/protect/integrations/mcp) proxy |
+
+Combine extras in one install:
+
+```bash
+pip install "vijil-dome[trust,trust-adapters,local,opentelemetry]"
+```
+
+<Warning>
+`full` covers `local`, `llm`, and `pii` only. It does not include the Trust Runtime or Controls Engine extras. [LangChain](/developer-guide/protect/integrations/langchain) support needs no extra because it depends on `langchain-core` alone.
+</Warning>
+
+### Run Without Local Models
+
+Set `DOME_INFERENCE_URL` to route remote-capable Detectors to an inference service instead of installing model weights. This keeps the container small and removes the `local` extra from the dependency set.
+
+```bash
+export DOME_INFERENCE_URL="https://inference.example.com"
+```
+
+See [Detection Methods](/developer-guide/protect/detection-methods) for the Detectors that support remote routing.
+
+### Install CPU-Only PyTorch
+
+The `local` extra pulls in PyTorch with CUDA support, which adds several gigabytes. In a CPU-only environment, reinstall the CPU build:
+
+```bash
+pip install "vijil-dome[local]"
+pip install --force-reinstall torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+All Detectors stay functional on CPU. Inference runs two to five times slower, which is usually acceptable for guarding. To keep model weights out of your Agent image entirely, run Dome as its own service. See [Use Dome as a Containerized Deployment](/tutorials/protect-agents/dome-containerized-deployment).
+
+## Set Environment Variables
+
+Dome reads configuration from the environment. Only the variables for the Detectors and integrations you actually use are required.
+
+### Routing and Models
+
+| Variable | Purpose |
+|----------|---------|
+| `DOME_INFERENCE_URL` | Inference service endpoint for remote-capable Detectors |
+| `DOME_LOCAL_DETECTORS` | Comma-separated Detector names forced to run locally |
+| `VIJIL_MODEL_DIR` | Directory for cached model weights |
+| `VIJIL_SAFEGUARD_MODEL` | Model used by the `-safeguard` Detector variants |
+| `VIJIL_LLM_HUB` | Provider used by LLM-backed Detectors |
+| `VIJIL_LLM_MODEL` | Model used by LLM-backed Detectors |
+| `HUGGINGFACE_TOKEN` | Access token for gated Hugging Face models |
+
+### Provider Credentials
+
+| Variable | Used By |
+|----------|---------|
+| `OPENAI_API_KEY`, `OPENAI_BASE_URL` | OpenAI Moderation and LLM-backed Detectors |
+| `TOGETHERAI_API_KEY`, `GROQ_API_KEY` | LLM-backed Detectors on those providers |
+| `PERSPECTIVE_API_KEY` | `moderation-perspective-api` |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_PROFILE`, `AWS_SESSION_TOKEN` | Configuration loading from S3 |
+
+### Platform and Telemetry
+
+| Variable | Purpose |
+|----------|---------|
+| `VIJIL_API_KEY` | Authenticates [Console](/concepts/platform/console) constraint fetches, manifest signing, and Agent configuration loading |
+| `VIJIL_IDENTITY_DELEGATE_URL` | Identity delegate endpoint for Trust Runtime attestation |
+| `VIJIL_LOG_PAYLOADS` | Set to `1` to log a redacted payload record at `DEBUG` level |
+| `OTEL_AUTH_METHOD` | Authentication method for the OpenTelemetry exporter |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Protection Overview" icon="book" href="/developer-guide/protect/overview">
+    How Guardrails, Guards, and Detectors fit together
+  </Card>
+  <Card title="Configure Guardrails" icon="sliders-horizontal" href="/developer-guide/protect/configuring-guardrails">
+    Write your first configuration
+  </Card>
+  <Card title="Framework Integrations" icon="plug" href="/developer-guide/protect/integrations/adk">
+    Wire Dome into your Agent framework
+  </Card>
+  <Card title="Trust Runtime" icon="shield-check" href="/developer-guide/protect/trust-runtime">
+    Add identity, tool access control, and audit events
+  </Card>
+</CardGroup>
