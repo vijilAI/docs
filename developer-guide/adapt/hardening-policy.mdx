@@ -1,0 +1,188 @@
+---
+title: "Steer how Darwin hardens your agent"
+description: "Attach a hardening policy to a Darwin evolution job to control engine routing, mutation budgets, and how candidates are scored."
+---
+
+When Darwin hardens an agent, it makes three decisions on every cycle: which engines to try against the weakest trust dimension, which engines to run and at what budget, and how to score each candidate before accepting it. Out of the box, Darwin makes those decisions with built-in defaults.
+
+A **hardening policy** lets you set them yourself. You attach a data-only policy object to an evolution job, and Darwin honors it for that run. Nothing about the policy is code — it is plain JSON, so you can read it, diff it, version it, and let an automated optimizer propose one.
+
+This guide shows you how to attach a policy to a job when you run Darwin as a module inside your Kubernetes cluster.
+
+<Note>
+Omit the policy and Darwin behaves exactly as it does today. A job with no `hardening_policy` (or `null`) runs the built-in pipeline unchanged — bit for bit. You opt into control one field at a time.
+</Note>
+
+## Prerequisites
+
+- Darwin running in your cluster and reachable on its service address. In a Helm install the service is `service-darwin`, so the in-cluster URL is `http://service-darwin.<namespace>.svc.cluster.local:80` (or `http://service-darwin:80` from the same namespace).
+- A genome seeded for the agent. Darwin rejects an evolution job for an agent that has no genome — seed one first with `POST /v1/genomes`.
+- For the SDK path: `pip install vijil-sdk`.
+
+## Attach a Policy Over REST
+
+The policy rides on Darwin's evolution endpoint. Add a `hardening_policy` object to the `POST /v1/evolutions` body:
+
+```bash
+curl -X POST http://service-darwin.<namespace>.svc.cluster.local:80/v1/evolutions \
+  -H "content-type: application/json" \
+  -d '{
+    "agent_id": "8dec5567-2ddd-4f7b-876e-6445575c31e5",
+    "team_id": "f8c08b5e-1c2d-4e3f-9a0b-1c2d3e4f5a6b",
+    "agent_config": {"agent_url": "http://my-agent:9000/v1"},
+    "harness_names": ["security"],
+    "hardening_policy": {
+      "tradeoff_weights": {"dimension_weights": {"security": 2.0}}
+    }
+  }'
+```
+
+Darwin returns `202 Accepted` with the job identity:
+
+```json
+{
+  "evolution_id": "…",
+  "status": "accepted",
+  "mode": "config",
+  "team_id": "…",
+  "agent_id": "…"
+}
+```
+
+The policy above tells the scorer to weight every security gain twice as heavily as the default. Everything else stays on its built-in setting, because you set only `tradeoff_weights`.
+
+<Note>
+If your Darwin deployment fronts the API with authentication, add `-H "authorization: Bearer <token>"`. An in-cluster module deployment often runs without it.
+</Note>
+
+## Attach a Policy Through the SDK
+
+The hardening policy lives on Darwin's own evolution endpoint, so point the SDK's HTTP transport at your Darwin service and call the evolutions resource:
+
+```python
+from vijil._generated.resources.evolutions import EvolutionsGeneratedResource
+from vijil.config import VijilConfig
+from vijil.http import VijilHTTP
+
+http = VijilHTTP(
+    gateway_url="http://service-darwin.<namespace>.svc.cluster.local:80",
+    token="<token>",  # whatever your Darwin deployment expects
+)
+evolutions = EvolutionsGeneratedResource(http, VijilConfig())
+
+job = evolutions.create(
+    agent_id="8dec5567-2ddd-4f7b-876e-6445575c31e5",
+    team_id="f8c08b5e-1c2d-4e3f-9a0b-1c2d3e4f5a6b",
+    agent_config={"agent_url": "http://my-agent:9000/v1"},
+    harness_names=["security"],
+    hardening_policy={"tradeoff_weights": {"dimension_weights": {"security": 2.0}}},
+)
+print(job.evolution_id, job.status)
+```
+
+You pass `hardening_policy` as a plain dict — the same JSON shape as the REST body. The client accepts it as `dict[str, Any]`. `VijilConfig()` only satisfies the resource constructor here; the Darwin address comes from `VijilHTTP`, so you do not need a config file in the pod.
+
+<Warning>
+The top-level `Vijil(...)` client and its `client.jobs` resource route through the Console-managed `/agents/{id}/evolutions` path, which is the hosted-platform flow — not a direct call to Darwin. When you run Darwin as a module in your own cluster, talk to the evolutions resource pointed at Darwin directly, as shown above.
+</Warning>
+
+## Choose Your Defaults — Leave Fields Out
+
+Every level of the policy is opt-in. The top object has three sub-policies, and each one is independently optional:
+
+```json
+{
+  "attribution_routing": { "...": "how engines are ranked" },
+  "mutation_selection":  { "...": "which engines run, at what budget" },
+  "tradeoff_weights":    { "...": "how candidates are scored" }
+}
+```
+
+Send only the sub-policies you want to change. A missing or `null` sub-policy falls back to Darwin's current behavior for that stage, and an all-empty policy reproduces the default pipeline exactly.
+
+## Policy Reference
+
+### `attribution_routing` — Rank the Engines
+
+Controls how Darwin orders engines against the weakest trust dimension before it mutates.
+
+| Field | Type | Effect |
+| --- | --- | --- |
+| `engine_relevance` | `{engine: {dimension: float}}` | Overrides the default relevance map Darwin uses to rank engines. |
+| `failure_demotion` | `float`, 0.0–1.0 | Multiplier applied to an engine's relevance after it fails. `1.0` keeps it; `0.0` drops it. Darwin's default is `0.3`. |
+| `tie_break_order` | `[engine, …]` | Breaks ties between equally-ranked engines in the order you give. |
+
+### `mutation_selection` — Pick Engines and Budgets
+
+Decides which gene tiers Darwin may mutate and how much work each engine does. Applied before generation.
+
+| Field | Type | Effect |
+| --- | --- | --- |
+| `permitted_tiers` | `[tier, …]` | The only tiers Darwin may mutate. Tiers: `instruction`, `config`, `dome`, `source`. |
+| `preferred_tiers` | `[tier, …]` | Reorders the permitted set. Must be a subset of `permitted_tiers`. |
+| `per_tier_budget` | `{tier: {…}}` | Per-tier budget. Each entry takes `max_metric_calls` and/or `max_candidates` (both ≥ 1). |
+| `trust_floors` | `{dimension: float}` | Stop criterion — Darwin stops trying more engines once every dimension sits at or above its floor. |
+
+Each tier maps to one engine, and each engine reads one budget field:
+
+| Tier | Engine | Budget field it reads |
+| --- | --- | --- |
+| `instruction` | GEPA (system-prompt optimization) | `max_metric_calls` |
+| `config` | IC-QD (feature and config search) | `max_candidates` |
+| `dome` | Dome threshold calibration | reserved (no budget field yet) |
+| `source` | Source/code evolution (future) | reserved |
+
+### `tradeoff_weights` — Score the Candidates
+
+Decides whether a candidate's net change is good enough to accept.
+
+| Field | Type | Effect |
+| --- | --- | --- |
+| `dimension_weights` | `{dimension: float}` | Multiplies each dimension's fitness delta before summing. An absent dimension weighs `1.0`; an empty or `null` map is the default unweighted sum. Weights must be ≥ 0. |
+| `min_improvement_threshold` | `float` | Overrides the configured acceptance threshold for this job. |
+| `hard_constraints` | `[{dimension, min_delta}, …]` | Rejects any candidate whose delta on `dimension` falls below `min_delta`, whatever its net gain elsewhere. |
+
+A worked example that uses all three sub-policies:
+
+```json
+{
+  "attribution_routing": {
+    "failure_demotion": 0.0,
+    "tie_break_order": ["gepa", "ic-qd"]
+  },
+  "mutation_selection": {
+    "permitted_tiers": ["instruction", "config"],
+    "per_tier_budget": {
+      "instruction": {"max_metric_calls": 30},
+      "config": {"max_candidates": 12}
+    },
+    "trust_floors": {"security": 0.8}
+  },
+  "tradeoff_weights": {
+    "dimension_weights": {"security": 2.0, "reliability": 1.0},
+    "hard_constraints": [{"dimension": "reliability", "min_delta": -0.05}]
+  }
+}
+```
+
+This run drops a failed engine entirely, mutates only the instruction and config tiers within fixed budgets, stops once security reaches 0.8, scores security gains double, and rejects any candidate that costs more than 0.05 of reliability.
+
+## Typos Fail Loud
+
+The policy schema is strict. An unknown field *inside* the policy is rejected at submit time with `422` and the message `Extra inputs are not permitted` — Darwin does not silently drop it. So `dimension_weight` (a typo for `dimension_weights`) returns an error instead of a policy that looks valid but does nothing. Check a rejected field against the reference above before you resubmit.
+
+This strictness covers the fields inside `hardening_policy`. The surrounding job request is lenient: if you misspell the top-level `hardening_policy` key itself, the request still succeeds and the policy does not apply. If a job ignores your policy, check that the top-level key is spelled correctly.
+
+## Troubleshooting
+
+**`422 Extra inputs are not permitted`.** A field name is wrong. The usual suspects are `dimension_weight` vs `dimension_weights` and `permited_tiers` vs `permitted_tiers`. Fix the spelling.
+
+**`422` on `preferred_tiers`, `dimension_weights`, or `failure_demotion`.** Three rules are enforced: `preferred_tiers` must be a subset of `permitted_tiers`, every weight in `dimension_weights` must be ≥ 0, and `failure_demotion` must sit between 0.0 and 1.0.
+
+**A budget on the `dome` or `source` tier does nothing.** Those tiers accept a budget but read no budget field yet — they are reserved. Set budgets on `instruction` and `config`.
+
+**The policy seems to vanish after a Darwin restart.** A job's policy is transient: it travels with the in-flight job and is not stored in the database. If a Darwin pod restarts mid-run, that job is marked failed rather than resumed, so its policy is not carried forward. Resubmit the job with the policy attached.
+
+## Next Steps
+
+- [The Trust Score](/concepts/trust-score/introduction) — the reliability, security, and safety dimensions your policy weights and constrains.
