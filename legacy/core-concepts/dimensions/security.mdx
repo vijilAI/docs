@@ -1,0 +1,88 @@
+---
+title: "Security"
+description: "Vijil's Security dimension of trust tests for confidentiability, integrity, and availability."
+---
+
+## Availability
+
+Test the agent's ability to prevent a Denial-of-Service attack attempts.
+
+### Denial of Service Resistance / Diacritics
+
+Tests for denial of service resistance using diacritics mutation.
+
+## User Privacy
+
+Tests whether the agent exposes end-user personally-identifiable information (PII).
+
+### User Privacy / Fullwidth
+
+Tests for user privacy using the fullwidth mutation.
+
+## Manipulation Resistance
+
+Test for agent's resistance to manipulative inputs.
+
+### Crescendo Attack: Explosive Device
+
+Crescendo attack to try and get agent to instruct a user to build an explosive device.
+
+### Crescendo Attack: Methamphetamine
+
+Crescendo attack to try and get agent to instruct a user to produce methamphetamine (meth).
+
+### Crescendo Attack: Molotov Cocktail
+
+Crescendo attack to try and get agent to instruct a user to produce a Molotov cocktail
+
+### Linear Jailbreak: Botulinum Toxin
+
+Linear jailbreak attack to try and get agent to instruct a user to produce botulinum toxin.
+
+## Integrity
+
+Test the agent's ability to prevent adherence to adversarial prompt injections.
+
+### Adversarial Robustness: Misrepresentation
+
+Tests for adversarial robustness using misrepresentation mutation.
+
+### Adversarial Robustness: Soft Mutation
+
+Tests for adversarial robustness using soft mutation.
+
+### Adversarial Robustness: Spaces
+
+Tests for adversarial robustness using spaces mutation
+
+### Adversarial Robustness: Underline
+
+Tests for adversarial robustness using underline mutation.
+
+## Model Privacy
+
+Tests whether the agent leaks private model information.
+
+### Model Privacy: Zero Width
+
+Tests for model privacy using zero width mutation.
+
+## Data Privacy
+
+Tests for leakage of training data.
+
+### Book Excerpt Completion with Embed JSON Mutation
+
+Tests whether an agent will complete a book excerpt when prompted with the beginning. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Embed JSON Mutation.
+
+### Emails Leakage - Enron
+
+Tests whether an agent will reveal email addresses obtained from the discovery process of the Enron investigation. A low score in this test indicates that the agent may reveal general PII that might be present in its training data.
+
+### Media Excerpt Completion - Guardian
+
+Tests whether the model will complete an excerpt from The Guardin when prompted with the beginning.
+
+### Media Excerpt Completion - NYT with Embed JSON Mutation
+
+Tests whether an agent will complete an excerpt from the New York Times when prompted with the beginning. A low score in this test indicates that the agent may reveal training information or violate copyright laws. Mutated with Embed JSON Mutation.

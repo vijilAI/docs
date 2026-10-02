@@ -1,0 +1,109 @@
+<svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="pencil" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <style>
+    .label-text {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .small-text {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 10px;
+      fill: #666;
+    }
+  </style>
+
+  <!-- Left column: Descending (Test Definition) -->
+
+  <!-- Harness - blue background -->
+  <rect x="60" y="30" width="120" height="36" rx="18"
+        fill="#0247A9" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="120" y="53" text-anchor="middle" class="label-text" fill="white">Harness</text>
+
+  <!-- Arrow down to Scenario -->
+  <line x1="120" y1="70" x2="120" y2="91" stroke="#0247A9" stroke-width="2.5" filter="url(#pencil)"/>
+  <polygon points="120,95 114,85 126,85" fill="#0247A9" filter="url(#pencil)"/>
+
+  <!-- Scenario -->
+  <rect x="60" y="95" width="120" height="36" rx="18"
+        fill="white" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="120" y="118" text-anchor="middle" class="label-text" fill="#0247A9">Scenario</text>
+
+  <!-- Arrow down to Probe -->
+  <line x1="120" y1="135" x2="120" y2="156" stroke="#0247A9" stroke-width="2.5" filter="url(#pencil)"/>
+  <polygon points="120,160 114,150 126,150" fill="#0247A9" filter="url(#pencil)"/>
+
+  <!-- Probe -->
+  <rect x="60" y="160" width="120" height="36" rx="18"
+        fill="white" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="120" y="183" text-anchor="middle" class="label-text" fill="#0247A9">Probe</text>
+
+  <!-- Arrow down to Prompt -->
+  <line x1="120" y1="200" x2="120" y2="221" stroke="#0247A9" stroke-width="2.5" filter="url(#pencil)"/>
+  <polygon points="120,225 114,215 126,215" fill="#0247A9" filter="url(#pencil)"/>
+
+  <!-- Prompt -->
+  <rect x="60" y="225" width="120" height="36" rx="18"
+        fill="white" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="120" y="248" text-anchor="middle" class="label-text" fill="#0247A9">Prompt</text>
+
+  <!-- Bottom: Horizontal (Agent Interaction) -->
+
+  <!-- Arrow from Prompt to Agent -->
+  <line x1="184" y1="243" x2="266" y2="243" stroke="#DE1616" stroke-width="3" filter="url(#pencil)"/>
+  <polygon points="272,243 262,237 262,249" fill="#DE1616" filter="url(#pencil)"/>
+
+  <!-- Agent circle -->
+  <circle cx="300" cy="243" r="24" fill="#DE1616" stroke="#0247A9" stroke-width="4" filter="url(#pencil)"/>
+  <text x="300" y="248" text-anchor="middle" class="label-text" fill="white" font-size="11">Agent</text>
+
+  <!-- Arrow from Agent to Response -->
+  <line x1="328" y1="243" x2="410" y2="243" stroke="#DE1616" stroke-width="3" filter="url(#pencil)"/>
+  <polygon points="416,243 406,237 406,249" fill="#DE1616" filter="url(#pencil)"/>
+
+  <!-- Response -->
+  <rect x="420" y="225" width="120" height="36" rx="18"
+        fill="white" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="480" y="248" text-anchor="middle" class="label-text" fill="#0247A9">Response</text>
+
+  <!-- Right column: Ascending (Result Aggregation) -->
+
+  <!-- Arrow up to Detector -->
+  <line x1="480" y1="221" x2="480" y2="200" stroke="#0247A9" stroke-width="2.5" filter="url(#pencil)"/>
+  <polygon points="480,196 474,206 486,206" fill="#0247A9" filter="url(#pencil)"/>
+
+  <!-- Detector -->
+  <rect x="420" y="160" width="120" height="36" rx="18"
+        fill="white" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="480" y="183" text-anchor="middle" class="label-text" fill="#0247A9">Detector</text>
+
+  <!-- Arrow up to Pass Rate -->
+  <line x1="480" y1="156" x2="480" y2="135" stroke="#0247A9" stroke-width="2.5" filter="url(#pencil)"/>
+  <polygon points="480,131 474,141 486,141" fill="#0247A9" filter="url(#pencil)"/>
+
+  <!-- Pass Rate -->
+  <rect x="420" y="95" width="120" height="36" rx="18"
+        fill="white" stroke="#0247A9" stroke-width="2" filter="url(#pencil)"/>
+  <text x="480" y="118" text-anchor="middle" class="label-text" fill="#0247A9">Pass Rate</text>
+
+  <!-- Arrow up to Trust Score -->
+  <line x1="480" y1="91" x2="480" y2="70" stroke="#0247A9" stroke-width="2.5" filter="url(#pencil)"/>
+  <polygon points="480,66 474,76 486,76" fill="#0247A9" filter="url(#pencil)"/>
+
+  <!-- Trust Score - red background -->
+  <rect x="420" y="30" width="120" height="36" rx="18"
+        fill="#DE1616" stroke="#DE1616" stroke-width="2" filter="url(#pencil)"/>
+  <text x="480" y="53" text-anchor="middle" class="label-text" fill="white">Trust Score</text>
+
+  <!-- Column labels -->
+  <text x="120" y="290" text-anchor="middle" class="small-text">Test Definition</text>
+  <text x="300" y="290" text-anchor="middle" class="small-text">Execution</text>
+  <text x="480" y="290" text-anchor="middle" class="small-text">Aggregation</text>
+
+</svg>
