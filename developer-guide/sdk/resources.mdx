@@ -5,12 +5,12 @@ description: "Low-level resource accessors on the Vijil client for CRUD operatio
 
 Resource accessors are low-level attributes on the `Vijil` client. Where [lifecycle methods](/developer-guide/sdk/lifecycle-methods) run whole workflows, resources give you direct create, read, update, and delete access to individual platform objects.
 
-List methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `page.items` for the results.
+Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `page.items` for the results. Red Team artifact methods return their own typed responses.
 
 | Accessor | Methods |
 |----------|---------|
 | `client.agents` | `list`, `show`, `create`, `update`, `delete` |
-| `client.evaluations` | `list`, `show`, `create` |
+| `client.evaluations` | `list`, `show`, `create`, `poll_status`, `responses`, `delete`, and Red Team reads below |
 | `client.harnesses` | `list`, `show`, `create`, `delete` |
 | `client.scores` | `show`, `history` |
 | `client.reports` | `list`, `show`, `download` |
@@ -36,13 +36,84 @@ client.agents.delete("agent-id")
 
 ## `client.evaluations`
 
-Manage [Evaluations](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#clientevaluate) for the polling workflow; `create()` here starts one without waiting.
+Manage both [Evaluation types](/developer-guide/evaluate/overview). Use [`client.evaluate()`](/developer-guide/sdk/lifecycle-methods#clientevaluate) for the polling workflow; `create()` starts an evaluation without waiting.
 
 ```python
 page = client.evaluations.list(agent_id="optional-agent-id")
 evaluation = client.evaluations.show("evaluation-id")
-evaluation = client.evaluations.create(agent_id="agent-id", baseline=True)
+behavioral = client.evaluations.create(agent_id="agent-id", baseline=True)
+redteam = client.evaluations.create(
+    agent_id="agent-id",
+    type="redteam",
+    redteam={"max_waves": 2},
+)
+evaluation_id = redteam.id
+status = client.evaluations.redteam_status(evaluation_id)
 ```
+
+Red Team creation returns an `Evaluation` with an ID. Use that `evaluation_id` for all Red Team status, artifact, and report reads. `poll_status()` is for behavioral evaluations; use `redteam_status()` for Red Team. Red Team does not accept `baseline`, Harness, or `sample_size` settings.
+
+### Prompt-Level Behavioral Responses
+
+Use `responses()` to retrieve flattened prompt and response rows from a completed behavioral evaluation, including an evaluation that uses a custom Harness. Each item identifies its parent Harness, Scenario, and Probe and includes the Agent response and raw Detector results.
+
+```python
+page = client.evaluations.responses(
+    "evaluation-id",
+    status="failed",
+    limit=50,
+    offset=0,
+)
+
+for response in page.items:
+    print(response.prompt_text)
+    print(response.response_text)
+    print(response.probe_score)
+    print(response.detector_results)
+```
+
+The method returns a [`Page[EvaluationResponse]`](/developer-guide/sdk/models-errors#evaluationresponse). `page.total` is the number of rows that match the filters before pagination.
+
+| Argument | Description |
+|----------|-------------|
+| `evaluation_id` | Required evaluation UUID |
+| `team_id` | Team UUID; defaults to the team configured on the client |
+| `harness_id` | Include rows from one Harness |
+| `scenario_id` | Include rows from one Scenario |
+| `probe_id` | Include rows from one Probe |
+| `status` | Include `passed` or `failed` Probe results; omit it to include all results |
+| `limit` | Rows to return, from 1 to 500; defaults to 50 |
+| `offset` | Matching rows to skip; defaults to 0 |
+
+`failed` means that the parent Probe scored below the evaluation's pass threshold. It does not describe an individual Detector result. Call `responses()` after the Console saves the evaluation results. The method is not available for Red Team evaluations; use the Red Team artifact methods instead.
+
+### Red Team Status, Artifacts, and Reports
+
+All methods below take an `evaluation_id` and an optional `team_id`.
+
+| Method | Other Arguments | Returns |
+|--------|----------------------|---------|
+| `redteam_status` | — | `RedteamStatusResponse` with run and wave progress |
+| `redteam_seeds` | Optional `wave_id` filter | `SeedListResponse` |
+| `redteam_attacks` | Optional `wave_id` filter | `AttackListResponse` |
+| `redteam_attack` | `wave_id`, `seed_id` | `AttackResultResponse` |
+| `redteam_judgments` | Optional `wave_id` filter | `JudgmentListResponse` |
+| `redteam_judgment` | `wave_id`, `seed_id` | `JudgmentResponse` |
+| `redteam_reflections` | — | `ReflectionListResponse` |
+| `redteam_reflection` | `wave_id` | `ReflectionResponse` |
+| `redteam_report` | — | Structured `ReportResponse` |
+| `redteam_report_markdown` | — | Markdown `str` |
+| `redteam_report_pdf` | Optional `force_regenerate` | PDF `bytes` |
+
+For example, inspect an attack and its judgment after the run completes:
+
+```python
+attack = client.evaluations.redteam_attack(evaluation_id, "wave-id", "seed-id")
+judgment = client.evaluations.redteam_judgment(evaluation_id, "wave-id", "seed-id")
+report = client.evaluations.redteam_report(evaluation_id)
+```
+
+See [`RedteamStatusResponse`](/developer-guide/sdk/models-errors#redteamstatusresponse) for progress fields and terminal statuses.
 
 ## `client.harnesses`
 
@@ -74,7 +145,7 @@ page = client.scores.history("agent-id", limit=20)
 
 ## `client.reports`
 
-List, fetch, and download Trust Reports. `download()` returns PDF bytes.
+List, fetch, and download Trust Reports. `download()` returns PDF bytes. For a Red Team report, use `client.evaluations.redteam_report()`, `redteam_report_markdown()`, or `redteam_report_pdf()`.
 
 ```python
 page = client.reports.list(agent_id="optional-agent-id")

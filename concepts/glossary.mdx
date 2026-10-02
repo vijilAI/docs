@@ -195,7 +195,17 @@ A flaw or deficiency in design, implementation, or operation that could potentia
 ## Vijil
 
 **Attack Seed**
-A concrete Red Team goal generated from a risk taxonomy and Agent context. Each seed gives an attacker a specific failure mode to explore.
+An adversarial goal generated from a risk taxonomy and Agent context for a Red Team evaluation. Each seed guides an attacker toward a specific failure mode.
+
+---
+
+**Classification**
+The verdict Discover records on whether a discovered Resource is an AI workload: AI, Non-AI, or Uncertain. 
+
+---
+
+**Collector**
+The Discover software that inspects a Target and reports what it finds. The main kinds are endpoint, network scanner, in-cluster, and cloud API, alongside a browser extension and several one-shot Collectors. Many Collectors can report into one Target.
 
 ---
 
@@ -210,7 +220,12 @@ A component that analyzes agent responses to determine if they contain threats, 
 ---
 
 **Diamond**
-Vijil's evaluation platform that tests agents against comprehensive threat Scenarios to produce Trust Scores and identify vulnerabilities before deployment.
+Vijil's evaluation platform. Behavioral evaluations use Harnesses to produce Trust Scores; Red Team evaluations use adaptive attacks to uncover vulnerabilities.
+
+---
+
+**Discover**
+Vijil's discovery product. Finds the AI agents, models, and services running across an estate, classifies them, and makes the eligible ones registerable as Agents.
 
 ---
 
@@ -235,7 +250,12 @@ A configurable pipeline of Guards that filter agent inputs and outputs. Guardrai
 ---
 
 **Harness**
-A collection of Scenarios that define a complete evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+A collection of Scenarios used in a behavioral evaluation. Harnesses can target specific threat categories (like OWASP LLM Top 10) or comprehensive trust assessment.
+
+---
+
+**Judgment**
+The assessment of one Red Team attack transcript. It records attack success, potential harm, harmful content, and leaked artifacts.
 
 ---
 
@@ -260,17 +280,29 @@ A specific test case that challenges an agent with a potentially harmful or prob
 ---
 
 **Red Team**
-A Diamond mode that runs adversarial attacks against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies. A Red Team run creates an Engagement and attacks in Waves. In the Console it is the Adaptive tab. Red Team is also available from the CLI, MCP, and REST API.
+A Diamond evaluation type that runs adaptive waves of adversarial attacks against a registered Agent to uncover vulnerabilities, policy violations, leaked artifacts, and successful attack strategies. Its output is a findings report, Trust Scores come from behavioral evaluations.
+
+In the Console Red Team is the Adaptive tab. Red Team is also available from the CLI, MCP, and REST API.
 
 ---
 
 **Reflection**
-A Red Team Engagement's summary of one Wave, recording which strategies worked and which risks remain uncovered. Reflections are what make later Waves more targeted than earlier ones.
+A summary produced after one Red Team wave. It records successful seeds and new attack patterns that guide later waves.
+
+---
+
+**Resource**
+A single thing a Collector found, carrying the evidence behind its Classification and every scan that has observed it. An Agent is one Resource type; models, functions, and runtimes are others.
 
 ---
 
 **Scenario**
 A group of related Probes that test a specific attack pattern or vulnerability class. Scenarios provide structure between Probes and Harnesses.
+
+---
+
+**Target**
+A place you want Discover to look at: a fleet of laptops, a network, a cluster, or a cloud account. Findings group under the Target, and many Collectors can report into one.
 
 ---
 
@@ -280,6 +312,6 @@ Vijil's composite measure of agent trustworthiness across three dimensions: Reli
 ---
 
 **Wave**
-One iteration of a Red Team Engagement. A wave generates seeds, runs attackers, judges transcripts, and produces reflections that guide the next wave.
+One iteration of a Red Team evaluation. Each wave generates seeds, runs attackers, judges transcripts, and produces a reflection that guides the next wave.
 
 ---

@@ -5,6 +5,10 @@ description: 'Expose a local Agent through a public HTTPS tunnel and run an Eval
 
 Use this workflow when your Agent runs on your computer or does not support the request format that Vijil expects. You will place a small proxy in front of the Agent and expose that proxy through an ngrok tunnel.
 
+<Tip>
+  **TL;DR:** Start an Agent locally, register it with `vijil register --local`, then run one standard Harness with `vijil evaluate --local`. Local mode supports behavioral evaluations only. `--type redteam` is incompatible with `--local`. Local mode uses outbound requests from your computer. It does not expose your Agent through a tunnel or require Vijil services to connect to `localhost`.
+</Tip>
+
 A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel makes the proxy reachable at a public HTTPS URL while it runs.
 
 This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from Anthropic's financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.

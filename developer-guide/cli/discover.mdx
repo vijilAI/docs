@@ -1,0 +1,154 @@
+---
+title: "Discover Resources"
+description: "Run Discover from the command line."
+---
+
+The `vijil discover` command group is the command line interface for [Discover](/concepts/platform/discover). Every command acts on the team selected with `vijil team use`, so set that first.
+
+```bash
+vijil team list
+vijil team use <team-id>
+```
+
+Most commands accept `--json` for machine-readable output.
+
+<Warning>
+Every destructive command prompts for confirmation: `deployment-delete`,
+`policy-delete`, `scanner-revoke`, `enrollment-code-revoke`, `spiffe-id-set` and
+`alert-rules-set`. In a script, pass `--yes` or the command blocks waiting on input.
+</Warning>
+
+## Setup
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover setup-info` | Get the control plane address Collectors report to |
+
+Collectors need this address at install time. See [Install a Collector](/owner-guide/discover/collectors).
+
+## Targets
+
+A [Target](/concepts/discovery/target) is a place you want looked at.
+
+<Note>
+The Console calls this object a **Target**. The command line and the API still call it a
+**deployment**, which is why these commands use the `deployment-*` name and the API path
+reads `/v1/discover/deployments`. They are the same object.
+</Note>
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover deployment-create` | Create a Target |
+| `vijil discover deployment-list` | List Targets |
+| `vijil discover deployment-get <target-id>` | Get one Target |
+| `vijil discover deployment-delete <target-id>` | Delete a Target |
+| `vijil discover config-get <target-id>` | Read the scan schedule and configuration |
+| `vijil discover config-set <target-id> --body <json>` | Set the scan schedule and configuration |
+| `vijil discover spiffe-id-set <target-id>` | Set the SPIFFE identity for a Target |
+
+```bash
+vijil discover deployment-create --name "laptops" --type scanner --json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Display name for the Target |
+| `--type` | `scanner` for anything that scans, `dlp` for a Target fed by Dome telemetry |
+| `--json` | Output as JSON |
+
+<Warning>
+The response to `deployment-create` contains a live credential in plaintext. Never pipe it to a file or into a continuous integration log.
+</Warning>
+
+## Collector Credentials
+
+A [Collector](/concepts/discovery/collector) proves it belongs to a Target with a scanner
+token or an enrollment code.
+
+Minting requires `--scanner-kind`, and it accepts any string. The values in circulation are
+`endpoint_linux`, `endpoint_macos`, `endpoint_windows`, `browser_ext`, `vpc_scanner`,
+`cloud_api_aws`, and the one-shot kinds `oneshot_easm`, `oneshot_egress`, `oneshot_logs`,
+`oneshot_idp` and `oneshot_gateway`.
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover scanner-mint <target-id> --scanner-kind <kind>` | Mint a scanner token for one Collector |
+| `vijil discover scanner-list <target-id>` | List Collectors reporting into a Target |
+| `vijil discover scanner-revoke <scanner-id>` | Revoke one Collector immediately |
+| `vijil discover enrollment-code-create <target-id>` | Create an enrollment code for a rollout wave |
+| `vijil discover enrollment-code-list <target-id>` | List enrollment codes |
+| `vijil discover enrollment-code-revoke <code-id>` | Revoke an enrollment code immediately |
+
+## Scans
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover scan-now <target-id>` | Queue a scan for a Collector to pick up |
+| `vijil discover scan-list` | List scans |
+| `vijil discover scan-run-list` | List scan runs |
+| `vijil discover scan-run-cancel <run-id>` | Cancel a running scan |
+
+
+## Reports
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover report-list <target-id>` | List scan reports for a Target |
+| `vijil discover report-get <target-id> <scan-id>` | Get one scan report |
+
+## Resources
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover inventory` | Get the Resource summary across Targets |
+| `vijil discover resource-list` | List discovered [Resources](/concepts/discovery/resource) |
+| `vijil discover resource-get <resource-id> --query source_id=<source-id>` | Get one Resource with its evidence |
+
+<Note>
+`vijil discover inventory` summarizes what Collectors found. Do not confuse it with the legacy
+cloud-inventory scans (the **Resources** page and the `/v1/inventory` API), which still ship
+where Discover is off.
+</Note>
+
+## Policies
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover policy-list <target-id>` | List policies on a Target |
+| `vijil discover policy-create <target-id> --id <id> --prompt <prompt>` | Create a policy |
+| `vijil discover policy-preview <target-id> --id <id> --prompt <prompt>` | Preview what a policy would match before saving it |
+| `vijil discover policy-update <target-id> <policy-id> --body <json>` | Update a policy |
+| `vijil discover policy-delete <target-id> <policy-id>` | Delete a policy |
+
+Run `policy-preview` before `policy-create` to see what a policy matches before it starts producing violations.
+
+## Violations
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover violation-list <target-id>` | List violations on a Target |
+| `vijil discover violation-summary <target-id>` | Summarize violations for a Target |
+| `vijil discover team-violation-summary` | Summarize violations across the team |
+
+## Alerts
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover alert-rules-get` | Read alert rules |
+| `vijil discover alert-rules-set` | Set alert rules |
+| `vijil discover alert-list` | List alerts |
+| `vijil discover alert-dismiss --finding-id <finding-id>` | Dismiss the alert for one finding |
+
+## Runtime Events
+
+These read from a `dlp` Target. A Vijil [Dome](/concepts/platform/dome) proxy feeds it, and no scanning Collector reports into it.
+
+| Command | Description |
+|---------|-------------|
+| `vijil discover dlp-event-list <target-id>` | List data-loss detections |
+| `vijil discover dlp-event-summary <target-id>` | Summarize data-loss detections |
+| `vijil discover dlp-event-get <target-id> <event-id>` | Get one detection |
+| `vijil discover agent-event-list <target-id>` | List Agent runtime events |
+| `vijil discover agent-event-summary <target-id>` | Summarize Agent runtime events |
+| `vijil discover agent-event-get <target-id> <event-id>` | Get one Agent runtime event |
+| `vijil discover agent-session-list <target-id>` | List Agent sessions |
