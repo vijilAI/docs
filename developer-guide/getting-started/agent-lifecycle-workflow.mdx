@@ -142,7 +142,8 @@ After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/
   </Tab>
 </Tabs>
 
-Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#clienttest) only when the simpler campaign interface matches your deployment.
+{/* TODO(docs-maintenance): `client.test()` was removed from the SDK lifecycle methods page in the Red Team revision (#237) and no replacement method is documented, so this mention is unlinked. Update or remove this sentence when the SDK Red Team interface is documented. */}
+Use `client.test()` only when the simpler campaign interface matches your deployment.
 
 Use the [Red Team results](/owner-guide/red-team/understanding-results) to inspect:
 
@@ -265,7 +266,7 @@ Repeat the tests that cover the changed behavior:
 - Run [targeted Harnesses](/developer-guide/evaluate/custom-harnesses) for the changed areas.
 - Retest representative successful attacks through the Agent's regression test process.
 - Run another adaptive campaign after changes to tools, prompts, permissions, or data access.
-- [Compare the results](/developer-guide/evaluate/understanding-results#comparing-evaluations) with the original baseline.
+- [Compare the results](/developer-guide/evaluate/understanding-results#comparing-behavioral-evaluations) with the original baseline.
 
 <Tabs>
   <Tab title="Console">
@@ -428,7 +429,7 @@ New findings restart the lifecycle at Improve. Apply a reviewed change, re-evalu
 | Problem | What to Check |
 |---|---|
 | The Evaluation cannot reach the Agent | Review [Agent availability](/owner-guide/run-evaluations/running-evaluations#agent-availability), endpoint compatibility, credentials, and rate limits |
-| The Evaluation takes too long | Review [Evaluation rate limits](/developer-guide/evaluate/overview#rate-limiting), use a small sample while iterating, then run full coverage before release |
+| The Evaluation takes too long | Review [Evaluation rate limits](/developer-guide/evaluate/cloud-providers#rate-limiting), use a small sample while iterating, then run full coverage before release |
 | Red Team is too slow or expensive | Review [Red Team runtime and cost](/owner-guide/red-team/running-campaigns#runtime-and-cost), then reduce waves, seeds, or parallel attackers |
 | Dome blocks normal traffic | Inspect [Dome traces](/owner-guide/protect-in-production/observability#open-logs-and-traces) and tune the responsible Detector |
 | The CI/CD gate fails | Check the Evaluation status, Trust Score, configured threshold, and [SDK credentials](/developer-guide/sdk/setup#authentication) |
