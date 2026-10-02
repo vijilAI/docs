@@ -1,0 +1,104 @@
+---
+title: 'Register a Discovered Agent'
+description: 'Move a discovered Resource into the Agent Registry.'
+---
+
+Registering a discovered Agent puts it in the
+[Agent Registry](/owner-guide/register-agents/registering-agents), where every
+[Diamond](/concepts/platform/diamond) and [Dome](/concepts/platform/dome) workflow applies
+to it.
+
+## Register a Resource
+
+Open the **Findings** tab, find the Resource, and use **Register** on its row.
+
+## Registration Takes Two Steps
+
+**Step one, Register.** The Resource becomes an Agent in the Agent Registry, in a **pending**
+state. The scan found the service. Vijil still needs credentials to reach it.
+
+**Step two, Continue registration.** Supply the endpoint, the access key, the access level,
+and the rate limit. See
+[Access Levels](/owner-guide/register-agents/registering-agents#access-levels).
+
+<Warning>
+You cannot evaluate a pending Agent. Complete step two first. Until then, an Evaluation
+fails with a message asking you to activate the Agent.
+</Warning>
+
+## What Is Eligible
+
+Two conditions have to hold.
+
+**It has to be an Agent.** Models, functions, runtimes, and knowledge bases count as
+inventory. The platform can evaluate and protect Agents only.
+
+**It has to have a durable identity.** Some Resources carry an identity that the scan builds
+from what it observed. That identity changes when a certificate renews or an address moves,
+so the Resource returns under a new identifier. See
+[Identity Across Rescans](/concepts/discovery/resource#identity-across-rescans).
+
+Where a Resource fails either test, the Console says which:
+
+| Reason shown | What it means |
+|--------------|---------------|
+| Only Resources classified as an agent can be registered | The Resource counts as inventory |
+| Identified by what the scan observed rather than by name | The identity would change on the next scan |
+| Could not be read well enough to decide | The record was incomplete. Report this. |
+
+<Note>
+You cannot register Agents found by endpoint Collectors today. An Agent on a laptop carries
+a machine-local address, and the platform has no route to it.
+</Note>
+
+## Resource Status
+
+Every Resource carries a status. A Resource you have yet to review reads **Candidate**.
+
+| Status | Meaning |
+|--------|---------|
+| **Candidate** | Found and awaiting review |
+| **Matched** | An Agent already in the registry corresponds to this Resource |
+| **Saved** | Registered from this Resource |
+| **Dismissed** | Marked out of scope |
+
+A **Matched** Resource is already a registered Agent. Follow the link to it instead of
+registering it again.
+
+## Dismissal
+
+Dismissing a Resource is permanent across rescans. Later scans update when it was last seen
+and keep your decision. The Console stays quiet about it from then on.
+
+You can dismiss a Resource you have already registered. Dismissing it unlinks the Agent for
+you.
+
+## Registering From a Code Scan
+
+Agents found by a [code repository scan](/owner-guide/discover/code-scans) register the same
+way, from the discovered-agents list on the scan result. Register first, then supply the
+endpoint and credentials.
+
+## After You Register
+
+Once the Agent is active it enters the registry at the **Registered** stage:
+
+| Stage | Reached when |
+|-------|--------------|
+| **Registered** | The Agent is in the registry |
+| **Tested** | You have run at least one evaluation against it |
+| **Protected** | You have configured and enabled Dome for it |
+| **Adapted** | You have accepted a Darwin proposal for it |
+
+A discovered Agent and a manually registered one behave the same from here.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Manage Agents" icon="bot" href="/owner-guide/register-agents/registering-agents">
+    Access levels, registry columns, and the lifecycle stages.
+  </Card>
+  <Card title="Run an Evaluation" icon="flask-conical" href="/owner-guide/run-evaluations/running-evaluations">
+    Produce a Trust Score for the Agent you just registered.
+  </Card>
+</CardGroup>
