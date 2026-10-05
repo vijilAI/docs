@@ -38,11 +38,11 @@ Before starting, review the full list of AWS resources and external services thi
 | S3 Bucket | Yes | Customer | [Step 1: S3](#s3-bucket) |
 | ACM Certificate | Yes | Customer | [Step 1: ACM](#acm-certificate) |
 | ECR Cross-Account Pull | Yes (if using Vijil ECR) | **Vijil + Customer** | [Step 2: ECR](#ecr-pull-access) |
-| Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond--custom-harness) |
-| AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging--non-dev-custom-harness-agentcore-runtime) |
+| Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond-/-custom-harness) |
+| AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging-/-non-dev-custom-harness-agentcore-runtime) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
 | LLM API Key | Yes | Customer (Groq, OpenAI, Anthropic, or local) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
-| Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-45-deploy-darwin-evolution-engine) |
+| Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-4-5-deploy-darwin-evolution-engine) |
 | Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
 
 ## Architecture Overview
@@ -609,7 +609,7 @@ The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fe
 
 In dev, a custom Harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime does not exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
 
-**Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a--vijils-ecr-cross-account-pull).
+**Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a-vijils-ecr-cross-account-pull).
 
 #### Step 1: Create the execution role
 
