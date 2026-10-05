@@ -1,30 +1,29 @@
 ---
 title: "Lifecycle Methods"
-description: "High-level Vijil client methods that drive the Agent trust lifecycle: evaluate, test, adapt, and protect."
+description: "Manage the Agent lifecycle with high-level Vijil SDK workflows."
 ---
 
-Lifecycle methods are high-level workflows on the `Vijil` client. Each maps to a stage of the Agent trust lifecycle and, where an operation runs asynchronously, polls until it completes by default.
+Lifecycle methods are high-level workflows on the `Vijil` client. Each method maps to a stage of the Agent lifecycle. Long-running operations poll until they reach a terminal state unless the method provides a `no_wait` option.
 
 | Method | What It Does | Returns |
 |--------|--------------|---------|
-| `client.evaluate()` | Run a behavioral or Red Team evaluation | `Evaluation` or `RedteamStatusResponse` |
+| `client.evaluate()` | Run a behavioral or red-team Evaluation | `Evaluation \| RedteamStatusResponse` |
 | `client.adapt()` | Improve an Agent through corrective evolution | `Job` |
 | `client.protect()` | Configure Dome runtime Guardrails | `DomeConfig` |
-
-<Tip>
-Use `client.evaluate()` for both Diamond evaluation types. Behavioral evaluations produce a Trust Score; Red Team evaluations produce attack findings and a report.
-</Tip>
+| `client.discover()` | Find Agents in GitHub repositories or cloud infrastructure | `Page[DiscoveredAgent]` |
+| `client.register()` | Register Agent source from a local directory | `dict[str, Any]` |
+| `client.evolve()` | Create an Agent through generative evolution | `Job` |
+| `client.deploy()` | Deploy an Agent to a production runtime | `Deployment` |
 
 ## `client.evaluate()`
 
-Run a behavioral or Red Team evaluation and poll until it reaches a terminal status.
-
-For a behavioral evaluation, use a baseline or a specific Harness:
+Run an [Evaluation](/developer-guide/evaluate/overview) and poll until it reaches a terminal state. The default `type="behavioral"` path uses Harnesses and returns an `Evaluation` with the finalized scores.
 
 ```python
 evaluation = client.evaluate(
     "agent-id",
     baseline=True,
+    sample_size=50,
 )
 
 print(evaluation.status)
@@ -32,13 +31,28 @@ print(evaluation.trust_score)
 print(evaluation.dimensions)
 ```
 
-For a Red Team evaluation, set `type="redteam"` and optionally override its wave settings:
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `agent_id` | `str` | — | Agent ID or alias |
+| `baseline` | `bool` | `False` | Run the standard reliability, security, and safety Harnesses |
+| `harness_id` | `str \| None` | `None` | Run a specific [Harness](/concepts/evaluation-components/harness) instead of the baseline |
+| `sample_size` | `int \| None` | `None` | Number of Probes to run per Harness; must be at least `1` |
+| `type` | `str` | `"behavioral"` | Evaluation type: `"behavioral"` or `"redteam"` |
+| `redteam` | `Mapping[str, Any] \| None` | `None` | Red-team configuration overrides, such as `max_waves` or `advanced` |
+| `_poll_interval` | `float` | `5.0` | Seconds between status checks |
+| `on_poll` | `Callable \| None` | `None` | Callback invoked with the current state after each status check |
+
+For a behavioral Evaluation, pass either `baseline=True` or `harness_id`, not both. To start a behavioral Evaluation without waiting, use `client.evaluations.create()` and poll the Evaluation resource yourself. See [Run Evaluations](/developer-guide/evaluate/running-evaluations) for the lower-level workflow.
+
+### Run a Red-Team Evaluation
+
+Set `type="redteam"` to challenge an Agent with adaptive adversarial waves. This replaces the removed `client.test()` workflow.
 
 ```python
 status = client.evaluate(
     "agent-id",
     type="redteam",
-    redteam={"max_waves": 2},
+    redteam={"max_waves": 3},
 )
 
 print(status.evaluation_id)
@@ -46,35 +60,24 @@ print(status.status)
 print(status.current_wave)
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `agent_id` | `str` | — | Agent ID or alias |
-| `type` | `str` | `"behavioral"` | `"behavioral"` or `"redteam"` |
-| `baseline` | `bool` | `False` | Run the standard trust Harnesses for a behavioral evaluation |
-| `harness_id` | `str \| None` | `None` | Run a specific [Harness](/concepts/evaluation-components/harness) for a behavioral evaluation |
-| `sample_size` | `int \| None` | `None` | Positive number of Probes per Harness for a behavioral evaluation |
-| `redteam` | `Mapping[str, Any] \| None` | `None` | Optional Red Team settings, such as `max_waves` |
-| `on_poll` | `Callable \| None` | `None` | Callback invoked after each status poll |
-| `_poll_interval` | `float` | `5.0` | Seconds between status checks |
-
-Returns an [`Evaluation`](/developer-guide/sdk/models-errors) for behavioral runs or a `RedteamStatusResponse` for Red Team runs. Pass either `baseline=True` or a `harness_id` for a behavioral run; neither is valid for Red Team. Red Team also rejects `sample_size`.
+This path returns a `RedteamStatusResponse` and polls until the status is `succeeded`, `failed`, `cancelled`, or `degraded`. Do not combine `type="redteam"` with `baseline`, `harness_id`, or `sample_size`; the SDK rejects those behavioral-only arguments.
 
 ## `client.adapt()`
 
-Create a corrective evolution job that improves an existing Agent based on weaknesses found by behavioral or Red Team evaluations.
+Create a corrective evolution job for an existing Agent. By default, the method polls until the job reaches a terminal status: `completed`, `failed`, or `cancelled`.
 
 ```python
 job = client.adapt("agent-id", mode="config")
-print(job.status)   # "completed"
+print(job.status)
 ```
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `agent_id` | `str` | — | Agent ID or alias |
-| `mode` | `str` | `"config"` | `"config"` tunes Agent configuration, `"code"` rewrites Agent source, `"generative"` creates variants |
-| `no_wait` | `bool` | `False` | Return immediately without polling |
+| `mode` | `str` | `"config"` | `"config"` for GEPA or `"code"` for ADAS/SourceEngine |
+| `no_wait` | `bool` | `False` | Return the initial `Job` without polling |
 
-Returns a [`Job`](/developer-guide/sdk/models-errors). After adaptation completes, review and apply the resulting [proposals](/developer-guide/sdk/resources#client-proposals).
+Returns a [`Job`](/developer-guide/sdk/models-errors#job). After adaptation completes, review and apply the resulting [proposals](/developer-guide/sdk/resources#client-proposals).
 
 ## `client.protect()`
 
@@ -87,8 +90,8 @@ dome = client.protect(
     mode="enforce",
 )
 
-print(dome.mode)     # "enforce"
-print(dome.guards)   # ["prompt_injection", "pii"]
+print(dome.mode)
+print(dome.guards)
 ```
 
 | Parameter | Type | Default | Description |
@@ -96,34 +99,107 @@ print(dome.guards)   # ["prompt_injection", "pii"]
 | `agent_id` | `str` | — | Agent ID or alias |
 | `policy_id` | `str \| None` | `None` | Policy to apply |
 | `guards` | `list[str] \| None` | `None` | [Guard](/concepts/defense/guard) names |
-| `mode` | `str` | `"enforce"` | `"enforce"` blocks threats, `"monitor"` logs only, `"disabled"` turns Guardrails off |
+| `mode` | `str` | `"enforce"` | `"enforce"` blocks threats, `"monitor"` logs them, and `"disabled"` turns Guardrails off |
 
-Returns a [`DomeConfig`](/developer-guide/sdk/models-errors).
+Returns a [`DomeConfig`](/developer-guide/sdk/models-errors#domeconfig). For local Dome configuration, see [Configure Guardrails](/developer-guide/protect/configuring-guardrails).
 
-## Preview Methods
+## `client.discover()`
 
-<Info>
-The following methods target Console routes that are not yet generally available. Their signatures are stable, but calls fail until the corresponding Console capability ships.
-</Info>
-
-| Method | What It Does | Returns |
-|--------|--------------|---------|
-| `client.discover()` | Find Agents in GitHub repositories or cloud infrastructure | `Page[DiscoveredAgent]` |
-| `client.register()` | Convert Agent source into an A2A card and genome | `dict` |
-| `client.evolve()` | Create a new Agent through generative evolution | `Job` |
-| `client.deploy()` | Deploy an Agent to a production runtime | `Deployment` |
+Find Agents in GitHub repositories or supported cloud infrastructure. Provide at least one GitHub selector or a provider.
 
 ```python
-# Discover Agents in a GitHub organization or a Kubernetes namespace
-agents = client.discover(github_org="acme-corp")
-agents = client.discover(provider="k8s", namespace="production")
+# Discover repositories in a GitHub organization.
+github_agents = client.discover(github_org="acme-corp")
 
-# Register an Agent from a GitHub URL or a local directory
-result = client.register("https://github.com/acme/my-agent")
-
-# Create a new Agent from a spec, a file, or a natural-language description
-job = client.evolve(description="A travel booking agent for flights and hotels")
-
-# Deploy an Agent to a runtime
-deployment = client.deploy("agent-id", runtime="agentcore")
+# Discover Agents in a Kubernetes namespace.
+cloud_agents = client.discover(
+    provider="k8s",
+    namespace="production",
+)
 ```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `github_org` | `str \| None` | `None` | GitHub organization to scan |
+| `github_repo` | `str \| None` | `None` | GitHub repository to scan |
+| `provider` | `str \| None` | `None` | Infrastructure provider, such as `"aws"` or `"k8s"` |
+| `region` | `str \| None` | `None` | Cloud region filter used with `provider` |
+| `namespace` | `str \| None` | `None` | Kubernetes namespace filter used with `provider` |
+
+Returns a [`Page[DiscoveredAgent]`](/developer-guide/sdk/models-errors#paget).
+
+## `client.register()`
+
+Register Agent source from a local directory. The SDK uploads text source files to the Console import route and returns the response as a dictionary.
+
+```python
+result = client.register("./my-agent")
+print(result["id"])
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `path_or_url` | `str` | — | Path to a local directory containing the Agent source |
+| `discover_id` | `str \| None` | `None` | Reserved parameter; discovery ID registration is not supported |
+
+Despite the parameter name, `path_or_url` does not accept a GitHub URL. Clone the repository first, then pass its local directory. The SDK excludes common dependency, cache, version-control, binary, and secret files. It rejects source trees larger than 5 MiB or 500 files instead of uploading a partial tree.
+
+## `client.evolve()`
+
+Create an Agent from a specification, a local YAML or JSON specification file, or a natural-language description. The method polls the evolution job unless you set `no_wait=True`.
+
+```python
+job = client.evolve(
+    description="A travel booking Agent for flights and hotels",
+)
+print(job.status)
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `spec` | `dict[str, Any] \| None` | `None` | Evolution specification |
+| `spec_path` | `str \| None` | `None` | Path to a YAML or JSON specification file |
+| `description` | `str \| None` | `None` | Natural-language description lowered to a specification |
+| `no_wait` | `bool` | `False` | Return the initial `Job` without polling |
+
+Provide one of `spec`, `spec_path`, or `description`. Returns a [`Job`](/developer-guide/sdk/models-errors#job).
+
+## `client.deploy()`
+
+Deploy an Agent to a production runtime. The method polls while the deployment status is `deploying` unless you set `no_wait=True`.
+
+```python
+deployment = client.deploy(
+    "agent-id",
+    runtime="agentcore",
+)
+
+print(deployment.status)
+print(deployment.url)
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `agent_id` | `str` | — | Agent ID or alias |
+| `runtime` | `str` | — | Target runtime, such as `"agentcore"`, `"do-gradient"`, or `"k8s"` |
+| `namespace` | `str \| None` | `None` | Kubernetes namespace used with the `"k8s"` runtime |
+| `no_wait` | `bool` | `False` | Return the initial `Deployment` without polling |
+
+Returns a [`Deployment`](/developer-guide/sdk/models-errors#other-models). Discovery, evolution, and deployment availability depends on the capabilities enabled in your Console deployment.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SDK Resources" icon="boxes" href="/developer-guide/sdk/resources">
+    Use lower-level resource operations and pagination.
+  </Card>
+  <Card title="Models and Errors" icon="shapes" href="/developer-guide/sdk/models-errors">
+    Inspect return types and handle SDK exceptions.
+  </Card>
+  <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Start Evaluations and retrieve detailed results.
+  </Card>
+  <Card title="Protect Agents" icon="shield" href="/developer-guide/protect/overview">
+    Add runtime Guardrails with Dome.
+  </Card>
+</CardGroup>

@@ -1,11 +1,13 @@
 ---
 title: "Models and Errors"
-description: "Return types the Vijil SDK produces and the exception hierarchy it raises."
+description: "Understand Vijil SDK return types, exception categories, and retry behavior."
 ---
 
 Structured SDK responses use Pydantic models. Resource models such as `Evaluation` inherit from `VijilModel`, while generated API models such as `RedteamStatusResponse` inherit directly from `BaseModel`. SDK exceptions inherit from `VijilError`.
 
-## Models
+Hand-curated models inherit from `VijilModel`, which ignores unknown response fields. Models generated from the Console schemas inherit directly from Pydantic's `BaseModel`. When `vijil.models` exports a model, import it there. Treat `vijil._generated` as internal implementation detail.
+
+## Pagination
 
 ### `Page[T]`
 
@@ -13,24 +15,34 @@ Generic paginated response returned by resource collection methods such as `list
 
 ```python
 page = client.agents.list()
-page.items     # list[T] — the results
-page.total     # int — total count
-page.has_more  # bool — whether more results exist
+
+for agent in page:
+    print(agent.id, agent.agent_name)
+
+print(page.items)      # list[Agent]
+print(page.total)      # total matching records
+print(page.has_more)   # whether len(page.items) is less than page.total
 ```
 
-`Page[T]` handles the Console's varying response shapes (`items` or `results` keys, `total` or `count` fields) transparently.
+`Page[T]` normalizes the Console's `items` or `results` collections and its `total` or `count` fields. Some methods intentionally return a plain list, such as `client.rca_runs.list()`.
+
+## Core Models
 
 ### `Evaluation`
 
 Returned by `client.evaluate()` for behavioral evaluations. Trust Scores and Harness fields do not apply to Red Team evaluations.
 
 ```python
-evaluation.id             # str (UUID)
+evaluation.id             # str
 evaluation.agent_id       # str | None
 evaluation.status         # str
 evaluation.harness_names  # list[str]
 evaluation.trust_score    # float | None
+evaluation.scores         # dict[str, float] | None
 evaluation.dimensions     # Dimensions | None
+evaluation.created_at     # int | str | None
+evaluation.completed_at   # int | str | None
+evaluation.error_message  # str | None
 ```
 
 The behavioral poller treats `completed`, `succeeded`, `saved`, `failed`, and `cancelled` as terminal statuses.
@@ -84,169 +96,242 @@ dimensions.security     # float | None
 dimensions.safety       # float | None
 ```
 
-### `Job`
+The SDK builds `dimensions` from the Console's pillar score fields or its `scores` dictionary.
+
+### `EvaluationResponse`
+
+`client.evaluations.responses()` returns a `Page[EvaluationResponse]` containing individual behavioral Evaluation records.
 
 ```python
-job.id          # str (UUID)
-job.agent_id    # str | None
-job.status      # str — "pending", "running", "completed", "failed", "cancelled"
-job.mode        # str | None
-job.created_at  # str | None
-job.error       # str | None
+response.harness_id       # str
+response.scenario_id      # str
+response.probe_id         # str
+response.probe_score      # float
+response.prompt_id        # str
+response.prompt_text      # str | None
+response.response_text    # str
+response.status           # "passed" | "failed"
+response.detector_results # dict[str, Any]
 ```
 
 ### `Agent`
 
+The Console schema uses `agent_name` and `agent_url` as the public field names.
+
 ```python
-agent.id          # str (UUID)
-agent.name        # str
-agent.team_id     # str | None
-agent.url         # str | None
-agent.framework   # str | None
-agent.hub         # str | None
-agent.model_name  # str | None
-agent.status      # str | None
+agent.id                 # str
+agent.agent_name         # str
+agent.model_name         # str
+agent.agent_url          # str | None
+agent.team_id            # str
+agent.status             # str | None
+agent.access_level       # str | None
+agent.protocol           # str | None
+agent.deployment         # str | None
+agent.latest_evaluation  # AgentLatestEvaluation | None
 ```
+
+The `client.agents` resource removes API key values from Console responses before returning an `Agent`.
+
+### `Job`
+
+```python
+job.id          # str
+job.agent_id    # str | None
+job.status      # str
+job.mode        # str | None
+job.created_at  # int | str | None
+job.error       # str | None
+```
+
+Lifecycle methods return the terminal `Job` record even when its status is `failed` or `cancelled`. Inspect `job.status` and `job.error` after polling.
 
 ### `TrustScore`
 
 ```python
-score.agent_id     # str
-score.trust_score  # float | None
-score.reliability  # float | None
-score.security     # float | None
-score.safety       # float | None
+score.evaluation_id  # str | None
+score.agent_id       # str | None
+score.trust_score    # float | None
+score.reliability    # float | None
+score.security       # float | None
+score.safety         # float | None
+score.pillar_details # dict[str, PillarDetail]
+score.harness_names  # list[str]
+score.status         # str | None
+score.evaluated_at   # int | str | None
 ```
+
+Use `score.summarize(results=results, scale=100)` to flatten full Evaluation results into summary, Harness, Scenario, and Probe rows. Get `results` with [`client.scores.results()`](/developer-guide/sdk/resources#client-scores).
 
 ### `DomeConfig`
 
 ```python
 dome.id             # str | None
 dome.agent_id       # str | None
-dome.guards         # list[str] | None
-dome.mode           # str | None
-dome.input_guards   # list[str] | None
-dome.output_guards  # list[str] | None
+dome.guards         # list[str]
+dome.mode           # str
+dome.input_guards   # list[str]
+dome.output_guards  # list[str]
 ```
 
-### `Harness`
+### `Harness` and `Report`
 
-```python
-harness.id            # str
-harness.name          # str | None
-harness.type          # str | None
-harness.category      # str | None
-harness.version       # str | None
-harness.agent_id      # str | None
-harness.persona_ids   # list[str] | None
-harness.policy_ids    # list[str] | None
-harness.status        # str | None — e.g. "draft", "active"
-harness.prompt_count  # int | None
-```
+| Model | Key Fields | Produced By |
+|-------|------------|-------------|
+| `Harness` | `id`, `name`, `type`, `agent_id`, `persona_ids`, `policy_ids`, `status`, `prompt_count` | `client.harnesses.*` |
+| `Report` | `id`, `agent_id`, `status`, `format`, `created_at` | `client.reports.*` |
 
-### `Report`
-
-```python
-report.id          # str
-report.agent_id    # str | None
-report.status      # str | None
-report.format      # str | None
-report.created_at  # str | None
-```
+`Report.created_at` can be a Unix timestamp or an ISO-formatted string.
 
 ### Other Models
 
 | Model | Key Fields | Produced By |
-|-------|-----------|-------------|
+|-------|------------|-------------|
 | `Genome` | `id`, `agent_id`, `version`, `genes`, `created_at` | `client.genomes.*` |
 | `GenomeDiff` | `genome_id`, `v1`, `v2`, `changes` | `client.genomes.diff()` |
-| `Proposal` | `id`, `agent_id`, `genome_id`, `status`, `trigger_summary`, `mutations`, `resulting_version` | `client.proposals.*` |
+| `Proposal` | `id`, `agent_id`, `genome_id`, `genome_version`, `status`, `mutations`, `fitness_delta` | `client.proposals.*` |
 | `Deployment` | `id`, `agent_id`, `runtime`, `status`, `url`, `version` | `client.deploy()` |
 | `DiscoveredAgent` | `id`, `name`, `source`, `framework`, `status`, `description` | `client.discover()` |
-| `MonitorSummary` | `agent_id`, `total_detections`, `blocked_count`, `passed_count` | `client.monitor.summary()` |
-| `Detection` | `id`, `agent_id`, `type`, `direction`, `blocked`, `timestamp` | `client.monitor.detections()` |
 | `Trace` | `trace_id`, `agent_id`, `duration_ms`, `spans`, `timestamp` | `client.monitor.traces()` |
 | `LogEntry` | `agent_id`, `level`, `message`, `timestamp` | `client.monitor.logs()` |
-| `Persona` | `id`, `name`, `role`, `intent`, `knowledge_level`, `skill_level` | `client.personas.*` |
-| `Policy` | `id`, `name`, `category`, `status`, `source_text`, `tags` | `client.policies.*` |
+| `Persona` | `id`, `team_id`, `name`, `role`, `intent`, `knowledge_level`, `skill_level` | `client.personas.*` |
+| `Policy` | `id`, `team_id`, `name`, `category`, `status`, `source_text`, `tags` | `client.policies.*` |
+| `TunnelCredential` | `provider`, `token`, `binding_url` | `client.agent_tunnel.get()` |
+| `AnalyzerRunSummary` | `run_id`, `agent_id`, `eval_id`, `status`, `ticket_count` | `client.rca_runs.list()` |
+| `AnalyzerRunDetail` | Summary fields plus `failure_class`, `evidence`, and `error` | `client.rca_runs.show()` |
+| `Ticket` | `ticket_id`, `title`, `priority`, `description`, `actions`, `status` | `client.rca_runs.tickets()` |
+
+`MonitorSummary` and `Detection` models exist for forward compatibility, but their corresponding resource read methods currently raise `NotImplementedError`. See [SDK Resources](/developer-guide/sdk/resources#client-monitor) for supported telemetry operations.
 
 ## Errors
 
-Import exceptions from `vijil.exceptions`:
+Import SDK exceptions from `vijil.exceptions`:
 
 ```python
 from vijil.exceptions import (
-    VijilError,
+    ConsoleRejected,
+    ContractDrift,
+    NetworkError,
+    SDKValidationFailed,
     VijilAuthError,
+    VijilConfigError,
+    VijilError,
+    VijilJobFailedError,
     VijilNotFoundError,
-    VijilValidationError,
     VijilRateLimitError,
     VijilServerError,
-    VijilJobFailedError,
-    VijilConfigError,
+    VijilValidationError,
 )
 ```
 
-### Exception Hierarchy
+All concrete SDK exceptions inherit from `VijilError`. The hierarchy supports two ways to classify a failure:
 
-| Exception | HTTP Code | When |
-|-----------|-----------|------|
-| `VijilAuthError` | 401, 403 | Invalid or expired API key |
-| `VijilNotFoundError` | 404 | Resource does not exist |
-| `VijilValidationError` | 400, 422 | Invalid request parameters |
-| `VijilRateLimitError` | 429 | Too many requests |
-| `VijilServerError` | 500+ | Server error (the SDK retries automatically) |
-| `VijilJobFailedError` | — | Asynchronous job completed with an error |
-| `VijilConfigError` | — | Missing or invalid configuration |
-
-### Exception Attributes
-
-```python
-try:
-    client.agents.show("nonexistent")
-except VijilNotFoundError as e:
-    print(str(e))            # error message
-    print(e.resource_type)   # "agent" (if set)
-    print(e.resource_id)     # "nonexistent" (if set)
-
-try:
-    client.agents.list()
-except VijilAuthError as e:
-    print(e.status_code)     # 401 or 403
-
-except VijilRateLimitError as e:
-    print(e.retry_after)     # seconds to wait (float)
-
-try:
-    client.agents.create(name="")
-except VijilValidationError as e:
-    print(e.details)         # dict of field-level errors
+```text
+VijilError
+├── ConsoleRejected
+│   ├── VijilAuthError
+│   ├── VijilNotFoundError
+│   ├── VijilValidationError
+│   ├── VijilRateLimitError
+│   └── VijilServerError
+├── SDKValidationFailed
+├── NetworkError
+├── ContractDrift
+├── VijilJobFailedError
+└── VijilConfigError
 ```
 
-### Automatic Retries
+### Source-Attributed Errors
 
-The HTTP client retries transient failures automatically, up to three attempts:
+Each concrete exception exposes a `source` and a `remediation` hint.
 
-- **429 Rate Limited** — waits for the `Retry-After` header duration.
-- **5xx Server Error** — exponential backoff (1s, 2s, 4s).
+| Exception | Source | Meaning | Specific Attributes |
+|-----------|--------|---------|---------------------|
+| `ConsoleRejected` | `"console"` | Console returned a non-success HTTP response | `reason`, `status_code` |
+| `SDKValidationFailed` | `"sdk"` | The SDK rejected invalid arguments before sending a request | `field`, `expected`, `actual` |
+| `NetworkError` | `"network"` | No HTTP response arrived because of a transport failure | `transport_error` |
+| `ContractDrift` | `"drift"` | A successful response did not match the model expected by the SDK | `expected_shape`, `actual_shape` |
 
-If every retry fails, the SDK raises the corresponding exception.
+Catch `ConsoleRejected` to handle every Console rejection together, or catch one of its status-specific subclasses.
+
+### HTTP Status Errors
+
+| Exception | HTTP Status | Specific Attributes |
+|-----------|-------------|---------------------|
+| `VijilAuthError` | `401`, `403` | `status_code` |
+| `VijilNotFoundError` | `404` | `resource_type`, `resource_id` when available |
+| `VijilValidationError` | `400`, `422` | `details` |
+| `VijilRateLimitError` | `429` | `retry_after` |
+| `VijilServerError` | `5xx` | `status_code` |
+
+Other non-success statuses, such as `409`, raise `ConsoleRejected` directly.
+
+<Tip>
+`SDKValidationFailed` and `VijilValidationError` represent different failure locations. The first means local SDK validation stopped the request. The second means the Console rejected a request with HTTP `400` or `422`.
+</Tip>
+
+### Configuration and Job Errors
+
+| Exception | When |
+|-----------|------|
+| `VijilConfigError` | The SDK cannot load or decode required local configuration or state |
+| `VijilJobFailedError` | Exception type defined for asynchronous job failures; current lifecycle methods return failed terminal models instead of raising it |
 
 ### Error-Handling Pattern
 
-Catch specific exceptions first, then fall back to the `VijilError` base class:
+Catch the narrowest actionable exception before its parent class.
 
 ```python
-from vijil import Vijil
-from vijil.exceptions import VijilError, VijilNotFoundError
-
-client = Vijil()
+from vijil.exceptions import (
+    ConsoleRejected,
+    ContractDrift,
+    NetworkError,
+    SDKValidationFailed,
+    VijilError,
+    VijilNotFoundError,
+)
 
 try:
-    evaluation = client.evaluate("my-agent", baseline=True)
-    print(f"Trust score: {evaluation.trust_score}")
-except VijilNotFoundError:
-    print("Agent not found. Check the ID or alias.")
-except VijilError as e:
-    print(f"Vijil error: {e}")
+    evaluation = client.evaluate("agent-id", baseline=True)
+except SDKValidationFailed as error:
+    print(f"Invalid {error.field}: expected {error.expected}")
+except VijilNotFoundError as error:
+    print(f"Resource not found: {error.resource_id or error}")
+except ConsoleRejected as error:
+    print(f"Console rejected the request ({error.status_code}): {error.reason}")
+except NetworkError as error:
+    print(f"Network failure: {error.transport_error}")
+except ContractDrift as error:
+    print(f"Unexpected response shape: {error.actual_shape}")
+except VijilError as error:
+    print(f"Vijil SDK failure: {error}")
+else:
+    print(evaluation.trust_score)
 ```
+
+## Automatic Retries
+
+The HTTP client makes at most three total attempts for a request:
+
+- For transport failures and `5xx` responses, it waits one second before the second attempt and two seconds before the third.
+- For `429` responses, it uses a numeric `Retry-After` value. If the header is missing or invalid, it waits one second.
+- For a `401` response, it performs one refresh-and-retry when the credentials support token refresh.
+
+After the final attempt, the SDK raises `NetworkError`, `VijilRateLimitError`, or `VijilServerError`, depending on the last failure. Individual operations can disable retries when repeating the request would be unsafe. Multipart uploads do not retry automatically.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SDK Resources" icon="boxes" href="/developer-guide/sdk/resources">
+    See which methods produce each model.
+  </Card>
+  <Card title="Lifecycle Methods" icon="workflow" href="/developer-guide/sdk/lifecycle-methods">
+    Use high-level workflows and inspect their return values.
+  </Card>
+  <Card title="SDK Setup" icon="gear" href="/developer-guide/sdk/setup">
+    Configure authentication, gateways, and team defaults.
+  </Card>
+  <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Start Evaluations and retrieve their results.
+  </Card>
+</CardGroup>

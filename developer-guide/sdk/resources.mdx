@@ -1,11 +1,11 @@
 ---
 title: "Resources"
-description: "Low-level resource accessors on the Vijil client for CRUD operations on platform resources."
+description: "Use low-level Vijil SDK resource accessors for individual platform operations."
 ---
 
-Resource accessors are low-level attributes on the `Vijil` client. Where [lifecycle methods](/developer-guide/sdk/lifecycle-methods) run whole workflows, resources give you direct create, read, update, and delete access to individual platform objects.
+Resource accessors are attributes on the `Vijil` client. While [lifecycle methods](/developer-guide/sdk/lifecycle-methods) coordinate complete workflows, resources let you start an operation without waiting, retrieve individual records, or use operations that do not have a lifecycle shortcut.
 
-Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-errors); iterate `page.items` for the results. Red Team artifact methods return their own typed responses.
+Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-errors/#paget); iterate `page.items` for the results. Red Team artifact methods return their own typed responses.
 
 | Accessor | Methods |
 |----------|---------|
@@ -20,7 +20,9 @@ Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-error
 | `client.proposals` | `list`, `show`, `approve`, `apply`, `reject` |
 | `client.policies` | `list`, `show`, `create`, `update`, `delete` |
 | `client.personas` | `list`, `show`, `create`, `update`, `delete` |
-| `client.monitor` | `summary`, `detections`, `traces`, `logs` |
+| `client.monitor` | `traces`, `logs` |
+| `client.agent_tunnel` | `get`, `revoke` |
+| `client.rca_runs` | `create`, `list`, `show`, `tickets` |
 
 ## `client.agents`
 
@@ -29,10 +31,15 @@ Manage [Agent](/owner-guide/register-agents/what-is-an-agent) configurations.
 ```python
 page = client.agents.list(team_id="optional-team-id")
 agent = client.agents.show("agent-id")
-agent = client.agents.create(name="My Agent", url="http://agent:9000/v1")
+agent = client.agents.create(
+    name="My Agent",
+    url="https://agent.example.com/v1",
+)
 agent = client.agents.update("agent-id", name="New Name")
-client.agents.delete("agent-id")
+archived_agent = client.agents.archive("agent-id")
 ```
+
+`archive()` performs a soft deletion and returns the archived `Agent`. The older `delete()` method calls `archive()` for backward compatibility but returns `None`; prefer `archive()` in new code.
 
 ## `client.evaluations`
 
@@ -117,7 +124,7 @@ See [`RedteamStatusResponse`](/developer-guide/sdk/models-errors#redteamstatusre
 
 ## `client.harnesses`
 
-List and manage [Harnesses](/concepts/evaluation-components/harness). The list merges standard and custom Harnesses.
+List and manage [Harnesses](/concepts/evaluation-components/harness). `list()` combines standard and custom Harnesses.
 
 ```python
 page = client.harnesses.list()
@@ -125,23 +132,30 @@ harness = client.harnesses.show("harness-id")
 harness = client.harnesses.create(
     name="Custom Harness",
     agent_id="agent-id",
-    persona_ids=["persona-id"],   # optional
-    policy_ids=["policy-id"],     # optional
-    system_prompt="...",          # optional
+    persona_ids=["persona-id"],
+    policy_ids=["policy-id"],
+    system_prompt="Evaluate the Agent against the selected policies.",
 )
+harness_id = client.harnesses.resolve_custom("Custom Harness")
 client.harnesses.delete("harness-id")
 ```
 
-`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for the given Agent; `persona_ids` and `policy_ids` shape the Probes it produces. Custom Harnesses are immutable, so there is no `update()` — create a new Harness and delete the old one to change its configuration.
+`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for an Agent. Custom Harnesses are immutable. Calling `update()` raises `NotImplementedError`; create a replacement and delete the old Harness instead.
 
 ## `client.scores`
 
-Read Trust Scores for an Agent.
+Retrieve the latest Trust Score for an Agent, the score for a specific Evaluation, score history, or the full nested Evaluation results.
 
 ```python
-score = client.scores.show("agent-id")
-page = client.scores.history("agent-id", limit=20)
+latest = client.scores.show("agent-id")
+score = client.scores.get("evaluation-id")
+history = client.scores.history("agent-id", limit=20)
+results = client.scores.results("evaluation-id")
+
+rows = score.summarize(results=results, scale=100)
 ```
+
+`show()` raises `VijilNotFoundError` when the Agent has no scores. See [Understand Evaluation Results](/developer-guide/evaluate/understanding-results) for guidance on interpreting scores.
 
 ## `client.reports`
 
@@ -151,33 +165,43 @@ List, fetch, and download Trust Reports. `download()` returns PDF bytes. For a R
 page = client.reports.list(agent_id="optional-agent-id")
 report = client.reports.show("evaluation-id")
 
+generation = client.reports.generate("evaluation-id")
 pdf_bytes = client.reports.download("evaluation-id")
-with open("report.pdf", "wb") as f:
-    f.write(pdf_bytes)
+
+with open("report.pdf", "wb") as file:
+    file.write(pdf_bytes)
 ```
+
+Report generation requires a team ID from the `team_id` argument, client configuration, or authenticated token. `download()` requests generation once if the PDF does not exist, then retries the download.
 
 ## `client.dome`
 
-Read and update [Dome](/developer-guide/protect/overview) Guardrail configurations. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) for the common case.
+Read and update [Dome](/developer-guide/protect/overview) Guardrail configurations. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) for the high-level configuration workflow.
 
 ```python
 page = client.dome.list()
 config = client.dome.show("agent-id")
-config = client.dome.default()
-config = client.dome.update("agent-id", guards=["prompt_injection"], mode="enforce")
+default_config = client.dome.default()
+config = client.dome.update(
+    "agent-id",
+    guards=["prompt_injection"],
+    mode="enforce",
+)
 ```
 
 ## `client.jobs`
 
-Track and control asynchronous test and evolution jobs.
+Track and control asynchronous evolution jobs.
 
 ```python
 page = client.jobs.list("agent-id")
 job = client.jobs.show("agent-id", "job-id")
 job = client.jobs.status("agent-id", "job-id")
 job = client.jobs.create("agent-id", mode="config")
-client.jobs.cancel("agent-id", "job-id")
+job = client.jobs.cancel("agent-id", "job-id")
 ```
+
+`status()` is an alias for `show()`.
 
 ## `client.genomes`
 
@@ -196,7 +220,7 @@ diff = client.genomes.diff("genome-id", v1=1, v2=3)
 Review and apply the adaptation proposals produced by [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
 
 ```python
-page = client.proposals.list(agent_id="optional", status="pending")
+page = client.proposals.list(agent_id="agent-id", status="pending")
 proposal = client.proposals.show("proposal-id")
 proposal = client.proposals.approve("proposal-id")
 proposal = client.proposals.apply("proposal-id")
@@ -205,7 +229,7 @@ proposal = client.proposals.reject("proposal-id")
 
 ## `client.policies`
 
-Manage the [Policies](/owner-guide/simulate-environment/policies) that constrain Agent behavior. `category` is required — one of `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom`. Provide the policy text with `source_text`, `content`, or a `file_path` to a `.txt`/`.pdf` document.
+Manage the [Policies](/owner-guide/simulate-environment/policies) that constrain Agent behavior. `category` must be `privacy`, `ethics`, `security`, `compliance`, `operational`, `brand`, or `custom`.
 
 ```python
 page = client.policies.list(agent_id="optional-agent-id")
@@ -213,35 +237,94 @@ policy = client.policies.show("policy-id")
 policy = client.policies.create(
     name="Data Handling Policy",
     category="privacy",
-    source_text="The agent must not store or repeat personal data.",
+    source_text="The Agent must not store or repeat personal data.",
 )
-policy = client.policies.update("policy-id", name="Updated")
+policy = client.policies.update("policy-id", name="Updated Policy")
 client.policies.delete("policy-id")
 ```
 
+Provide policy text with `source_text` or `content`. You can also pass `file_path` to read content from a UTF-8 text file.
+
 ## `client.personas`
 
-Manage the [Personas](/owner-guide/simulate-environment/personas) used to build custom Harnesses. `role` is required; `intent` is one of `benign`, `curious`, `adversarial`, or `malicious`.
+Manage the [Personas](/owner-guide/simulate-environment/personas) used to build custom Harnesses. Pass `role` when creating a Persona. When provided, `intent` must be `benign`, `curious`, `adversarial`, or `malicious`.
 
 ```python
 page = client.personas.list(agent_id="optional-agent-id")
 persona = client.personas.show("persona-id")
 persona = client.personas.create(
     name="Frustrated Customer",
-    role="End user",
+    role="end_user",
     intent="adversarial",
 )
-persona = client.personas.update("persona-id", name="Updated")
+persona = client.personas.update("persona-id", name="Updated Persona")
 client.personas.delete("persona-id")
 ```
 
 ## `client.monitor`
 
-Read Dome runtime telemetry. The `since` argument accepts durations such as `"1h"`, `"24h"`, or `"7d"`.
+Read available Dome runtime telemetry. The `since` argument accepts durations such as `"1h"`, `"24h"`, or `"7d"`.
 
 ```python
-summary = client.monitor.summary("agent-id")
-detections = client.monitor.detections("agent-id", since="24h")
-traces = client.monitor.traces("agent-id", since="1h")
-logs = client.monitor.logs("agent-id", since="7d")
+traces = client.monitor.traces("agent-id", since="1h", limit=50)
+logs = client.monitor.logs("agent-id", since="24h", limit=50)
 ```
+
+<Warning>
+The `summary()` and `detections()` methods currently raise `NotImplementedError` because their Console read endpoints are not available. Use `traces()` and `logs()` for supported telemetry reads.
+</Warning>
+
+## `client.agent_tunnel`
+
+Provision or revoke the credential used to connect Vijil to a [local Agent](/developer-guide/evaluate/local-agent). `get()` creates the credential on its first call and returns the existing credential on later calls.
+
+```python
+credential = client.agent_tunnel.get()
+print(credential.provider)
+print(credential.binding_url)
+
+client.agent_tunnel.revoke()
+```
+
+Treat `credential.token` as a secret. After `revoke()`, the next `get()` call provisions a new credential.
+
+## `client.rca_runs`
+
+Run root-cause analysis over a behavioral Evaluation's failures and retrieve the resulting engineering tickets.
+
+```python
+run = client.rca_runs.create(
+    agent_id="agent-id",
+    eval_id="evaluation-id",
+    source_ref={"type": "github"},
+    sample_size=100,
+)
+
+runs = client.rca_runs.list(agent_id="agent-id")
+detail = client.rca_runs.show(run.run_id, agent_id="agent-id")
+
+if detail.status == "completed":
+    tickets = client.rca_runs.tickets(
+        run.run_id,
+        agent_id="agent-id",
+    )
+```
+
+`create()` starts an asynchronous run and returns its ID and initial status. Poll `show()` until the status is `completed` or `failed` before requesting tickets. `source_ref` accepts a GitHub or S3 source reference.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Lifecycle Methods" icon="workflow" href="/developer-guide/sdk/lifecycle-methods">
+    Use high-level workflows that handle polling for you.
+  </Card>
+  <Card title="Models and Errors" icon="shapes" href="/developer-guide/sdk/models-errors">
+    Inspect resource return types and SDK exceptions.
+  </Card>
+  <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Start and track behavioral Evaluations.
+  </Card>
+  <Card title="Configure Guardrails" icon="shield" href="/developer-guide/protect/configuring-guardrails">
+    Configure Dome Guards and Detectors.
+  </Card>
+</CardGroup>
