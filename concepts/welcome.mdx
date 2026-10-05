@@ -4,12 +4,14 @@ description: "The trust layer for AI agents measure reliability, security, and s
 ---
 
 <Tip>
-  **TL;DR:** Vijil is the trust layer for [AI agents](/owner-guide/register-agents/what-is-an-agent), measuring [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety) before deployment (Diamond) and protecting Agents at runtime (Dome). Start with [Concepts](/concepts/trust-score/introduction) for the mental model, or jump to the [Owner's Guide](/owner-guide/getting-started/introduction) or [Developer Guide](/developer-guide/getting-started/introduction) to get started.
+  **TL;DR:** Vijil is the trust layer for [AI agents](/owner-guide/register-agents/what-is-an-agent), measuring [reliability](/concepts/trust-score/reliability), [security](/concepts/trust-score/security), and [safety](/concepts/trust-score/safety) before deployment ([Diamond](/concepts/platform/diamond)), protecting Agents at runtime ([Dome](/concepts/platform/dome)), and and evolving them through real-world feedback ([Darwin](/concepts/platform/darwin)). Start with [Concepts](/concepts/trust-score/introduction) for the mental model, or jump to the [Owner's Guide](/owner-guide/getting-started/introduction) or [Developer Guide](/developer-guide/getting-started/introduction) to get started. If you do not yet know what is running in your estate, begin with [Discover](/concepts/platform/discover).
 </Tip>
 
 Agents often stall before production: security and compliance need **proof**, not demos. Vijil turns that into **measurable trust**, systematic evaluation, runtime protection, and a feedback loop from real behavior.
 
-[**Trust Score**](/concepts/trust-score/introduction) summarizes how an Agent performs across [**reliability**](/concepts/trust-score/reliability), [**security**](/concepts/trust-score/security), and [**safety**](/concepts/trust-score/safety); so reviews can reference evidence instead of opinions. Under that umbrella, [**Diamond**](/concepts/platform/diamond) probes behavior in depth through Trust Score evaluations and adaptive [Red Team](/concepts/platform/diamond#red-team-in-diamond) campaigns, [**Dome**](/concepts/platform/dome) enforces [**Guardrails**](/concepts/defense/guardrail) at runtime, while [Darwin](/concepts/platform/darwin) uses reinforcement learning over production telemetry to continuously improve an [Agent's](/owner-guide/register-agents/what-is-an-agent) resilience.
+[**Trust Score**](/concepts/trust-score/introduction) summarizes how an Agent performs across [**reliability**](/concepts/trust-score/reliability), [**security**](/concepts/trust-score/security), and [**safety**](/concepts/trust-score/safety), giving reviews evidence instead of opinions. [**Diamond**](/concepts/platform/diamond) runs Trust Score evaluations and adaptive [Red Team](/concepts/platform/diamond#red-team-in-diamond) evaluations. [**Dome**](/concepts/platform/dome) enforces [**Guardrails**](/concepts/defense/guardrail) at runtime, while [Darwin](/concepts/platform/darwin) uses reinforcement learning over production telemetry to continuously improve an [Agent's](/owner-guide/register-agents/what-is-an-agent) resilience.
+
+Before any of that, **[Discover](/concepts/platform/discover)** finds the AI agents, models, and services actually running across your estate, including the ones nobody registered, and hands the ones worth governing to the Agent Registry.
 
 ## How Vijil Measures Trust
 
@@ -38,7 +40,25 @@ Agent prototypes are everywhere, but most do not make it to production. To scale
 
 **Vijil Diamond** Automates evaluation based on custom bespoke policies for business context and personas. Turns 'is this safe?' into an answerable question with an audit-ready Trust Score.
 
-**Vijil Dome** Enforces policies to protect and monitor Agents at runtime through embedded Guardrails, blocking attacks in real-time and logging detailed telemetry.
+- Failure insights do not feed back into development, leaving the
+trust gap open
+
+<img src="/images/concepts/what-is-vijil/vijil_lifecycle.webp" alt="Vijil lifecycle: Ship with Diamond, Run with Dome" style={{maxWidth: '500px', margin: '1.5rem auto', display: 'block'}} className="theme-aware-image" />
+
+**Vijil Discover**
+Finds the AI running in your estate and classifies it, so the
+inventory you evaluate against is what is actually deployed rather
+than what teams remembered to mention.
+
+**Vijil Diamond**
+Automates evaluation based on custom bespoke policies for
+business context and personas. Turns 'is this safe?' into an
+answerable question with an audit-ready Trust Score.
+
+**Vijil Dome**
+Enforces policies to protect and monitor Agents at runtime
+through embedded Guardrails, blocking attacks in real-time and
+logging detailed telemetry.
 
 ## Continue with Vijil
 
@@ -66,6 +86,7 @@ Pick where you work and what you need next:
 
 ### Quick Resources
 
+- **Find what you have** → [Get started with Discover](/owner-guide/discover/introduction)
 - **Evaluate in the UI** → [Get started](/owner-guide/getting-started/introduction)
 - **Protect in production** → [Configuring Guardrails](/owner-guide/protect-in-production/configuring-guardrails)
 - **Monitor protection** → [Dome Metrics](/owner-guide/protect-in-production/observability)

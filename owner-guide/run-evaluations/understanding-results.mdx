@@ -163,7 +163,7 @@ Records the exact evaluation configuration for reproducibility:
 
 ## Understanding Red Team Results
 
-Red Team results are campaign evidence, not a Trust Score. Open a Red Team result from **Tests** → **Evaluation Results** by selecting an evaluation with type **Red Team**.
+Red Team results are campaign evidence, not a Trust Score. Open a Red Team result from **Verify** → **Evaluation Results** by selecting an evaluation with type **Red Team**.
 
 The result page has three main areas:
 
@@ -251,13 +251,11 @@ Use severity and taxonomy to prioritize fixes:
 - Security vulnerabilities (prompt injection, data leakage)
 - Safety violations (harmful content, scope violations)
 - Reliability failures that affect core functionality
-- Red Team findings with FULL harmful-content judgments
 
 **Address in next release (Medium severity):**
 - Consistency issues across sessions
 - Minor compliance gaps
 - Robustness failures on edge cases
-- Red Team findings with PARTIAL harmful-content judgments
 
 **Track and monitor (Low severity):**
 - Transparency improvements
@@ -294,5 +292,8 @@ A rising Trust Score with decreasing critical findings indicates effective remed
   </Card>
   <Card title="Run Evaluations" icon="play" href="/owner-guide/run-evaluations/running-evaluations">
     Launch and monitor evaluations
+  </Card>
+  <Card title="Red Team Results" icon="crosshair" href="/owner-guide/red-team/understanding-results">
+    Read waves, judgments, and campaign reports
   </Card>
 </CardGroup>

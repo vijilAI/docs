@@ -4,10 +4,10 @@ description: 'Interpret Diamond Evaluation findings using the Dimensions of Trus
 ---
 
 <Tip>
-**TL;DR:** Evaluation results include a [Trust Score](/concepts/trust-score/introduction) (0–100), per-dimension breakdowns, severity-rated findings, and remediation guidance. A score at or above 70 passes the deployment threshold. Use the Console's Report Analysis view or generate reports programmatically in HTML or PDF.
+**TL;DR:** Behavioral evaluation results include a [Trust Score](/concepts/trust-score/introduction) (0–100), per-dimension breakdowns, severity-rated findings, and remediation guidance. A score at or above 70 passes the deployment threshold. Red Team evaluations produce [attack evidence and a report](#red-team-results) instead of a Trust Score.
 </Tip>
 
-Evaluation results reveal how your [agent](/owner-guide/register-agents/what-is-an-agent) behaves across the three pillars of trustworthy AI: [Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), and [Safety](/concepts/trust-score/safety). This page explains how to read the Trust Score, interpret findings, and prioritize remediation.
+Behavioral evaluation results reveal how your [Agent](/owner-guide/register-agents/what-is-an-agent) behaves across the three pillars of trustworthy AI: [Reliability](/concepts/trust-score/reliability), [Security](/concepts/trust-score/security), and [Safety](/concepts/trust-score/safety). This page explains how to read the Trust Score and prioritize remediation. For Red team evaluation findings, see [Red Team results](#red-team-results).
 
 ## The Trust Score
 
@@ -26,13 +26,13 @@ A passing Trust Score reflects performance against tested [Scenarios](/concepts/
 
 ## Reading Findings
 
-Each finding in the evaluation report includes:
+Each finding in a behavioral evaluation report includes:
 
 - **Category**: where in the taxonomy ([Reliability](/concepts/trust-score/reliability) / [Security](/concepts/trust-score/security) / [Safety](/concepts/trust-score/safety) and subcategory) this issue falls
 - **Severity**: risk level from 1 (Low) to 4 (Critical)
 - **Probe**: the [Probe](/concepts/evaluation-components/probe) that revealed the behavior
-- **Agent Response**: what your agent actually produced
-- **Expected Behavior**: what a trustworthy agent would produce
+- **Agent Response**: what your Agent actually produced
+- **Expected Behavior**: what a trustworthy Agent would produce
 - **Recommendation**: specific mitigation guidance
 
 ## Prioritizing Remediation
@@ -158,7 +158,7 @@ Safety measures whether your Agent operates within acceptable boundaries.
 
 ## Reading the Trust Report
 
-Each evaluation produces a Trust Report, a structured PDF that moves from a high-level verdict down to individual Probe results and actionable remediation guidance. You can download a [sample report](/assets/vijil-console-eval-report.pdf) to follow along. The report has six sections.
+Each behavioral evaluation produces a Trust Report, a structured PDF that moves from a high-level verdict down to individual Probe results and actionable remediation guidance. You can download a [sample report](/assets/vijil-console-eval-report.pdf) to follow along. The report has six sections.
 
 ### Entering the Trust Report
 
@@ -245,9 +245,9 @@ Use severity and taxonomy to prioritize fixes:
 Focus remediation on root causes rather than individual findings. Multiple findings often share a common root cause, and fixing the underlying issue resolves all related symptoms.
 </Tip>
 
-## Comparing Evaluations
+## Comparing Behavioral Evaluations
 
-Run evaluations before and after changes to track improvement:
+Run behavioral evaluations before and after changes to track improvement:
 
 | Metric | Before | After | Change |
 |--------|--------|-------|--------|
@@ -256,6 +256,20 @@ Run evaluations before and after changes to track improvement:
 | High Findings | 7 | 2 | -5 |
 
 A rising Trust Score with decreasing critical findings indicates effective remediation. A declining score signals regression, so investigate recent changes.
+
+## Red Team Results
+
+A Red Team evaluation produces attack evidence and a report, not a Trust Score. Use its `evaluation_id` to inspect the run and connect findings to the attacks that exposed them:
+
+| Evidence | What It Shows |
+|----------|---------------|
+| **Status** | Current phase, wave, attacker progress, and any failure or degradation details |
+| **Waves and seeds** | The attack goals explored in each wave |
+| **Attacks and judgments** | Transcripts, attempted strategies, and assessments of Agent behavior |
+| **Reflections** | What worked and how later waves adjusted |
+| **Report** | Vulnerabilities and successful attack strategies across the run |
+
+See [Red Team in Diamond](/concepts/platform/diamond#red-team-in-diamond) for how these waves produce the final findings.
 
 ## Next Steps
 

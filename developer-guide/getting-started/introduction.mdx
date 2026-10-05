@@ -4,14 +4,14 @@ description: 'Integrate evaluation and protection into your development workflow
 ---
 
 <Tip>
-**TL;DR:** Vijil integrates into your development workflow through MCP, the `vijil` CLI, the REST API, or the `vijil-sdk` Python package. [Diamond](/developer-guide/evaluate/overview) tests your [Agent](/owner-guide/register-agents/what-is-an-agent), while [Dome](/developer-guide/protect/overview) adds runtime protection. Evaluations produce specific findings and can produce a [Trust Score](/concepts/trust-score/introduction) (0–100) that you can use as an automated CI/CD gate.
+**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), REST API, or the Python SDK (`vijil-sdk`). [Diamond](/developer-guide/evaluate/overview) evaluates your [Agent](/owner-guide/register-agents/what-is-an-agent) before deployment, while [Dome](/developer-guide/protect/overview) protects it at runtime. A behavioral evaluation produces a [Trust Score](/concepts/trust-score/introduction) (0–100) you can use as a deployment gate. A Red Team evaluation produces findings and a report on adaptive attacks.
 </Tip>
 
 ## The Problem with Testing Agents
 
 Traditional software testing catches bugs, but Agents also fail in ways that do not look like bugs. They hallucinate confidently, follow requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit and integration tests can pass even when your Agent remains vulnerable in production.
 
-This guide shows you how to catch those failures before deployment. You will learn to run [Evaluations](/developer-guide/evaluate/overview), integrate trust gates into your CI/CD pipeline, and add [runtime protection](/developer-guide/protect/overview) for risks that your Evaluations did not cover.
+This guide shows you how to catch those failures before deployment. You'll learn to run behavioral evaluations against adversarial [Scenarios](/concepts/evaluation-components/scenario), use Red Team evaluations for adaptive attacks, integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations did not anticipate.
 
 <Info>
 If you manage Agents through a web Console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
@@ -21,7 +21,7 @@ If you manage Agents through a web Console rather than code, see the [Agent Owne
 
 Vijil provides two products that work together:
 
-**[Diamond](/developer-guide/evaluate/overview)** sends configured Probes to your Agent and analyzes its responses. A Trust Score Evaluation measures reliability, security, and safety and returns specific findings you can address.
+**Diamond** offers two evaluation types. Behavioral evaluations send adversarial Probes to your agent and produce a Trust Score for reliability, security, and safety. Red Team evaluations run adaptive waves of attacks and produce findings and a report.
 
 **[Dome](/developer-guide/protect/overview)** scans Agent inputs and outputs at runtime. Your application or framework integration can use the scan result to block or sanitize flagged content, while `secure_agent()` can apply configured Trust Runtime controls.
 
@@ -61,7 +61,7 @@ Different roles use Vijil differently. This guide serves all three:
   <Card title="Build & Test" icon="code">
     **Individual Developer**
 
-    You are building an Agent and want fast feedback on its trustworthiness. [Run Evaluations](/developer-guide/evaluate/running-evaluations), review the results, and iterate.
+    You are building an Agent and want fast feedback on whether it's trustworthy. Run behavioral evaluations locally, see results in minutes, iterate quickly.
 
   </Card>
   <Card title="Automate & Gate" icon="binoculars">
@@ -84,7 +84,7 @@ Different roles use Vijil differently. This guide serves all three:
 
 ## What Vijil Measures
 
-Agents can fail across three dimensions measured by a Trust Score Evaluation:
+Behavioral evaluations test agents across three dimensions:
 
 | Dimension | What It Measures | Example Failures |
 |-----------|------------------|------------------|
@@ -92,7 +92,7 @@ Agents can fail across three dimensions measured by a Trust Score Evaluation:
 | **Security** | Can the Agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
 | **Safety** | Does the Agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
 
-A Trust Score Evaluation produces a score from 0 to 100 with breakdowns by dimension. The score shows your Agent's strengths, its vulnerabilities, and whether it meets your deployment threshold.
+Each behavioral evaluation produces a **Trust Score** (0–100) with breakdowns by dimension. The score tells you where your Agent is strong, where it is vulnerable, and whether it meets your deployment threshold. Red Team evaluations instead produce evidence of attacks, vulnerabilities, and successful strategies in a report.
 
 ## Time to First Trust Score
 

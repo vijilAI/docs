@@ -7,7 +7,7 @@ description: "Migrate from the legacy Python package to the current SDK package 
 
 Use this guide if you installed the legacy `vijil` PyPI package with `pip install vijil`. That package targets a previous API contract.
 
-This guide gets you onto `vijil-sdk` v3, the current SDK and CLI distribution.
+This guide gets you onto `vijil-sdk`, the current SDK and CLI distribution.
 
 ## Why Migrate
 
@@ -18,6 +18,7 @@ Key changes:
 - Authentication moved from a username and token flow against `/tokens/verify` to bearer API keys.
 - The current CLI replaces generic CRUD commands such as `vijil create`, `vijil list`, and `vijil describe` with workflow verbs and resource commands.
 - The current SDK includes generated models for stronger type checking and IDE completion.
+- Red Team now runs as a Diamond evaluation, alongside behavioral evaluations, and uses an evaluation ID for status and results.
 
 ## Install
 
@@ -58,7 +59,7 @@ You can also set `VIJIL_API_KEY` in your environment. The environment variable t
 
 ## Command Map
 
-The legacy package exposed 8 top-level commands for generic operations. 
+The legacy package exposed top-level commands for generic operations.
 
 The current CLI splits those commands into:
 1. **Porcelain commands** for the high-level agent trust workflow
@@ -68,17 +69,29 @@ The current CLI splits those commands into:
 | --- | --- | --- |
 | `vijil login` | `vijil auth login` | Uses an API key instead of username and token authentication |
 | `vijil logout` | `vijil auth logout` | Clears stored credentials |
-| `vijil create <X>` | Porcelain verbs such as `vijil evaluate`, `vijil test`, `vijil adapt`, `vijil protect`, `vijil register`, `vijil evolve`, or `vijil deploy` | Choose the command by intent instead of using a generic `create` action |
+| `vijil create <X>` | Porcelain verbs such as `vijil evaluate`, `vijil adapt`, `vijil protect`, `vijil register`, `vijil evolve`, or `vijil deploy` | Choose the command by intent instead of using a generic `create` action |
 | `vijil list <X>` | `vijil <resource> list` | Resources include `agents`, `evaluations`, `harnesses`, `genomes`, `jobs`, `scores`, `reports`, `proposals`, `policies`, and `personas` |
 | `vijil describe <X>` | `vijil <resource> describe <id>` | Uses the same resource set as `list` |
 | `vijil delete <X>` | `vijil <resource> delete <id>` | Uses the same resource set as `list` |
 | `vijil download <X>` | `vijil reports download <id>` | Reports are the only downloadable artifact today |
-| `vijil start <X>` | Porcelain verbs such as `vijil evaluate` or `vijil test` | Starting a job is now done using a porcelain verb |
+| `vijil start <X>` | Porcelain verbs such as `vijil evaluate` | Start a behavioral evaluation by default, or add `--type redteam` for Red Team |
 | `vijil stop <X>` | `vijil jobs cancel <id>` | Job cancellation is a plumbing command |
 
-<Tip>
-Link to the full CLI reference here.
-</Tip>
+See the [CLI evaluation reference](/developer-guide/cli/evaluate) for evaluation options.
+
+## Former Red Team Workflow
+
+If you used the former standalone Red Team workflow, create a Red Team evaluation instead. The evaluation ID identifies the run and its results across the SDK, CLI, and REST API.
+
+| Former workflow | Current interface |
+| --- | --- |
+| Start a standalone Red Team run | `client.evaluate(agent_id="...", type="redteam")` or `vijil evaluate <agent> --type redteam` |
+| Create a run without waiting | `client.evaluations.create(agent_id="...", type="redteam")` or `vijil evaluate <agent> --type redteam --no-wait` |
+| Create a run through REST | `POST /v1/evaluations/` with `type: "redteam"` |
+| Check progress and results | `client.evaluations.redteam_status(evaluation_id)`, `vijil evaluations redteam-status <evaluation-id>`, or `/v1/evaluations/{evaluation_id}/redteam/*` |
+| Retrieve the report | `client.evaluations.redteam_report(evaluation_id)` or `vijil evaluations redteam-report <evaluation-id>` |
+
+Red Team evaluations do not use `baseline`, Harness, `sample_size`, or local mode settings. See the [Red Team CLI guide](/developer-guide/cli/red-team) and [SDK evaluation resources](/developer-guide/sdk/resources) for the status, artifact, and report methods.
 
 ## Python SDK Changes
 
@@ -88,15 +101,17 @@ The legacy package did not expose a stable Python API beyond CLI invocation. The
 from vijil import Vijil
 
 client = Vijil()
-evaluation = client.evaluate(agent_id="...", harness="trust-baseline")
-print(evaluation.scores)
+
+behavioral = client.evaluate(agent_id="...", baseline=True)
+print(behavioral.trust_score)
+
+redteam = client.evaluate(agent_id="...", type="redteam")
+print(redteam.evaluation_id)
 ```
 
 By default, `Vijil()` reads `VIJIL_API_KEY` or the credentials saved by `vijil auth login`.
 
-<Tip>
-Link to the full SDK reference here.
-</Tip>
+See [lifecycle methods](/developer-guide/sdk/lifecycle-methods) for the full `client.evaluate()` workflow.
 
 ## When to Use MCP Instead
 

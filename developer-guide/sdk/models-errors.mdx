@@ -3,7 +3,7 @@ title: "Models and Errors"
 description: "Understand Vijil SDK return types, exception categories, and retry behavior."
 ---
 
-The SDK uses typed Pydantic models for structured platform records. Depending on the operation, it can also return a `Page[T]`, dictionary, list, byte string, or `None`.
+Structured SDK responses use Pydantic models. Resource models such as `Evaluation` inherit from `VijilModel`, while generated API models such as `RedteamStatusResponse` inherit directly from `BaseModel`. SDK exceptions inherit from `VijilError`.
 
 Hand-curated models inherit from `VijilModel`, which ignores unknown response fields. Models generated from the Console schemas inherit directly from Pydantic's `BaseModel`. When `vijil.models` exports a model, import it there. Treat `vijil._generated` as internal implementation detail.
 
@@ -11,7 +11,7 @@ Hand-curated models inherit from `VijilModel`, which ignores unknown response fi
 
 ### `Page[T]`
 
-Most paginated `list()` methods return `Page[T]`. A page supports iteration and `len()`.
+Generic paginated response returned by resource collection methods such as `list()` and `client.evaluations.responses()`.
 
 ```python
 page = client.agents.list()
@@ -30,7 +30,7 @@ print(page.has_more)   # whether len(page.items) is less than page.total
 
 ### `Evaluation`
 
-`Evaluation` normalizes both live Evaluation records and persisted summaries. The `evaluation_id` response field maps to the model's `id`, and `overall_score` maps to `trust_score`.
+Returned by `client.evaluate()` for behavioral evaluations. Trust Scores and Harness fields do not apply to Red Team evaluations.
 
 ```python
 evaluation.id             # str
@@ -44,6 +44,49 @@ evaluation.created_at     # int | str | None
 evaluation.completed_at   # int | str | None
 evaluation.error_message  # str | None
 ```
+
+The behavioral poller treats `completed`, `succeeded`, `saved`, `failed`, and `cancelled` as terminal statuses.
+
+### `EvaluationResponse`
+
+Returned in the `page.items` list from `client.evaluations.responses()`. Each model represents one prompt and Agent response from a completed behavioral evaluation.
+
+```python
+response.harness_id       # str
+response.scenario_id      # str
+response.probe_id         # str
+response.probe_score      # float
+response.prompt_id        # str
+response.prompt_text      # str | None
+response.response_text    # str
+response.status           # "passed" | "failed"
+response.detector_results # dict[str, Any]
+```
+
+`probe_score` and `status` describe the parent Probe and repeat on each of its prompt rows. `detector_results` contains the raw per-Detector results for that prompt. This model does not apply to Red Team evaluations.
+
+### `RedteamStatusResponse`
+
+Returned by `client.evaluate(..., type="redteam")` and `client.evaluations.redteam_status(evaluation_id)`. This is a Red Team progress snapshot, not a Trust Score.
+
+```python
+status.evaluation_id       # str
+status.status              # str
+status.phase               # str | None
+status.current_wave        # int | None
+status.attackers_completed # int | None
+status.degraded            # bool | None
+```
+
+| Fields | What They Show |
+|--------|----------------|
+| `phase`, `current_wave`, `max_waves`, `seeds_in_wave` | Current stage and wave progress |
+| `attackers_completed`, `attackers_errored`, `attackers_timed_out`, `attackers_cancelled`, `attackers_total` | Attacker outcomes and total count |
+| `wave_breakdown` | Per-wave attacker counts, judgments, errors, and degradation indicators |
+| `created_at`, `started_at`, `completed_at` | Run timestamps, when available |
+| `error_message`, `degraded`, `degradation_reason`, `attack_error_types` | Failure and degradation details |
+
+A Red Team run can report `created`, `starting`, or `running` before it reaches a terminal status: `succeeded`, `failed`, `cancelled`, or `degraded`. A `degraded` run has finished with some attackers lost, so inspect its error and wave details before relying on the report. Red Team does not use the behavioral `completed` or `saved` statuses.
 
 ### `Dimensions`
 
