@@ -3,16 +3,17 @@ title: 'Agent Lifecycle Workflow'
 description: 'Take an existing Agent from registration to a hardened, evidence-backed production release.'
 ---
 
-This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. Use [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, and your delivery pipeline to release it. Follow the Console or [Python SDK](/developer-guide/sdk/setup) path at each stage.
+This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. If you do not know which Agents run in your environment, use [Discover](/concepts/platform/discover) through the Console or [CLI](/developer-guide/cli/discover) to find them. Use [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, [Darwin](/concepts/platform/darwin) to propose improvements, and your delivery pipeline to release it. From Register onward, follow the Console, [Python SDK](/developer-guide/sdk/setup), or [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin) path at each stage. The plugin covers the stages from Register to Re-evaluate.
 
 <Info>
-This workflow starts with registration and does not cover Discover or creating a new Agent through generative evolution. Automated Darwin adaptation is available only where enabled. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
+Discover is optional. If you already know which Agent you want to govern, start with [Register](#1-register-the-agent). Where your deployment includes Darwin, it proposes improvements to an existing Agent. This workflow does not cover creating a new Agent through generative evolution. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
 </Info>
 
 ## The Agent Trust Lifecycle
 
 ```mermaid actions={false}
 flowchart LR
+    Discover["Discover (if needed)"] --> Register[Register]
     Register[Register] --> Evaluate[Evaluate]
     Evaluate --> Harden[Harden]
     Harden --> Improve[Improve]
@@ -24,6 +25,7 @@ flowchart LR
 
 | Stage | Goal | Evidence Produced |
 |---|---|---|
+| **Discover** | Find Agents that are not yet registered | Classified Resources and supporting discovery evidence |
 | **Register** | Connect the Agent to the platform | Active Agent and Agent ID |
 | **Evaluate** | Measure trustworthiness and search for deeper weaknesses | [Trust Score](/concepts/trust-score/introduction), Trust Report, and Red Team findings |
 | **Harden** | Add and test [runtime Guardrails](/developer-guide/protect/overview) | Applied Dome configuration and staging telemetry |
@@ -36,7 +38,7 @@ The Console records **Registered**, **Tested**, and **Protected** [Agent stages]
 
 ## Before You Begin
 
-You need:
+From Register onward, you need:
 
 - A Console account and access to a team.
 - An existing Agent with a reachable HTTP endpoint.
@@ -44,6 +46,7 @@ You need:
 - Permission to configure and deploy the Agent.
 - Python 3.12 or later, the [SDK](/developer-guide/sdk/setup#installation), and the required [Dome extras](/developer-guide/protect/installation) for the SDK path.
 - [Client credentials](/developer-guide/sdk/setup#authentication) for the SDK path.
+- The [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin#install-the-plugin), installed and connected, for the Claude Code path.
 - Optional [Policies](/owner-guide/simulate-environment/policies) and [Personas](/owner-guide/simulate-environment/personas) for targeted Evaluations and Red Team campaigns.
 
 Define your release criteria before you begin. Decide:
@@ -57,6 +60,12 @@ Define your release criteria before you begin. Decide:
 <Note>
 The Console presents Trust Scores on a 0–100 scale. The SDK returns scores on a 0.0–1.0 scale. For example, a Console score of 70 is an SDK score of `0.70`.
 </Note>
+
+## Discover Agents Before Registration
+
+Use Discover when you do not have a complete inventory of the AI running in your environment. Through the Console or [CLI](/developer-guide/cli/discover), define a [Target](/concepts/discovery/target) and install a [Collector](/concepts/discovery/collector) to scan it. Discover returns [Resources](/concepts/discovery/resource) classified as AI, Non-AI, or Uncertain, with supporting evidence and any areas the Collector could not reach.
+
+Review the findings in the Console. When a Resource is an eligible Agent, [register the discovered Agent](/owner-guide/discover/registering-agents) and supply the endpoint, credentials, access level, and rate limit. Discover does not evaluate or protect the Agent. Once the Agent is active, continue with [Evaluate](#2-evaluate-the-agent). See [Get Started with Discover](/owner-guide/discover/introduction) for the full workflow.
 
 ## 1. Register the Agent
 
@@ -82,6 +91,14 @@ Registration tells the platform how to reach the Agent and how much context it c
     3. Save `agent.id` for the remaining stages.
 
     Use `client.agents.create()` for this workflow. Do not use [`client.register()`](/developer-guide/sdk/lifecycle-methods#client-register), which depends on a preview source-to-genome Console route.
+  </Tab>
+  <Tab title="Claude Code">
+    1. Open Claude Code in the Agent's repository.
+    2. Run `/vijil register`.
+    3. Provide the endpoint and its protocol when Claude Code asks: `chat_completions` for an OpenAI-compatible endpoint, or `a2a` for an Agent that publishes an agent card.
+    4. Save the Agent ID that Claude Code reports.
+
+    The plugin also deposits the Agent's source, which gives later Evaluations White Box context.
   </Tab>
 </Tabs>
 
@@ -112,6 +129,13 @@ A [Diamond Evaluation](/developer-guide/evaluate/overview) measures the Agent ag
     2. Record the Trust Score and the Reliability, Security, and Safety scores.
     3. Save the Evaluation ID.
   </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil evaluate <agent-id>`.
+    2. Review the Reliability, Security, and Safety scores, the **PASS**, **REVISE**, or **BLOCK** verdict, and the findings.
+    3. Ask Claude Code for the Trust Report if your reviewers need a PDF.
+
+    The command also reviews the Agent's source and reports those findings with the Evaluation results.
+  </Tab>
 </Tabs>
 
 Review the [Evaluation results](/developer-guide/evaluate/understanding-results):
@@ -136,13 +160,14 @@ After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/
     6. Review the findings and successful attack strategies.
   </Tab>
   <Tab title="SDK">
-    1. Use `client.xteam()` for the multi-wave seed, attack, judge, and reflect workflow.
-    2. Poll until the campaign reaches a terminal state.
-    3. Retrieve and review the findings.
+    1. Run [`client.evaluate(agent_id, type="redteam")`](/developer-guide/sdk/lifecycle-methods#run-a-red-team-evaluation).
+    2. Review the returned status after the method finishes polling the Evaluation.
+    3. Use the [`client.evaluations.redteam_*()` methods](/developer-guide/sdk/resources#red-team-status-artifacts-and-reports) to retrieve and review the findings and report.
+  </Tab>
+  <Tab title="Claude Code">
+    `/vijil evaluate` already ends with an adaptive Red Team campaign. Ask Claude Code for the Red Team report to review the findings and successful attack strategies.
   </Tab>
 </Tabs>
-
-Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#client-test) only when the simpler campaign interface matches your deployment.
 
 Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
 
@@ -197,6 +222,15 @@ Use the [Console Guardrail guide](/owner-guide/protect-in-production/configuring
     4. Handle blocked and sanitized results explicitly.
     5. Send staging traffic through the hardened Agent and confirm that telemetry reaches the platform.
   </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil analyze <agent-id>` to group the findings by root cause.
+    2. Run `/vijil protect <agent-id>` for the findings a Guardrail can block.
+    3. Review the proposed Dome configuration, then save and apply it in the Console.
+    4. [Wrap both Agent inputs and Agent outputs with Guardrails](/owner-guide/protect-in-production/deploying-dome#integration-pattern).
+    5. Send staging traffic through the hardened Agent and confirm that telemetry reaches the platform.
+
+    The plugin proposes the change but never applies it.
+  </Tab>
 </Tabs>
 
 <Warning>
@@ -243,6 +277,12 @@ Manual remediation is the default path. Depending on the finding, you might:
     5. Approve and apply only reviewed proposals.
     6. Preserve genome versions for comparison and audit.
   </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil analyze <agent-id>` if you have not already.
+    2. Run `/vijil adapt <agent-id>` for prompt and code findings.
+    3. Review and merge the proposed pull request.
+    4. Record which finding each change addresses.
+  </Tab>
 </Tabs>
 
 <Info>
@@ -279,9 +319,14 @@ Repeat the tests that cover the changed behavior:
     1. Run `client.evaluate(agent_id, baseline=True)`.
     2. After the baseline completes, use `client.evaluate(agent_id, harness_id="<harness-id>")` to run one targeted Harness. Repeat the call for each Harness you need.
     3. Retest saved attack inputs through the Agent's test suite.
-    4. Use `client.xteam()` to start a new adaptive campaign with the relevant Policies and Personas.
+    4. Run [`client.evaluate(agent_id, type="redteam")`](/developer-guide/sdk/lifecycle-methods#run-a-red-team-evaluation) to start another adaptive campaign.
     5. Compare the returned scores and findings with the saved baseline.
     6. Check staging traces with `client.monitor.traces()`.
+  </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil evaluate <agent-id>` again.
+    2. Retest saved attack inputs through the Agent's test suite.
+    3. Compare the new scores and findings with the first run.
   </Tab>
 </Tabs>
 
