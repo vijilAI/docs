@@ -247,6 +247,7 @@
               "developer-guide/getting-started/introduction",
               "developer-guide/getting-started/agent-lifecycle-workflow",
               "developer-guide/agentic/quickstart",
+              "developer-guide/getting-started/claude-code-plugin",
               "developer-guide/deploy-vijil/deploy-vijil-console"
             ]
           },
