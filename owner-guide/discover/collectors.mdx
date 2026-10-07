@@ -39,8 +39,9 @@ Every Collector needs two values.
 vijil discover setup-info
 ```
 
-**Which Target.** The `id` returned when you created the Target. See
-[Create and Manage Targets](/owner-guide/discover/targets).
+**Which Target.** The **Scan surface ID** the Console showed when you created the Target,
+or the `id` the command line returned. The Target page and the **Targets** tab both have
+a copy button for it. See [Create and Manage Targets](/owner-guide/discover/targets).
 
 ## Choose a Credential
 
@@ -51,9 +52,11 @@ vijil discover setup-info
 
 Both are also available in the Console, on the **Scanners** sub-tab of the Target.
 
-<Frame>
-  <img src="/images/owner-guide/discover/scanners-tab-empty.jpg" alt="The Scanners sub-tab of a Target before any Collector has enrolled" />
-</Frame>
+<Info>
+Creating a Target in the Console mints an enrollment code for you. That code allows any
+scanner kind and expires after 24 hours. It suits a quick first install. For a fleet
+rollout, generate a narrower code here and revoke the broad one.
+</Info>
 
 Use **+ Mint scanner token** for a scanner token, or **+ Generate code** for an enrollment
 code.
@@ -70,10 +73,6 @@ For an endpoint rollout, allow only the platform you are deploying to: `endpoint
 
 A code allowing `*` for 720 hours enrolls anything for 30 days. Scope both settings to the
 rollout you are running.
-
-<Frame>
-  <img src="/images/owner-guide/discover/enrollment-code-form.jpg" alt="The enrollment code form showing allowed scanner kinds and a time to live in hours" />
-</Frame>
 
 The Console shows the code in full **once**, immediately after you generate it. Copy it then.
 Afterwards only the identifier and the expiry remain visible.
@@ -287,7 +286,6 @@ helm install vijil-shadow ./vijil-shadow \
 To keep the key out of the release values, pre-create a Secret and reference it with
 `--set existingSecret.name=<secret-name>` instead of `--set llmApiKey`. The chart reads the
 key `LLM_API_KEY` from that Secret unless you override `existingSecret.key`.
-
 
 ## Cloud API Collectors
 

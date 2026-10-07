@@ -1,6 +1,6 @@
 ---
 title: 'Create and Manage Targets'
-description: 'Create a Target, read the Targets tab, and schedule scans.'
+description: 'Create, scan, schedule, and delete Targets from the Console or the command line.'
 ---
 
 A [Target](/concepts/discovery/target) is a place you want looked at, and the unit findings
@@ -8,32 +8,73 @@ group under.
 
 ## Create a Target
 
-The Console cannot create Targets yet. Use the `vijil` command line tool:
-
-```bash
-vijil discover deployment-create --name "laptops" --type scanner --json
-```
-
 <Note>
-The Console calls this object a **Target**. The command line still calls it a
-**deployment**, so every command that acts on a Target uses the `deployment-*` name. They
-are the same object.
+The Console calls this object a **Target** on the **Targets** tab and a **scan surface** in
+the **New Scan** modal. The command line calls it a **deployment**, so every command that
+acts on a Target uses the `deployment-*` name. All three are the same object.
 </Note>
 
-| Flag | Description |
-|------|-------------|
-| `--name` | Display name for the Target |
-| `--type` | `scanner` for anything that scans, `dlp` for a Target fed by Dome telemetry |
-| `--json` | Output as JSON |
+<Tabs>
+  <Tab title="Console">
+    <Steps>
+      <Step title="Open the New Scan Modal">
+        Open **Discover** in the sidebar and press **+ New Scan**. If the modal shows tabs,
+        stay on **Scan surfaces**.
+      </Step>
+      <Step title="Add a Scan Surface">
+        Press **+ Add new scan surface** below the list of existing Targets.
+      </Step>
+      <Step title="Name It">
+        Enter a **Scan surface name**, for example `prod-eks-us-west-2`, and press **Create
+        scan surface**. **Back** returns you to the list without creating anything.
+      </Step>
+      <Step title="Copy the Credentials">
+        The modal changes to **Scan surface created** and shows two values, each with a copy
+        button:
 
-<Warning>
-The response contains a live credential, an `install_token` in plaintext. Never pipe this
-command to a file or into a continuous integration log. Copy the `id` and let the rest
-scroll away.
-</Warning>
+        | Value | Use it for |
+        |-------|------------|
+        | **Scan surface ID** | The Target identifier. Every Collector and every command that acts on this Target needs it. |
+        | **Enrollment code** | A credential the Console mints for you, so the first Collector can enroll without a trip to the **Scanners** sub-tab. |
 
-The `id` in the response is the Target identifier. Every command that acts on this Target
-needs it.
+        <Warning>
+        The Console shows the enrollment code in full **once**. Copy it before you press
+        **Done**, because it cannot be retrieved later. If minting fails, press **Retry mint**.
+        </Warning>
+
+        Press **Done**. The new Target appears on the **Targets** tab.
+      </Step>
+    </Steps>
+
+    The enrollment code the Console mints allows **any** scanner kind and expires after **24
+    hours**. For a narrower code, such as one limited to `endpoint_macos`, generate it on the
+    [Scanners sub-tab](/owner-guide/discover/collectors#choose-a-credential) instead, and
+    revoke the one the Console minted.
+
+    The Console creates `scanner` Targets only. To create a `dlp` Target fed by Dome
+    telemetry, use the command line.
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    vijil discover deployment-create --name "laptops" --type scanner --json
+    ```
+
+    | Flag | Description |
+    |------|-------------|
+    | `--name` | Display name for the Target |
+    | `--type` | `scanner` for anything that scans, `dlp` for a Target fed by Dome telemetry |
+    | `--json` | Output as JSON |
+
+    <Warning>
+    The response contains a live credential, an `install_token` in plaintext. Never pipe this
+    command to a file or into a continuous integration log. Copy the `id` and let the rest
+    scroll away.
+    </Warning>
+
+    The `id` in the response is the Target identifier. Every command that acts on this Target
+    needs it.
+  </Tab>
+</Tabs>
 
 ## The Targets Tab
 
@@ -42,17 +83,13 @@ count Targets by kind: **All**, Endpoint, Browser, Network, Cloud, and Source co
 Kubernetes cluster counts under **Network**, because the in-cluster Collector and the
 network scanner report as the same scanner kind.
 
-<Frame>
-  <img src="/images/owner-guide/discover/targets-new-target.jpg" alt="The Targets tab listing six Targets with columns for source, kind, last scan, and agents" />
-</Frame>
-
 | Column | What it shows |
 |--------|---------------|
 | **Source** | The Target name you gave it |
 | **Kind** | What kind of Collector reports into it. A dash means none has reported yet. |
 | **Last scan** | How long ago the most recent scan ran |
 | **Agents** | How many Collectors report into this Target |
-| **Actions** | Copy the Target identifier |
+| **Actions** | Copy the Target identifier, or [delete the Target](#delete-a-target). Source code rows show only a delete icon, which removes the code scan. |
 
 A chevron at the start of each row expands it to show that Target's findings, grouped into
 `AI`, `Non-AI`, and `Uncertain`.
@@ -67,10 +104,6 @@ scanners installed against it. This column is separate from the
 
 Click a Target to open it. The identifier sits under the title with a copy button, and the
 top right shows connection state and a **Scan now** button.
-
-<Frame>
-  <img src="/images/owner-guide/discover/target-day-zero.jpg" alt="A Target detail page on day zero showing zero in scope, zero external providers, and no scan history" />
-</Frame>
 
 Two counters sit across the top:
 
@@ -112,8 +145,11 @@ Press **Scan now** on the Target, or:
 vijil discover scan-now <target-id>
 ```
 
-You can also press **+ New Scan** on **Discover** and stay on the **Scan surfaces** tab.
-The modal calls Targets "scan surfaces". Pick one and press **Scan**.
+You can also press **+ New Scan** on **Discover**. If the modal shows tabs, stay on
+**Scan surfaces**. The modal calls Targets "scan surfaces". Pick one and press **Scan**.
+When there are more than five, a filter box above the list matches by name or identifier.
+If the Target you want is not in the list, press **+ Add new scan surface** below it to
+[create one](#create-a-target) without leaving the modal.
 
 Collectors poll every 30 seconds by default, so expect a short delay before the scan starts.
 
@@ -136,15 +172,40 @@ Schedule a recurring scan for any Target you intend to keep.
 
 ## Delete a Target
 
-```bash
-vijil discover deployment-delete <target-id>
-```
+<Tabs>
+  <Tab title="Console">
+    <Steps>
+      <Step title="Find the Target">
+        Open **Discover** and choose the **Targets** tab.
+      </Step>
+      <Step title="Press the Trash Icon">
+        In the **Actions** column of the Target's row, press the trash icon labeled
+        **Delete scan surface**.
+      </Step>
+      <Step title="Confirm">
+        The **Delete scan surface?** dialog names the Target and lists what goes with it.
+        Press **Delete** to confirm, or **Cancel** to keep it.
+      </Step>
+    </Steps>
 
-Deleting a Target removes its scan history, Collectors, credentials, policies, and
-violations. You can skip revoking the credentials first. Any Collector still installed on a
-machine loses its ability to report, so uninstall those separately.
+    The Console confirms with **Scan surface deleted**, and the row disappears from the list.
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    vijil discover deployment-delete <target-id>
+    ```
 
-The command asks for confirmation. Pass `--yes` in a script.
+    The command asks for confirmation. Pass `--yes` in a script.
+  </Tab>
+</Tabs>
+
+<Warning>
+Deleting a Target cannot be undone. It removes the Target's Collectors, enrollment codes,
+policies, and scan history.
+</Warning>
+
+You can skip revoking the credentials first. Any Collector still installed on a machine
+loses its ability to report, so uninstall those separately.
 
 ## Next Steps
 
