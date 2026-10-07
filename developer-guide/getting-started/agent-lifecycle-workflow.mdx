@@ -3,10 +3,10 @@ title: 'Agent Lifecycle Workflow'
 description: 'Take an existing Agent from registration to a hardened, evidence-backed production release.'
 ---
 
-This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. Use [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, and your delivery pipeline to release it. Follow the Console or [Python SDK](/developer-guide/sdk/setup) path at each stage.
+This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. Use [Discover](/concepts/platform/discover) to find Agents that are not yet registered, [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, [Darwin](/concepts/platform/darwin) to propose improvements, and your delivery pipeline to release it. Follow the Console, [Python SDK](/developer-guide/sdk/setup), or [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin) path at each stage. The plugin covers the stages from Register to Re-evaluate.
 
 <Info>
-This workflow starts with registration and does not cover Discover or creating a new Agent through generative evolution. Automated Darwin adaptation is available only where enabled. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
+This workflow starts with registration. If you do not know which Agents run in your environment, use [Discover](/owner-guide/discover/introduction) to find them, then [register a discovered Agent](/owner-guide/discover/registering-agents) and continue from [Evaluate](#2-evaluate-the-agent). Where your deployment includes Darwin, it proposes improvements to an existing Agent. This workflow does not cover creating a new Agent through generative evolution. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
 </Info>
 
 ## The Agent Trust Lifecycle
@@ -44,6 +44,7 @@ You need:
 - Permission to configure and deploy the Agent.
 - Python 3.12 or later, the [SDK](/developer-guide/sdk/setup#installation), and the required [Dome extras](/developer-guide/protect/installation) for the SDK path.
 - [Client credentials](/developer-guide/sdk/setup#authentication) for the SDK path.
+- The [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin#install-the-plugin), installed and connected, for the Claude Code path.
 - Optional [Policies](/owner-guide/simulate-environment/policies) and [Personas](/owner-guide/simulate-environment/personas) for targeted Evaluations and Red Team campaigns.
 
 Define your release criteria before you begin. Decide:
@@ -83,6 +84,14 @@ Registration tells the platform how to reach the Agent and how much context it c
 
     Use `client.agents.create()` for this workflow. Do not use [`client.register()`](/developer-guide/sdk/lifecycle-methods#client-register), which depends on a preview source-to-genome Console route.
   </Tab>
+  <Tab title="Claude Code">
+    1. Open Claude Code in the Agent's repository.
+    2. Run `/vijil register`.
+    3. Provide the endpoint and its protocol when Claude Code asks: `chat_completions` for an OpenAI-compatible endpoint, or `a2a` for an Agent that publishes an agent card.
+    4. Save the Agent ID that Claude Code reports.
+
+    The plugin also deposits the Agent's source, which gives later Evaluations White Box context.
+  </Tab>
 </Tabs>
 
 ### Checkpoint
@@ -112,6 +121,13 @@ A [Diamond Evaluation](/developer-guide/evaluate/overview) measures the Agent ag
     2. Record the Trust Score and the Reliability, Security, and Safety scores.
     3. Save the Evaluation ID.
   </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil evaluate <agent-id>`.
+    2. Review the Reliability, Security, and Safety scores, the **PASS**, **REVISE**, or **BLOCK** verdict, and the findings.
+    3. Ask Claude Code for the Trust Report if your reviewers need a PDF.
+
+    The command also reviews the Agent's source and reports those findings with the Evaluation results.
+  </Tab>
 </Tabs>
 
 Review the [Evaluation results](/developer-guide/evaluate/understanding-results):
@@ -139,6 +155,9 @@ After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/
     1. Use `client.xteam()` for the multi-wave seed, attack, judge, and reflect workflow.
     2. Poll until the campaign reaches a terminal state.
     3. Retrieve and review the findings.
+  </Tab>
+  <Tab title="Claude Code">
+    `/vijil evaluate` already ends with an adaptive Red Team campaign. Ask Claude Code for the Red Team report to review the findings and successful attack strategies.
   </Tab>
 </Tabs>
 
@@ -197,6 +216,15 @@ Use the [Console Guardrail guide](/owner-guide/protect-in-production/configuring
     4. Handle blocked and sanitized results explicitly.
     5. Send staging traffic through the hardened Agent and confirm that telemetry reaches the platform.
   </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil analyze <agent-id>` to group the findings by root cause.
+    2. Run `/vijil protect <agent-id>` for the findings a Guardrail can block.
+    3. Review the proposed Dome configuration, then save and apply it in the Console.
+    4. [Wrap both Agent inputs and Agent outputs with Guardrails](/owner-guide/protect-in-production/deploying-dome#integration-pattern).
+    5. Send staging traffic through the hardened Agent and confirm that telemetry reaches the platform.
+
+    The plugin proposes the change but never applies it.
+  </Tab>
 </Tabs>
 
 <Warning>
@@ -243,6 +271,12 @@ Manual remediation is the default path. Depending on the finding, you might:
     5. Approve and apply only reviewed proposals.
     6. Preserve genome versions for comparison and audit.
   </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil analyze <agent-id>` if you have not already.
+    2. Run `/vijil adapt <agent-id>` for prompt and code findings.
+    3. Review and merge the proposed pull request.
+    4. Record which finding each change addresses.
+  </Tab>
 </Tabs>
 
 <Info>
@@ -282,6 +316,11 @@ Repeat the tests that cover the changed behavior:
     4. Use `client.xteam()` to start a new adaptive campaign with the relevant Policies and Personas.
     5. Compare the returned scores and findings with the saved baseline.
     6. Check staging traces with `client.monitor.traces()`.
+  </Tab>
+  <Tab title="Claude Code">
+    1. Run `/vijil evaluate <agent-id>` again.
+    2. Retest saved attack inputs through the Agent's test suite.
+    3. Compare the new scores and findings with the first run.
   </Tab>
 </Tabs>
 

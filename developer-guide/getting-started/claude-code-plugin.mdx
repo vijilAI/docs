@@ -1,0 +1,126 @@
+---
+title: 'Claude Code'
+description: 'Inspect, Evaluate, and harden the Agent you are building inside Claude Code.'
+---
+
+The [Vijil plugin](https://github.com/vijilAI/vijil) for Claude Code runs the Agent lifecycle from your editor. It reads the Agent's source in your repository, evaluates its behavior with [Diamond](/concepts/platform/diamond), finds the root causes of failures, and proposes fixes through [Dome](/concepts/platform/dome) and [Darwin](/concepts/platform/darwin).
+
+The plugin bundles the `vijil-mcp` server, so you do not configure MCP yourself. To connect the server without the plugin, follow the MCP path in the [Quickstart](/developer-guide/agentic/quickstart).
+
+## Before You Begin
+
+You need:
+
+- [Claude Code](https://code.claude.com/docs/en/overview).
+- [`uv`](https://docs.astral.sh/uv/). The plugin starts `vijil-mcp` with `uvx`.
+- A Vijil Console account for every command except `/vijil inspect`.
+
+## Install the Plugin
+
+Run both commands in Claude Code:
+
+```text
+/plugin marketplace add vijilAI/vijil
+/plugin install vijil@vijil
+```
+
+`/vijil inspect` works right away. It runs locally and needs no account.
+
+## Connect to Vijil
+
+The other commands call the Console through `vijil-mcp`. Connect in one of two ways:
+
+<Tabs>
+  <Tab title="Browser Sign-In">
+    Run:
+
+    ```text
+    /vijil login
+    ```
+
+    Your browser opens the Console. Sign in and approve the request. The plugin stores the session in `~/.vijil/credentials.json`. If the browser cannot open, Claude Code prints a URL to open yourself.
+  </Tab>
+  <Tab title="API Key">
+    Create a key pair under **Settings → API Keys** in the Console, then export it before you start Claude Code:
+
+    ```bash
+    export VIJIL_CLIENT_ID=<client-id>
+    export VIJIL_CLIENT_SECRET=<client-secret>
+    ```
+
+    Use a key pair for CI or any machine without a browser. The plugin connects to `https://console-api.vijil.ai` by default. Set `VIJIL_CONSOLE_URL` to use another deployment.
+  </Tab>
+</Tabs>
+
+## Commands
+
+| Command | What It Does | Account |
+|---|---|---|
+| `/vijil inspect [path]` | Reviews the Agent's source for reliability, security, and safety issues | Not required |
+| `/vijil login` | Signs in to the Console from your browser | Required |
+| `/vijil evaluate [agent]` | Repeats the source review, then runs a Diamond Evaluation against the Agent's endpoint | Required |
+| `/vijil analyze <agent>` | Groups failures by root cause and names the fix: prompt, Guardrail, or code | Required |
+| `/vijil protect <agent>` | Proposes a Dome configuration change | Required |
+| `/vijil adapt <agent>` | Proposes a prompt or code change as a pull request | Required |
+| `/vijil register [agent]` | Creates or updates the Agent's record in the Console | Required |
+
+`agent` is an Agent ID, name, or path. Without it, the plugin uses the Agent in the current repository.
+
+## Typical Workflow
+
+<Steps>
+  <Step title="Inspect the Source">
+    Run `/vijil inspect`. Claude Code reads the system prompt, tool grants, Agent loop, configuration, and output handling. It reports a score for each [dimension](/concepts/trust-score/introduction), a **PASS**, **REVISE**, or **BLOCK** verdict, and findings rated **Critical**, **Important**, or **Minor**. Each finding cites a `file:line`.
+  </Step>
+  <Step title="Evaluate Behavior">
+    Run `/vijil evaluate`. The Evaluation runs in three tiers: a baseline Trust Score, a Harness tailored to the Agent, and an adaptive Red Team campaign. Results from the source review and the Evaluation appear in one report.
+
+    The Agent does not need to be registered. If it is not, Claude Code asks for the endpoint to test.
+  </Step>
+  <Step title="Find Root Causes">
+    Run `/vijil analyze <agent>`. Claude Code groups related failures and names where each fix belongs.
+  </Step>
+  <Step title="Fix the Failures">
+    Run `/vijil protect <agent>` for failures a Guardrail can block. Review and apply the proposed Dome configuration in the Console.
+
+    Run `/vijil adapt <agent>` for prompt and code failures. Review and merge the proposed pull request.
+  </Step>
+  <Step title="Register the Agent">
+    Run `/vijil register` to track the Agent's Evaluations and changes over time. Claude Code asks which protocol the endpoint uses: `chat_completions` for an OpenAI-compatible endpoint, or `a2a` for an Agent that publishes an agent card.
+  </Step>
+  <Step title="Re-evaluate">
+    Run `/vijil evaluate <agent>` again and compare the results with the first run.
+  </Step>
+</Steps>
+
+<Note>
+Evaluations count against your account's weekly allowance. Claude Code reports the remaining balance before each run and stops when the Console refuses a run.
+</Note>
+
+## What the Plugin Can Change
+
+- `inspect`, `evaluate`, and `analyze` only read and measure. They never change the Agent.
+- `register` writes only the Agent's record in the Console.
+- `protect` and `adapt` only propose. You apply a Dome change in the Console and merge a Darwin change yourself.
+
+The plugin cannot apply Dome configurations, run Darwin evolutions, approve proposals, delete or cancel Evaluations, or archive Agents.
+
+## Troubleshooting
+
+| Problem | What to Check |
+|---|---|
+| Commands other than `inspect` report that `vijil-mcp` is unreachable | Run `/vijil login` or export your key pair, confirm that `uvx` is on your `PATH`, then restart Claude Code |
+| `evaluate` reports only source findings | The plugin could not reach the Console, so it skipped the Evaluation. Fix the connection and run it again |
+| The Evaluation cannot reach a registered Agent | Check the protocol. An Amazon Bedrock AgentCore HTTP runtime does not publish an agent card, so register its OpenAI-compatible endpoint with `chat_completions` |
+| The Console refuses an Evaluation | You have used your weekly allowance. Wait for it to refill |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Agent Lifecycle Workflow" icon="refresh-cw" href="/developer-guide/getting-started/agent-lifecycle-workflow">
+    Take an Agent from registration to a hardened release.
+  </Card>
+  <Card title="Understand Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
+    Interpret Trust Scores and rank findings.
+  </Card>
+</CardGroup>
