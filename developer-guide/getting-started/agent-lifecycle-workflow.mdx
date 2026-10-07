@@ -160,16 +160,14 @@ After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/
     6. Review the findings and successful attack strategies.
   </Tab>
   <Tab title="SDK">
-    1. Use `client.xteam()` for the multi-wave seed, attack, judge, and reflect workflow.
-    2. Poll until the campaign reaches a terminal state.
-    3. Retrieve and review the findings.
+    1. Run [`client.evaluate(agent_id, type="redteam")`](/developer-guide/sdk/lifecycle-methods#run-a-red-team-evaluation).
+    2. Review the returned status after the method finishes polling the Evaluation.
+    3. Use the [`client.evaluations.redteam_*()` methods](/developer-guide/sdk/resources#red-team-status-artifacts-and-reports) to retrieve and review the findings and report.
   </Tab>
   <Tab title="Claude Code">
     `/vijil evaluate` already ends with an adaptive Red Team campaign. Ask Claude Code for the Red Team report to review the findings and successful attack strategies.
   </Tab>
 </Tabs>
-
-Use [`client.test()`](/developer-guide/sdk/lifecycle-methods#client-test) only when the simpler campaign interface matches your deployment.
 
 Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
 
@@ -321,7 +319,7 @@ Repeat the tests that cover the changed behavior:
     1. Run `client.evaluate(agent_id, baseline=True)`.
     2. After the baseline completes, use `client.evaluate(agent_id, harness_id="<harness-id>")` to run one targeted Harness. Repeat the call for each Harness you need.
     3. Retest saved attack inputs through the Agent's test suite.
-    4. Use `client.xteam()` to start a new adaptive campaign with the relevant Policies and Personas.
+    4. Run [`client.evaluate(agent_id, type="redteam")`](/developer-guide/sdk/lifecycle-methods#run-a-red-team-evaluation) to start another adaptive campaign.
     5. Compare the returned scores and findings with the saved baseline.
     6. Check staging traces with `client.monitor.traces()`.
   </Tab>
