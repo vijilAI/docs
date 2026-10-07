@@ -29,7 +29,7 @@ per network, one per cluster, one per cloud account.
   <Step title="Create Your First Target">
     <Tabs>
       <Tab title="Console">
-        Open **Discover** in the sidebar, press **+ New Scan**, and stay on the **Scan surfaces** tab. Press **+ Add new scan surface**, enter a name such as `laptops`, and press **Create scan surface**.
+        Open **Discover** in the sidebar and press **+ New Scan**. If the modal shows tabs, stay on **Scan surfaces**. Press **+ Add new scan surface**, enter a name such as `laptops`, and press **Create scan surface**.
 
         The modal shows a **Scan surface ID** and an **Enrollment code**. The ID is the Target identifier you use everywhere below. The enrollment code lets your first Collectors enroll, allows any scanner kind, and expires after 24 hours.
 
@@ -138,7 +138,7 @@ per network, one per cluster, one per cloud account.
 ## Housekeeping
 
 - **Revoke credentials you no longer need.** Revoke both from the Scanners sub-tab. Revoking takes effect immediately.
-- **Delete Targets you no longer scan.** Press the trash icon in the Target's row on the **Targets** tab. Deleting removes the Target's scan history, credentials, and policies, and cannot be undone.
+- **Delete Targets you no longer scan.** Press the trash icon in the Target's row on the **Targets** tab. Deleting removes the Target's Collectors, enrollment codes, policies, and scan history, and cannot be undone.
 - **Keep one Target per source.** Mixing sources makes findings harder to attribute.
 - **Re-check blind spots after any access change.** A Collector that loses a permission still reports success, and its coverage shrinks.
 

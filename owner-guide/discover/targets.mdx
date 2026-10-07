@@ -18,8 +18,8 @@ acts on a Target uses the `deployment-*` name. All three are the same object.
   <Tab title="Console">
     <Steps>
       <Step title="Open the New Scan Modal">
-        Open **Discover** in the sidebar and press **+ New Scan**. Stay on the **Scan
-        surfaces** tab.
+        Open **Discover** in the sidebar and press **+ New Scan**. If the modal shows tabs,
+        stay on **Scan surfaces**.
       </Step>
       <Step title="Add a Scan Surface">
         Press **+ Add new scan surface** below the list of existing Targets.
@@ -145,9 +145,9 @@ Press **Scan now** on the Target, or:
 vijil discover scan-now <target-id>
 ```
 
-You can also press **+ New Scan** on **Discover** and stay on the **Scan surfaces** tab.
-The modal calls Targets "scan surfaces". Pick one and press **Scan**. When there are more
-than five, a filter box above the list matches by name or identifier.
+You can also press **+ New Scan** on **Discover**. If the modal shows tabs, stay on
+**Scan surfaces**. The modal calls Targets "scan surfaces". Pick one and press **Scan**.
+When there are more than five, a filter box above the list matches by name or identifier.
 If the Target you want is not in the list, press **+ Add new scan surface** below it to
 [create one](#create-a-target) without leaving the modal.
 
@@ -200,8 +200,8 @@ Schedule a recurring scan for any Target you intend to keep.
 </Tabs>
 
 <Warning>
-Deleting a Target cannot be undone. It removes the Target's scan history, Collectors,
-credentials, policies, and violations.
+Deleting a Target cannot be undone. It removes the Target's Collectors, enrollment codes,
+policies, and scan history.
 </Warning>
 
 You can skip revoking the credentials first. Any Collector still installed on a machine
