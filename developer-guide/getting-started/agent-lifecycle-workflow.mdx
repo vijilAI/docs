@@ -6,7 +6,7 @@ description: 'Take an existing Agent from registration to a hardened, evidence-b
 This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. If you do not know which Agents run in your environment, use [Discover](/concepts/platform/discover) through the Console or [CLI](/developer-guide/cli/discover) to find them. Use [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, [Darwin](/concepts/platform/darwin) to propose improvements, and your delivery pipeline to release it. From Register onward, follow the Console, [Python SDK](/developer-guide/sdk/setup), or [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin) path at each stage. The plugin covers the stages from Register to Re-evaluate.
 
 <Info>
-This workflow starts with registration. If you do not know which Agents run in your environment, use [Discover](/owner-guide/discover/introduction) to find them, then [register a discovered Agent](/owner-guide/discover/registering-agents) and continue from [Evaluate](#2-evaluate-the-agent). Where your deployment includes Darwin, it proposes improvements to an existing Agent. This workflow does not cover creating a new Agent through generative evolution. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
+Discover is optional. If you already know which Agent you want to govern, start with [Register](#1-register-the-agent). Where your deployment includes Darwin, it proposes improvements to an existing Agent. This workflow does not cover creating a new Agent through generative evolution. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
 </Info>
 
 ## The Agent Trust Lifecycle
@@ -38,7 +38,7 @@ The Console records **Registered**, **Tested**, and **Protected** [Agent stages]
 
 ## Before You Begin
 
-You need:
+From Register onward, you need:
 
 - A Console account and access to a team.
 - An existing Agent with a reachable HTTP endpoint.
@@ -60,6 +60,12 @@ Define your release criteria before you begin. Decide:
 <Note>
 The Console presents Trust Scores on a 0–100 scale. The SDK returns scores on a 0.0–1.0 scale. For example, a Console score of 70 is an SDK score of `0.70`.
 </Note>
+
+## Discover Agents Before Registration
+
+Use Discover when you do not have a complete inventory of the AI running in your environment. Through the Console or [CLI](/developer-guide/cli/discover), define a [Target](/concepts/discovery/target) and install a [Collector](/concepts/discovery/collector) to scan it. Discover returns [Resources](/concepts/discovery/resource) classified as AI, Non-AI, or Uncertain, with supporting evidence and any areas the Collector could not reach.
+
+Review the findings in the Console. When a Resource is an eligible Agent, [register the discovered Agent](/owner-guide/discover/registering-agents) and supply the endpoint, credentials, access level, and rate limit. Discover does not evaluate or protect the Agent. Once the Agent is active, continue with [Evaluate](#2-evaluate-the-agent). See [Get Started with Discover](/owner-guide/discover/introduction) for the full workflow.
 
 ## 1. Register the Agent
 
