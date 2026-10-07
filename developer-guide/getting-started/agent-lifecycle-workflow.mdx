@@ -3,7 +3,7 @@ title: 'Agent Lifecycle Workflow'
 description: 'Take an existing Agent from registration to a hardened, evidence-backed production release.'
 ---
 
-This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. Use [Discover](/concepts/platform/discover) to find Agents that are not yet registered, [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, [Darwin](/concepts/platform/darwin) to propose improvements, and your delivery pipeline to release it. Follow the Console, [Python SDK](/developer-guide/sdk/setup), or [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin) path at each stage. The plugin covers the stages from Register to Re-evaluate.
+This guide takes an existing Agent from registration to a hardened, evidence-backed production release and ongoing monitoring. If you do not know which Agents run in your environment, use [Discover](/concepts/platform/discover) through the Console or [CLI](/developer-guide/cli/discover) to find them. Use [Diamond](/concepts/platform/diamond) to evaluate the Agent, [Dome](/developer-guide/protect/overview) to protect it at runtime, [Darwin](/concepts/platform/darwin) to propose improvements, and your delivery pipeline to release it. From Register onward, follow the Console, [Python SDK](/developer-guide/sdk/setup), or [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin) path at each stage. The plugin covers the stages from Register to Re-evaluate.
 
 <Info>
 This workflow starts with registration. If you do not know which Agents run in your environment, use [Discover](/owner-guide/discover/introduction) to find them, then [register a discovered Agent](/owner-guide/discover/registering-agents) and continue from [Evaluate](#2-evaluate-the-agent). Where your deployment includes Darwin, it proposes improvements to an existing Agent. This workflow does not cover creating a new Agent through generative evolution. The platform does not currently deploy your Agent application, so the final stage uses your existing delivery pipeline.
@@ -13,6 +13,7 @@ This workflow starts with registration. If you do not know which Agents run in y
 
 ```mermaid actions={false}
 flowchart LR
+    Discover["Discover (if needed)"] --> Register[Register]
     Register[Register] --> Evaluate[Evaluate]
     Evaluate --> Harden[Harden]
     Harden --> Improve[Improve]
@@ -24,6 +25,7 @@ flowchart LR
 
 | Stage | Goal | Evidence Produced |
 |---|---|---|
+| **Discover** | Find Agents that are not yet registered | Classified Resources and supporting discovery evidence |
 | **Register** | Connect the Agent to the platform | Active Agent and Agent ID |
 | **Evaluate** | Measure trustworthiness and search for deeper weaknesses | [Trust Score](/concepts/trust-score/introduction), Trust Report, and Red Team findings |
 | **Harden** | Add and test [runtime Guardrails](/developer-guide/protect/overview) | Applied Dome configuration and staging telemetry |
