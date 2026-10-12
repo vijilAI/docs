@@ -212,6 +212,7 @@
                 "group": "Specify Harnesses",
                 "pages": [
                   "owner-guide/simulate-environment/harnesses/trust-score",
+                  "owner-guide/simulate-environment/harnesses/compliance",
                   "owner-guide/simulate-environment/custom-harnesses"
                 ]
               }
