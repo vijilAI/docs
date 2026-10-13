@@ -19,12 +19,11 @@ This is the Vijil documentation site built with [Mintlify](https://mintlify.com)
 
 ### Content Structure
 
-The docs are organized into four top-level tabs defined in `docs.json`:
+The docs are organized into three top-level tabs defined in `docs.json`:
 
 - **Concepts** (`concepts/`) — Mental models: Trust Score (reliability/security/safety), evaluation components (Harness → Scenario → Probe → Detector), and runtime defense components (Guardrail → Guard → Detector).
 - **Agent Owner's Guide** (`owner-guide/`) — Console-based workflows for non-developers: register agents, build evaluation environments, run evaluations, configure Dome.
 - **Agent Developer Guide** (`developer-guide/`) — Programmatic integration: SDKs, CLI, APIs, CI/CD, frameworks.
-- **Legacy Docs** (`legacy/`) — Older content preserved for reference. Prefer the non-legacy equivalents for new content.
 
 Tutorials live in `tutorials/` and are cross-referenced from both the Owner's Guide and Developer Guide tabs.
 
