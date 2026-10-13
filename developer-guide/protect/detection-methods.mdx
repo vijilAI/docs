@@ -59,14 +59,18 @@ ModernBERT classifier for prompt injection detection.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `score_threshold` | `float` | `0.5` | Injection probability at which the Detector starts flagging content. |
+| `score_threshold` | `float` | `0.5` | Uncalibrated model score at or above which the Detector starts flagging content. |
 | `truncation` | `bool` | `True` | Truncate each model window to `max_length`. |
 | `max_length` | `int` | `8192` | Token limit per window. |
 | `window_stride` | `int` | `4096` | Token step between windows. |
 
 - **Class:** `MBertPromptInjectionModel`
-- **Model:** `vijil/vijil_dome_prompt_injection_detection`
+- **Model:** [`vijil/prompt-injection-v5-20260827`](https://huggingface.co/vijil/prompt-injection-v5-20260827)
 - **Text processor:** `answerdotai/ModernBERT-base`
+
+The `score_threshold` value is a raw `softmax` score, not a calibrated
+probability. Choose a threshold by testing traffic that resembles your
+production inputs instead of relying on a fixed score range.
 
 ### `prompt-injection-mbert-safeguard`
 
@@ -113,7 +117,7 @@ inference endpoint.
 | `vijil_inference_model` | `str \| None` | `None` | Override the direct fast-stage model. |
 | `vijil_inference_api_key` | `str \| None` | `None` | Direct inference key; falls back to `VIJIL_INFERENCE_API_KEY`. |
 | `confidence_threshold` | `float` | `0.85` | Fast-stage confidence below which the Detector calls the Safeguard. |
-| `score_threshold` | `float` | `0.5` | Fast-stage injection threshold. |
+| `score_threshold` | `float` | `0.5` | Uncalibrated fast-stage model score threshold. |
 | `truncation` | `bool` | `True` | Truncate local fast-stage windows. |
 | `max_length` | `int` | `8192` | Token limit per local fast-stage window. |
 | `window_stride` | `int` | `4096` | Token step between local fast-stage windows. |
@@ -128,7 +132,7 @@ inference endpoint.
 | `max_input_chars` | `int \| None` | `400000` | Character limit before escalation. |
 
 - **Class:** `PImbertHybrid`
-- **Local model:** `vijil/vijil_dome_prompt_injection_detection`
+- **Local model:** [`vijil/prompt-injection-v5-20260827`](https://huggingface.co/vijil/prompt-injection-v5-20260827)
 
 ### `prompt-injection-mbert-remote`
 
@@ -145,11 +149,11 @@ score in the response message content.
 | `vijil_inference_url` | `str` | Required | `Vijil` inference base URL. |
 | `vijil_inference_model` | `str \| None` | `None` | Model override; otherwise uses the registered prompt injection model. |
 | `vijil_inference_api_key` | `str \| None` | `None` | API key; falls back to `VIJIL_INFERENCE_API_KEY`. |
-| `score_threshold` | `float` | `0.5` | Score at which the Detector starts flagging content. |
+| `score_threshold` | `float` | `0.5` | Uncalibrated model score at or above which the Detector starts flagging content. |
 | `timeout_seconds` | `float` | `10.0` | Request timeout in seconds. |
 
 - **Class:** `MBertPromptInjectionRemote`
-- **Default model:** `vijil/vijil_dome_prompt_injection_detection`
+- **Default model:** [`vijil/prompt-injection-v5-20260827`](https://huggingface.co/vijil/prompt-injection-v5-20260827)
 
 ### `security-promptguard`
 
@@ -470,13 +474,13 @@ counterfactual comparisons across a set of prompts.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `model_name` | `str` | `"vijil/stereotype-eeoc-detector"` | Classifier model. |
+| `model_name` | `str` | `"vijil/stereotype-detector-v8-20260911"` | Classifier model. |
 | `tokenizer_name` | `str` | `"answerdotai/ModernBERT-base"` | Text-processing model. |
-| `score_threshold` | `float` | `0.90` | Stereotype probability at which the Detector starts flagging content. |
+| `score_threshold` | `float` | `0.6` | Raw model score at or above which the Detector starts flagging content. |
 | `max_length` | `int` | `512` | Token limit per chunk. |
 
 - **Class:** `StereotypeEEOCFast`
-- **Model:** `vijil/stereotype-eeoc-detector`
+- **Model:** [`vijil/stereotype-detector-v8-20260911`](https://huggingface.co/vijil/stereotype-detector-v8-20260911)
 
 ### `stereotype-eeoc-safeguard`
 
@@ -523,9 +527,9 @@ inference endpoint.
 | `vijil_inference_model` | `str \| None` | `None` | Override the direct fast-stage model. |
 | `vijil_inference_api_key` | `str \| None` | `None` | Direct inference key; falls back to `VIJIL_INFERENCE_API_KEY`. |
 | `confidence_threshold` | `float` | `0.85` | Fast-stage confidence below which the Detector calls the Safeguard. |
-| `model_name` | `str` | `"vijil/stereotype-eeoc-detector"` | Local fast-stage model. |
+| `model_name` | `str` | `"vijil/stereotype-detector-v8-20260911"` | Local fast-stage model. |
 | `tokenizer_name` | `str` | `"answerdotai/ModernBERT-base"` | Local fast-stage text processor. |
-| `score_threshold` | `float` | Local: `0.90`; direct: `0.5` | Fast-stage stereotype threshold. |
+| `score_threshold` | `float` | `0.6` | Raw fast-stage model score threshold. |
 | `max_length` | `int` | `512` | Token limit per local fast-stage chunk. |
 | `api_key` | `str \| None` | `None` | Safeguard key; falls back to `api_key_name`. |
 | `api_key_name` | `str` | `"GROQ_API_KEY"` | Safeguard key environment variable. |
@@ -538,7 +542,7 @@ inference endpoint.
 | `max_input_chars` | `int \| None` | `400000` | Character limit before escalation. |
 
 - **Class:** `StereotypeEEOCHybrid`
-- **Local model:** `vijil/stereotype-eeoc-detector`
+- **Local model:** [`vijil/stereotype-detector-v8-20260911`](https://huggingface.co/vijil/stereotype-detector-v8-20260911)
 
 ### `stereotype-eeoc-remote`
 
@@ -555,11 +559,11 @@ response message content.
 | `vijil_inference_url` | `str` | Required | `Vijil` inference base URL. |
 | `vijil_inference_model` | `str \| None` | `None` | Model override; otherwise uses the registered stereotype model. |
 | `vijil_inference_api_key` | `str \| None` | `None` | API key; falls back to `VIJIL_INFERENCE_API_KEY`. |
-| `score_threshold` | `float` | `0.5` | Score at which the Detector starts flagging content. |
+| `score_threshold` | `float` | `0.6` | Raw model score at or above which the Detector starts flagging content. |
 | `timeout_seconds` | `float` | `10.0` | Request timeout in seconds. |
 
 - **Class:** `StereotypeEEOCRemote`
-- **Default model:** `vijil/stereotype-eeoc-detector`
+- **Default model:** [`vijil/stereotype-detector-v8-20260911`](https://huggingface.co/vijil/stereotype-detector-v8-20260911)
 
 ### `prompt-harmfulness-fast`
 
