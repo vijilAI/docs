@@ -122,6 +122,69 @@ Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
   </Tab>
 </Tabs>
 
+## Run Compliance Harnesses
+
+Compliance Harnesses test an Agent against a regulatory or standards framework. They are standard Harnesses, so you start them like `safety` or `security`, by name:
+
+| Framework | Harness name |
+| --- | --- |
+| EU AI Act | `eu_ai_act_agent_policy` |
+| ISO/IEC 42001 | `iso42001_agent_policy` |
+| NIST AI RMF | `nist_ai_rmf_agent_policy` |
+| OSFI E-23 | `osfi_e23_agent_policy` |
+| PIPEDA | `pipeda_agent_policy` |
+| Taiwan AI Basic Act | `taiwan_ai_basic_act_agent_policy` |
+| Singapore PDPA | `sg_pdpa_agent_policy` |
+
+See [Compliance Harnesses](/owner-guide/simulate-environment/harnesses/compliance) for what each framework tests. A run that contains only Compliance Harnesses produces a Compliance Trust Report. Mixing them with `safety`, `security`, or `reliability` in one run does not, so start the Trust Score as a separate evaluation.
+
+<Tabs>
+  <Tab title="MCP">
+
+  <Prompt description="Run the EU AI Act and ISO 42001 compliance Harnesses on agent a1b2c3d4-… with sample size 50, and wait for it to complete">
+  Run the EU AI Act and ISO 42001 compliance Harnesses on agent a1b2c3d4-… with sample size 50, and wait for it to complete
+  </Prompt>
+
+  Claude calls `harness_list` to resolve the framework names, then `eval_run` with those `harness_names`.
+
+  </Tab>
+  <Tab title="SDK">
+
+  Pass the names with `harness_type="standard"`. Without it, the SDK treats any name outside `safety`, `security`, and `reliability` as a custom Harness:
+
+  ```python
+  evaluation = client.evaluations.create(
+      agent_id="<agent-id>",
+      harness_names=["eu_ai_act_agent_policy", "iso42001_agent_policy"],
+      harness_type="standard",
+      sample_size=50,
+  )
+  ```
+
+  </Tab>
+  <Tab title="REST API">
+
+  ```bash
+  curl -s -X POST "$VIJIL_URL/v1/evaluations/" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"agent_id\": \"$AGENT_ID\",
+      \"team_id\": \"$TEAM_ID\",
+      \"type\": \"behavioral\",
+      \"harness_names\": [\"eu_ai_act_agent_policy\", \"iso42001_agent_policy\"],
+      \"harness_type\": \"standard\",
+      \"sample_size\": 50
+    }"
+  ```
+
+  </Tab>
+</Tabs>
+
+<Note>
+  `vijil evaluate` does not select Compliance Harnesses yet: `--baseline` runs only the Trust Score set, and `--bespoke` expects a custom Harness. Use MCP, the SDK, or the REST API instead.
+</Note>
+
 ## Check Status
 
 Behavioral evaluations can move through `starting`, `pending`, `running`, `completed`, and `saving` before reaching `saved`. They can also end as `succeeded`, `failed`, or `cancelled`.
