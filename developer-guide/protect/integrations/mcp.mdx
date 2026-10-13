@@ -61,7 +61,7 @@ When a Guard blocks a call, the proxy returns a result carrying the blocked mess
 
 ## Configure the Guards for a Proxy
 
-The direction of protection is inverted compared with an [Agent](/owner-guide/register-agents/what-is-an-agent):
+For MCP traffic, Dome applies protection in the opposite direction from an [Agent](/owner-guide/register-agents/what-is-an-agent):
 
 - The **input** Guardrail protects the MCP server from risky model output, so it should carry the Guards you would normally use on Agent output.
 - The **output** Guardrail protects the calling model from server responses, so it should include the prompt injection [Detectors](/developer-guide/protect/detection-methods) that catch payloads embedded in tool results.
