@@ -1,0 +1,134 @@
+---
+title: "Compliance Harnesses"
+description: "Evaluate your Agent's behavior against regulatory and standards frameworks such as the EU AI Act, ISO/IEC 42001, and NIST AI RMF."
+---
+
+Compliance Harnesses test how your agent behaves against the requirements of a named regulatory or standards framework. Where the [Trust Score Harness](/owner-guide/simulate-environment/harnesses/trust-score) measures general Reliability, Security, and Safety, each Compliance Harness maps its Probes to the clauses of one framework, so the results speak the language your risk and compliance teams already use.
+
+<Note>
+  Compliance Harnesses test the agent's behavioral conduct: what it says and does when a user interacts with it. Many framework obligations fall on the operator instead (documentation, logging, incident reporting, human oversight processes). A Compliance Harness gives you evidence for the agent-side obligations; it does not certify your organization against the framework.
+</Note>
+
+## Available Frameworks
+
+| Framework | What It Tests |
+| --- | --- |
+| [**EU AI Act**](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) | The EU AI Act's agent requirements: transparency, oversight, data protection, and accountability |
+| [**ISO/IEC 42001**](https://www.iso.org/standard/81230.html) | ISO/IEC 42001's AI management-system controls: consistency, data quality, fairness, and governance |
+| [**NIST AI RMF**](https://www.nist.gov/itl/ai-risk-management-framework) | The Measure and Manage functions of the NIST AI Risk Management Framework: safety, security, privacy, fairness, and accountability |
+| [**OSFI E-23**](https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/guideline-e-23-model-risk-management-2027) | OSFI Guideline E-23's model risk management expectations: data quality, output robustness, explainable outputs, and escalation discipline |
+| [**PIPEDA**](https://laws-lois.justice.gc.ca/eng/acts/p-8.6/) | The Fair Information Principles in PIPEDA: safeguards, purpose limitation, accuracy, and openness |
+| [**Taiwan AI Basic Act**](https://law.moj.gov.tw/ENG/LawClass/LawAll.aspx?pcode=H0160093) | The principles and harm-prevention duties of Taiwan's AI Basic Act: autonomy, data governance, safety, transparency, fairness, and accountability |
+| [**Singapore PDPA**](https://sso.agc.gov.sg/Act/PDPA2012) | Singapore's PDPA and PDPC AI guidance: data protection, purpose limitation, accuracy, and explaining AI-driven decisions |
+
+## Choosing Frameworks
+
+Pick the frameworks that apply to where your agent operates and who it serves:
+
+<CardGroup cols={2}>
+  <Card title="European Union" icon="landmark">
+    **EU AI Act** for agents placed on the EU market or used by people in the EU.
+  </Card>
+  <Card title="Canada" icon="leaf">
+    **PIPEDA** for agents that handle personal information. **OSFI E-23** for agents used by federally regulated financial institutions.
+  </Card>
+  <Card title="Asia-Pacific" icon="globe">
+    **Singapore PDPA** for agents that process personal data in Singapore. **Taiwan AI Basic Act** for agents deployed in Taiwan.
+  </Card>
+  <Card title="Voluntary Standards" icon="clipboard-check">
+    **ISO/IEC 42001** and **NIST AI RMF** for organizations that align their AI governance with an international or United States standard.
+  </Card>
+</CardGroup>
+
+## Running a Compliance Evaluation
+
+<Tabs>
+  <Tab title="Console">
+    <Steps>
+      <Step title="Open Verify">
+        Click **Verify** in the sidebar to open Diamond Evaluations.
+      </Step>
+      <Step title="Select an Agent">
+        In the **Select Agent** panel, choose the agent to evaluate. Only agents with status **Active** appear.
+      </Step>
+      <Step title="Open the Compliance Tab">
+        In the **Test Configuration** panel, click the **Compliance** tab. It lists one card per framework, each with a short description.
+      </Step>
+      <Step title="Choose Frameworks">
+        Turn on the toggle for each framework you want to test. Use **Select all** to run every framework at once, or **Deselect all** to start over.
+      </Step>
+      <Step title="Set the Sample Size">
+        **Sample size** randomly samples that many prompts from each selected Harness so the run finishes faster. Check **Use all prompts** to run every Probe in each Harness.
+      </Step>
+      <Step title="Run the Evaluation">
+        Click **Run Evaluation**. Progress appears in the **Evaluation Results** table.
+      </Step>
+    </Steps>
+
+    <Tip>
+      A run includes only the Harnesses on the tab that is open when you click **Run Evaluation**. To test both the Trust Score and a framework, run two evaluations: one from the **Baseline** tab and one from the **Compliance** tab.
+    </Tip>
+  </Tab>
+  <Tab title="MCP">
+    With Claude Code connected to Vijil (see the one-time setup in [Register Agents](/owner-guide/register-agents/registering-agents)), name the frameworks you want to test in plain English:
+
+    <Prompt description="Run the EU AI Act and ISO 42001 compliance Harnesses on agent a1b2c3d4-… with sample size 50, and wait for it to complete">
+    Run the EU AI Act and ISO 42001 compliance Harnesses on agent a1b2c3d4-… with sample size 50, and wait for it to complete
+    </Prompt>
+
+    Claude looks up the matching Harnesses, starts the evaluation, and reports the scores when it finishes. To see every framework available in your workspace first, ask:
+
+    <Prompt description="Which compliance Harnesses can I run?">
+    Which compliance Harnesses can I run?
+    </Prompt>
+
+    <Tip>
+      Ask for Compliance Harnesses only, without the Trust Score Harnesses, so the run produces a Compliance Trust Report. Run the Trust Score as a separate evaluation.
+    </Tip>
+  </Tab>
+</Tabs>
+
+<Note>
+  To start a Compliance evaluation from code, with the Python SDK or the REST API, see **Run Compliance Harnesses** in the Developer Guide's [Run Evaluations](/developer-guide/evaluate/running-evaluations) page.
+</Note>
+
+## Reading the Results
+
+When the evaluation completes, open it from the **Evaluation Results** table. Because the run contains only Compliance Harnesses, Vijil produces a Compliance Trust Report rather than a Baseline report. It shows a score for each framework you selected, with findings that point to the framework requirements your agent did not meet.
+
+The score uses the same 0 to 1 scale and 0.70 pass threshold as the Trust Score, but it measures a different test suite. Do not compare a Compliance score with a Baseline Trust Score or average the two.
+
+See [Understanding Results](/owner-guide/run-evaluations/understanding-results) for how to read findings and drill into individual Probes.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Trust Score Harness"
+    icon="gauge"
+    href="/owner-guide/simulate-environment/harnesses/trust-score"
+  >
+    Measure Reliability, Security, and Safety
+  </Card>
+  <Card
+    title="Build Custom Harnesses"
+    icon="ruler"
+    href="/owner-guide/simulate-environment/custom-harnesses"
+  >
+    Test against your own policies and personas
+  </Card>
+  <Card
+    title="Upload Policies"
+    icon="file-text"
+    href="/owner-guide/simulate-environment/policies"
+  >
+    Turn your internal policies into testable rules
+  </Card>
+  <Card
+    title="Configure Guardrails"
+    icon="sliders-horizontal"
+    href="/owner-guide/protect-in-production/configuring-guardrails"
+  >
+    Enforce requirements at runtime with Dome
+  </Card>
+</CardGroup>

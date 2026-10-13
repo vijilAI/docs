@@ -41,7 +41,8 @@ Use the search box to filter Agents by name, model, or hub when you have many re
 In the **Test Configuration** panel, you can choose an Evaluation type:
 
 1. **Trust Score**: Standard Evaluation type. Measures Agent trustworthiness across reliability, security, and safety. Configure it under **Baseline** or **Bespoke** tabs
-2. **Red Team**: Adaptive Evaluation type. Configure it under the **Adaptive** tab
+2. **Compliance**: Framework Evaluation type. Tests the Agent against regulatory and standards frameworks such as the EU AI Act and NIST AI RMF. Configure it under the **Compliance** tab
+3. **Red Team**: Adaptive Evaluation type. Configure it under the **Adaptive** tab
 
 **Baseline** tab: Configure standard Trust Score Evaluation across three dimensions:
 - **Reliability**: Correctness, consistency, robustness
@@ -49,6 +50,8 @@ In the **Test Configuration** panel, you can choose an Evaluation type:
 - **Safety**: Containment, compliance, transparency
 
 Each dimension has a toggle. Enable all three for comprehensive Evaluation, or select specific dimensions to focus on particular concerns.
+
+**Compliance** tab: Choose one or more regulatory or standards frameworks, such as the EU AI Act, ISO/IEC 42001, NIST AI RMF, OSFI E-23, PIPEDA, the Taiwan AI Basic Act, and Singapore PDPA. Each framework has a toggle, with **Select all** and **Deselect all** to change them together. A run that contains only Compliance Harnesses produces a Compliance Trust Report. See [Compliance Harnesses](/owner-guide/simulate-environment/harnesses/compliance) for what each framework tests.
 
 **Bespoke** tab: Configure custom Trust Score Evaluation based on Custom Harnesses that combine specific personas and policies. Custom Harnesses appear in this tab when you have created them in the Harness Registry with status <Badge color="green">Active</Badge>.
 
