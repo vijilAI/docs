@@ -1,9 +1,9 @@
 ---
 title: 'Google ADK'
-description: 'Add Dome Guardrails to a Google ADK Agent through model callbacks.'
+description: 'Protect a Google ADK Agent with Dome model callbacks.'
 ---
 
-Google ADK [Agents](/owner-guide/register-agents/what-is-an-agent) run `before_model_callback` and `after_model_callback` around every model invocation. Both callbacks scan through Dome [Guardrails](/concepts/defense/guardrail). Dome generates both callbacks from a `Dome` instance, which keeps the integration to a few lines.
+Google ADK [Agents](/owner-guide/register-agents/what-is-an-agent) run `before_model_callback` and `after_model_callback` around every model invocation. Dome uses these callbacks to scan inputs and outputs with [Guardrails](/concepts/defense/guardrail). Generate both callbacks from one `Dome` instance to add protection in a few lines.
 
 ## Install
 
@@ -11,7 +11,7 @@ Google ADK [Agents](/owner-guide/register-agents/what-is-an-agent) run `before_m
 pip install "vijil-dome[local]" google-adk
 ```
 
-See [Install Dome](/developer-guide/protect/installation) for the full list of extras. Add `vijil-dome[trust-adapters]` instead when you also want identity and tool access control through [Trust Runtime](/developer-guide/protect/trust-runtime).
+See [Install Dome](/developer-guide/protect/installation) for the full list of extras. Use `vijil-dome[trust-adapters]` instead when you also want identity and tool access control through [Trust Runtime](/developer-guide/protect/trust-runtime).
 
 ## Guard an Agent
 
@@ -60,7 +60,7 @@ Dome is asynchronous internally and ADK does not yet support asynchronous model 
 
 ## Add the Full Trust Stack
 
-`secure_agent()` adds identity, constraints, tool-level access control, attestation, and audit events on top of the content Guards. It modifies the ADK Agent in place:
+`secure_agent()` adds identity, constraints, tool-level access control, attestation, and audit events to the content Guards. It modifies the ADK Agent in place:
 
 ```python
 from vijil_dome import secure_agent
@@ -72,7 +72,7 @@ See [Trust Runtime](/developer-guide/protect/trust-runtime) for constraint sourc
 
 ## Deploy to Cloud Run
 
-Follow the ADK [Cloud Run deployment guide](https://google.github.io/adk-docs/deploy/cloud-run/#gcloud-cli) with the `gcloud` CLI, and add `vijil-dome` to your Agent's `requirements.txt`. Request a container large enough for the Detector models, such as `--cpu=4 --memory=8Gi`.
+Follow the ADK [Cloud Run deployment guide](https://google.github.io/adk-docs/deploy/cloud-run/#gcloud-cli) with the `gcloud` CLI, and add `vijil-dome` to your Agent's `requirements.txt`. Request a container large enough for the [Detector models](/developer-guide/protect/detection-methods), such as `--cpu=4 --memory=8Gi`.
 
 <Warning>
 Deploying through the ADK CLI is not supported, because it provides no way to declare extra requirements or increase the container size. Its default of 1 CPU and 512 MB is not enough for Dome's default configuration.
