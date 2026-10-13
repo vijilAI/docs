@@ -4,16 +4,16 @@ description: 'Evaluate Agents hosted on major cloud platforms with Diamond.'
 ---
 
 
-Vijil can evaluate agents and models hosted on supported model providers. Use this guide to identify the provider credentials, endpoint details, and rate-limit settings you need before running an evaluation.
+Vijil supports evaluations of Agents and models hosted on supported model providers. Use this guide to identify the provider credentials, endpoint details, and rate-limit settings you need before running an evaluation.
 
-## What Vijil Can Evaluate
+## Supported Evaluation Targets
 
-Vijil evaluates agents by sending requests to an endpoint you register. 
+Vijil evaluates Agents by sending requests to an endpoint you register.
 
-The endpoint must expose an **OpenAI-compatible interface**, regardless of which model, framework, or cloud service powers the agent behind it:
+The endpoint must expose an **OpenAI-compatible interface**, regardless of which model, framework, or cloud service powers the Agent behind it:
 
-- If your agent already exposes an OpenAI-compatible endpoint, you can register it directly. 
-- If it uses a native API that does not expose that interface, create an adapter service that lets Vijil invoke the agent through the supported request and response shape.
+- If your Agent already exposes an OpenAI-compatible endpoint, you can register it directly.
+- If it uses a native API that does not expose that interface, create an adapter service that lets Vijil invoke the Agent through the supported request and response shape.
 
 <Note>
 Vijil does not require you to choose from a provider or model list. The OpenAI-style endpoint is what matters.
@@ -21,9 +21,9 @@ Vijil does not require you to choose from a provider or model list. The OpenAI-s
 
 ## When You Need an Adapter
 
-Use an adapter when your agent's native API is not OpenAI-compatible. 
+Use an adapter when your Agent's native API is not OpenAI-compatible.
 
-The adapter should accept Vijil's compatible request, translate it to the native agent or provider call, then translate the result back into the compatible response shape.
+The adapter should accept Vijil's compatible request, translate it to the native Agent or provider call, then translate the result back into the compatible response shape.
 
 Native Anthropic, AWS Bedrock, Google Vertex AI, and Agentforce-style APIs are examples of integrations that may need this adapter layer if they are not already exposed through an OpenAI-compatible endpoint.
 
@@ -46,13 +46,13 @@ When registering the agent, provide the fields Vijil needs to call the endpoint.
 | `model_name` | Model identifier understood by your endpoint |
 | `rate_limit_requests_per_minute` | Vijil-side request limit for this API key |
 
-The endpoint can route to a hosted model, a multi-step agent, a local service exposed through a secure tunnel, or an adapter in front of a non-compatible provider API. The important contract is the endpoint interface, not the underlying provider.
+The endpoint can route to a hosted model, a multi-step Agent, a local service exposed through a secure tunnel, or an adapter in front of a non-compatible provider API. The important contract is the endpoint interface, not the underlying provider.
 
 ## Rate Limiting
 
-Rate limits are configured per API key in Vijil. Set the Vijil-side limit below the strictest relevant limit for your account, model, tier, project, region, and endpoint capacity.
+Configure rate limits per API key in Vijil. Set the Vijil-side limit below the strictest relevant limit for your account, model, tier, project, region, and endpoint capacity.
 
-Many providers share account-level quota across API keys. Do not allocate the full account quota to a Vijil API key if production agents or other systems use the same provider account.
+Many providers share account-level quota across API keys. Do not assign the full account quota to a Vijil API key if production Agents or other systems use the same provider account.
 
 Use provider quota documentation and dashboards to choose a safe value. 
 
@@ -71,7 +71,7 @@ Start with a conservative limit for new evaluations. Increase it only after conf
 
 <CardGroup cols={1}>
   <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
-    Execute and monitor evaluations
+    Run and track evaluations
   </Card>
 
   <Card title="Understand Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
