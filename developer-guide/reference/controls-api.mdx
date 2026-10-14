@@ -45,7 +45,7 @@ from vijil_dome.controls import (
 
 | Installation | Included Controls Features |
 |--------------|----------------------------|
-| `pip install vijil-dome` | Python policies, JSON, TOML, `regex`, and `list` |
+| `pip install vijil-dome` | Python policies, JSON, TOML, `regex`, `list`, and `policy-rule-judge` |
 | `pip install "vijil-dome[controls]"` | Base features and YAML loading |
 | `pip install "vijil-dome[controls-full]"` | YAML, JSON Schema, CEL, and RE2 |
 
@@ -508,6 +508,24 @@ Evaluates a Common Expression Language expression with `cel-python` from the `co
 The selected value is available as `value`. When the value is a dictionary, each top-level string key except `value` is also available as a variable. The reserved `value` variable always refers to the complete selected value.
 
 A missing or invalid expression returns `matched=False`. An evaluation error returns confidence `0.0` and error metadata rather than raising into `on_error`.
+
+### `policy-rule-judge`
+
+Judges the selected text against natural-language policy rules with Jev/System One. This Evaluator uses the `OPENROUTER_API_KEY` environment variable unless its configuration supplies `api_key`.
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `rules` | `list[dict]` | `[]` | Policy rules to judge |
+| `violation_threshold` | `float` | `0.5` | Lowest rule-violation score that matches |
+| `batch_size` | `int` | `20` | Rule limit for each concurrent System One request |
+| `model` | `str` | `typesafe/jev-1.13` | System One model identifier |
+| `api_key` | `str \| None` | `None` | API key that overrides `OPENROUTER_API_KEY` |
+
+Each rule must have a unique, non-empty string `rule_id`. The `natural_language` field supplies the policy text. Optional `rule_type`, `action`, `target`, and `consequence` values pass through to the result metadata without changing the judgment.
+
+The Evaluator matches when any rule score is greater than or equal to `violation_threshold`. Its metadata contains `violated_rule_ids` and `rule_verdicts`, which maps each rule ID to its score, violation decision, policy text, and optional metadata.
+
+An empty `rules` list returns `matched=False`. Invalid or duplicate rule IDs, invalid thresholds, missing credentials, request failures, and missing or invalid response scores raise an Evaluator error. The Control's `on_error` setting determines whether those failures match.
 
 ### `dome:<detector-name>`
 
