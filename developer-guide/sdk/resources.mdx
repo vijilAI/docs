@@ -18,7 +18,7 @@ Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-error
 | `client.jobs` | `list`, `show`, `status`, `create`, `cancel` |
 | `client.genomes` | `list`, `show`, `versions`, `history`, `diff` |
 | `client.proposals` | `list`, `show`, `approve`, `apply`, `reject` |
-| `client.policies` | `list`, `show`, `create`, `update`, `delete` |
+| `client.policies` | `list`, `show`, `create`, `extract_rules`, `rules`, `update`, `delete` |
 | `client.personas` | `list`, `show`, `create`, `update`, `delete` |
 | `client.monitor` | `traces`, `logs` |
 | `client.agent_tunnel` | `get`, `revoke` |
@@ -239,11 +239,15 @@ policy = client.policies.create(
     category="privacy",
     source_text="The Agent must not store or repeat personal data.",
 )
+policy = client.policies.extract_rules(policy.id)
+rules = client.policies.rules(policy.id, status="draft")
 policy = client.policies.update("policy-id", name="Updated Policy")
 client.policies.delete("policy-id")
 ```
 
 Provide policy text with `source_text` or `content`. You can also pass `file_path` to read content from a UTF-8 text file.
+
+`extract_rules()` creates draft rules from the policy source text and waits for extraction by default. Pass `wait=False` to return after starting extraction. `rules()` returns a paginated list and accepts an optional `status` filter.
 
 ## `client.personas`
 
