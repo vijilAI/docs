@@ -142,6 +142,18 @@ This method exchanges a Console API key's client ID and secret for a short-lived
 
 The loader caches the configuration locally for `cache_ttl_seconds`. Override `base_url` when you do not use the default Vijil Console API. The method raises `ValueError` when authentication or configuration loading fails, when the Agent has no active configuration, or when the response does not contain a configuration object.
 
+### `config_has_changed()`
+
+```python
+config_has_changed() -> bool
+```
+
+Returns `True` when the remote configuration differs from the configuration used to create the instance. This method is available only on instances returned by `create_from_s3()` or `create_from_api()`; calling it on a directly constructed instance raises `ValueError`.
+
+The check ignores the normal cache lifetime and checks the remote source. For Console API configurations, it compares configuration IDs when both documents contain one and otherwise compares the full documents. For S3 configurations, the loader checks the object's `ETag` and downloads the remote document when it has changed.
+
+This method detects changes but does not replace the Controls already loaded into the instance. Create a new instance to apply the remote configuration.
+
 ### Input Methods
 
 ```python
