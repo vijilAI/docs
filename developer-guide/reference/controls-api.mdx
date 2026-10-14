@@ -123,6 +123,25 @@ Supply `key` directly, or supply both `team_id` and `agent_id` to use `teams/{te
 
 AWS credentials and `region_name` are optional. When you omit them, Boto3 uses its standard credential and region resolution. The returned instance retains the S3 location for `config_has_changed()` and applies the supplied `enforce`, `team_id`, and `agent_id` values.
 
+### `create_from_api()`
+
+```python
+VijilDome.create_from_api(
+    client_id: str,
+    client_secret: str,
+    agent_id: str,
+    team_id: str,
+    base_url: str = "https://console-api.vijil.ai",
+    cache_dir: str | None = None,
+    cache_ttl_seconds: int = 300,
+    enforce: bool = True,
+) -> VijilDome
+```
+
+This method exchanges a Console API key's client ID and secret for a short-lived access token, then loads the active Dome configuration for the specified Agent and team. The returned instance installs the configuration's `controls` array and retains the API coordinates for `config_has_changed()`.
+
+The loader caches the configuration locally for `cache_ttl_seconds`. Override `base_url` when you do not use the default Vijil Console API. The method raises `ValueError` when authentication or configuration loading fails, when the Agent has no active configuration, or when the response does not contain a configuration object.
+
 ### Input Methods
 
 ```python
