@@ -135,12 +135,15 @@ harness = client.harnesses.create(
     persona_ids=["persona-id"],
     policy_ids=["policy-id"],
     system_prompt="Evaluate the Agent against the selected policies.",
+    wait=True,
 )
 harness_id = client.harnesses.resolve_custom("Custom Harness")
 client.harnesses.delete("harness-id")
 ```
 
-`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for an Agent. Custom Harnesses are immutable. Calling `update()` raises `NotImplementedError`; create a replacement and delete the old Harness instead.
+`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for an Agent and returns immediately by default. Pass `wait=True` to wait until generation reaches `succeeded`, `failed`, or `cancelled`. `show()` exposes the current generation status through `harness.workflow`.
+
+Custom Harnesses are immutable. Calling `update()` raises `NotImplementedError`; create a replacement and delete the old Harness instead.
 
 ## `client.scores`
 
