@@ -11,7 +11,7 @@ Use this workflow when your Agent runs on your computer or does not support the 
 
 A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel makes the proxy reachable at a public HTTPS URL while it runs.
 
-This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from Anthropic's financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
+This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from the Anthropic financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
 
 <Warning>
   Evaluation Probes are adversarial. Use test data and test credentials. Disable write and destructive tools. If the Agent can access files or external systems, run it in a sandbox. Do not give it access to production resources.
@@ -60,7 +60,7 @@ This example uses Claude Code to run Market Researcher. Install [Claude Code](ht
 claude --version
 ```
 
-Clone Anthropic's financial services examples and save the absolute path to the Market Researcher plugin:
+Clone the financial services examples from Anthropic and save the absolute path to the Market Researcher plugin:
 
 ```bash
 git clone https://github.com/anthropics/financial-services.git
@@ -69,7 +69,7 @@ cd financial-services
 export MARKET_RESEARCHER_PLUGIN="$PWD/plugins/agent-plugins/market-researcher"
 ```
 
-The example reads Market Researcher's system prompt and preloads its `sector-overview` Skill. It creates a temporary Agent definition that has no runtime tools. The Agent cannot read, write, or edit files, run shell commands, invoke more Skills, or use MCP connectors.
+The example reads Market Researcher's system prompt and loads its `sector-overview` Skill. It creates a temporary Agent definition that has no runtime tools. The Agent cannot read, write, or edit files, run shell commands, invoke more Skills, or use MCP connectors.
 
 Claude Code still reads the plugin prompt and Skill during startup. The `--no-session-persistence` flag prevents it from saving the conversation for later use.
 
