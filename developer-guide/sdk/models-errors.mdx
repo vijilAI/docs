@@ -197,7 +197,7 @@ For a custom Harness, `show()` and `create(wait=True)` populate `workflow` with 
 | `Trace` | `trace_id`, `agent_id`, `duration_ms`, `spans`, `timestamp` | `client.monitor.traces()` |
 | `LogEntry` | `agent_id`, `level`, `message`, `timestamp` | `client.monitor.logs()` |
 | `Persona` | `id`, `team_id`, `name`, `role`, `intent`, `knowledge_level`, `skill_level` | `client.personas.*` |
-| `Policy` | `id`, `team_id`, `name`, `category`, `status`, `source_text`, `tags` | `client.policies.*` |
+| `Policy` | `id`, `team_id`, `name`, `category`, `status`, `source_text`, `tags`, `rules_count`, `workflow_id`, `rule_extraction` | `client.policies.*` |
 | `TunnelCredential` | `provider`, `token`, `binding_url` | `client.agent_tunnel.get()` |
 | `AnalyzerRunSummary` | `run_id`, `agent_id`, `eval_id`, `status`, `ticket_count` | `client.rca_runs.list()` |
 | `AnalyzerRunDetail` | Summary fields plus `failure_class`, `evidence`, and `error` | `client.rca_runs.show()` |
