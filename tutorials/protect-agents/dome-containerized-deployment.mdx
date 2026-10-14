@@ -1,6 +1,6 @@
 ---
 title: "Use Dome as a Containerized Deployment"
-description: "Dome can be deployed as a containerized service for easy integration with other frameworks. You can deploy the container on a CPU or GPU compute instance and wire your requests to it to protect agent inputs and outputs."
+description: "Deploy Dome as a containerized service on a CPU or GPU compute instance to protect Agent inputs and outputs."
 ---
 
 ## Setup
@@ -27,7 +27,7 @@ DOME_API_KEY=<your-dome-api-key>
 ```
 </CodeGroup>
 
-The `DOME_API_KEY` is an authentication key for validating incoming API requests. If you enable [Guardrails](/concepts/defense/guardrail) that make external API calls such as OpenAI moderation or detectors hosted on Groq or any other AI inference service, include the corresponding API keys here as well.
+The `DOME_API_KEY` is an authentication key for validating incoming API requests. If you enable [Guardrails](/concepts/defense/guardrail) that make external API calls such as OpenAI moderation or Detectors hosted on Groq or any other AI inference service, include the corresponding API keys here as well.
 
 Run the container:
 
@@ -46,7 +46,7 @@ Check if your Docker container is running, use the `curl` command below.
 </CodeGroup> 
 You can test the Dome application locally by sending requests to the different API endpoints.
 
-### Add/Update Dome Config
+### Add or Update the Dome Configuration
 
 To add or update the [Dome configuration](/developer-guide/protect/configuring-guardrails), send a `PATCH` request to the `/config` endpoint with the desired configuration settings in the request body. For example:
 <CodeGroup>
@@ -565,4 +565,3 @@ TEAM_ID=<team-id>
 <Note>
 These variables are not required if you are exporting telemetry to a third-party observability platform.
 </Note>
-
