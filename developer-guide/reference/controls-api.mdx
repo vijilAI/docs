@@ -735,7 +735,7 @@ The Controls Engine accepts common AgentControl policy shapes without importing 
 |----------------------|--------------------------|
 | `selector: {path: input.amount}` | Normalized to `selector: input.amount` |
 | Evaluator name `json` | Alias for `json_schema` |
-| List `match_on: no_match` | Equivalent to negation |
+| List `match_on: no_match` | Same as `negate=True` |
 | Regex flags as a list | Accepts long names such as `IGNORECASE` |
 | `json_schema` configuration | Matches on schema violation by default |
 | `field_constraints` | Converted to JSON Schema and matched on violation |
