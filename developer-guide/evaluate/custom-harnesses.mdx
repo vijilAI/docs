@@ -199,6 +199,7 @@ Pass the Persona and Policy IDs from the previous step as `persona_ids` and `pol
       persona_ids=["<persona-id>"],   # optional
       policy_ids=["<policy-id>"],     # optional
       system_prompt="You are a helpful customer support assistant.",  # optional
+      wait=True,                       # optional
   )
   print(harness.id)
   ```
@@ -210,6 +211,7 @@ Pass the Persona and Policy IDs from the previous step as `persona_ids` and `pol
   | `persona_ids` | List of Persona UUID values | No |
   | `policy_ids` | List of Policy UUID values | No |
   | `system_prompt` | System prompt used during generation; defaults to the Agent description | No |
+  | `wait` | Wait for Harness generation to finish before returning | No |
 
   </Tab>
 </Tabs>
