@@ -161,7 +161,7 @@ The response reports that the `prompt-injection` Guard flagged the input using t
 
 ### Check Outputs
 
-To check and guard against outputs from agents, send a `GET` request to the `/async_output_detection` endpoint with the output string/agent response. For example:
+To apply [Guards](/concepts/defense/guard) to Agent outputs, send a `GET` request to the `/async_output_detection` endpoint with the Agent response. For example:
 
 <CodeGroup>
 ```bash title="Terminal" icon="terminal"
@@ -170,7 +170,7 @@ curl -XGET "localhost:80/async_output_detection?output_str=Only%20an%20idiot%20w
 ```
 </CodeGroup>
 
-A Python snippet for the above request is shown below:
+The following Python example sends the same request:
 
 <CodeGroup>
 ```python title="Python" icon="python"
@@ -187,7 +187,7 @@ print(response.json())
 ```
 </CodeGroup>
 
-This endpoint checks the provided agent's output against the configured output Guards and returns any detections. For this particular agent output:
+The endpoint applies the configured output Guards to the Agent response and returns any detections. For this response:
 
 <CodeGroup>
 ```text title=Output icon=""
@@ -195,7 +195,7 @@ Only an idiot would fail this task
 ```
 </CodeGroup>
 
-The response is shown here:
+Dome returns:
 
 <CodeGroup>
 ```json title="Response" icon=""
@@ -203,7 +203,7 @@ The response is shown here:
 ```
 </CodeGroup>
 
-This shows that the output was flagged by the `output-toxicity` Guard using the `moderation-mbert` method.
+The response reports that the `output-toxicity` Guard flagged the output using the `moderation-mbert` Detector.
 
 ### Passing Agent ID in Detection Requests
 
