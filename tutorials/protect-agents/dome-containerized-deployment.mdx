@@ -362,7 +362,7 @@ This will enable the Bedrock Guardrails API in Dome, allowing it to accept reque
 The `/guardrails/apply` endpoint evaluates content using [Dome Guardrails](/concepts/defense/guardrail) and returns results in a structure compatible with the `ApplyGuardrail` API from [Amazon Bedrock](https://aws.amazon.com/bedrock/).
 The endpoint accepts content items and routes them through either input Guards or output Guards, depending on the specified source.
 
-To test the Bedrock Guardrails API, send a `POST` request to the `/guardrails/apply` endpoint with the prompt or agent output. For example:
+To test the Bedrock Guardrails API, send a `POST` request to the `/guardrails/apply` endpoint with the prompt or Agent output. For example:
 <CodeGroup>
     ```bash title="Terminal" icon="terminal"
     curl -XPOST "localhost:80/guardrails/apply" \
@@ -378,7 +378,7 @@ To test the Bedrock Guardrails API, send a `POST` request to the `/guardrails/ap
   ```
 </CodeGroup>
 
-The Python code for the above request is shown below:
+The following Python example sends the same request:
 
 <CodeGroup>
     ```python title="Python" icon="python"
@@ -401,7 +401,7 @@ print(response.json())
 ```
 </CodeGroup>
 
-Same pattern applies for checking agent outputs, just change `source` to `OUTPUT` and provide the agent responses in the `content` array.
+To check Agent outputs, set `source` to `OUTPUT` and provide the responses in the `content` array.
 
 ### The Response
 
