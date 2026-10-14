@@ -243,8 +243,8 @@ if harness.workflow:
 | `status` value | Meaning |
 |----------------|---------|
 | `draft` (no workflow status) | Generation status is not available yet |
-| `draft` (workflow `running`) | Generation in progress |
-| `draft` (workflow `failed`) | Generation failed |
+| `draft` (workflow `created`, `starting`, or `running`) | Generation in progress |
+| `draft` (workflow `failed` or `cancelled`) | Generation did not complete |
 | `active` | Ready to use in an Evaluation |
 | `failed` | Harness creation failed permanently |
 
