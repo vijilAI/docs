@@ -215,29 +215,6 @@ Records the exact evaluation configuration for reproducibility:
 - **Scoring Methodology**: the pass/fail threshold applied
 - **Harness Definitions**: plain-language definitions of what each Harness type measures
 
-## Prioritizing Remediation
-
-Use severity and taxonomy to prioritize fixes:
-
-**Address immediately (Critical/High severity):**
-- Security vulnerabilities (prompt injection, data leakage)
-- Safety violations (harmful content, scope violations)
-- Reliability failures that affect core functionality
-
-**Address in next release (Medium severity):**
-- Consistency issues across sessions
-- Minor compliance gaps
-- Robustness failures on edge cases
-
-**Track and monitor (Low severity):**
-- Transparency improvements
-- Minor formatting inconsistencies
-- Rare edge case handling
-
-<Tip>
-Focus remediation on root causes rather than individual findings. Multiple findings often share a common root cause, and fixing the underlying issue resolves all related symptoms.
-</Tip>
-
 ## Comparing Behavioral Evaluations
 
 Run behavioral evaluations before and after changes to track improvement:
