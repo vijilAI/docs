@@ -507,7 +507,7 @@ Below is an example response where the first message is safe and the second trig
 
 ## Observability and OpenTelemetry Instrumentation
 
-The Dome container is well set up for instrumentation to emit telemetry data that is metrics, traces, and logs using [OpenTelemetry (OTEL)](https://opentelemetry.io/). This allows you to monitor Dome's behavior and performance from any compatible observability backend.
+The Dome container can emit metrics, traces, and logs through [OpenTelemetry (OTel)](https://opentelemetry.io/). Send these signals to any compatible observability backend to monitor Dome's behavior and performance.
 
 To enable instrumentation, add the following variables to your `.env` file:
 
@@ -536,11 +536,11 @@ docker run -p 80:80 --env-file .env ghcr.io/vijilai/vijil-dome-marketplace:lates
 | -------- | ----------- |
 | `ENABLE_DOME_INSTRUMENTATION` | Enables telemetry emission from the container |
 | `OTEL_AUTH_METHOD` | Authentication method used by the OTEL collector |
-| `DOME_METRICS_COLLECTOR_ENDPOINT` | Endpoint where metrics are exported |
+| `DOME_METRICS_COLLECTOR_ENDPOINT` | Metrics export endpoint |
 | `DOME_METRICS_COLLECTOR_TOKEN` | Authorization token for the metrics collector |
-| `DOME_TRACES_COLLECTOR_ENDPOINT` | Endpoint where traces are exported |
+| `DOME_TRACES_COLLECTOR_ENDPOINT` | Traces export endpoint |
 | `DOME_TRACES_COLLECTOR_TOKEN` | Authorization token for the traces collector |
-| `DOME_LOGS_COLLECTOR_ENDPOINT` | Endpoint where logs are exported |
+| `DOME_LOGS_COLLECTOR_ENDPOINT` | Logs export endpoint |
 | `DOME_LOGS_COLLECTOR_TOKEN` | Authorization token for the logs collector |
 | `OTEL_EXPORTER_OTLP_METRICS_RESOURCE_ATTRIBUTES_AS_LABELS` | Exposes resource attributes as metric labels |
 
