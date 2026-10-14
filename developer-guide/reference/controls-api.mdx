@@ -71,6 +71,8 @@ VijilDome(
     policy: list[dict | Control] | str | Path | None = None,
     enforce: bool = True,
     agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
 )
 ```
 
@@ -79,6 +81,8 @@ VijilDome(
 | `policy` | `None` | Control dictionaries, `Control` objects, or a JSON, YAML, or TOML path |
 | `enforce` | `True` | Raises on `deny` and actionable `steer` results when enabled |
 | `agent_id` | `None` | Optional identifier stored and exposed through the `agent_id` property |
+| `team_id` | `None` | Optional team identifier stored and exposed through the `team_id` property |
+| `user_id` | `None` | Optional end-user identifier stored and exposed through the `user_id` property |
 
 <Warning>
 `agent_id` does not authenticate the running workload or make a policy identity-bound. Use [Trust Runtime](/developer-guide/protect/trust-runtime) when enforcement requires workload identity.
@@ -90,6 +94,8 @@ VijilDome(
 |----------|------|-------------|
 | `engine` | `ControlEngine` | Underlying engine used by the interface |
 | `agent_id` | `str \| None` | Optional identifier stored and exposed by the instance |
+| `team_id` | `str \| None` | Optional team identifier stored and exposed by the instance |
+| `user_id` | `str \| None` | Optional end-user identifier stored and exposed by the instance |
 | `enforce` | `bool` | Whether the interface raises enforcement exceptions |
 
 ### Input Methods
