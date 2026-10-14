@@ -675,7 +675,7 @@ The engine applies these observable rules:
 4. If no deny triggers, evaluate `steer` and `observe` Controls.
 5. Return the first triggered `steer` match or otherwise return `allow`.
 
-Controls are stored in ascending `priority` order. Deny Controls run concurrently, so priority does not guarantee which simultaneous deny result finishes and returns first. A deny result also prevents applicable steer and observe Controls from running.
+The engine stores Controls in ascending `priority` order. Deny Controls run concurrently, so priority does not guarantee which simultaneous deny result finishes and returns first. A deny result also prevents applicable steer and observe Controls from running.
 
 `and` and `or` children run concurrently by default. Set `early_exit=True` to run their children sequentially and short-circuit. `not` inverts its child result.
 
