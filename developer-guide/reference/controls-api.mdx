@@ -48,6 +48,7 @@ from vijil_dome.controls import (
 | `pip install vijil-dome` | Python policies, JSON, TOML, `regex`, `list`, and `policy-rule-judge` |
 | `pip install "vijil-dome[controls]"` | Base features and YAML loading |
 | `pip install "vijil-dome[controls-full]"` | YAML, JSON Schema, CEL, and RE2 |
+| `pip install "vijil-dome[s3]"` | S3 policy loading through `VijilDome.create_from_s3()` |
 
 The package supports Python 3.11 through 3.13. A `dome:*` evaluator can require another optional dependency for its selected Dome Detector.
 
@@ -97,6 +98,30 @@ VijilDome(
 | `team_id` | `str \| None` | Optional team identifier stored and exposed by the instance |
 | `user_id` | `str \| None` | Optional end-user identifier stored and exposed by the instance |
 | `enforce` | `bool` | Whether the interface raises enforcement exceptions |
+
+### `create_from_s3()`
+
+```python
+VijilDome.create_from_s3(
+    bucket: str,
+    key: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+    aws_access_key_id: str | None = None,
+    aws_secret_access_key: str | None = None,
+    aws_session_token: str | None = None,
+    region_name: str | None = None,
+    cache_dir: str | None = None,
+    cache_ttl_seconds: int = 300,
+    enforce: bool = True,
+) -> VijilDome
+```
+
+This method loads the `controls` array from a Dome configuration stored in S3. Install the `s3` extra before using it.
+
+Supply `key` directly, or supply both `team_id` and `agent_id` to use `teams/{team_id}/agents/{agent_id}/dome/config.json`. An explicit `key` takes precedence over the identifiers. The loader caches the configuration locally for `cache_ttl_seconds` and uses the S3 `ETag` when it next checks for changes.
+
+AWS credentials and `region_name` are optional. When you omit them, Boto3 uses its standard credential and region resolution. The returned instance retains the S3 location for `config_has_changed()` and applies the supplied `enforce`, `team_id`, and `agent_id` values.
 
 ### Input Methods
 
