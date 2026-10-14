@@ -528,7 +528,7 @@ Converts the selected value to text and searches one or more regular expressions
 | `flags` | `str \| list[str]` | None | Short flags `i`, `m`, `s`, or long names such as `IGNORECASE` |
 | `negate` | `bool` | `False` | Matches only when no expression matches |
 
-If no pattern is supplied, the evaluator returns `matched=False`. RE2 is used when installed. A pattern with flags uses Python's standard engine because the RE2 package does not expose compatible flag behavior.
+If you omit both `pattern` and `patterns`, the Evaluator returns `matched=False`. Dome uses RE2 when installed. A pattern with flags uses Python's standard engine because the RE2 package does not expose compatible flag behavior.
 
 ### `list`
 
