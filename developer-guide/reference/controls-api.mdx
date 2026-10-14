@@ -619,7 +619,7 @@ See [Detection Methods](/developer-guide/protect/detection-methods) for availabl
 resolve(step: Step, path: str) -> Any
 ```
 
-`resolve()` applies a supported selector path to a Step. It reads dictionary keys and object attributes, supports non-negative list indexes, and returns `MISSING` when the path cannot be resolved.
+`resolve()` applies a supported selector path to a Step. It reads dictionary keys and object attributes, supports non-negative list indexes, and returns `MISSING` if it cannot resolve the path.
 
 ### `MISSING`
 
