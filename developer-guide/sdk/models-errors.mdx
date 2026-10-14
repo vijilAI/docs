@@ -178,8 +178,10 @@ dome.output_guards  # list[str]
 
 | Model | Key Fields | Produced By |
 |-------|------------|-------------|
-| `Harness` | `id`, `name`, `type`, `agent_id`, `persona_ids`, `policy_ids`, `status`, `prompt_count` | `client.harnesses.*` |
+| `Harness` | `id`, `name`, `type`, `agent_id`, `persona_ids`, `policy_ids`, `status`, `prompt_count`, `workflow` | `client.harnesses.*` |
 | `Report` | `id`, `agent_id`, `status`, `format`, `created_at` | `client.reports.*` |
+
+For a custom Harness, `show()` and `create(wait=True)` populate `workflow` with the generation status when available.
 
 `Report.created_at` can be a Unix timestamp or an ISO-formatted string.
 
