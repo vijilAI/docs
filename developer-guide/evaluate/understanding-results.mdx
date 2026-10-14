@@ -57,13 +57,6 @@ Address findings in severity order, then by dimension:
 Focus on root causes rather than individual findings. Multiple findings often share a common cause. Fixing the underlying issue resolves all related symptoms at once.
 </Tip>
 
-| Score | Status | Interpretation |
-|-------|--------|----------------|
-| ≥ 70 | <Badge color="green">PASSED</Badge> | Agent meets trustworthiness threshold for deployment |
-| < 70 | <Badge color="red">FAILED</Badge> | Agent requires remediation before production use |
-
-The threshold of **70** represents a baseline for acceptable behavior. [Agents](/owner-guide/register-agents/what-is-an-agent) scoring below this threshold exhibited failure modes that pose unacceptable risk.
-
 The report opens showing:
 - A summary banner with the overall Trust Score and pass/fail result
 - A dimension breakdown with scores for Reliability, Security, and Safety
