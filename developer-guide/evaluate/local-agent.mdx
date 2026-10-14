@@ -6,7 +6,7 @@ description: 'Expose a local Agent through a public HTTPS tunnel and run an Eval
 Use this workflow when your Agent runs on your computer or does not support the request format that Vijil expects. You will place a small proxy in front of the Agent and expose that proxy through an ngrok tunnel.
 
 <Tip>
-  **TL;DR:** Start an Agent locally, register it with `vijil register --local`, then run one standard Harness with `vijil evaluate --local`. Local mode supports behavioral evaluations only. `--type redteam` is incompatible with `--local`. Local mode uses outbound requests from your computer. It does not expose your Agent through a tunnel or require Vijil services to connect to `localhost`.
+  **TL;DR:** Start an Agent locally, expose it through an authenticated ngrok tunnel, then run a behavioral or Red Team Evaluation with the Python SDK. Vijil services send requests to the local proxy through the public tunnel, so keep the proxy and tunnel running until the Evaluation completes.
 </Tip>
 
 A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel makes the proxy reachable at a public HTTPS URL while it runs.
@@ -433,18 +433,20 @@ The `sample_size=5` setting selects five test prompts for each Probe in the secu
 
 ## Run Adaptive Red Teaming
 
-SDK `0.1.0` adds adaptive Red Teaming. To run it against the same local Agent, add this code inside the existing `try` block, after the standard Evaluation and before `finally`:
+Because the tunnel provides a public endpoint, this workflow supports Red Team Evaluations. The SDK's separate no-tunnel `--local` mode supports behavioral Evaluations only.
+
+To run adaptive Red Teaming against the same Agent, add this code inside the existing `try` block, after the standard Evaluation and before `finally`:
 
 ```python
-red_team = client.xteam(agent.id)
-print(f"Red Team ID: {red_team.engagement_id}")
+red_team = client.evaluate(agent.id, type="redteam")
+print(f"Red Team Evaluation ID: {red_team.evaluation_id}")
 print(f"Red Team status: {red_team.status}")
 if red_team.degraded:
     print(f"Red Team warning: {red_team.degradation_reason}")
 print("Results: https://evaluate.vijil.ai/evaluations")
 ```
 
-`client.xteam()` polls until the engagement finishes. Keep the proxy and tunnel running for the entire engagement. Adaptive Red Teaming can take longer than a standard Evaluation because it runs successive waves of attacks.
+`client.evaluate(..., type="redteam")` polls until the Red Team Evaluation finishes. Keep the proxy and tunnel running for the entire Evaluation. Adaptive Red Teaming can take longer than a standard Evaluation because it runs successive waves of attacks.
 
 Use this standalone version when you want to run adaptive Red Teaming instead of the standard Evaluation:
 
@@ -635,8 +637,8 @@ Use this standalone version when you want to run adaptive Red Teaming instead of
 
           # 5. Run adaptive Red Teaming
           print("Running adaptive Red Teaming")
-          red_team = client.xteam(agent.id)
-          print(f"Red Team ID: {red_team.engagement_id}")
+          red_team = client.evaluate(agent.id, type="redteam")
+          print(f"Red Team Evaluation ID: {red_team.evaluation_id}")
           print(f"Red Team status: {red_team.status}")
           if red_team.degraded:
               print(f"Red Team warning: {red_team.degradation_reason}")
