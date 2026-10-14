@@ -239,7 +239,7 @@ To check inputs or outputs in batches, use the `/batch/async_input_detection` an
 
 **Batch Input Detection**
 
-Use `/batch/async_input_detection` endpoint to check multiple prompts at once. For example:
+Use the `/batch/async_input_detection` endpoint to check a list of prompts in one request. For example:
 
 <CodeGroup>
 ```bash title="Terminal" icon="terminal"
@@ -258,7 +258,7 @@ curl -XPOST "localhost:80/batch/async_input_detection" \
 ```
 </CodeGroup>
 
-The example Python code for above request is shown below:
+The following Python example sends the same request:
 <CodeGroup>
 ```python title="Python" icon="python"
 import requests
@@ -279,7 +279,7 @@ print(response.json())
 ```
 </CodeGroup>
 
-The response is shown here:
+Dome returns:
 
 <CodeGroup>
 ```json title="Response" icon=""
