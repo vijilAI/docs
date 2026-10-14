@@ -213,7 +213,23 @@ An explicit `on-error` value in the configuration always wins over the mode defa
 | Dictionary or TOML path | `Dome(config)` or `Dome.create_from_config(config)` |
 | Registered [Agent](/owner-guide/register-agents/what-is-an-agent) [configured in the Console](/owner-guide/protect-in-production/configuring-guardrails) | `Dome.create_from_vijil_agent()` |
 | Evaluation recommendation | `Dome.create_from_vijil_evaluation()` |
+| Active Agent configuration from the Vijil Console API | `Dome.create_from_api()` |
 | S3 object, with the `s3` extra | `Dome.create_from_s3()` |
+
+Use `create_from_api()` to load an Agent's active Dome configuration directly from the Vijil Console:
+
+```python
+from vijil_dome import Dome
+
+dome = Dome.create_from_api(
+    client_id="your-client-id",
+    client_secret="your-client-secret",
+    agent_id="your-agent-id",
+    team_id="your-team-id",
+)
+```
+
+Use the client ID and secret from a Console API key for the Agent's team.
 
 To inspect or change the defaults before use, build the configuration explicitly:
 
