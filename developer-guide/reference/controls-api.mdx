@@ -267,7 +267,7 @@ control(
 | `output_mapper` | Return value | Synchronous callable that maps the function return value to `Step.output` |
 | `context_mapper` | Empty context | Synchronous callable that returns a context dictionary or `None` |
 
-Passing both `engine` and `policy` raises `ValueError`. If both are omitted, the decorator uses an empty engine and permits every call.
+Passing both `engine` and `policy` raises `ValueError`. If you omit both, the decorator uses an empty engine and permits every call.
 
 The wrapper performs these operations:
 
@@ -289,10 +289,10 @@ For `llm` Steps, the decorator uses the first applicable rule:
 1. Select `input`, `message`, `query`, `text`, `prompt`, `content`, `user_input`, `msg`, or `request`.
 2. Select the first string-valued argument.
 3. Use the value directly when one parameter remains.
-4. Use a dictionary when multiple parameters remain.
+4. Use a dictionary when more than one parameter remains.
 5. Convert the arguments to a string if signature binding fails or no parameter remains.
 
-Default parameter values are applied before mapping. Supply `input_mapper` when these rules do not match your function's data model.
+The decorator applies default parameter values before mapping. Supply `input_mapper` when these rules do not match your function's data model.
 
 ## `ControlEngine`
 
