@@ -535,7 +535,7 @@ docker run -p 80:80 --env-file .env ghcr.io/vijilai/vijil-dome-marketplace:lates
 | Variable | Description |
 | -------- | ----------- |
 | `ENABLE_DOME_INSTRUMENTATION` | Enables telemetry emission from the container |
-| `OTEL_AUTH_METHOD` | Authentication method used by the OTEL collector |
+| `OTEL_AUTH_METHOD` | OpenTelemetry collector authentication method |
 | `DOME_METRICS_COLLECTOR_ENDPOINT` | Metrics export endpoint |
 | `DOME_METRICS_COLLECTOR_TOKEN` | Authorization token for the metrics collector |
 | `DOME_TRACES_COLLECTOR_ENDPOINT` | Traces export endpoint |
@@ -546,7 +546,7 @@ docker run -p 80:80 --env-file .env ghcr.io/vijilai/vijil-dome-marketplace:lates
 
 ### Sending Telemetry to Vijil Console or Evaluate
 
-If you want telemetry to appear inside the [Vijil Console](/concepts/platform/console) or an enterprise Vijil Evaluate deployment, also add the following to your `.env` file:
+To send telemetry to the [Vijil Console](/concepts/platform/console) or an enterprise Vijil Evaluate deployment, add these variables to your `.env` file:
 
 <CodeGroup>
 ```bash title=".env"
@@ -558,7 +558,7 @@ TEAM_ID=<team-id>
 
 | Variable | Description |
 | -------- | ----------- |
-| `AGENT_ID` | The agent you want to protect, as registered in Vijil Evaluate or Console |
+| `AGENT_ID` | The Agent you want to protect, as registered in Vijil Evaluate or Console |
 | `USER_ID` | Your user ID in Vijil Evaluate or Console |
 | `TEAM_ID` | Your team ID in Vijil Evaluate or Console |
 
