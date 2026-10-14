@@ -381,7 +381,7 @@ Always supply `steering_context` for a `steer` action. Without it, the engine ca
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `action` | `Literal["allow", "deny", "steer"]` | `allow` | Aggregate engine decision |
-| `confidence` | `float` | `1.0` | Confidence copied from the selected match |
+| `confidence` | `float` | `1.0` | Confidence from the selected `deny` or `steer` match; otherwise `1.0` |
 | `matches` | `list[ControlMatch]` | `[]` | Completed per-Control evaluations |
 | `steering_context` | `SteeringContext \| None` | `None` | Guidance from the selected steering Control |
 | `exec_time_ms` | `float` | `0.0` | Total evaluation time in milliseconds |
@@ -389,7 +389,7 @@ Always supply `steering_context` for a `steer` action. Without it, the engine ca
 
 An `observe` action does not appear as an aggregate action. The observation appears as a triggered entry in `matches` and does not change the aggregate action. If no `deny` or `steer` Control triggers, the result is `allow`.
 
-The current engine reduces conditions to truth values before constructing `ControlMatch`. A completed Control evaluation therefore reports confidence `1.0`, while an evaluation error reports `0.0`. The engine does not propagate `EvaluatorResult.confidence` to `ControlMatch` or `EvaluationResult`.
+For a single-leaf condition, the engine copies the confidence, message, and metadata from the Evaluator to `ControlMatch`. A Control action message overrides the Evaluator message when the condition triggers. For a composite condition, the engine reduces the child results to a truth value, so the match retains confidence `1.0` and empty message and metadata values. An evaluation error reports confidence `0.0`.
 
 ### `ControlMatch`
 
@@ -398,10 +398,11 @@ The current engine reduces conditions to truth values before constructing `Contr
 | `control_name` | `str` | Required | Evaluated Control name |
 | `triggered` | `bool` | Required | Whether the condition or failure behavior triggered |
 | `action` | `ControlAction \| None` | `None` | Triggered action, when present |
-| `confidence` | `float` | `1.0` | Control-level confidence |
-| `message` | `str` | `""` | Triggered action message |
+| `confidence` | `float` | `1.0` | Evaluator confidence for a single-leaf condition; otherwise `1.0` |
+| `message` | `str` | `""` | Evaluator message, overridden by a triggered Control action message |
 | `exec_time_ms` | `float` | `0.0` | Control evaluation time in milliseconds |
 | `error` | `str \| None` | `None` | Raised evaluator or condition error |
+| `metadata` | `dict[str, Any]` | `{}` | Evaluator metadata for a single-leaf condition |
 
 A fail-open error produces a non-triggered match without an action. A fail-closed error produces a triggered match with the Control action.
 
