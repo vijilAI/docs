@@ -382,7 +382,7 @@ The model preserves unknown top-level fields during parsing and serialization. P
 | `step_name_regex` | `str \| None` | `None` | Regular expression for Step names |
 | `stages` | `list[Literal["pre", "post"]] \| None` | `None` | Accepted evaluation stages |
 
-Every specified field must match. An omitted field does not restrict the Control. Step-name regular expressions use RE2 when `google-re2` is installed and otherwise use Python's standard regular-expression engine with a warning.
+Every specified field must match. An omitted field does not restrict the Control. If the environment includes `google-re2`, Step-name regular expressions use RE2. Otherwise, they use Python's standard regular-expression engine and log a warning.
 
 ### `EvaluatorRef`
 
