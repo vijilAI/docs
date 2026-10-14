@@ -233,12 +233,14 @@ curl -s "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID?team_id=$TEAM_ID" \
 ```python title="SDK"
 harness = client.harnesses.show("<harness-id>")
 print(harness.status)
+if harness.workflow:
+    print(harness.workflow.status)
 ```
 </CodeGroup>
 
 | `status` value | Meaning |
 |----------------|---------|
-| `draft` (no workflow) | Not yet started |
+| `draft` (no workflow status) | Generation status is not available yet |
 | `draft` (workflow `running`) | Generation in progress |
 | `draft` (workflow `failed`) | Generation failed |
 | `active` | Ready to use in an Evaluation |
