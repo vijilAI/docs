@@ -5,7 +5,7 @@ description: 'Track Dome Guardrails and Controls with OpenTelemetry, tracing, an
 
 Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers telemetry setup for [Guardrails](/concepts/defense/guardrail) and [Controls](/developer-guide/protect/control-engine).
 
-If you use [Trust Runtime](/developer-guide/protect/trust-runtime), its structured audit events complement Dome telemetry with Agent identity, tool access, attestation, downgrade, and enforcement-heartbeat decisions. Every event includes the configured `agent_id`, while only an attested runtime supplies cryptographic identity fields.
+If you use [Trust Runtime](/developer-guide/protect/trust-runtime), its structured audit events complement Dome telemetry with Agent identity, tool access, attestation, downgrade, and enforcement-heartbeat decisions. Every event includes the configured `agent_id`; cryptographic identity fields are available only when the runtime is attested.
 
 ## Install OpenTelemetry Support
 

@@ -7,11 +7,18 @@ Dome exposes [Guardrails](/concepts/defense/guardrail) as LangChain Runnable obj
 
 ## Install
 
-LangChain support does not require a separate Dome extra, as described in [Install Dome](/developer-guide/protect/installation). Install Dome alongside your LangChain packages:
+Install Dome with the dependencies required by the local Detector and OpenAI model used in this example:
 
 ```bash
 pip install "vijil-dome[local]" langchain-openai
 ```
+
+- The `langchain-openai` package installs `langchain-core`, which is required by `GuardrailRunnable`. It also provides the `ChatOpenAI` integration used below. 
+- The `local` Dome extra installs the model dependencies for the `prompt-injection-deberta-v3-base` Detector configured in this example (LangChain does not use this extra). 
+
+<Info>
+If you use remote inference or Detectors included in the base package, you can install `vijil-dome` without the `local` extra. See [Install Dome](/developer-guide/protect/installation) for all available extras.
+</Info>
 
 ## Create Runnable Objects
 
