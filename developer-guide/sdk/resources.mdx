@@ -18,7 +18,7 @@ Standard `list()` methods return a [`Page[T]`](/developer-guide/sdk/models-error
 | `client.jobs` | `list`, `show`, `status`, `create`, `cancel` |
 | `client.genomes` | `list`, `show`, `versions`, `history`, `diff` |
 | `client.proposals` | `list`, `show`, `approve`, `apply`, `reject` |
-| `client.policies` | `list`, `show`, `create`, `update`, `delete` |
+| `client.policies` | `list`, `show`, `create`, `extract_rules`, `rules`, `update`, `delete` |
 | `client.personas` | `list`, `show`, `create`, `update`, `delete` |
 | `client.monitor` | `traces`, `logs` |
 | `client.agent_tunnel` | `get`, `revoke` |
@@ -135,12 +135,15 @@ harness = client.harnesses.create(
     persona_ids=["persona-id"],
     policy_ids=["policy-id"],
     system_prompt="Evaluate the Agent against the selected policies.",
+    wait=True,
 )
 harness_id = client.harnesses.resolve_custom("Custom Harness")
 client.harnesses.delete("harness-id")
 ```
 
-`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for an Agent. Custom Harnesses are immutable. Calling `update()` raises `NotImplementedError`; create a replacement and delete the old Harness instead.
+`create()` generates a [custom Harness](/developer-guide/evaluate/custom-harnesses) for an Agent and returns immediately by default. Pass `wait=True` to wait until generation reaches `succeeded`, `failed`, or `cancelled`. `show()` exposes the current generation status through `harness.workflow`.
+
+Custom Harnesses are immutable. Calling `update()` raises `NotImplementedError`; create a replacement and delete the old Harness instead.
 
 ## `client.scores`
 
@@ -239,11 +242,15 @@ policy = client.policies.create(
     category="privacy",
     source_text="The Agent must not store or repeat personal data.",
 )
+policy = client.policies.extract_rules(policy.id)
+rules = client.policies.rules(policy.id, status="draft")
 policy = client.policies.update("policy-id", name="Updated Policy")
 client.policies.delete("policy-id")
 ```
 
 Provide policy text with `source_text` or `content`. You can also pass `file_path` to read content from a UTF-8 text file.
+
+`extract_rules()` creates draft rules from the policy source text and waits for extraction by default. Pass `wait=False` to return after starting extraction. `rules()` returns a paginated list and accepts an optional `status` filter.
 
 ## `client.personas`
 

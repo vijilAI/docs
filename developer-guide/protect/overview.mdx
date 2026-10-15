@@ -7,11 +7,11 @@ description: 'Protect Agent inputs, outputs, and tool use with Dome.'
 **TL;DR:** Dome scans [Agent](/owner-guide/register-agents/what-is-an-agent) inputs and outputs with configurable Guardrails. Call `Dome` directly or use an integration to apply the resulting decision. Dome marks flagged content for enforcement in enforce mode, while shadow mode reports detected violations without marking them for enforcement.
 </Tip>
 
-Evaluation catches vulnerabilities you know to test for. Attackers will also try techniques you did not expect, such as new prompt injections, encoding tricks, and social engineering patterns that emerge after your last evaluation.
+[Evaluation](/developer-guide/evaluate/overview) catches vulnerabilities you know to test for. Attackers will also try techniques you did not expect, such as new prompt injections, encoding tricks, and social engineering patterns that emerge after your last evaluation.
 
-Dome protects Agents at runtime. Its content Guardrails scan data before and after Agent execution. Direct `Dome` calls return a `ScanResult`; your application or framework integration decides how to apply the result, such as stopping execution or returning blocked or sanitized content.
+Dome protects Agents at runtime by scanning data before and after Agent execution with content Guardrails. Direct `Dome` calls return a `ScanResult`; your application or framework integration decides how to apply the result, such as stopping execution or returning blocked or sanitized content.
 
-For tool-using Agents, [Trust Runtime](/developer-guide/protect/trust-runtime) adds trust controls when you configure them. These controls include SPIFFE workload identity, Console or local constraints, tool-level mandatory access control, signed tool manifest support, tool attestation, structured audit events, and optional enforcement heartbeats. Use `secure_agent()` with LangGraph, Google ADK, or Strands, or use `TrustRuntime` directly for a custom integration.
+For tool-using Agents, [Trust Runtime](/developer-guide/protect/trust-runtime) adds configured trust controls. These controls include SPIFFE workload identity, Console or local constraints, tool-level mandatory access control, signed tool manifest support, tool attestation, structured audit events, and optional enforcement heartbeats. Use `secure_agent()` with LangGraph, Google ADK, or Strands, or use `TrustRuntime` directly for a custom integration.
 
 ## Choose a Protection Interface
 
@@ -64,9 +64,9 @@ flowchart LR
 | **[Guard](/concepts/defense/guard)** | Group of Detectors for one protection category |
 | **[Detector](/concepts/defense/detector)** | Individual detection method |
 
-## Protection Types
+## Guard Categories
 
-Dome supports six Guard categories. The following table shows representative registered Detectors rather than the complete catalog:
+Dome supports six Guard categories. The following table shows representative registered Detectors, not the complete catalog:
 
 | Guard Category | Purpose | Representative Detectors |
 |----------------|---------|--------------------------|
@@ -101,6 +101,7 @@ Choose a configuration source that matches how you operate Dome:
 | **Built-in defaults** | Initialize `Dome()` without a configuration | Initial setup and evaluation |
 | **Local configuration** | Pass a Python dictionary or TOML path to `Dome` | Version-controlled or dynamic configuration |
 | **Registered Agent** | Use `Dome.create_from_vijil_agent()` | Console-managed Agent configuration |
+| **Console API** | Use `Dome.create_from_api()` | Active Agent configuration from a Console API key |
 | **Evaluation recommendation** | Use `Dome.create_from_vijil_evaluation()` | Guardrails derived from evaluation results |
 | **S3** | Use `Dome.create_from_s3()` with the `s3` extra | Remotely managed configuration in AWS |
 

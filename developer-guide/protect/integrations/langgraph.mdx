@@ -75,7 +75,7 @@ app = secure_agent(
 The secured graph applies content Guards on model calls, checks tool calls against the Agent's permission policy, and emits audit events. Pass `compile_kwargs` through `secure_agent()` when your graph needs compile options such as a checkpoint saver.
 
 <Warning>
-LangGraph tool access control is best-effort. The compiled graph must expose tool functions that the adapter can discover and wrap. Streaming output is checked only after chunks are yielded, so an output Guard cannot retract content that a client already received.
+LangGraph tool access control is best-effort. The compiled graph must expose tool functions that the adapter can discover and wrap. The adapter checks streaming output only after it yields the chunks, so an output Guard cannot retract content that a client already received.
 </Warning>
 
 ## Next Steps

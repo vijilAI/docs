@@ -6,12 +6,12 @@ description: 'Expose a local Agent through a public HTTPS tunnel and run an Eval
 Use this workflow when your Agent runs on your computer or does not support the request format that Vijil expects. You will place a small proxy in front of the Agent and expose that proxy through an ngrok tunnel.
 
 <Tip>
-  **TL;DR:** Start an Agent locally, register it with `vijil register --local`, then run one standard Harness with `vijil evaluate --local`. Local mode supports behavioral evaluations only. `--type redteam` is incompatible with `--local`. Local mode uses outbound requests from your computer. It does not expose your Agent through a tunnel or require Vijil services to connect to `localhost`.
+  **TL;DR:** Start an Agent locally, expose it through an authenticated ngrok tunnel, then run a behavioral or Red Team Evaluation with the Python SDK. Vijil services send requests to the local proxy through the public tunnel, so keep the proxy and tunnel running until the Evaluation completes.
 </Tip>
 
 A proxy changes Vijil requests into a format your Agent understands. It then changes the Agent's response into a format Vijil can process. The tunnel makes the proxy reachable at a public HTTPS URL while it runs.
 
-This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from Anthropic's financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
+This guide uses a restricted version of the [Market Researcher](https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/market-researcher) from the Anthropic financial services examples. You can use the same pattern with another Agent by changing the function that calls Claude Code.
 
 <Warning>
   Evaluation Probes are adversarial. Use test data and test credentials. Disable write and destructive tools. If the Agent can access files or external systems, run it in a sandbox. Do not give it access to production resources.
@@ -49,7 +49,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
-python -m pip install "vijil-sdk>0.0.2" fastapi uvicorn pyngrok
+python -m pip install "vijil-sdk>=0.1.61" fastapi uvicorn pyngrok
 ```
 
 ## Set Up the Agent Under Test
@@ -60,7 +60,7 @@ This example uses Claude Code to run Market Researcher. Install [Claude Code](ht
 claude --version
 ```
 
-Clone Anthropic's financial services examples and save the absolute path to the Market Researcher plugin:
+Clone the financial services examples from Anthropic and save the absolute path to the Market Researcher plugin:
 
 ```bash
 git clone https://github.com/anthropics/financial-services.git
@@ -69,7 +69,7 @@ cd financial-services
 export MARKET_RESEARCHER_PLUGIN="$PWD/plugins/agent-plugins/market-researcher"
 ```
 
-The example reads Market Researcher's system prompt and preloads its `sector-overview` Skill. It creates a temporary Agent definition that has no runtime tools. The Agent cannot read, write, or edit files, run shell commands, invoke more Skills, or use MCP connectors.
+The example reads Market Researcher's system prompt and loads its `sector-overview` Skill. It creates a temporary Agent definition that has no runtime tools. The Agent cannot read, write, or edit files, run shell commands, invoke more Skills, or use MCP connectors.
 
 Claude Code still reads the plugin prompt and Skill during startup. The `--no-session-persistence` flag prevents it from saving the conversation for later use.
 
@@ -433,18 +433,20 @@ The `sample_size=5` setting selects five test prompts for each Probe in the secu
 
 ## Run Adaptive Red Teaming
 
-SDK `0.1.0` adds adaptive Red Teaming. To run it against the same local Agent, add this code inside the existing `try` block, after the standard Evaluation and before `finally`:
+Because the tunnel provides a public endpoint, this workflow supports Red Team Evaluations. The SDK's separate no-tunnel `--local` mode supports behavioral Evaluations only.
+
+To run adaptive Red Teaming against the same Agent, add this code inside the existing `try` block, after the standard Evaluation and before `finally`:
 
 ```python
-red_team = client.xteam(agent.id)
-print(f"Red Team ID: {red_team.engagement_id}")
+red_team = client.evaluate(agent.id, type="redteam")
+print(f"Red Team Evaluation ID: {red_team.evaluation_id}")
 print(f"Red Team status: {red_team.status}")
 if red_team.degraded:
     print(f"Red Team warning: {red_team.degradation_reason}")
 print("Results: https://evaluate.vijil.ai/evaluations")
 ```
 
-`client.xteam()` polls until the engagement finishes. Keep the proxy and tunnel running for the entire engagement. Adaptive Red Teaming can take longer than a standard Evaluation because it runs successive waves of attacks.
+`client.evaluate(..., type="redteam")` polls until the Red Team Evaluation finishes. Keep the proxy and tunnel running for the entire Evaluation. Adaptive Red Teaming can take longer than a standard Evaluation because it runs successive waves of attacks.
 
 Use this standalone version when you want to run adaptive Red Teaming instead of the standard Evaluation:
 
@@ -635,8 +637,8 @@ Use this standalone version when you want to run adaptive Red Teaming instead of
 
           # 5. Run adaptive Red Teaming
           print("Running adaptive Red Teaming")
-          red_team = client.xteam(agent.id)
-          print(f"Red Team ID: {red_team.engagement_id}")
+          red_team = client.evaluate(agent.id, type="redteam")
+          print(f"Red Team Evaluation ID: {red_team.evaluation_id}")
           print(f"Red Team status: {red_team.status}")
           if red_team.degraded:
               print(f"Red Team warning: {red_team.degradation_reason}")

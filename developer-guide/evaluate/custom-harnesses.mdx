@@ -3,11 +3,11 @@ title: 'Custom Harnesses'
 description: 'Create targeted Diamond Evaluations with custom Harnesses, personas, and policies.'
 ---
 
-While Vijil has a variety of pre-configured [Harnesses](/concepts/evaluation-components/harness) that you can select from, you can also create your own Harnesses in order to obtain a [Trust Score](/concepts/trust-score/introduction) specific to your organization and agent.
+Vijil provides standard [Harnesses](/concepts/evaluation-components/harness), and you can also create custom Harnesses to calculate a [Trust Score](/concepts/trust-score/introduction) specific to your organization and Agent.
 
 ## View Custom Harnesses
 
-You can view previously created custom Harnesses by navigating to **Harnesses** in the left sidebar.
+You can view existing custom Harnesses by navigating to **Harnesses** in the left sidebar.
 
 To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and [Policies](/owner-guide/simulate-environment/policies) in a custom Harness, click on its row in the **Harnesses** table.
 
@@ -199,6 +199,7 @@ Pass the Persona and Policy IDs from the previous step as `persona_ids` and `pol
       persona_ids=["<persona-id>"],   # optional
       policy_ids=["<policy-id>"],     # optional
       system_prompt="You are a helpful customer support assistant.",  # optional
+      wait=True,                       # optional
   )
   print(harness.id)
   ```
@@ -210,6 +211,7 @@ Pass the Persona and Policy IDs from the previous step as `persona_ids` and `pol
   | `persona_ids` | List of Persona UUID values | No |
   | `policy_ids` | List of Policy UUID values | No |
   | `system_prompt` | System prompt used during generation; defaults to the Agent description | No |
+  | `wait` | Wait for Harness generation to finish before returning | No |
 
   </Tab>
 </Tabs>
@@ -233,14 +235,16 @@ curl -s "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID?team_id=$TEAM_ID" \
 ```python title="SDK"
 harness = client.harnesses.show("<harness-id>")
 print(harness.status)
+if harness.workflow:
+    print(harness.workflow.status)
 ```
 </CodeGroup>
 
 | `status` value | Meaning |
 |----------------|---------|
-| `draft` (no workflow) | Not yet started |
-| `draft` (workflow `running`) | Generation in progress |
-| `draft` (workflow `failed`) | Generation failed |
+| `draft` (no workflow status) | Generation status is not available yet |
+| `draft` (workflow `created`, `starting`, or `running`) | Generation in progress |
+| `draft` (workflow `failed` or `cancelled`) | Generation did not complete |
 | `active` | Ready to use in an Evaluation |
 | `failed` | Harness creation failed permanently |
 

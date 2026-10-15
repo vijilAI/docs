@@ -1,9 +1,9 @@
 ---
 title: 'Observability'
-description: 'Monitor Dome Guardrails with OpenTelemetry, tracing, and logging.'
+description: 'Track Dome Guardrails and Controls with OpenTelemetry, tracing, and logging.'
 ---
 
-Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers tracing, metrics, and logging setup for your [Guardrails](/concepts/defense/guardrail).
+Dome is OpenTelemetry-compliant and integrates with popular observability platforms. This guide covers telemetry setup for [Guardrails](/concepts/defense/guardrail) and [Controls](/developer-guide/protect/control-engine).
 
 If you use [Trust Runtime](/developer-guide/protect/trust-runtime), its structured audit events complement Dome telemetry with Agent identity, tool access, attestation, downgrade, and enforcement-heartbeat decisions. Every event includes the configured `agent_id`; cryptographic identity fields are available only when the runtime is attested.
 
@@ -36,11 +36,49 @@ instrument_dome(
 )
 ```
 
-Instrumentation is applied once per instance. Calling `instrument_dome()` again on the same instance is a no-op.
+`instrument_dome()` instruments each instance once. Later calls on the same instance do nothing.
 
 <Note>
 Set up your tracer and meter providers, including exporters for Jaeger, Prometheus, or another OpenTelemetry backend, before you call `instrument_dome()`.
 </Note>
+
+## Instrument Controls
+
+Use `instrument_vijil_dome()` to trace policy decisions from a `VijilDome` instance:
+
+```python
+from opentelemetry import trace
+
+from vijil_dome import VijilDome
+from vijil_dome.integrations.instrumentation.otel_instrumentation import (
+    instrument_vijil_dome,
+)
+
+dome = VijilDome(
+    policy="controls.yaml",
+    agent_id="agent-123",
+    team_id="team-123",
+    user_id="user-123",
+)
+
+instrument_vijil_dome(dome, tracer=trace.get_tracer("my-agent"))
+```
+
+The instrumented engine emits one `dome-control` span for each triggered Control. Controls that do not trigger produce no span. Calling `instrument_vijil_dome()` again on the same instance has no effect.
+
+Each span can include these attributes:
+
+| Attribute | Source |
+|-----------|--------|
+| `control.name` | Triggered Control name |
+| `control.decision` | Control action |
+| `detection.confidence` | `ControlMatch.confidence` |
+| `agent.id`, `team.id`, `user.id` | Identifiers stored by the `VijilDome` instance |
+| `policy.id` | Control annotation named `vijil.ai/source-policy-id` |
+| `rule.ids`, `rule.verdicts` | Policy rule Evaluator metadata |
+| `rule.type`, `consequence.action`, `consequence.severity` | Highest-severity violated rule |
+
+The policy and rule attributes appear only when their source annotations or Evaluator metadata are present. Other Evaluators still produce a span with the Control attributes.
 
 ## LLM Tracing Platforms
 
@@ -88,7 +126,7 @@ When you supply a tracer, Dome creates spans for each [Guard](/concepts/defense/
 - **Guard execution**: nested span for each Guard in the Guardrail
 - **Detector execution**: nested span for each Detector in the Guard
 
-Each span carries the input and output of the call, execution time, error information, and whether content was flagged. Dome also emits one `dome-detection` span per scan, carrying `dome.guardrail`, `detection.label`, `detection.score`, `detection.method`, `dome.guard.enforced`, and the `agent.id`, `team.id`, and `user.id` values you pass to the scan. The [Vijil Console](/concepts/platform/console) reads these spans and presents them in [Monitor Dome Metrics](/owner-guide/protect-in-production/observability).
+Each span carries the input and output of the call, execution time, error information, and the flag decision. Dome also emits one `dome-detection` span per scan, carrying `dome.guardrail`, `detection.label`, `detection.score`, `detection.method`, `dome.guard.enforced`, and the `agent.id`, `team.id`, and `user.id` values you pass to the scan. The [Vijil Console](/concepts/platform/console) reads these spans and presents them in [Dome metrics](/owner-guide/protect-in-production/observability).
 
 ### Span Hierarchy
 
@@ -124,9 +162,9 @@ Names follow the pattern `[guardrail].[guard].[detector]` plus the instrument su
 
 ## Logging
 
-Dome logs through Python loggers named `vijil.dome`. Any handler you pass to `instrument_dome()` is attached to those loggers.
+Dome logs through Python loggers named `vijil.dome`. `instrument_dome()` attaches any handler you pass to those loggers.
 
-| Level | What Is Logged |
+| Level | Log Contents |
 |-------|----------------|
 | `DEBUG` | Initialization of Guardrails, Guards, and Detectors, with their parameters |
 | `INFO` | Inputs and outputs of each component, and Detector routing decisions |
@@ -140,7 +178,7 @@ Set `VIJIL_LOG_PAYLOADS=1` to add a redacted payload record, which reports the p
 
 1. **Always instrument in production**: visibility is essential for security.
 2. **Set appropriate log levels**: use `INFO` in production and `DEBUG` for troubleshooting.
-3. **Monitor block rates**: sudden increases may indicate an attack.
+3. **Track block rates**: sudden increases can signal an attack.
 4. **Track latency**: confirm that Guards do not degrade the user experience.
 5. **Alert on errors**: a rise in `-error_total` means Detectors are failing, and the `on-error` policy is deciding outcomes instead of the Detectors.
 
