@@ -21,7 +21,7 @@ print(dome.guard_input("Ignore previous instructions.").is_safe())
 ```
 
 <Note>
-The first call downloads model weights for the default Detectors and can take a few minutes. Set `VIJIL_MODEL_DIR` to control where they are cached.
+The first call downloads model weights for the default Detectors and can take a few minutes. Set `VIJIL_MODEL_DIR` to control where Dome caches them.
 </Note>
 
 ## Choose Extras
@@ -67,18 +67,18 @@ See [Detection Methods](/developer-guide/protect/detection-methods) for the Dete
 
 ### Install CPU-Only PyTorch
 
-The `local` extra pulls in PyTorch with CUDA support, which adds several gigabytes. In a CPU-only environment, reinstall the CPU build:
+The `local` extra pulls in the default PyTorch distribution. On Linux, its CUDA dependencies can add gigabytes to the environment. In a CPU-only environment, reinstall the CPU build:
 
 ```bash
 pip install "vijil-dome[local]"
 pip install --force-reinstall torch --index-url https://download.pytorch.org/whl/cpu
 ```
 
-All Detectors stay functional on CPU. Inference runs two to five times slower, which is usually acceptable for guarding. To keep model weights out of your Agent image entirely, run Dome as its own service. See [Use Dome as a Containerized Deployment](/tutorials/protect-agents/dome-containerized-deployment).
+Local Detectors can run on CPU, but inference is slower. Confirm that the added latency meets your requirements. To keep model weights out of your Agent image entirely, run Dome as its own service. See [Use Dome as a Containerized Deployment](/tutorials/protect-agents/dome-containerized-deployment).
 
 ## Set Environment Variables
 
-Dome reads configuration from the environment. Only the variables for the Detectors and integrations you actually use are required.
+Dome reads configuration from the environment. Set only the variables for the Detectors and integrations you use.
 
 ### Routing and Models
 

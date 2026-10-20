@@ -28,7 +28,7 @@ def ask_agent(query: str) -> str:
 Pass `guarded_response()` to your Agent rather than the original query. A [Guard](/concepts/defense/guard) such as `privacy-presidio` with `anonymize` enabled returns sanitized content, and using the sanitized value keeps the redaction in effect.
 
 <Note>
-Creating a `Dome` instance loads models and can take several seconds. Create it once at process startup and reuse it across requests.
+Dome initialization loads configured local models. Create the instance once at process startup and reuse it across requests.
 </Note>
 
 ## Asynchronous Integration Pattern
@@ -103,7 +103,7 @@ payload = DomePayload(
 scan_result = dome.guard_output(payload)
 ```
 
-`text` is mutually exclusive with `prompt` and `response`. Passing a plain string is equivalent to `DomePayload(text=...)`.
+`text` is mutually exclusive with `prompt` and `response`. Passing a plain string creates `DomePayload(text=...)`.
 
 ## Scan in Batches
 
@@ -127,7 +127,7 @@ for scan_result in results:
 
 ## Attach Identity to a Scan
 
-Pass identifiers per call when one Dome instance serves several Agents, teams, or users. These values flow into Dome telemetry:
+Pass identifiers per call when one Dome instance serves more than one Agent, team, or user. These values flow into Dome telemetry:
 
 ```python
 scan_result = dome.guard_input(
@@ -150,7 +150,7 @@ The [LangChain integration](/developer-guide/protect/integrations/langchain) bui
 
 ## Customize Blocked Messages
 
-Blocked messages are set in the configuration, one per direction:
+Set one blocked message per direction in the configuration:
 
 ```python
 config = {
@@ -180,7 +180,7 @@ if not scan_result.is_safe():
     return scan_result.guarded_response()
 ```
 
-With `Dome(enforce=True)`, the default policy is `fail_closed`, so a Detector that cannot be reached blocks the request. Set `input-on-error` or `output-on-error` explicitly when you want a different tradeoff. See [Configure Guardrails](/developer-guide/protect/configuring-guardrails#enforcement-and-failure-behavior).
+With `Dome(enforce=True)`, the default policy is `fail_closed`, so Dome blocks the request if a Detector fails or times out. Set `input-on-error` or `output-on-error` explicitly when you want a different tradeoff. See [Configure Guardrails](/developer-guide/protect/configuring-guardrails#enforcement-and-failure-behavior).
 
 ## Common Application Shapes
 

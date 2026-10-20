@@ -18,7 +18,7 @@ Register your Detector with one of these categories:
 | `DetectionCategory.Generic` | Anything else |
 | `DetectionCategory.Policy` | Content checks against written policy |
 
-The category determines which Guard types can use your Detector, and which [Guardrail](/concepts/defense/guardrail) it can therefore run in. A Guard with `type = "security"` can only reference Detectors registered under `DetectionCategory.Security`.
+The category determines which Guard types can use your Detector. For example, a Guard with `type = "security"` can reference only Detectors registered under `DetectionCategory.Security`.
 
 ## Write a Detector
 
@@ -142,7 +142,7 @@ When `detect` raises an exception, Dome records the Detector in `ScanResult.erro
     Runtime integration patterns
   </Card>
   <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
-    Monitor custom Detector performance
+    Track custom Detector performance
   </Card>
   <Card title="Detection Methods" icon="radar" href="/developer-guide/protect/detection-methods">
     Built-in Detector reference

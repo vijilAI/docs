@@ -1,9 +1,9 @@
 ---
 title: 'Strands'
-description: 'Add Dome Guardrails to a Strands Agent through hook providers.'
+description: 'Protect a Strands Agent with Dome hook providers.'
 ---
 
-Strands [Agents](/owner-guide/register-agents/what-is-an-agent) accept hook providers. Dome ships `DomeHookProvider`, which registers callbacks on `BeforeModelCallEvent` and `AfterModelCallEvent` and replaces flagged content with a blocked message.
+Strands [Agents](/owner-guide/register-agents/what-is-an-agent) accept hook providers. Dome provides `DomeHookProvider`, which registers callbacks on `BeforeModelCallEvent` and `AfterModelCallEvent` and replaces flagged content with a blocked message.
 
 ## Install
 
@@ -11,7 +11,7 @@ Strands [Agents](/owner-guide/register-agents/what-is-an-agent) accept hook prov
 pip install "vijil-dome[strands]"
 ```
 
-See [Install Dome](/developer-guide/protect/installation) for the other extras.
+See [Install Dome](/developer-guide/protect/installation) for the other available extras.
 
 ## Guard an Agent
 
@@ -33,13 +33,13 @@ hooks = DomeHookProvider(
 agent = Agent(tools=[search_flights], hooks=[hooks])
 ```
 
-`DomeHookProvider` accepts the identity arguments `agent_id`, `team_id`, and `user_id`, and runs the [Guards](/concepts/defense/guard) defined in your configuration. Dome attaches them to every scan, which keeps [Vijil Console](/concepts/platform/console) telemetry attributed to the right Agent.
+`DomeHookProvider` accepts the identity arguments `agent_id`, `team_id`, and `user_id`, and runs the [Guards](/concepts/defense/guard) defined in your [Guardrail configuration](/developer-guide/protect/configuring-guardrails). Dome attaches these values to every scan, which keeps [Vijil Console](/concepts/platform/console) telemetry attributed to the right Agent.
 
 The provider scans the last user message before the model call and the model response after it. When a Guard flags content, the provider replaces the message with the corresponding blocked message rather than raising an exception.
 
 ## Add the Full Trust Stack
 
-`secure_agent()` adds identity, tool access control, attestation, and audit events on top of the content Guards. It registers a trust hook provider on the Strands Agent and returns the same Agent:
+`secure_agent()` adds identity, tool access control, attestation, and audit events to the content Guards. It registers a trust hook provider on the Strands Agent and returns the same Agent:
 
 ```python
 from strands import Agent

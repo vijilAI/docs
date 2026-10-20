@@ -45,9 +45,10 @@ from vijil_dome.controls import (
 
 | Installation | Included Controls Features |
 |--------------|----------------------------|
-| `pip install vijil-dome` | Python policies, JSON, TOML, `regex`, and `list` |
+| `pip install vijil-dome` | Python policies, JSON, TOML, `regex`, `list`, and `policy-rule-judge` |
 | `pip install "vijil-dome[controls]"` | Base features and YAML loading |
 | `pip install "vijil-dome[controls-full]"` | YAML, JSON Schema, CEL, and RE2 |
+| `pip install "vijil-dome[s3]"` | S3 policy loading through `VijilDome.create_from_s3()` |
 
 The package supports Python 3.11 through 3.13. A `dome:*` evaluator can require another optional dependency for its selected Dome Detector.
 
@@ -71,6 +72,8 @@ VijilDome(
     policy: list[dict | Control] | str | Path | None = None,
     enforce: bool = True,
     agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
 )
 ```
 
@@ -79,6 +82,8 @@ VijilDome(
 | `policy` | `None` | Control dictionaries, `Control` objects, or a JSON, YAML, or TOML path |
 | `enforce` | `True` | Raises on `deny` and actionable `steer` results when enabled |
 | `agent_id` | `None` | Optional identifier stored and exposed through the `agent_id` property |
+| `team_id` | `None` | Optional team identifier stored and exposed through the `team_id` property |
+| `user_id` | `None` | Optional end-user identifier stored and exposed through the `user_id` property |
 
 <Warning>
 `agent_id` does not authenticate the running workload or make a policy identity-bound. Use [Trust Runtime](/developer-guide/protect/trust-runtime) when enforcement requires workload identity.
@@ -90,7 +95,64 @@ VijilDome(
 |----------|------|-------------|
 | `engine` | `ControlEngine` | Underlying engine used by the interface |
 | `agent_id` | `str \| None` | Optional identifier stored and exposed by the instance |
+| `team_id` | `str \| None` | Optional team identifier stored and exposed by the instance |
+| `user_id` | `str \| None` | Optional end-user identifier stored and exposed by the instance |
 | `enforce` | `bool` | Whether the interface raises enforcement exceptions |
+
+### `create_from_s3()`
+
+```python
+VijilDome.create_from_s3(
+    bucket: str,
+    key: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+    aws_access_key_id: str | None = None,
+    aws_secret_access_key: str | None = None,
+    aws_session_token: str | None = None,
+    region_name: str | None = None,
+    cache_dir: str | None = None,
+    cache_ttl_seconds: int = 300,
+    enforce: bool = True,
+) -> VijilDome
+```
+
+This method loads the `controls` array from a Dome configuration stored in S3. Install the `s3` extra before using it.
+
+Supply `key` directly, or supply both `team_id` and `agent_id` to use `teams/{team_id}/agents/{agent_id}/dome/config.json`. An explicit `key` takes precedence over the identifiers. The loader caches the configuration locally for `cache_ttl_seconds` and uses the S3 `ETag` when it next checks for changes.
+
+AWS credentials and `region_name` are optional. When you omit them, Boto3 uses its standard credential and region resolution. The returned instance retains the S3 location for `config_has_changed()` and applies the supplied `enforce`, `team_id`, and `agent_id` values.
+
+### `create_from_api()`
+
+```python
+VijilDome.create_from_api(
+    client_id: str,
+    client_secret: str,
+    agent_id: str,
+    team_id: str,
+    base_url: str = "https://console-api.vijil.ai",
+    cache_dir: str | None = None,
+    cache_ttl_seconds: int = 300,
+    enforce: bool = True,
+) -> VijilDome
+```
+
+This method exchanges a Console API key's client ID and secret for a short-lived access token, then loads the active Dome configuration for the specified Agent and team. The returned instance installs the configuration's `controls` array and retains the API coordinates for `config_has_changed()`.
+
+The loader caches the configuration locally for `cache_ttl_seconds`. Override `base_url` when you do not use the default Vijil Console API. The method raises `ValueError` when authentication or configuration loading fails, when the Agent has no active configuration, or when the response does not contain a configuration object.
+
+### `config_has_changed()`
+
+```python
+config_has_changed() -> bool
+```
+
+Returns `True` when the remote configuration differs from the configuration used to create the instance. This method is available only on instances returned by `create_from_s3()` or `create_from_api()`; calling it on a directly constructed instance raises `ValueError`.
+
+The check ignores the normal cache lifetime and checks the remote source. For Console API configurations, it compares configuration IDs when both documents contain one and otherwise compares the full documents. For S3 configurations, the loader checks the object's `ETag` and downloads the remote document when it has changed.
+
+This method detects changes but does not replace the Controls already loaded into the instance. Create a new instance to apply the remote configuration.
 
 ### Input Methods
 
@@ -205,7 +267,7 @@ control(
 | `output_mapper` | Return value | Synchronous callable that maps the function return value to `Step.output` |
 | `context_mapper` | Empty context | Synchronous callable that returns a context dictionary or `None` |
 
-Passing both `engine` and `policy` raises `ValueError`. If both are omitted, the decorator uses an empty engine and permits every call.
+Passing both `engine` and `policy` raises `ValueError`. If you omit both, the decorator uses an empty engine and permits every call.
 
 The wrapper performs these operations:
 
@@ -227,10 +289,10 @@ For `llm` Steps, the decorator uses the first applicable rule:
 1. Select `input`, `message`, `query`, `text`, `prompt`, `content`, `user_input`, `msg`, or `request`.
 2. Select the first string-valued argument.
 3. Use the value directly when one parameter remains.
-4. Use a dictionary when multiple parameters remain.
+4. Use a dictionary when more than one parameter remains.
 5. Convert the arguments to a string if signature binding fails or no parameter remains.
 
-Default parameter values are applied before mapping. Supply `input_mapper` when these rules do not match your function's data model.
+The decorator applies default parameter values before mapping. Supply `input_mapper` when these rules do not match your function's data model.
 
 ## `ControlEngine`
 
@@ -320,7 +382,7 @@ The model preserves unknown top-level fields during parsing and serialization. P
 | `step_name_regex` | `str \| None` | `None` | Regular expression for Step names |
 | `stages` | `list[Literal["pre", "post"]] \| None` | `None` | Accepted evaluation stages |
 
-Every specified field must match. An omitted field does not restrict the Control. Step-name regular expressions use RE2 when `google-re2` is installed and otherwise use Python's standard regular-expression engine with a warning.
+Every specified field must match. An omitted field does not restrict the Control. If the environment includes `google-re2`, Step-name regular expressions use RE2. Otherwise, they use Python's standard regular-expression engine and log a warning.
 
 ### `EvaluatorRef`
 
@@ -381,7 +443,7 @@ Always supply `steering_context` for a `steer` action. Without it, the engine ca
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `action` | `Literal["allow", "deny", "steer"]` | `allow` | Aggregate engine decision |
-| `confidence` | `float` | `1.0` | Confidence copied from the selected match |
+| `confidence` | `float` | `1.0` | Confidence from the selected `deny` or `steer` match; otherwise `1.0` |
 | `matches` | `list[ControlMatch]` | `[]` | Completed per-Control evaluations |
 | `steering_context` | `SteeringContext \| None` | `None` | Guidance from the selected steering Control |
 | `exec_time_ms` | `float` | `0.0` | Total evaluation time in milliseconds |
@@ -389,7 +451,7 @@ Always supply `steering_context` for a `steer` action. Without it, the engine ca
 
 An `observe` action does not appear as an aggregate action. The observation appears as a triggered entry in `matches` and does not change the aggregate action. If no `deny` or `steer` Control triggers, the result is `allow`.
 
-The current engine reduces conditions to truth values before constructing `ControlMatch`. A completed Control evaluation therefore reports confidence `1.0`, while an evaluation error reports `0.0`. The engine does not propagate `EvaluatorResult.confidence` to `ControlMatch` or `EvaluationResult`.
+For a single-leaf condition, the engine copies the confidence, message, and metadata from the Evaluator to `ControlMatch`. A Control action message overrides the Evaluator message when the condition triggers. For a composite condition, the engine reduces the child results to a truth value, so the match retains confidence `1.0` and empty message and metadata values. An evaluation error reports confidence `0.0`.
 
 ### `ControlMatch`
 
@@ -398,10 +460,11 @@ The current engine reduces conditions to truth values before constructing `Contr
 | `control_name` | `str` | Required | Evaluated Control name |
 | `triggered` | `bool` | Required | Whether the condition or failure behavior triggered |
 | `action` | `ControlAction \| None` | `None` | Triggered action, when present |
-| `confidence` | `float` | `1.0` | Control-level confidence |
-| `message` | `str` | `""` | Triggered action message |
+| `confidence` | `float` | `1.0` | Evaluator confidence for a single-leaf condition; otherwise `1.0` |
+| `message` | `str` | `""` | Evaluator message, overridden by a triggered Control action message |
 | `exec_time_ms` | `float` | `0.0` | Control evaluation time in milliseconds |
 | `error` | `str \| None` | `None` | Raised evaluator or condition error |
+| `metadata` | `dict[str, Any]` | `{}` | Evaluator metadata for a single-leaf condition |
 
 A fail-open error produces a non-triggered match without an action. A fail-closed error produces a triggered match with the Control action.
 
@@ -461,11 +524,11 @@ Converts the selected value to text and searches one or more regular expressions
 | Configuration | Type | Default | Description |
 |---------------|------|---------|-------------|
 | `pattern` | `str` | None | One expression to search |
-| `patterns` | `list[str]` | None | Additional expressions; any match succeeds |
+| `patterns` | `list[str]` | None | Expressions to search; any match succeeds |
 | `flags` | `str \| list[str]` | None | Short flags `i`, `m`, `s`, or long names such as `IGNORECASE` |
 | `negate` | `bool` | `False` | Matches only when no expression matches |
 
-If no pattern is supplied, the evaluator returns `matched=False`. RE2 is used when installed. A pattern with flags uses Python's standard engine because the RE2 package does not expose compatible flag behavior.
+If you omit both `pattern` and `patterns`, the Evaluator returns `matched=False`. Dome uses RE2 when installed. A pattern with flags uses Python's standard engine because the RE2 package does not expose compatible flag behavior.
 
 ### `list`
 
@@ -509,6 +572,24 @@ The selected value is available as `value`. When the value is a dictionary, each
 
 A missing or invalid expression returns `matched=False`. An evaluation error returns confidence `0.0` and error metadata rather than raising into `on_error`.
 
+### `policy-rule-judge`
+
+Judges the selected text against natural-language policy rules with Jev/System One. This Evaluator uses the `OPENROUTER_API_KEY` environment variable unless its configuration supplies `api_key`.
+
+| Configuration | Type | Default | Description |
+|---------------|------|---------|-------------|
+| `rules` | `list[dict]` | `[]` | Policy rules to judge |
+| `violation_threshold` | `float` | `0.5` | Lowest rule-violation score that matches |
+| `batch_size` | `int` | `20` | Rule limit for each concurrent System One request |
+| `model` | `str` | `typesafe/jev-1.13` | System One model identifier |
+| `api_key` | `str \| None` | `None` | API key that overrides `OPENROUTER_API_KEY` |
+
+Each rule must have a unique, non-empty string `rule_id`. The `natural_language` field supplies the policy text. Optional `rule_type`, `action`, `target`, and `consequence` values pass through to the result metadata without changing the judgment.
+
+The Evaluator matches when any rule score is greater than or equal to `violation_threshold`. Its metadata contains `violated_rule_ids` and `rule_verdicts`, which maps each rule ID to its score, violation decision, policy text, and optional metadata.
+
+An empty `rules` list returns `matched=False`. Invalid or duplicate rule IDs, invalid thresholds, missing credentials, request failures, and missing or invalid response scores raise an Evaluator error. The Control's `on_error` setting determines whether those failures match.
+
 ### `dome:<detector-name>`
 
 Prefix a registered Dome Detector with `dome:` to use it as an Evaluator:
@@ -538,7 +619,7 @@ See [Detection Methods](/developer-guide/protect/detection-methods) for availabl
 resolve(step: Step, path: str) -> Any
 ```
 
-`resolve()` applies a supported selector path to a Step. It reads dictionary keys and object attributes, supports non-negative list indexes, and returns `MISSING` when the path cannot be resolved.
+`resolve()` applies a supported selector path to a Step. It reads dictionary keys and object attributes, supports non-negative list indexes, and returns `MISSING` if it cannot resolve the path.
 
 ### `MISSING`
 
@@ -594,7 +675,7 @@ The engine applies these observable rules:
 4. If no deny triggers, evaluate `steer` and `observe` Controls.
 5. Return the first triggered `steer` match or otherwise return `allow`.
 
-Controls are stored in ascending `priority` order. Deny Controls run concurrently, so priority does not guarantee which simultaneous deny result finishes and returns first. A deny result also prevents applicable steer and observe Controls from running.
+The engine stores Controls in ascending `priority` order. Deny Controls run concurrently, so priority does not guarantee which simultaneous deny result finishes and returns first. A deny result also prevents applicable steer and observe Controls from running.
 
 `and` and `or` children run concurrently by default. Set `early_exit=True` to run their children sequentially and short-circuit. `not` inverts its child result.
 
@@ -654,7 +735,7 @@ The Controls Engine accepts common AgentControl policy shapes without importing 
 |----------------------|--------------------------|
 | `selector: {path: input.amount}` | Normalized to `selector: input.amount` |
 | Evaluator name `json` | Alias for `json_schema` |
-| List `match_on: no_match` | Equivalent to negation |
+| List `match_on: no_match` | Same as `negate=True` |
 | Regex flags as a list | Accepts long names such as `IGNORECASE` |
 | `json_schema` configuration | Matches on schema violation by default |
 | `field_constraints` | Converted to JSON Schema and matched on violation |

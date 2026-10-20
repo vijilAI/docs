@@ -214,6 +214,7 @@ Composite children run concurrently by default. Set `early_exit: true` on an `an
 | `json_schema` | Validate structured data | `schema`, `negate` |
 | `cel` | Evaluate a Common Expression Language expression | `expression` |
 | `dome:<detector-name>` | Run an existing Dome Detector through the `dome:` prefix | `threshold`, `detector_kwargs` |
+| `policy-rule-judge` | Judge text against natural-language policy rules with Jev/System One | `rules`, `violation_threshold`, `batch_size`, `model`, `api_key` |
 
 For example, run a prompt-injection Detector against every LLM input:
 
@@ -234,6 +235,33 @@ For example, run a prompt-injection Detector against every LLM input:
 ```
 
 See the [Controls API Reference](/developer-guide/reference/controls-api#built-in-evaluators) for every evaluator option and default.
+
+### Judge Natural-Language Policy Rules
+
+Use `policy-rule-judge` when a policy rule requires semantic judgment rather than deterministic matching. The Evaluator batches rules into Jev/System One requests and matches when any rule reaches the configured violation threshold:
+
+```yaml
+- name: enforce-support-policy
+  scope:
+    step_types: [llm]
+    stages: [post]
+  condition:
+    selector: output
+    evaluator:
+      name: policy-rule-judge
+      config:
+        rules:
+          - rule_id: no-account-disclosure
+            natural_language: Do not disclose private account information.
+        violation_threshold: 0.5
+  action:
+    decision: deny
+    message: The response violates the support policy.
+```
+
+Each rule must have a unique, non-empty `rule_id`. The `violation_threshold` defaults to `0.5`, `batch_size` defaults to `20`, and `model` defaults to `typesafe/jev-1.13`. Set `OPENROUTER_API_KEY` or pass `api_key` in the Evaluator configuration.
+
+The result metadata includes `violated_rule_ids` and a verdict for each rule. Invalid rule identifiers, thresholds, API responses, and missing credentials raise Evaluator errors, so the Control's `on_error` setting determines whether evaluation fails open or closed.
 
 ### Choose an Action
 
