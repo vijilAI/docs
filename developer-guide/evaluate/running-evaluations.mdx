@@ -1,6 +1,6 @@
 ---
 title: 'Run Evaluations'
-description: 'Start and inspect behavioral and Red Team evaluations with the CLI, MCP, REST API, or Python SDK.'
+description: 'Start and inspect behavioral and Red Team evaluations with MCP, REST API, or Python SDK.'
 ---
 
 Diamond supports two evaluation types. Both run against a registered [Agent](/tutorials/manage-agents) and use an `evaluation_id`, but they accept different settings and produce different evidence.
@@ -14,31 +14,12 @@ Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
 
 ## Prerequisites
 
-- An authenticated CLI or SDK client, or a bearer token for REST requests. See [SDK Setup](/developer-guide/sdk/setup).
+- An authenticated SDK client, or a bearer token for REST requests. See [SDK Setup](/developer-guide/sdk/setup).
 - A registered Agent and its ID or alias.
 
 ## Start an Evaluation
 
 <Tabs>
-  <Tab title="CLI">
-
-  Run the standard Trust Score Harnesses:
-
-  ```bash
-  vijil evaluate "$AGENT_ID" --baseline --sample-size 50
-  ```
-
-  Run a Red Team evaluation:
-
-  ```bash
-  vijil evaluate "$AGENT_ID" \
-    --type redteam \
-    --redteam '{"max_waves": 3}'
-  ```
-
-  The command waits for a terminal status. Add `--no-wait` to return after creation, or place `--output json` before `evaluate` for JSON output.
-
-  </Tab>
   <Tab title="MCP">
 
   With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
@@ -181,19 +162,11 @@ See [Compliance Harnesses](/owner-guide/simulate-environment/harnesses/complianc
   </Tab>
 </Tabs>
 
-<Note>
-  `vijil evaluate` does not select Compliance Harnesses yet: `--baseline` runs only the Trust Score set, and `--bespoke` expects a custom Harness. Use MCP, the SDK, or the REST API instead.
-</Note>
-
 ## Check Status
 
 Behavioral evaluations can move through `starting`, `pending`, `running`, `completed`, and `saving` before reaching `saved`. They can also end as `succeeded`, `failed`, or `cancelled`.
 
 <CodeGroup>
-```bash title="CLI"
-vijil evaluations show "$EVALUATION_ID"
-```
-
 ```python title="SDK"
 evaluation = client.evaluations.show("<evaluation-id>")
 print(evaluation.status)
@@ -208,10 +181,6 @@ curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID" \
 Red Team uses its own progress response and terminal statuses: `succeeded`, `failed`, `cancelled`, or `degraded`.
 
 <CodeGroup>
-```bash title="CLI"
-vijil evaluations redteam-status "$EVALUATION_ID"
-```
-
 ```python title="SDK"
 status = client.evaluations.redteam_status("<evaluation-id>")
 print(status.phase, status.current_wave, status.status)
@@ -232,10 +201,6 @@ A `degraded` Red Team evaluation completed with some attacker failures. Inspect 
 Behavioral evaluations produce a Trust Score and a hierarchy of Harness, Scenario, and Probe results.
 
 <CodeGroup>
-```bash title="CLI"
-vijil scores show "$AGENT_ID"
-```
-
 ```python title="SDK"
 score = client.scores.get("<evaluation-id>")
 results = client.scores.results("<evaluation-id>")
@@ -281,20 +246,13 @@ curl -sG "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/responses" \
 
 Each row identifies its parent Harness, Scenario, and Probe and includes the prompt, Agent response, parent Probe score, and raw Detector results. A `failed` row belongs to a Probe that scored below the evaluation's pass threshold. Filter by `harness_id`, `scenario_id`, or `probe_id` to narrow the results further.
 
-The CLI does not currently expose this response listing. Red Team evaluations do not support it; use the Red Team evidence methods below instead. See the [`client.evaluations` SDK reference](/developer-guide/sdk/resources#prompt-level-behavioral-responses) for all arguments and the return type.
+Red Team evaluations do not support it this response listing. Use the Red Team evidence methods below instead. See the [`client.evaluations` SDK reference](/developer-guide/sdk/resources#prompt-level-behavioral-responses) for all arguments and the return type.
 
 ### Red Team Evidence
 
 Red Team evaluations expose seeds, attacks, judgments, and reflections under the evaluation ID:
 
 <CodeGroup>
-```bash title="CLI"
-vijil evaluations redteam-seeds "$EVALUATION_ID"
-vijil evaluations redteam-attacks "$EVALUATION_ID"
-vijil evaluations redteam-judgments "$EVALUATION_ID"
-vijil evaluations redteam-reflections "$EVALUATION_ID"
-```
-
 ```python title="SDK"
 seeds = client.evaluations.redteam_seeds("<evaluation-id>")
 attacks = client.evaluations.redteam_attacks("<evaluation-id>")
@@ -308,17 +266,11 @@ curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/redteam/attacks?team_id=$TEAM_
 ```
 </CodeGroup>
 
-Use `--wave` to filter the CLI seed, attack, or judgment commands. The attack and judgment commands also accept `--seed` with `--wave`. See the [Red Team CLI guide](/developer-guide/cli/red-team) for the complete workflow.
-
 ## Retrieve Reports
 
 Download the behavioral evaluation PDF:
 
 <CodeGroup>
-```bash title="CLI"
-vijil reports download "$EVALUATION_ID"
-```
-
 ```python title="SDK"
 pdf_bytes = client.reports.download("<evaluation-id>")
 with open("report.pdf", "wb") as report_file:
@@ -335,10 +287,6 @@ curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/pdf?team_id=$TEAM_ID" \
 Retrieve the Red Team report as structured JSON, Markdown, or PDF:
 
 <CodeGroup>
-```bash title="CLI"
-vijil evaluations redteam-report "$EVALUATION_ID" --format md
-```
-
 ```python title="SDK"
 report = client.evaluations.redteam_report("<evaluation-id>")
 markdown = client.evaluations.redteam_report_markdown("<evaluation-id>")
@@ -354,10 +302,6 @@ curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/redteam/report?team_id=$TEAM_I
 ## List and Manage Evaluations
 
 <CodeGroup>
-```bash title="CLI"
-vijil evaluations list --agent "$AGENT_ID"
-```
-
 ```python title="SDK"
 page = client.evaluations.list(agent_id="<agent-id>")
 for evaluation in page.items:
@@ -378,16 +322,13 @@ curl -s -X DELETE "$VIJIL_URL/v1/evaluations/$EVALUATION_ID" \
 ```
 </CodeGroup>
 
-The current CLI supports listing and showing evaluations. Use the SDK or REST API when you need to delete an evaluation, and use REST to cancel one.
+Use the SDK or REST API when you need to delete an evaluation, and use REST to cancel one.
 
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Understand Results" icon="chart-bar" href="/developer-guide/evaluate/understanding-results">
     Interpret behavioral Trust Scores and Red Team evidence
-  </Card>
-  <Card title="Red Team CLI" icon="shield" href="/developer-guide/cli/red-team">
-    Inspect waves, attacks, judgments, and reports
   </Card>
   <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
     Create targeted behavioral evaluations
