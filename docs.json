@@ -306,7 +306,6 @@
               {
                 "group": "CLI Reference",
                 "pages": [
-                  "developer-guide/cli/setup",
                   "developer-guide/cli/discover",
                   "developer-guide/cli/agents",
                   "developer-guide/cli/evaluate",
