@@ -4,7 +4,7 @@ description: 'Integrate evaluation and protection into your development workflow
 ---
 
 <Tip>
-**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), REST API, or the Python SDK (`vijil-sdk`). [Diamond](/developer-guide/evaluate/overview) evaluates your [Agent](/owner-guide/register-agents/what-is-an-agent) before deployment, while [Dome](/developer-guide/protect/overview) protects it at runtime. A behavioral evaluation produces a [Trust Score](/concepts/trust-score/introduction) (0–100) you can use as a deployment gate. A Red Team evaluation produces findings and a report on adaptive attacks.
+**TL;DR:** Vijil integrates into your development workflow via MCP (natural language), REST API, or the Python SDK (`vijil-sdk`). [Diamond](/developer-guide/evaluate/overview) evaluates your [Agent](/owner-guide/register-agents/what-is-an-agent) before deployment, while [Dome](/developer-guide/protect/overview) protects it at runtime. A behavioral evaluation produces a [Trust Score](/concepts/trust-score/introduction) (0–100) you can use as a deployment gate. A Red Team evaluation produces findings and a report on adaptive attacks.
 </Tip>
 
 ## The Problem with Testing Agents
@@ -27,23 +27,19 @@ Vijil provides two products that work together:
 
 ## Integration Methods
 
-Vijil exposes four interfaces. Choose the one that fits your workflow, or mix them:
+Vijil exposes three interfaces. Choose the one that fits your workflow, or mix them:
 
 ### At a Glance
 
 | Method | Best For | Requires |
 |--------|----------|----------|
 | **MCP** | Interactive development, natural language evaluation | Claude Code + `vijil-mcp` |
-| **CLI** | CI/CD gates, scripting, headless automation | `vijil-console` package |
 | **REST API** | Custom integrations, non-Python environments | HTTP client + API key |
 | **SDK** | Python apps, notebooks, programmatic pipelines | `vijil-sdk` package (Python 3.12+) |
 
 <CardGroup cols={2}>
   <Card title="MCP" icon="plug" href="/developer-guide/agentic/quickstart">
     **Natural language, no commands.** Connect Claude Code to your Console and run Agent Evaluations through conversation. Best for interactive development and exploration.
-  </Card>
-  <Card title="CLI" icon="terminal" href="/developer-guide/cli/setup">
-    **Terminal commands.** Install `vijil-sdk` and use the `vijil` command for scripts, CI/CD gates, and headless automation.
   </Card>
   <Card title="REST API" icon="code" href="/developer-guide/agentic/quickstart">
     **HTTP requests.** Call the Console API directly from any language. Best for custom integrations, dashboards, and non-Python environments.
@@ -71,7 +67,7 @@ Different roles use Vijil differently. This guide serves all three:
   <Card title="Automate & Gate" icon="binoculars">
     **Platform Engineer**
 
-    You are integrating Vijil into CI/CD. Use the [CLI](/developer-guide/cli/setup) or [Python SDK](/developer-guide/sdk/setup) to run Evaluations and apply Trust Score thresholds.
+    You are integrating Vijil into CI/CD. Use the [Python SDK](/developer-guide/sdk/setup) to run Evaluations and apply Trust Score thresholds.
   </Card>
   <Card title="Protect & Audit" icon="shield">
     **Security and Compliance**
@@ -100,9 +96,9 @@ Each behavioral evaluation produces a **Trust Score** (0–100) with breakdowns 
 
 ## Time to First Trust Score
 
-Start with [MCP](/developer-guide/agentic/quickstart) to use natural-language requests from Claude Code. For terminal automation, configure the [CLI](/developer-guide/cli/setup). For custom or non-Python integrations, follow the [REST API path](/developer-guide/agentic/quickstart). For Python code, install and configure the [SDK](/developer-guide/sdk/setup). Then [run an Evaluation](/developer-guide/evaluate/running-evaluations) and add [Dome protection](/developer-guide/protect/overview) when you need runtime controls.
+Start with [MCP](/developer-guide/agentic/quickstart) to use natural-language requests from Claude Code. For custom or non-Python integrations, follow the [REST API path](/developer-guide/agentic/quickstart). For Python code, install and configure the [SDK](/developer-guide/sdk/setup). Then [run an Evaluation](/developer-guide/evaluate/running-evaluations) and add [Dome protection](/developer-guide/protect/overview) when you need runtime controls.
 
-All four paths require access to a [Vijil Console gateway](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
+All three paths require access to a [Vijil Console gateway](/developer-guide/deploy-vijil/deploy-vijil-console) and a registered [Agent](/owner-guide/register-agents/what-is-an-agent) endpoint.
 
 ## Integration Points
 
