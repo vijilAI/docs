@@ -304,18 +304,6 @@
               "developer-guide/agentic/tools",
               "developer-guide/reference/controls-api",
               {
-                "group": "CLI Reference",
-                "pages": [
-                  "developer-guide/cli/discover",
-                  "developer-guide/cli/agents",
-                  "developer-guide/cli/evaluate",
-                  "developer-guide/cli/protect",
-                  "developer-guide/cli/red-team",
-                  "developer-guide/cli/telemetry",
-                  "developer-guide/cli/manifest"
-                ]
-              },
-              {
                 "group": "SDK Reference",
                 "pages": [
                   "developer-guide/sdk/setup",
