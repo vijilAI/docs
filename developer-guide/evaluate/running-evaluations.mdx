@@ -3,11 +3,11 @@ title: 'Run Evaluations'
 description: 'Start and inspect behavioral and Red Team evaluations with the CLI, MCP, REST API, or Python SDK.'
 ---
 
-Diamond supports two evaluation types. Both run against a registered [Agent](/tutorials/manage-agents) and use an `evaluation_id`, but they accept different settings and produce different evidence.
+[Diamond](/concepts/platform/diamond) supports two evaluation types. Both run against a registered [Agent](/owner-guide/register-agents/registering-agents) and use an `evaluation_id`, but they accept different settings and produce different evidence.
 
 | Evaluation Type | Inputs | Output |
 | --- | --- | --- |
-| Behavioral | Standard or custom Harnesses and an optional sample size | Trust Score and Harness results |
+| Behavioral | Standard or custom Harnesses and an optional sample size | [Trust Score](/concepts/trust-score/introduction) and Harness results |
 | Red Team | Optional wave and attack settings | Attack evidence and a Red Team report |
 
 Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
@@ -16,6 +16,10 @@ Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
 
 - An authenticated CLI or SDK client, or a bearer token for REST requests. See [SDK Setup](/developer-guide/sdk/setup).
 - A registered Agent and its ID or alias.
+
+For MCP, complete the [MCP setup](/developer-guide/agentic/quickstart) first. Use the Agent's UUID in MCP and REST requests; the SDK also accepts configured aliases.
+
+The REST examples use `$VIJIL_URL` for your Console API gateway URL, `$TOKEN` for your bearer access token, `$TEAM_ID` for the Agent's team, and `$AGENT_ID` for its UUID. After creating an Evaluation, set `$EVALUATION_ID` to the returned `evaluation_id`.
 
 ## Start an Evaluation
 
@@ -43,11 +47,11 @@ Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
 
   With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
 
-  <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete">
-  Run a safety and security evaluation on agent a1b2c3d4-... with sample size 50, and wait for it to complete
+  <Prompt description="Run a safety and security evaluation on agent a1b2c3d4-… with sample size 50, and wait for it to complete">
+  Run a safety and security evaluation on agent a1b2c3d4-… with sample size 50, and wait for it to complete
   </Prompt>
 
-  Claude calls `eval_run` with `wait=True` and reports back Trust Scores when the evaluation finishes.
+  Claude calls `eval_run` with `wait=True` and reports the Trust Score when the evaluation completes. If the wait times out, ask Claude to check the Evaluation status using its ID.
 
   </Tab>
   <Tab title="SDK">
@@ -83,6 +87,8 @@ Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
       type="redteam",
       redteam={"max_waves": 3},
   )
+
+  print(behavioral.id, redteam.id)
   ```
 
   </Tab>
@@ -126,7 +132,7 @@ Red Team does not accept baseline, Harness, sample-size, or local-mode settings.
 
 Compliance Harnesses test an Agent against a regulatory or standards framework. They are standard Harnesses, so you start them like `safety` or `security`, by name:
 
-| Framework | Harness name |
+| Framework | Harness Name |
 | --- | --- |
 | EU AI Act | `eu_ai_act_agent_policy` |
 | ISO/IEC 42001 | `iso42001_agent_policy` |
@@ -145,7 +151,7 @@ See [Compliance Harnesses](/owner-guide/simulate-environment/harnesses/complianc
   Run the EU AI Act and ISO 42001 compliance Harnesses on agent a1b2c3d4-… with sample size 50, and wait for it to complete
   </Prompt>
 
-  Claude calls `harness_list` to resolve the framework names, then `eval_run` with those `harness_names`.
+  Claude calls `harness_list` to resolve the framework names, then `eval_run` with those `harness_names` and `harness_type="standard"`.
 
   </Tab>
   <Tab title="SDK">
@@ -195,7 +201,7 @@ vijil evaluations show "$EVALUATION_ID"
 ```
 
 ```python title="SDK"
-evaluation = client.evaluations.show("<evaluation-id>")
+evaluation = client.evaluations.poll_status("<evaluation-id>")
 print(evaluation.status)
 ```
 
@@ -204,6 +210,8 @@ curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID" \
   -H "Authorization: Bearer $TOKEN"
 ```
 </CodeGroup>
+
+Repeat the status check until the Evaluation reaches a terminal status. For completed Evaluation details and scores, use `client.evaluations.show("<evaluation-id>")`.
 
 Red Team uses its own progress response and terminal statuses: `succeeded`, `failed`, `cancelled`, or `degraded`.
 
@@ -312,7 +320,7 @@ Use `--wave` to filter the CLI seed, attack, or judgment commands. The attack an
 
 ## Retrieve Reports
 
-Download the behavioral evaluation PDF:
+Download the PDF after the behavioral Evaluation completes. `client.reports.download()` generates a missing report automatically. With REST, request generation before downloading:
 
 <CodeGroup>
 ```bash title="CLI"
@@ -326,13 +334,16 @@ with open("report.pdf", "wb") as report_file:
 ```
 
 ```bash title="REST"
+curl -s -X POST "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/report?team_id=$TEAM_ID" \
+  -H "Authorization: Bearer $TOKEN"
+
 curl -s "$VIJIL_URL/v1/evaluations/$EVALUATION_ID/pdf?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN" \
   -o report.pdf
 ```
 </CodeGroup>
 
-Retrieve the Red Team report as structured JSON, Markdown, or PDF:
+Retrieve the Red Team report as structured JSON, Markdown, or PDF after the campaign completes:
 
 <CodeGroup>
 ```bash title="CLI"
