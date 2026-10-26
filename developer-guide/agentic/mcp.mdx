@@ -262,9 +262,9 @@ The CLI handles all authentication, token refresh, and team context — the MCP 
 
 | Symptom | Fix |
 | --- | --- |
-| `vijil` CLI not found in `PATH` | Run `pip install vijil-console` |
-| `vijil` CLI not configured | Run `vijil init --url <your-url>` |
-| Session expired | Run `vijil login` |
+| `vijil-console` CLI not found in `PATH` | Run `pip install vijil-console` |
+| `vijil-console` CLI not configured | Run `vijil-console init --url <your-url>` |
+| Session expired | Run `vijil-console login` |
 | No team selected | Run `vijil-console team use <team_id>` |
 | Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
 | Claude uses Bash instead of MCP tools | Make sure `vijil-mcp` is in your `PATH` (`which vijil-mcp`) |
