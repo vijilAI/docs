@@ -24,7 +24,7 @@ The Terminal (on Mac and Linux) or Command Prompt (on Windows) is a text-based w
 
 ## Install the Vijil Tools
 
-This step installs two tools: `vijil-mcp` (which connects Claude Code to Vijil) and `vijil` (the underlying Vijil command-line tool).
+This step installs two tools: `vijil-mcp` (which connects Claude Code to Vijil) and `vijil-console` (the underlying Vijil command-line tool).
 
 **Recommended: pipx**
 
@@ -235,9 +235,9 @@ Show me the trust dashboard
 |---------|------------|
 | `pip: command not found` | Try `pip3 install vijil-mcp` instead, or use the `pipx` method above |
 | `Permission denied` during install | Use `pip install --user vijil-mcp`, or switch to the `pipx` method above |
-| `vijil: command not found` after install succeeded | Close and reopen your Terminal. If the command is still not found, try re-installing with `pipx` — it handles the PATH setup automatically |
-| `vijil` says it is not configured | Run `vijil init --url <your-console-url>` |
-| "Session expired" or login errors | Run `vijil login` |
+| `vijil-console: command not found` after install succeeded | Close and reopen your Terminal. If the command is still not found, try re-installing with `pipx` — it handles the PATH setup automatically |
+| `vijil-console` says it is not configured | Run `vijil-console init --url <your-console-url>` |
+| "Session expired" or login errors | Run `vijil-console login` |
 | "No team selected" | Run `vijil-console team list` then `vijil-console team use <team_id>` |
 | Vijil tools do not appear in Claude Code | Make sure `.mcp.json` is in the folder where you opened Claude Code, then restart Claude Code |
 | Claude uses the wrong tool or seems confused | Try rephrasing your request to be more specific, for example "Use Vijil to list my agents" |
