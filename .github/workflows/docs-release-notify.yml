@@ -1,0 +1,76 @@
+# Reusable workflow: opens a "docs update" issue in this repo when another
+# Vijil repo cuts a release. Called from each source repo's
+# .github/workflows/notify-docs.yml. Uses the caller's release event context.
+name: Docs release notification
+
+on:
+  workflow_call:
+    secrets:
+      app-id:
+        required: true
+      private-key:
+        required: true
+
+permissions: {}
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mint token for the docs repo
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.app-id }}
+          private-key: ${{ secrets.private-key }}
+          owner: vijilAI
+          repositories: docs
+
+      - name: Create docs-update issue
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          DOCS_REPO: vijilAI/docs
+          SOURCE_REPO: ${{ github.event.repository.full_name }}
+          SOURCE_NAME: ${{ github.event.repository.name }}
+          VISIBILITY: ${{ github.event.repository.visibility }}
+          TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+        run: |
+          set -euo pipefail
+          title="[Docs Update] ${SOURCE_NAME} ${TAG} released"
+
+          # Don't file a duplicate if the workflow is re-run.
+          existing=$(gh issue list -R "$DOCS_REPO" --state all --label docs-update \
+            --search "\"$title\" in:title" --json title --jq "[.[]|select(.title==\"$title\")]|length")
+          if [ "$existing" != "0" ]; then
+            echo "Issue already exists for: $title"
+            exit 0
+          fi
+
+          # docs is public, so only include release notes from public repos.
+          if [ "$VISIBILITY" = "public" ]; then
+            notes="${RELEASE_BODY:-_No release notes provided._}"
+            notes="${notes:0:20000}"
+            changelog=$'### Changelog\n\n'"$notes"
+          else
+            changelog="_Changelog omitted: \`${SOURCE_REPO}\` is ${VISIBILITY}. See the release link above (requires repo access)._"
+          fi
+
+          cat > body.md <<BODY
+          **Docs update notification**
+
+          @rpaik-vijil @stamd @lukiccd: [\`${SOURCE_REPO}\`](https://github.com/${SOURCE_REPO}) cut release [\`${TAG}\`](${RELEASE_URL}).
+
+          Please check whether documentation needs to be added or updated for this release.
+
+          - [ ] Reviewed the release notes
+          - [ ] Updated affected docs pages (or confirmed no change needed)
+
+          ${changelog}
+          BODY
+
+          gh label create docs-update -R "$DOCS_REPO" --color 0075ca \
+            --description "Release cut; docs may need updating" 2>/dev/null || true
+          gh issue create -R "$DOCS_REPO" --title "$title" --body-file body.md \
+            --label docs-update --assignee rpaik-vijil,stamd,lukiccd
