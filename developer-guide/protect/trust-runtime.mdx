@@ -328,7 +328,7 @@ If no manifest is configured, attestation succeeds with an empty tool list. If a
 Framework adapters collect and expose the attestation result, but they do not stop startup when `all_verified` is `False`. If your deployment requires verified tool identities, inspect the result before the Agent accepts traffic.
 
 <Note>
-The Dome repository contains the manifest model and client-side signing and verification code. Availability of the Console signing endpoints and packaged Manifest CLI still requires confirmation against the current Console release. A dedicated Manifest CLI reference is forthcoming.
+The Dome repository contains the manifest model and client-side signing and verification code. Availability of the Console signing endpoints still requires confirmation against the current Console release.
 </Note>
 
 ## Capture Audit Events
@@ -414,8 +414,5 @@ Your application decides whether a failed `attest()` result prevents startup. Ch
   </Card>
   <Card title="Observability" icon="eye" href="/developer-guide/protect/observability">
     Configure tracing, metrics, and logging for Dome.
-  </Card>
-  <Card title="Manifest CLI" icon="terminal" badge="Forthcoming">
-    Create, sign, and verify tool manifests from the command line.
   </Card>
 </CardGroup>

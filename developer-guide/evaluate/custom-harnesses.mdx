@@ -27,27 +27,6 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
 [Personas](/owner-guide/simulate-environment/personas) define *who* interacts with your Agent, and [Policies](/owner-guide/simulate-environment/policies) define the *rules* it must follow. Both are optional inputs to custom Harness creation: pass their IDs (`persona_ids` and `policy_ids`) in the next step, and Vijil generates [Probes](/concepts/evaluation-components/probe) that combine each Persona's behavior with each Policy's constraints. Create them first, then reference their IDs when you create the Harness.
 
 <Tabs>
-  <Tab title="CLI">
-
-  ```bash
-  # Create a Persona (or copy a built-in one: vijil persona from-preset <preset_id>)
-  vijil persona create \
-    --name "Frustrated Customer" \
-    --role "End user" \
-    --intent adversarial
-
-  # Create a Policy from text, then activate it for use in Harnesses
-  vijil policy create \
-    --name "Data Handling Policy" \
-    --category privacy \
-    --source-text "The agent must not store or repeat personal data."
-
-  vijil policy activate <policy_id>
-  ```
-
-  Each command prints the new `id`. Save the Persona and Policy IDs for the next step. List built-in options with `vijil persona preset-list` and `vijil policy preset-list`.
-
-  </Tab>
   <Tab title="MCP">
 
   With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
@@ -116,27 +95,6 @@ Personas and Policies are reusable across Harnesses. For balanced coverage, comb
 Pass the Persona and Policy IDs from the previous step as `persona_ids` and `policy_ids`. Both are optional — omit them to generate a Harness from the Agent description alone.
 
 <Tabs>
-  <Tab title="CLI">
-
-  ```bash
-  vijil harness custom-create \
-    --name "Customer Support Harness" \
-    --agent-id "$AGENT_ID" \
-    --persona-ids '["<persona-id>"]' \
-    --policy-ids '["<policy-id>"]'
-  ```
-
-  | Flag | Description | Required |
-  |------|-------------|----------|
-  | `--name` | Harness display name | Yes |
-  | `--agent-id` | Agent ID to generate Probes for | Yes |
-  | `--description` | Harness description | |
-  | `--persona-ids` | Persona IDs to include (JSON array) | |
-  | `--policy-ids` | Policy IDs to include (JSON array) | |
-  | `--system-prompt` | Agent description or system prompt for generation | |
-  | `--json` | Output as JSON | |
-
-  </Tab>
   <Tab title="MCP">
 
   With the [Vijil MCP server](/developer-guide/agentic/quickstart) configured, ask Claude Code in natural language:
@@ -223,10 +181,6 @@ Pass the Persona and Policy IDs from the previous step as `persona_ids` and `pol
 Harness generation is asynchronous. Poll until `status` is `active`.
 
 <CodeGroup>
-```bash title="CLI"
-vijil harness custom-get <harness_id>
-```
-
 ```bash title="API"
 curl -s "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
@@ -253,10 +207,6 @@ if harness.workflow:
 Retrieve the generated Probes for a completed Harness.
 
 <CodeGroup>
-```bash title="CLI"
-vijil harness custom-prompts <harness_id> --json
-```
-
 ```bash title="API"
 curl -s "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID/prompts?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
@@ -276,11 +226,6 @@ Returns an empty list if the Harness is still in `draft` status. The SDK has no 
 ### List Custom Harnesses
 
 <CodeGroup>
-```bash title="CLI"
-vijil harness custom-list
-vijil harness custom-list --agent-id "$AGENT_ID" --status active
-```
-
 ```bash title="API"
 curl -s "$VIJIL_URL/v1/custom-harnesses/?team_id=$TEAM_ID&status=active" \
   -H "Authorization: Bearer $TOKEN"
@@ -299,10 +244,6 @@ Both support filtering by `agent_id` and `status`, with `limit` and `offset` for
 Stop a Harness that is still generating.
 
 <CodeGroup>
-```bash title="CLI"
-vijil harness custom-cancel <harness_id>
-```
-
 ```bash title="API"
 curl -s -X POST "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID/cancel?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
@@ -322,11 +263,6 @@ The SDK has no dedicated `cancel` method yet, so the example above calls the end
 ### Delete a Harness
 
 <CodeGroup>
-```bash title="CLI"
-vijil harness custom-delete <harness_id>
-vijil harness custom-delete <harness_id> --yes
-```
-
 ```bash title="API"
 curl -s -X DELETE "$VIJIL_URL/v1/custom-harnesses/$HARNESS_ID?team_id=$TEAM_ID" \
   -H "Authorization: Bearer $TOKEN"
