@@ -1,6 +1,6 @@
 ---
 title: 'Claude Code'
-description: 'Inspect, Evaluate, and harden the Agent you are building inside Claude Code.'
+description: 'Inspect, evaluate, and harden the Agent you are building inside Claude Code.'
 ---
 
 The [Vijil plugin](https://github.com/vijilAI/vijil) for Claude Code runs the Agent lifecycle from your editor. It reads the Agent's source in your repository, evaluates its behavior with [Diamond](/concepts/platform/diamond), finds the root causes of failures, and proposes fixes through [Dome](/concepts/platform/dome) and [Darwin](/concepts/platform/darwin).
@@ -38,14 +38,14 @@ The other commands call the Console through `vijil-mcp`. Connect in one of two w
     /vijil login
     ```
 
-    Your browser opens the Console. Sign in and approve the request. The plugin stores the session in `~/.vijil/credentials.json`. If the browser cannot open, Claude Code prints a URL to open yourself.
+    Your browser opens the Console. Sign in and approve the request. The sign-in command saves the session in `~/.vijil/credentials.json` and `~/.vijil/config.yaml`. If the browser cannot open, Claude Code prints a URL to open yourself.
   </Tab>
   <Tab title="API Key">
     Create a key pair under **Settings → API Keys** in the Console, then export it before you start Claude Code:
 
     ```bash
-    export VIJIL_CLIENT_ID=<client-id>
-    export VIJIL_CLIENT_SECRET=<client-secret>
+    export VIJIL_CLIENT_ID="<client-id>"
+    export VIJIL_CLIENT_SECRET="<client-secret>"
     ```
 
     Use a key pair for CI or any machine without a browser. The plugin connects to `https://console-api.vijil.ai` by default. Set `VIJIL_CONSOLE_URL` to use another deployment.
@@ -64,7 +64,7 @@ The other commands call the Console through `vijil-mcp`. Connect in one of two w
 | `/vijil adapt <agent>` | Proposes a prompt or code change as a pull request | Required |
 | `/vijil register [agent]` | Creates or updates the Agent's record in the Console | Required |
 
-`agent` is an Agent ID, name, or path. Without it, the plugin uses the Agent in the current repository.
+`evaluate` accepts an Agent ID, name, or path. `register` accepts an Agent ID or name. When you omit their optional arguments, the plugin uses the Agent in the current repository. `inspect` accepts an optional source path.
 
 ## Typical Workflow
 
@@ -109,10 +109,12 @@ The plugin cannot apply Dome configurations, run Darwin evolutions, approve prop
 
 | Problem | What to Check |
 |---|---|
-| Commands other than `inspect` report that `vijil-mcp` is unreachable | Run `/vijil login` or export your key pair, confirm that `uvx` is on your `PATH`, then restart Claude Code |
+| Commands other than `inspect` report that `vijil-mcp` is unreachable | Confirm that `uvx` is on your `PATH` and sign in with `/vijil login`. After changing exported credentials, use `/mcp` to reconnect `vijil-mcp` |
+| Requests reach the wrong Console | Follow [Connect to a Self-Hosted Console](#connect-to-a-self-hosted-console). Run `uvx vijil-console auth status` to check the gateway and credential source |
+| Requests fail with `CERTIFICATE_VERIFY_FAILED` | For an internal certificate authority, set `VIJIL_CA_BUNDLE` to its certificate bundle and reconnect `vijil-mcp` |
 | `evaluate` reports only source findings | The plugin could not reach the Console, so it skipped the Evaluation. Fix the connection and run it again |
-| The Evaluation cannot reach a registered Agent | Check the protocol. An Amazon Bedrock AgentCore HTTP runtime does not publish an agent card, so register its OpenAI-compatible endpoint with `chat_completions` |
-| The Console refuses an Evaluation | You have used your weekly allowance. Wait for it to refill |
+| The Evaluation cannot reach a registered Agent | Check its endpoint and protocol: `chat_completions` for an OpenAI-compatible endpoint, or `a2a` for an Agent that publishes an agent card |
+| The Console refuses an Evaluation | Read the returned error. If you have used your weekly allowance, wait for the retry time the Console reports |
 
 ## Next Steps
 
