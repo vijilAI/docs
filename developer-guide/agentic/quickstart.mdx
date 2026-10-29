@@ -13,7 +13,7 @@ This quickstart takes you from authentication to a completed behavioral Evaluati
 | **MCP** | Natural-language workflows in Claude Code | `vijil-mcp`; Python 3.10+ |
 
 <Note>
-The [`vijil-mcp`](https://pypi.org/project/vijil-mcp/) server is a separate package that uses `vijil-console` under the hood. It does not share the `vijil-sdk` installation or configuration.
+The [`vijil-mcp`](https://pypi.org/project/vijil-mcp/) server is a separate package that uses `vijil-console` under the hood. Install it separately from `vijil-sdk`, since the SDK can reuse saved MCP sign-in credentials and gateway settings.
 </Note>
 
 <Tip>
@@ -22,10 +22,10 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
 
 ## Prerequisites
 
-- A [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console) and its API gateway URL
+- A [Vijil Console deployment](/developer-guide/deploy-vijil/deploy-vijil-console), its API gateway URL, and access to a team
 - Vijil credentials: a client ID and client secret, or a bearer access token
 - A provider API key for the Agent endpoint you want to test
-- [Claude Code](https://claude.ai/code) if you choose MCP
+- [Claude Code](https://claude.ai/code) if you choose MCP. See [Claude Code setup](/developer-guide/getting-started/claude-code-plugin#before-you-begin).
 
 ## Run Your First Evaluation
 
@@ -109,7 +109,7 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
         ```
       </Tab>
       <Tab title="SDK">
-        Export a Console API credential pair and construct the client:
+        Export a [Console API credential pair](/developer-guide/sdk/setup#authentication) and construct the client:
 
         ```bash
         export VIJIL_CLIENT_ID="vk_..."
@@ -123,6 +123,8 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
         ```
 
         `Vijil()` reads the credential pair from the environment and exchanges it for a bearer token. You can instead provide an existing bearer token through `VIJIL_API_KEY` or `Vijil(api_key="<access-token>")`.
+
+        Use credentials for the team that owns your Agent. `client.team_id` shows the team the SDK resolves to.
       </Tab>
       <Tab title="REST API">
         Exchange your Console email and password for a bearer token:
@@ -145,12 +147,12 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
         ```
       </Tab>
       <Tab title="MCP">
-        Configure the `vijil-console` CLI used by the MCP server:
+        Configure the `vijil-console` dependency installed with the MCP server:
 
         ```bash
-        vijil auth init --url https://console-api.example.com
-        vijil auth login
-        vijil team use <team-id>
+        vijil-console auth init --url https://console-api.example.com
+        vijil-console auth login
+        vijil-console team use <team-id>
         ```
 
         Create `.mcp.json` in your project root:
@@ -172,7 +174,7 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
   </Step>
 
   <Step title="Register an Agent">
-    The example below registers an OpenAI-compatible chat-completions endpoint. Keep provider credentials in environment variables instead of command history or source control.
+    The example below registers an OpenAI-compatible chat-completions endpoint. Read provider credentials from environment variables in your application code and keep them out of source control.
 
     <Tabs>
       <Tab title="CLI">
@@ -195,6 +197,12 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
         ```
       </Tab>
       <Tab title="SDK">
+        Set the provider API key before running the registration code:
+
+        ```bash
+        export OPENAI_API_KEY="<provider-api-key>"
+        ```
+
         ```python
         import os
 
@@ -225,10 +233,11 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
           }"
         ```
 
-        Copy the returned Agent `id`:
+        Copy the returned Agent `id` and use its `team_id` for the remaining requests:
 
         ```bash
         export AGENT_ID="a1b2c3d4-..."
+        export TEAM_ID="<agent-team-id>"
         ```
       </Tab>
       <Tab title="MCP">
@@ -284,7 +293,7 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
           }"
         ```
 
-        Save the returned `evaluation_id`, then poll the status endpoint until the Evaluation reaches a terminal state:
+        Save the returned `evaluation_id`, then repeat the status request until the Evaluation reaches a [terminal state](/developer-guide/evaluate/running-evaluations#check-status):
 
         ```bash
         export EVAL_ID="e5f6a7b8-..."
@@ -302,6 +311,8 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
   </Step>
 
   <Step title="Inspect the Results">
+    Continue after the Evaluation succeeds. If it ends as `failed` or `cancelled`, inspect its status and error details before retrieving results.
+
     <Tabs>
       <Tab title="CLI">
         Show the completed Evaluation and the Agent's latest [Trust Score](/concepts/trust-score/introduction):
@@ -322,10 +333,14 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
 
         ```python
         print(evaluation.trust_score)
-        print(evaluation.dimensions.reliability)
-        print(evaluation.dimensions.security)
-        print(evaluation.dimensions.safety)
+
+        if evaluation.dimensions is not None:
+            print(evaluation.dimensions.reliability)
+            print(evaluation.dimensions.security)
+            print(evaluation.dimensions.safety)
         ```
+
+        The SDK returns scores on a 0.0–1.0 scale. The Console displays them on a 0–100 scale.
 
         Retrieve the complete nested results or only failed prompt-response rows:
 

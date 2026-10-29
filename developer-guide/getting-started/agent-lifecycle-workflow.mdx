@@ -30,7 +30,7 @@ flowchart LR
 | **Evaluate** | Measure trustworthiness and search for deeper weaknesses | [Trust Score](/concepts/trust-score/introduction), Trust Report, and Red Team findings |
 | **Harden** | Add and test [runtime Guardrails](/developer-guide/protect/overview) | Applied Dome configuration and staging telemetry |
 | **Improve** | Remediate weaknesses found during Evaluate | Reviewed Agent, Policy, and Guard changes |
-| **Re-evaluate** | Confirm that the changes worked | Improved Evaluation results and release decision |
+| **Re-evaluate** | Confirm that the changes worked | Evaluation results comparison and release decision |
 | **Deploy** | Release through your delivery pipeline | Production Agent reconnected to the platform |
 | **Monitor** | Observe production behavior | [Dome Metrics](/owner-guide/protect-in-production/observability), events, logs, and traces |
 
@@ -44,7 +44,7 @@ From Register onward, you need:
 - An existing Agent with a reachable HTTP endpoint.
 - Credentials and rate-limit information for the Agent endpoint.
 - Permission to configure and deploy the Agent.
-- Python 3.12 or later, the [SDK](/developer-guide/sdk/setup#installation), and the required [Dome extras](/developer-guide/protect/installation) for the SDK path.
+- The [SDK](/developer-guide/sdk/setup#installation) installed in a supported Python environment, and the required [Dome extras](/developer-guide/protect/installation) for the SDK path.
 - [Client credentials](/developer-guide/sdk/setup#authentication) for the SDK path.
 - The [Claude Code plugin](/developer-guide/getting-started/claude-code-plugin#install-the-plugin), installed and connected, for the Claude Code path.
 - Optional [Policies](/owner-guide/simulate-environment/policies) and [Personas](/owner-guide/simulate-environment/personas) for targeted Evaluations and Red Team campaigns.
@@ -90,7 +90,7 @@ Registration tells the platform how to reach the Agent and how much context it c
     2. Register the current Agent configuration with [`client.agents.create()`](/developer-guide/sdk/resources#client-agents).
     3. Save `agent.id` for the remaining stages.
 
-    Use `client.agents.create()` for this workflow. Do not use [`client.register()`](/developer-guide/sdk/lifecycle-methods#client-register), which depends on a preview source-to-genome Console route.
+    Use `client.agents.create()` to register the endpoint for testing. [`client.register()`](/developer-guide/sdk/lifecycle-methods#client-register) imports source files from a local directory instead.
   </Tab>
   <Tab title="Claude Code">
     1. Open Claude Code in the Agent's repository.
@@ -148,7 +148,7 @@ Review the [Evaluation results](/developer-guide/evaluate/understanding-results)
 
 ### Run an Adaptive Red Team Campaign
 
-After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/run-evaluations/running-evaluations#running-a-red-team-campaign) against the registered Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose.
+After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/red-team/running-campaigns) against the registered Agent. Red Teaming investigates tool misuse, data leakage, policy violations, and weaknesses that fixed Evaluation cases might not expose.
 
 <Tabs>
   <Tab title="Console">
@@ -167,12 +167,9 @@ After the baseline Evaluation, run an [adaptive Red Team campaign](/owner-guide/
   <Tab title="Claude Code">
     `/vijil evaluate` already ends with an adaptive Red Team campaign. Ask Claude Code for the Red Team report to review the findings and successful attack strategies.
   </Tab>
-  <Tab title="Claude Code">
-    `/vijil evaluate` already ends with an adaptive Red Team campaign. Ask Claude Code for the Red Team report to review the findings and successful attack strategies.
-  </Tab>
 </Tabs>
 
-Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to inspect:
+Use the [Red Team results](/owner-guide/red-team/understanding-results) to inspect:
 
 - `FULL`, `PARTIAL`, and `NONE` judgments.
 - Confirmed policy violations.
@@ -191,7 +188,7 @@ Use the [Red Team results](/owner-guide/run-evaluations/understanding-results#un
 
 ## 3. Harden the Agent With Dome
 
-Use the [Trust Score findings](/developer-guide/evaluate/understanding-results#reading-findings) and [Red Team evidence](/owner-guide/run-evaluations/understanding-results#understanding-red-team-results) to choose [Dome runtime protection](/developer-guide/protect/overview):
+Use the [Trust Score findings](/developer-guide/evaluate/understanding-results#reading-findings) and [Red Team evidence](/owner-guide/red-team/understanding-results) to choose [Dome runtime protection](/developer-guide/protect/overview):
 
 | Finding | Likely Protection |
 |---|---|
@@ -275,7 +272,7 @@ Manual remediation is the default path. Depending on the finding, you might:
   <Tab title="SDK">
     1. Apply code and configuration fixes through the application repository.
     2. Update the relevant Agent, Policy, or Dome configuration through the SDK when needed.
-    3. Where Darwin is available, run [`client.adapt()`](/developer-guide/sdk/lifecycle-methods#client-adapt).
+    3. Where Darwin is available, run [`client.adapt(agent_id)`](/developer-guide/sdk/lifecycle-methods#client-adapt).
     4. Review the generated proposals with [`client.proposals`](/developer-guide/sdk/resources#client-proposals).
     5. Approve and apply only reviewed proposals.
     6. Preserve genome versions for comparison and audit.
@@ -308,7 +305,7 @@ Repeat the tests that cover the changed behavior:
 - Run [targeted Harnesses](/developer-guide/evaluate/custom-harnesses) for the changed areas.
 - Retest representative successful attacks through the Agent's regression test process.
 - Run another adaptive campaign after changes to tools, prompts, permissions, or data access.
-- [Compare the results](/developer-guide/evaluate/understanding-results#comparing-evaluations) with the original baseline.
+- [Compare the results](/developer-guide/evaluate/understanding-results#comparing-behavioral-evaluations) with the original baseline.
 
 <Tabs>
   <Tab title="Console">
@@ -324,7 +321,7 @@ Repeat the tests that cover the changed behavior:
     3. Retest saved attack inputs through the Agent's test suite.
     4. Run [`client.evaluate(agent_id, type="redteam")`](/developer-guide/sdk/lifecycle-methods#run-a-red-team-evaluation) to start another adaptive campaign.
     5. Compare the returned scores and findings with the saved baseline.
-    6. Check staging traces with `client.monitor.traces()`.
+    6. Check staging traces with `client.monitor.traces(agent_id)`.
   </Tab>
   <Tab title="Claude Code">
     1. Run `/vijil evaluate <agent-id>` again.
@@ -405,9 +402,9 @@ Use `0.70` only as an example. Set `VIJIL_TRUST_THRESHOLD` to the threshold appr
   </Tab>
 </Tabs>
 
-Your deployment artifact should:
+Your deployment should:
 
-1. Include [`vijil-dome` and the required extras](/developer-guide/protect/installation) in the deployment artifact.
+1. Include [`vijil-dome` and the required extras](/developer-guide/protect/installation).
 2. Load the reviewed Dome configuration.
 3. Keep credentials and other secrets outside source control.
 4. Keep a rollback path for Agent and Guardrail changes.
@@ -431,8 +428,8 @@ Use [Dome Metrics](/owner-guide/protect-in-production/observability) to investig
     4. Confirm that production traffic appears under the expected Agent.
   </Tab>
   <Tab title="SDK">
-    1. Read production traces with `client.monitor.traces()`.
-    2. Read production logs with `client.monitor.logs()`.
+    1. Read production traces with `client.monitor.traces(agent_id)`.
+    2. Read production logs with `client.monitor.logs(agent_id)`.
 
     Do not use `client.monitor.summary()` or historical `client.monitor.detections()` until their backend routes are available.
   </Tab>
@@ -476,8 +473,8 @@ New findings restart the lifecycle at Improve. Apply a reviewed change, re-evalu
 | Problem | What to Check |
 |---|---|
 | The Evaluation cannot reach the Agent | Review [Agent availability](/owner-guide/run-evaluations/running-evaluations#agent-availability), endpoint compatibility, credentials, and rate limits |
-| The Evaluation takes too long | Review [Evaluation rate limits](/developer-guide/evaluate/overview#rate-limiting), use a small sample while iterating, then run full coverage before release |
-| Red Team is too slow or expensive | Review [Red Team runtime and cost](/owner-guide/run-evaluations/running-evaluations#red-team-runtime-and-cost), then reduce waves, seeds, or parallel attackers |
+| The Evaluation takes too long | Review [Evaluation rate limits](/owner-guide/run-evaluations/running-evaluations#rate-limits), use a small sample while iterating, then run full coverage before release |
+| Red Team is too slow or expensive | Review [Red Team runtime and cost](/owner-guide/red-team/running-campaigns#runtime-and-cost), then adjust wave and seed budgets or attacker concurrency |
 | Dome blocks normal traffic | Inspect [Dome traces](/owner-guide/protect-in-production/observability#open-logs-and-traces) and tune the responsible Detector |
 | The CI/CD gate fails | Check the Evaluation status, Trust Score, configured threshold, and [SDK credentials](/developer-guide/sdk/setup#authentication) |
 | The platform uses the old Agent endpoint | [Update the registered Agent](/owner-guide/register-agents/registering-agents#manage-agents) after deployment |

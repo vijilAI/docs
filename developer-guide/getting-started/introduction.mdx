@@ -1,29 +1,29 @@
 ---
 title: 'Building Trusted Agents'
-description: 'Integrate evaluation and protection into your development workflow, catch failures before they reach production.'
+description: 'Integrate evaluation and protection into your development workflow to catch failures before production.'
 ---
 
 <Tip>
 **TL;DR:** Vijil integrates into your development workflow via MCP (natural language), CLI (`vijil-console`), REST API, or the Python SDK (`vijil-sdk`). [Diamond](/developer-guide/evaluate/overview) evaluates your [Agent](/owner-guide/register-agents/what-is-an-agent) before deployment, while [Dome](/developer-guide/protect/overview) protects it at runtime. A behavioral evaluation produces a [Trust Score](/concepts/trust-score/introduction) (0–100) you can use as a deployment gate. A Red Team evaluation produces findings and a report on adaptive attacks.
 </Tip>
 
-## The Problem with Testing Agents
+## The Problem With Testing Agents
 
 Traditional software testing catches bugs, but Agents also fail in ways that do not look like bugs. They hallucinate confidently, follow requests they should refuse, and behave differently under adversarial pressure than in demos. Your unit and integration tests can pass even when your Agent remains vulnerable in production.
 
-This guide shows you how to catch those failures before deployment. You'll learn to run behavioral evaluations against adversarial [Scenarios](/concepts/evaluation-components/scenario), use Red Team evaluations for adaptive attacks, integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations did not anticipate.
+This guide shows you how to catch those failures before deployment. You will learn to run behavioral evaluations against adversarial [Scenarios](/concepts/evaluation-components/scenario), use Red Team evaluations for adaptive attacks, integrate trust gates into your CI/CD pipeline, and add runtime protection that blocks attacks your evaluations did not anticipate.
 
 <Info>
 If you manage Agents through a web Console rather than code, see the [Agent Owner Guide](/owner-guide/getting-started/introduction). This guide focuses on programmatic integration.
 </Info>
 
-## What You Get from Vijil
+## What You Get From Vijil
 
 Vijil provides two products that work together:
 
-**Diamond** offers two evaluation types. Behavioral evaluations send adversarial Probes to your agent and produce a Trust Score for reliability, security, and safety. Red Team evaluations run adaptive waves of attacks and produce findings and a report.
+**[Diamond](/developer-guide/evaluate/overview)** offers two evaluation types. Behavioral evaluations send adversarial [Probes](/concepts/evaluation-components/probe) to your Agent and produce a Trust Score for Reliability, Security, and Safety. [Red Team evaluations](/developer-guide/evaluate/running-evaluations#red-team-evidence) run adaptive waves of attacks and produce findings and a report.
 
-**[Dome](/developer-guide/protect/overview)** scans Agent inputs and outputs at runtime. Your application or framework integration can use the scan result to block or sanitize flagged content, while `secure_agent()` can apply configured Trust Runtime controls.
+**[Dome](/developer-guide/protect/overview)** scans Agent inputs and outputs at runtime. Your application or framework integration can use the scan result to block or sanitize flagged content, while `secure_agent()` can apply configured [Trust Runtime controls](/developer-guide/protect/trust-runtime).
 
 ## Integration Methods
 
@@ -35,8 +35,8 @@ Vijil exposes four interfaces. Choose the one that fits your workflow, or mix th
 |--------|----------|----------|
 | **MCP** | Interactive development, natural language evaluation | Claude Code + `vijil-mcp` |
 | **CLI** | CI/CD gates, scripting, headless automation | `vijil-console` package |
-| **REST API** | Custom integrations, non-Python environments | HTTP client + API key |
-| **SDK** | Python apps, notebooks, programmatic pipelines | `vijil-sdk` package (Python 3.12+) |
+| **REST API** | Custom integrations, non-Python environments | HTTP client + bearer access token |
+| **SDK** | Python apps, notebooks, programmatic pipelines | [`vijil-sdk` package](/developer-guide/sdk/setup#installation) |
 
 <CardGroup cols={2}>
   <Card title="MCP" icon="plug" href="/developer-guide/agentic/quickstart">
@@ -65,7 +65,7 @@ Different roles use Vijil differently. This guide serves all three:
   <Card title="Build & Test" icon="code">
     **Individual Developer**
 
-    You are building an Agent and want fast feedback on whether it's trustworthy. Run behavioral evaluations locally, see results in minutes, iterate quickly.
+    You are building an Agent and want feedback on its trustworthiness. [Evaluate the Agent running on your workstation](/developer-guide/evaluate/local-agent), inspect the findings, and iterate.
 
   </Card>
   <Card title="Automate & Gate" icon="binoculars">
@@ -88,17 +88,17 @@ Different roles use Vijil differently. This guide serves all three:
 
 ## What Vijil Measures
 
-Behavioral evaluations test agents across three dimensions:
+Behavioral evaluations test Agents across three dimensions:
 
 | Dimension | What It Measures | Example Failures |
 |-----------|------------------|------------------|
-| **Reliability** | Does the Agent complete intended tasks accurately and consistently? | Hallucinations, task failures, inconsistent responses |
-| **Security** | Can the Agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
-| **Safety** | Does the Agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
+| **[Reliability](/concepts/trust-score/reliability)** | Does the Agent complete intended tasks accurately and consistently? | Hallucinations, task failures, inconsistent responses |
+| **[Security](/concepts/trust-score/security)** | Can the Agent resist adversarial manipulation? | Prompt injection, data exfiltration, jailbreaks |
+| **[Safety](/concepts/trust-score/safety)** | Does the Agent stay within acceptable boundaries? | Policy violations, harmful content, unauthorized actions |
 
-Each behavioral evaluation produces a **Trust Score** (0–100) with breakdowns by dimension. The score tells you where your Agent is strong, where it is vulnerable, and whether it meets your deployment threshold. Red Team evaluations instead produce evidence of attacks, vulnerabilities, and successful strategies in a report.
+Each behavioral evaluation produces a **Trust Score** with breakdowns by dimension. The Console displays scores on a 0–100 scale; the SDK returns them on a 0.0–1.0 scale. Use the score and [findings](/developer-guide/evaluate/understanding-results) to identify weaknesses and decide whether the Agent meets your deployment threshold. Red Team evaluations produce evidence of attacks, vulnerabilities, and successful strategies in a report.
 
-## Time to First Trust Score
+## Get Your First Trust Score
 
 Start with [MCP](/developer-guide/agentic/quickstart) to use natural-language requests from Claude Code. For terminal automation, configure the [CLI](/developer-guide/cli/setup). For custom or non-Python integrations, follow the [REST API path](/developer-guide/agentic/quickstart). For Python code, install and configure the [SDK](/developer-guide/sdk/setup). Then [run an Evaluation](/developer-guide/evaluate/running-evaluations) and add [Dome protection](/developer-guide/protect/overview) when you need runtime controls.
 
@@ -110,8 +110,11 @@ Vijil integrates with the tools you already use:
 
 | Framework | Integration |
 |-----------|-------------|
-| **LangChain / LangGraph** | `GuardrailRunnable` for chains, `LocalAgentExecutor` for evaluation |
-| **Google ADK** | Before/after callbacks for Dome, ADK Runner for evaluation |
-| **Custom Python** | Wrap any function that takes a prompt and returns a response |
-| **CI/CD** | GitHub Actions, GitLab CI, or any system that can run Python |
+| **[LangChain](/developer-guide/protect/integrations/langchain)** | Add Dome Guardrails to chains with `GuardrailRunnable` |
+| **[LangGraph](/developer-guide/protect/integrations/langgraph)** | Scan graph inputs and outputs, or use `secure_agent()` for configured Trust Runtime controls |
+| **[Google ADK](/developer-guide/protect/integrations/adk)** | Add Dome model callbacks, or use `secure_agent()` for configured Trust Runtime controls |
+| **[Custom Python](/developer-guide/protect/using-guardrails)** | Call Dome before and after Agent execution and handle the scan results |
+| **[CI/CD](/developer-guide/getting-started/agent-lifecycle-workflow#gate-deployment-in-cicd)** | Run SDK Evaluations and apply a Trust Score gate before release |
+
+For evaluation, expose your Agent through a [supported endpoint](/developer-guide/evaluate/cloud-providers). If the Agent runs on your workstation, use the [local Agent workflow](/developer-guide/evaluate/local-agent) to make it reachable through an authenticated tunnel.
 
