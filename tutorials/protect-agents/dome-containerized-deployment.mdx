@@ -544,24 +544,54 @@ docker run -p 80:80 --env-file .env ghcr.io/vijilai/vijil-dome-marketplace:lates
 | `DOME_LOGS_COLLECTOR_TOKEN` | Authorization token for the logs collector |
 | `OTEL_EXPORTER_OTLP_METRICS_RESOURCE_ATTRIBUTES_AS_LABELS` | Exposes resource attributes as metric labels |
 
-### Sending Telemetry to Vijil Console or Evaluate
+### Send Telemetry to Vijil
 
-To send telemetry to the [Vijil Console](/concepts/platform/console) or an enterprise Vijil Evaluate deployment, add these variables to your `.env` file:
+Dome can send its telemetry to the [Vijil Console](/concepts/platform/console) from anywhere, including your own cloud or VPC. Telemetry appears on the Console's Telemetry pages for the team that owns the API key.
+
+Create an API key under **Settings** > **API Keys** in the Console. The Console shows the secret only once. Then set these variables in your `.env` file, replacing `console-api.example.com` with your Console API host:
 
 <CodeGroup>
 ```bash title=".env"
+ENABLE_DOME_INSTRUMENTATION=true
+OTEL_AUTH_METHOD=bearer
+DOME_TRACES_COLLECTOR_ENDPOINT=https://console-api.example.com/v1/otlp/v1/traces
+DOME_LOGS_COLLECTOR_ENDPOINT=https://console-api.example.com/v1/otlp/v1/logs
+DOME_METRICS_COLLECTOR_ENDPOINT=https://console-api.example.com/v1/otlp/v1/metrics
+DOME_TRACES_COLLECTOR_TOKEN=<client-id>:<client-secret>
+DOME_LOGS_COLLECTOR_TOKEN=<client-id>:<client-secret>
+DOME_METRICS_COLLECTOR_TOKEN=<client-id>:<client-secret>
 AGENT_ID=<agent-id>
 USER_ID=<user-id>
-TEAM_ID=<team-id>
 ```
 </CodeGroup>
 
 | Variable | Description |
 | -------- | ----------- |
-| `AGENT_ID` | The Agent you want to protect, as registered in Vijil Evaluate or Console |
-| `USER_ID` | Your user ID in Vijil Evaluate or Console |
-| `TEAM_ID` | Your team ID in Vijil Evaluate or Console |
+| `DOME_*_COLLECTOR_ENDPOINT` | One endpoint per signal under `/v1/otlp/v1/` |
+| `DOME_*_COLLECTOR_TOKEN` | The API key as `<client-id>:<client-secret>`, the same for all three signals |
+| `AGENT_ID` | The Agent you want to protect, as registered in the Console, so you can filter telemetry by Agent |
+| `USER_ID` | Your user ID in the Console |
+
+The team is taken from the API key. Any `TEAM_ID` or `team.id` the Dome sends is replaced, so a key can only write to its own team.
+
+The endpoint accepts OTLP over HTTP (protobuf or JSON) only, not gRPC. Each API key can send up to 10 requests per second, with bursts of 20, and each request body can be up to 10 MB. Revoking a key stops ingestion within a minute.
+
+### Troubleshoot Telemetry Ingestion
+
+A rejected request returns a JSON body that names the problem:
+
+| Status | `error` | Fix |
+| ------ | ------- | --- |
+| 401 | `missing_credentials` | Set the `DOME_*_COLLECTOR_TOKEN` variables and `OTEL_AUTH_METHOD=bearer` |
+| 401 | `malformed_credentials` | Send the token as `<client-id>:<client-secret>` |
+| 401 | `invalid_api_key` | Check the client ID and secret, or create a new key |
+| 403 | `api_key_revoked` | Create a new key |
+| 403 | `api_key_inactive` | The key's creator is inactive or has left the team. Create a new key as an active team member |
+| 404 | `unknown_signal_path` | Use `/v1/otlp/v1/traces`, `/v1/otlp/v1/logs`, or `/v1/otlp/v1/metrics` |
+| 413 | `payload_too_large` | Lower the exporter's batch size |
+| 429 | `rate_limited` | The exporter retries automatically. Reduce export frequency if this persists |
+| 503 | `ingest_unavailable` | A temporary problem on Vijil's side. The exporter retries automatically |
 
 <Note>
-These variables are not required if you are exporting telemetry to a third-party observability platform.
+`AGENT_ID` and `USER_ID` are not required if you are exporting telemetry to a third-party observability platform.
 </Note>
