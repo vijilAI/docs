@@ -192,7 +192,7 @@ Vijil Console deploys 8 service pods plus telemetry (Grafana, Loki, Mimir, Tempo
 | **Recommended** | `r5.xlarge` | 3 | 12 vCPU | 96 GiB | Production use with concurrent evaluations |
 | **Dev reference** | `r5.xlarge` | 6 | 24 vCPU | 192 GiB | Vijil's own dev cluster (headroom for testing) |
 
-**Why memory-optimized (r5)?** Evaluation and red-team jobs are memory-intensive. `r5` instances provide a better $/GiB ratio than general-purpose `m5` for this workload.
+**Why memory-optimized (r5)?** Evaluation and red-team jobs are memory-intensive. `r5` instances provide a better $/GiB ratio than general-purpose `m5` for this workload. Each evaluation runs as its own Kubernetes Job that requests 500m CPU and 2 GiB of memory, with limits of 2 CPU and 4 GiB. Size your nodes for the number of evaluations you expect to run at once. To change these values, set `evaluationJobs.resources` in your Helm values.
 
 **Disk:** 200 GiB gp3 per node (default 80 GiB is tight when telemetry PVCs and container images accumulate). Set via `--node-volume-size 200` in eksctl.
 
