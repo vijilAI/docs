@@ -1,6 +1,7 @@
 ---
 title: 'Custom Detectors'
 description: 'Build custom detection methods for Dome Guardrails.'
+icon: 'scan-eye'
 ---
 
 You can write custom [Detectors](/concepts/defense/detector) that run your own detection logic inside a [Guard](/concepts/defense/guard). A custom Detector is a Python class that subclasses `DetectionMethod` and registers itself under a category and a name. Once registered, you refer to it in a configuration exactly like a built-in Detector.
