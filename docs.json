@@ -210,6 +210,7 @@
               "owner-guide/simulate-environment/policies",
               {
                 "group": "Specify Harnesses",
+                "icon": "link",
                 "pages": [
                   "owner-guide/simulate-environment/harnesses/trust-score",
                   "owner-guide/simulate-environment/harnesses/compliance",
@@ -287,6 +288,7 @@
               "developer-guide/protect/observability",
               {
                 "group": "Framework Integrations",
+                "icon": "puzzle",
                 "pages": [
                   "developer-guide/protect/integrations/adk",
                   "developer-guide/protect/integrations/langgraph",
@@ -305,6 +307,7 @@
               "developer-guide/reference/controls-api",
               {
                 "group": "CLI Reference",
+                "icon": "terminal",
                 "pages": [
                   "developer-guide/cli/setup",
                   "developer-guide/cli/discover",
@@ -318,6 +321,7 @@
               },
               {
                 "group": "SDK Reference",
+                "icon": "code",
                 "pages": [
                   "developer-guide/sdk/setup",
                   "developer-guide/sdk/lifecycle-methods",
