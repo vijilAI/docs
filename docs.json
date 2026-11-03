@@ -39,6 +39,10 @@
       "destination": "/concepts/welcome"
     },
     {
+      "source": "/concepts/what-is-vijil",
+      "destination": "/concepts/welcome"
+    },
+    {
       "source": "/get-started/quickstart",
       "destination": "/developer-guide/getting-started/quickstart"
     },
