@@ -14,11 +14,17 @@ To view the prompts, [Personas](/owner-guide/simulate-environment/personas) and 
 
 ## Create a Custom Harness
 
-1. In the left sidebar, navigate to **Harnesses** and press **Create Harness**.
+1. In the left sidebar, navigate to **Harnesses** and press ** + Create Harness**.
 2. Enter a Harness name and a description.
 3. Select an [Agent](/owner-guide/register-agents/what-is-an-agent).
 4. <Badge>Optional</Badge> Select one or more [Persona(s)](/owner-guide/simulate-environment/personas).
-5. Select one or more [Policies](/owner-guide/simulate-environment/policies).
+5. <Badge>Optional</Badge> Select one or more [Policies](/owner-guide/simulate-environment/policies).
+
+<Info>
+To structure the Harness around policy rules, select approved rules from those Policies for Harness generation. You can use up to 50 rules in one Harness.
+</Info>
+
+Vijil automatically structures the Harness around your selected rules, with one dimension per rule, and generates test cases for each rule. Before using this option, [extract and approve rules](/owner-guide/simulate-environment/policies#extract-rules-from-a-policy) from an uploaded policy document or manually entered policy text in **Policies**.
 
 ## Create a Custom Harness via MCP
 
