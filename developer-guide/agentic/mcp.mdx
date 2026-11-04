@@ -23,7 +23,7 @@ This also installs `vijil-console` (the CLI) as a dependency. Verify both:
 
 
 ```bash
-vijil --help
+vijil-console --help
 
 vijil-mcp --help
 ```
@@ -35,23 +35,23 @@ vijil-mcp --help
 Point the CLI at your Vijil Console deployment:
 
 ```bash
-vijil init --url https://console-api.example.com
+vijil-console init --url https://console-api.example.com
 ```
 
 
 ## Login to Vijil Console
 
 ```bash
-vijil login
+vijil-console login
 ```
 You will be prompted for your email and password. On success the CLI stores your JWT token and automatically selects your team if you belong to exactly one.
 
 If you belong to multiple teams, select one:
 
 ```bash
-vijil team list
+vijil-console team list
 
-vijil team use <team_id>
+vijil-console team use <team_id>
 ```
 
 ## Configure Claude Code
@@ -262,9 +262,9 @@ The CLI handles all authentication, token refresh, and team context — the MCP 
 
 | Symptom | Fix |
 | --- | --- |
-| `vijil` CLI not found in `PATH` | Run `pip install vijil-console` |
-| `vijil` CLI not configured | Run `vijil init --url <your-url>` |
-| Session expired | Run `vijil login` |
-| No team selected | Run `vijil team use <team_id>` |
+| `vijil-console` CLI not found in `PATH` | Run `pip install vijil-console` |
+| `vijil-console` CLI not configured | Run `vijil-console init --url <your-url>` |
+| Session expired | Run `vijil-console login` |
+| No team selected | Run `vijil-console team use <team_id>` |
 | Tools do not appear in Claude Code | Verify `.mcp.json` is in the project root, then restart Claude Code |
 | Claude uses Bash instead of MCP tools | Make sure `vijil-mcp` is in your `PATH` (`which vijil-mcp`) |

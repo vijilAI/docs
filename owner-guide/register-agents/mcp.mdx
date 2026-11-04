@@ -24,7 +24,7 @@ The Terminal (on Mac and Linux) or Command Prompt (on Windows) is a text-based w
 
 ## Install the Vijil Tools
 
-This step installs two tools: `vijil-mcp` (which connects Claude Code to Vijil) and `vijil` (the underlying Vijil command-line tool).
+This step installs two tools: `vijil-mcp` (which connects Claude Code to Vijil) and `vijil-console` (the underlying Vijil command-line tool).
 
 **Recommended: pipx**
 
@@ -49,7 +49,7 @@ If that command is not found, try `pip3 install vijil-mcp`.
 When the install finishes, confirm both tools are available:
 
 ```bash
-vijil --help
+vijil-console --help
 vijil-mcp --help
 ```
 
@@ -60,7 +60,7 @@ Each command should print a list of options. If you see an error instead, see th
 Tell the Vijil tool where your Console is. Replace the URL below with the address of your Vijil Console deployment.
 
 ```bash
-vijil init --url https://console-api.your-company.com
+vijil-console init --url https://console-api.your-company.com
 ```
 
 <Tip>
@@ -70,7 +70,7 @@ Not sure what your Console URL is? Ask the person who set up Vijil for your orga
 ## Login to Vijil
 
 ```bash
-vijil login
+vijil-console login
 ```
 
 You will be asked for your email address and password, the same ones you use to log in to the Vijil Console website. After a successful login, the tool saves your session so you do not need to log in again each time.
@@ -78,13 +78,13 @@ You will be asked for your email address and password, the same ones you use to 
 **If you belong to more than one team**, you will need to pick which one to use:
 
 ```bash
-vijil team list
+vijil-console team list
 ```
 
 This shows your teams with their IDs. Then select the one you want:
 
 ```bash
-vijil team use <team_id>
+vijil-console team use <team_id>
 ```
 
 Replace `<team_id>` with the ID shown in the list.
@@ -235,9 +235,9 @@ Show me the trust dashboard
 |---------|------------|
 | `pip: command not found` | Try `pip3 install vijil-mcp` instead, or use the `pipx` method above |
 | `Permission denied` during install | Use `pip install --user vijil-mcp`, or switch to the `pipx` method above |
-| `vijil: command not found` after install succeeded | Close and reopen your Terminal. If the command is still not found, try re-installing with `pipx` — it handles the PATH setup automatically |
-| `vijil` says it is not configured | Run `vijil init --url <your-console-url>` |
-| "Session expired" or login errors | Run `vijil login` |
-| "No team selected" | Run `vijil team list` then `vijil team use <team_id>` |
+| `vijil-console: command not found` after install succeeded | Close and reopen your Terminal. If the command is still not found, try re-installing with `pipx` — it handles the PATH setup automatically |
+| `vijil-console` says it is not configured | Run `vijil-console init --url <your-console-url>` |
+| "Session expired" or login errors | Run `vijil-console login` |
+| "No team selected" | Run `vijil-console team list` then `vijil-console team use <team_id>` |
 | Vijil tools do not appear in Claude Code | Make sure `.mcp.json` is in the folder where you opened Claude Code, then restart Claude Code |
 | Claude uses the wrong tool or seems confused | Try rephrasing your request to be more specific, for example "Use Vijil to list my agents" |
