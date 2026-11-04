@@ -71,7 +71,7 @@ client = Vijil(
 ```
 </CodeGroup>
 
-When you provide no authentication arguments, `Vijil()` reads `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` from the environment. The SDK exchanges the pair for a bearer access token when it constructs the client. It does not store the client ID or secret.
+When you provide no authentication arguments, `Vijil()` reads `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` from the environment. The SDK exchanges the pair for a bearer access token when it constructs the client. It keeps the pair in memory for the life of the client so that it can renew the token, and never writes the pair to disk.
 
 ### Bearer Token
 
@@ -102,7 +102,9 @@ Use one authentication method per client. The SDK resolves credentials in this o
 5. The token in `~/.vijil/credentials.json`
 
 <Note>
-The gateway determines the access token lifetime. The SDK does not store a client credential pair after its initial exchange. If that token expires, construct a new client or call `client.authenticate(client_id="<client-id>", client_secret="<client-secret>")`. Your application must replace bearer tokens supplied through `api_key` or `VIJIL_API_KEY`; tokens loaded from the saved credentials file can use the SDK's refresh flow.
+The gateway determines the access token lifetime. A client authenticated with a client ID and secret renews its own token: it exchanges the pair again when the token is within five minutes of expiring, and once more if a request returns `401`. If the gateway rejects the pair (for example, because the secret was revoked), the SDK stops renewing and raises `VijilAuthError`. To recover, generate a new client secret, then construct a new client with the new credentials. Tokens loaded from the saved credentials file also renew automatically. Your application must replace bearer tokens supplied through `api_key` or `VIJIL_API_KEY`.
+
+Requires `vijil-sdk` 0.1.71 or later. Earlier versions do not renew tokens obtained from a client ID and secret, so long-running processes must call `client.authenticate(client_id="<client-id>", client_secret="<client-secret>")` when the token expires.
 </Note>
 
 <Tip>

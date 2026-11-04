@@ -320,7 +320,7 @@ The HTTP client makes at most three total attempts for a request:
 - For `429` responses, it uses a numeric `Retry-After` value. If the header is missing or invalid, it waits one second.
 - For a `401` response, it performs one refresh-and-retry when the credentials support token refresh.
 
-After the final attempt, the SDK raises `NetworkError`, `VijilRateLimitError`, or `VijilServerError`, depending on the last failure. Individual operations can disable retries when repeating the request would be unsafe. Multipart uploads do not retry automatically.
+After the final attempt, the SDK raises `NetworkError`, `VijilRateLimitError`, or `VijilServerError`, depending on the last failure. Individual operations can disable retries when repeating the request would be unsafe. Multipart uploads renew an expiring token and retry once on a `401`, but do not retry transport failures, `429`, or `5xx` responses.
 
 ## Next Steps
 
