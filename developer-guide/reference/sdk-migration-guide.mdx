@@ -77,8 +77,6 @@ The current CLI splits those commands into:
 | `vijil start <X>` | Porcelain verbs such as `vijil evaluate` | Start a behavioral evaluation by default, or add `--type redteam` for Red Team |
 | `vijil stop <X>` | `vijil jobs cancel <id>` | Job cancellation is a plumbing command |
 
-See the [CLI evaluation reference](/developer-guide/cli/evaluate) for evaluation options.
-
 ## Former Red Team Workflow
 
 If you used the former standalone Red Team workflow, create a Red Team evaluation instead. The evaluation ID identifies the run and its results across the SDK, CLI, and REST API.
@@ -91,7 +89,9 @@ If you used the former standalone Red Team workflow, create a Red Team evaluatio
 | Check progress and results | `client.evaluations.redteam_status(evaluation_id)`, `vijil evaluations redteam-status <evaluation-id>`, or `/v1/evaluations/{evaluation_id}/redteam/*` |
 | Retrieve the report | `client.evaluations.redteam_report(evaluation_id)` or `vijil evaluations redteam-report <evaluation-id>` |
 
-Red Team evaluations do not use `baseline`, Harness, `sample_size`, or local mode settings. See the [Red Team CLI guide](/developer-guide/cli/red-team) and [SDK evaluation resources](/developer-guide/sdk/resources) for the status, artifact, and report methods.
+Red Team evaluations do not use `baseline`, Harness, `sample_size`, or local mode settings.
+
+See the [SDK evaluation resources](/developer-guide/sdk/resources) for the status, artifact, and report methods.
 
 ## Python SDK Changes
 
