@@ -101,7 +101,7 @@ Use one authentication method per client. The SDK resolves credentials in this o
 5. The token in `~/.vijil/credentials.json`
 
 <Note>
-The gateway determines the access token lifetime. A client authenticated with a client ID and secret renews its own token: it exchanges the pair again when the token is within five minutes of expiring, and once more if a request returns `401`. If the gateway rejects the pair, the client stops renewing and raises `VijilAuthError`; rotate the credential and construct a new client. Tokens loaded from the saved credentials file also renew automatically. Your application must replace bearer tokens supplied through `api_key` or `VIJIL_API_KEY`.
+The gateway determines the access token lifetime. A client authenticated with a client ID and secret renews its own token: it exchanges the pair again when the token is within five minutes of expiring, and once more if a request returns `401`. If the gateway rejects the pair (for example, because the secret was revoked), the SDK stops renewing and raises `VijilAuthError`. To recover, generate a new client secret, then construct a new client with the new credentials. Tokens loaded from the saved credentials file also renew automatically. Your application must replace bearer tokens supplied through `api_key` or `VIJIL_API_KEY`.
 
 Requires `vijil-sdk` 0.1.71 or later. Earlier versions do not renew tokens obtained from a client ID and secret, so long-running processes must call `client.authenticate(client_id="<client-id>", client_secret="<client-secret>")` when the token expires.
 </Note>
