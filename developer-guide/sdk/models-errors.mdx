@@ -1,6 +1,7 @@
 ---
 title: "Models and Errors"
 description: "Understand Vijil SDK return types, exception categories, and retry behavior."
+icon: 'triangle-alert'
 ---
 
 Structured SDK responses use Pydantic models. Resource models such as `Evaluation` inherit from `VijilModel`, while generated API models such as `RedteamStatusResponse` inherit directly from `BaseModel`. SDK exceptions inherit from `VijilError`.
