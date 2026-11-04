@@ -36,7 +36,11 @@
   "redirects": [
     {
       "source": "/get-started/welcome",
-      "destination": "/concepts/what-is-vijil"
+      "destination": "/concepts/welcome"
+    },
+    {
+      "source": "/concepts/what-is-vijil",
+      "destination": "/concepts/welcome"
     },
     {
       "source": "/get-started/quickstart",

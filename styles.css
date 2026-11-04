@@ -122,3 +122,9 @@ html[data-theme="dark"] svg[id^="mermaid-"] .edgeLabel span {
     fill: #ffffff !important;
     background: transparent !important;
 }
+
+/* Welcome page lifecycle diagram: tall and narrow, so cap its width instead of
+   stretching it to the full content width. Matched by its unique node IDs. */
+svg[id^="mermaid-"]:has(g[id*="flowchart-LifecycleTest-"]) {
+    max-width: 24rem !important;
+}
