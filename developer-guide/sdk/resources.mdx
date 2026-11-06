@@ -249,9 +249,11 @@ policy = client.policies.update("policy-id", name="Updated Policy")
 client.policies.delete("policy-id")
 ```
 
-Provide policy text with `source_text` or `content`. You can also pass `file_path` to read content from a UTF-8 text file.
+Provide policy text with `source_text` or `content`. You can also pass `file_path` to read content from a UTF-8 text file; this option does not upload or convert PDF files.
 
-`extract_rules()` creates draft rules from the policy source text and waits for extraction by default. Pass `wait=False` to return after starting extraction. `rules()` returns a paginated list and accepts an optional `status` filter.
+`extract_rules()` creates draft rules from the policy source text and returns a `Policy`. It waits by default, polling every five seconds; set `poll_interval` to change the interval or `wait=False` to return after starting extraction. Check `policy.rule_extraction.status` for `succeeded`, `failed`, or `cancelled`. If status remains unavailable after repeated checks, the method can return with `rule_extraction=None`.
+
+`rules()` returns a paginated list and accepts `status`, `limit`, and `offset`. The `limit` argument controls retrieval, not extraction. See [Extract Policy Rules](/developer-guide/evaluate/policy-rules) for the complete workflow, including status handling, review in the Console, and creating a Harness from approved rules.
 
 ## `client.personas`
 

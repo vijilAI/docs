@@ -95,6 +95,8 @@ Personas and Policies are reusable across Harnesses. For balanced coverage, comb
 
 Pass the Persona and Policy IDs from the previous step as `persona_ids` and `policy_ids`. Both are optional — omit them to generate a Harness from the Agent description alone.
 
+To structure a Harness around approved policy rules, follow the [policy rule extraction workflow](/developer-guide/evaluate/policy-rules), then pass `rule_policy_ids` or `rule_ids` to `client.harnesses.create()`. The `policy_ids` argument supplies policy context and does not select approved rules.
+
 <Tabs>
   <Tab title="MCP">
 
