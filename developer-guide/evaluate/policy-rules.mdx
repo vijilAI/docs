@@ -66,7 +66,7 @@ Extract up to 50 rules from a policy. The `limit` argument on `rules()` controls
 
 ### Check Status Without Waiting
 
-Pass `wait=False` to start extraction without waiting for completion. Retrieve the policy again when you want to check progress:
+Pass `wait=False` to start extracting draft rules from the policy text and return before extraction finishes. Extraction continues on the Vijil server. Retrieve the policy again when you want to check extraction progress:
 
 ```python
 policy = client.policies.extract_rules(policy.id, wait=False)
