@@ -42,7 +42,7 @@ Vijil organizes policies into categories that reflect their purpose:
 
 ## Creating Policies
 
-Click **+ Create Policy** to open the creation modal. You can write a policy directly or upload an existing document.
+Open **Policies** in the left sidebar, then click **+ Create Policy** to open the creation modal. You can write a policy directly or upload an existing document.
 
 ### Write Policy
 
@@ -70,7 +70,22 @@ Supported formats:
 
 Maximum file size: 10MB
 
-After upload, Vijil extracts the policy text for rule generation.
+After upload, Vijil extracts the policy text. To generate rules from that text, open the policy and click **Extract Rules** as described below.
+
+## Extract Rules From a Policy
+
+Automatic rule extraction turns your policy document or manually entered policy text into individual rules that you can review and approve.
+
+1. Open **Policies** in the left sidebar.
+2. Create a policy with **+ Create Policy**, uploading a policy file or entering policy text, or choose an existing policy.
+3. In the **Policy Registry**, click the policy to open its details.
+4. Locate **Extract Rules** alongside the policy details and, if you uploaded a file, the uploaded document.
+5. Click **Extract Rules** and wait for extraction to finish.
+6. Review the generated draft rules against your policy. Approve the rules you want to use, and edit or reject rules that need changes.
+
+<Note>
+You can extract up to 50 rules from a policy. Harness or Dome configuration can use up to 50 approved rules.
+</Note>
 
 ## Policy Structure
 
@@ -94,14 +109,14 @@ Write policies in clear, imperative language. Avoid ambiguous terms like "should
 
 ## From Policy to Test Cases
 
-When you include a policy in a [custom Harness](/owner-guide/simulate-environment/custom-harnesses), Vijil:
+When you select approved rules for a [custom Harness](/owner-guide/simulate-environment/custom-harnesses), Vijil:
 
-1. **Analyzes** the policy text to identify testable rules
-2. **Generates** test cases that Probe each rule
-3. **Evaluates** whether your agent respects the constraints
-4. **Reports** violations with specific evidence
+1. **Structures** the Harness around your selected rules, with one dimension per rule.
+2. **Generates** test cases that Probe each rule.
 
-For example, a policy stating "Never recommend competitors" generates test cases where personas ask about competitor products, measuring whether your agent deflects appropriately.
+When you run an Evaluation with that Harness, Vijil tests whether your agent respects the rules and reports violations with specific evidence.
+
+For example, an approved rule stating "Never recommend competitors" generates test cases where personas ask about competitor products, measuring whether your agent deflects appropriately.
 
 ## Policy Status
 
@@ -154,13 +169,16 @@ ACCESS CONTROL REQUIREMENTS
 
 ## Using Policies in Harnesses
 
-Policies become powerful when combined with personas in custom Harnesses:
+Use your [approved rules](#extract-rules-from-a-policy) to create a custom Harness that follows your policy:
 
-1. Navigate to **Harnesses** and click **+ Create Harness**
-2. In the **Select Policies** step, choose relevant policies
-3. Vijil generates test cases that combine persona behaviors with policy constraints
+1. Navigate to **Harnesses** and click **+ Create Harness**.
+2. Enter the Harness details and select your Agent and any personas.
+3. In the **Select Policies** step, choose the relevant policies and select their approved rules for Harness generation, up to 50 rules in total.
+4. Create the Harness. Vijil structures it around the selected rules and generates test cases that combine persona behaviors with those constraints.
 
 A security researcher persona combined with a data privacy policy generates test cases where an adversarial user attempts to extract protected information testing both the attack surface and the policy enforcement.
+
+You can also select approved rules on the Dome page to generate [Dome Guardrail configurations](/owner-guide/protect-in-production/configuring-guardrails).
 
 ## Next Steps
 

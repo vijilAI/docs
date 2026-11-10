@@ -1,0 +1,134 @@
+---
+title: 'Extract Policy Rules'
+description: 'Extract draft rules from policy text with the Python SDK and use approved rules in custom Harnesses.'
+icon: 'scroll-text'
+---
+
+Use automatic rule extraction to turn a policy document into individual rules for review. The Python SDK starts extraction on the Vijil server, retrieves the resulting draft rules, and lets you use approved rules to structure a custom Harness.
+
+Before you start, [install and authenticate the SDK](/developer-guide/sdk/setup). To create a Harness, you also need a [registered Agent](/owner-guide/register-agents/registering-agents).
+
+## Prepare a Policy
+
+Create a policy with the text you want to extract rules from:
+
+```python
+from vijil import Vijil
+
+client = Vijil()
+
+policy = client.policies.create(
+    name="Customer Data Policy",
+    category="privacy",
+    source_text="The Agent must never disclose customer personal data.",
+)
+```
+
+You can also provide text through `content`, or pass `file_path="policy.md"` to read a local text file. The SDK sends that file's text as `source_text`; this option does not upload or convert PDF files.
+
+To use an existing policy, including one you uploaded through the Console, retrieve it with `policy = client.policies.show("<policy-id>")`. It must contain the source text before you start extraction.
+
+## Extract and Retrieve Rules
+
+Call `extract_rules()` with the policy ID, then fetch its rules:
+
+```python
+policy = client.policies.extract_rules(policy.id)
+
+info = policy.rule_extraction
+if info is None:
+    raise RuntimeError("Extraction status is unavailable. Check the policy again.")
+if info.status != "succeeded":
+    raise RuntimeError(info.error_message or f"Extraction ended with {info.status}")
+
+rules = client.policies.rules(policy.id, status="draft", limit=50, offset=0)
+for rule in rules.items:
+    print(rule.id, rule.rule_type, rule.natural_language)
+```
+
+`extract_rules()` returns a `Policy`, rather than the generated rules. By default, it waits for extraction and polls every five seconds. Set `poll_interval` to change that interval.
+
+Always check `policy.rule_extraction.status` before using the results. A failed or cancelled extraction returns the Policy with its status and optional `error_message`. If extraction status remains unavailable after repeated checks, the method also returns the Policy with `rule_extraction=None`; that does not confirm completion.
+
+Request failures, such as authentication or connection errors, still raise [SDK exceptions](/developer-guide/sdk/models-errors).
+
+| Extraction Status | Meaning |
+|-------------------|---------|
+| `created`, `starting`, `running` | Extraction is in progress |
+| `succeeded` | Extraction completed; retrieve the draft rules |
+| `failed`, `cancelled` | Extraction did not complete successfully |
+
+`rules()` returns a [`Page[PolicyRule]`](/developer-guide/sdk/models-errors#paget). Iterate `page.items` for the results and use `page.total` with `limit` and `offset` to retrieve more pages. The `status` filter accepts `draft`, `approved`, `rejected`, or `modified`; omit it to retrieve rules across review statuses.
+
+<Note>
+Extract up to 50 rules from a policy. The `limit` argument on `rules()` controls how many existing rules you retrieve per page; it does not control extraction.
+</Note>
+
+### Check Status Without Waiting
+
+Pass `wait=False` to start extracting draft rules from the policy text and return before extraction finishes. Extraction continues on the Vijil server. Retrieve the policy again when you want to check extraction progress:
+
+```python
+policy = client.policies.extract_rules(policy.id, wait=False)
+
+# Run this check again later to see the latest status.
+policy = client.policies.show(policy.id)
+if policy.rule_extraction:
+    print(policy.rule_extraction.status, policy.rule_extraction.error_message)
+```
+
+Call `show()` to check an existing run. Calling `extract_rules()` again requests another extraction. The SDK does not set a deadline for extraction; use `wait=False` and your own polling deadline when your application needs one.
+
+## Review and Approve Rules
+
+Extraction creates draft rules. Review their `natural_language` text and structured fields, such as `rule_type`, `action`, and `consequence`, against the original policy before approving them.
+
+The SDK currently has no dedicated rule approval method. [Open the policy in the Console](/owner-guide/simulate-environment/policies#extract-rules-from-a-policy) to review and approve the rules you want to use. After approval, retrieve them through the SDK:
+
+```python
+approved_rules = client.policies.rules(policy.id, status="approved")
+if not approved_rules.items:
+    raise RuntimeError("Approve at least one rule before creating the Harness.")
+
+for rule in approved_rules.items:
+    print(rule.id, rule.natural_language)
+```
+
+## Create a Harness From Approved Rules
+
+Pass `rule_policy_ids` to include all approved rules from a policy:
+
+```python
+harness = client.harnesses.create(
+    name="Customer Data Harness",
+    agent_id="<agent-id>",
+    rule_policy_ids=[policy.id],
+    wait=True,
+)
+print(harness.id, harness.status)
+```
+
+Vijil automatically structures the Harness around the approved rules, with one dimension per rule, and generates test cases for each rule. You can use up to 50 rules in one Harness. [Check Harness generation status](/developer-guide/evaluate/custom-harnesses#check-generation-status) before running an Evaluation.
+
+To select individual rules, pass `rule_ids=["<rule-uuid>"]` instead. Use each rule's `id` UUID, rather than its human-readable `rule_id`. Only rules with approved status when you create the Harness contribute to generation.
+
+The Harness arguments serve different purposes:
+
+| Argument | Purpose |
+|----------|---------|
+| `rule_policy_ids` | Include all approved rules from the selected policies |
+| `rule_ids` | Include specific approved rules |
+| `policy_ids` | Supply policy documents as context for Harness generation |
+
+When you pass both `rule_ids` and `rule_policy_ids`, Vijil combines the rules and removes duplicates. Passing `policy_ids` alone does not select the policy's approved rules.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Harnesses" icon="wrench" href="/developer-guide/evaluate/custom-harnesses">
+    Check generation progress and manage your Harnesses.
+  </Card>
+  <Card title="Run Evaluations" icon="play" href="/developer-guide/evaluate/running-evaluations">
+    Run an Evaluation with the generated Harness.
+  </Card>
+</CardGroup>
