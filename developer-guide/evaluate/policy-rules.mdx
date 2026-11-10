@@ -26,7 +26,7 @@ policy = client.policies.create(
 
 You can also provide text through `content`, or pass `file_path="policy.md"` to read a local text file. The SDK sends that file's text as `source_text`; this option does not upload or convert PDF files.
 
-To use an existing policy, including one you uploaded through the Console, retrieve it with `policy = client.policies.show("<policy-id>")`. It must contain source text before you start extraction.
+To use an existing policy, including one you uploaded through the Console, retrieve it with `policy = client.policies.show("<policy-id>")`. It must contain the source text before you start extraction.
 
 ## Extract and Retrieve Rules
 
