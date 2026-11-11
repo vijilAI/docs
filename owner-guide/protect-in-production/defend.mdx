@@ -47,61 +47,9 @@ unchecked. Watch this counter.
 Any number above zero means traffic is routing through the proxy from a source your
 [Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
 
-<Warning>
-When the window holds more events than the page can chart, the counters and charts use the
-most recent sample, and each counter shows a **Sample** badge.
-</Warning>
-
-| Chart | Shows |
-|-------|-------|
-| **DLP series** | Detection volume over the window |
-| **DLP label totals** | Flagged, Clean, and Errored, grouped by **Agent**, **Team**, **User**, or **Detector** |
-| **Direction mix** | Whether detections came from **Input** or **Output** |
-| **Flagged rate** | What share of traffic the Guardrail flags |
-| **Score histogram** | How detection scores spread across the range |
-
-Group **DLP label totals** by Detector to see which rule is firing, or by Agent to see where.
-
-The DLP summary follows the time range you pick in the filter bar below it.
-
-## Filter Events
-
-The filter bar sits above the event cards. Your filter choices are stored in the page URL,
-so you can bookmark or share a filtered view.
-
-| Filter | Options |
-|--------|---------|
-| **Outcome** | **blocked**, **flagged**, **steered**, **errored**, and **Include clean**. All but clean are on by default. |
-| **Type** | **Dome** (Guard detections), **Control** (control decisions), **DLP**, and **Agent events**. None selected shows every type. |
-| **Direction** | **Any**, **Input**, or **Output** |
-| **Range** | **24h**, **7d**, or **30d**. The default is 7d. |
-| **User ID** | Type a user ID and press Enter to show only that user's events |
-
-An **Input** event is something a user sent toward an Agent. An **Output** event is
-something an Agent was about to send back.
-
-## Read the Event Cards
-
-Each card covers one Agent. Cards are ordered by how many flagged events they hold, and the
-card header shows that count as **N flagged**. A card tagged **unregistered** groups events
-from a source that is not in your Agent Registry. Defend shows the 50 Agents with the most
-flagged events.
-
-The first five cards open expanded with a preview of three events. Click **Show all** to
-page through every matching event for that Agent, then **Load more** for older ones.
-
-Each event row shows:
-
-- How long ago it happened.
-- Its outcome badge.
-- Its type and source, for example **Dome · Console** or **DLP · Discover**.
-- A summary: the Detector and direction for a detection, the policy and decision for a
-  control, or the tool and decision for an Agent event, followed by a content preview.
-
 ## Inspect an Event
 
-Click a row to open the details panel beside the cards. Press Escape or click the close
-control to dismiss it.
+Click a row to open the details panel beside the cards.
 
 The panel shows:
 
@@ -116,7 +64,7 @@ The panel shows:
 ## Read the Posture Section
 
 Below the cards, **Open violations** and **Alerts** list what Discover is tracking for your
-estate, each with a severity badge. The section is hidden when you lack access to Discover.
+estate, each with a severity badge. 
 
 ## When a Source Is Missing
 
