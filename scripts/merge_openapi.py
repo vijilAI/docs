@@ -92,8 +92,13 @@ def merge_specs(service_specs: list[tuple[dict[str, str], dict[str, Any]]]) -> d
                     tags = op.get("tags", [])
                     if tag not in tags:
                         op["tags"] = [tag] + tags
-            key = f"/{svc_name}{path}" if path in merged["paths"] else path
-            merged["paths"][key] = path_item
+            if path in merged["paths"]:
+                overlaps = merged["paths"][path].keys() & path_item.keys()
+                if overlaps:
+                    raise ValueError(f"Conflicting path entries for {path}: {', '.join(sorted(overlaps))}")
+                merged["paths"][path].update(path_item)
+            else:
+                merged["paths"][path] = path_item
 
         renames: dict[str, str] = {}
         owned: list[str] = []
