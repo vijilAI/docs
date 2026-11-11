@@ -320,6 +320,31 @@ that the role rejects an incorrect external ID.
 
 Listing requires `agent:read`; connecting, verifying, and disconnecting require `agent:write` for the team. Remove any runtime bindings before disconnecting an account.
 
+### Register an Agent Runtime
+
+After verifying the account, send an authenticated `PUT /v1/agent-configurations/<agent_id>/runtime?team_id=<team_id>` with a runtime descriptor:
+
+| Field | Required value |
+|-------|----------------|
+| `kind` | `ec2`, `eks`, or `agentcore` |
+| `account_id` | The team's connected, verified AWS account ID |
+| `region` | AWS region where the Agent runs |
+| `image_repository` | Container repository without a tag or digest |
+| `image_digest` | `sha256:` followed by 64 lowercase hexadecimal characters |
+| `ec2` | For `kind: ec2`: `instance_role_arn` and optional `unix_uid` |
+| `eks` | For `kind: eks`: `cluster`, `node_role_arn`, `namespace`, and `service_account` |
+| `agentcore` | For `kind: agentcore`: `runtime_arn` and `execution_role_arn` |
+
+Include exactly one runtime-specific block matching `kind`. All role ARNs must belong to `account_id`; the AgentCore runtime ARN must also match `region`. Deploy the Agent as `<image_repository>@<image_digest>` so attestation can match the image.
+
+Console re-verifies the account and records the runtime only after the SPIRE registrar confirms registration. Each AgentCore Agent needs its own execution role.
+
+Use `GET` on the same endpoint to inspect the binding: it returns `{"runtime": ...}`, or `{"runtime": null}` when none is registered. Use `DELETE` to deregister it. Reading requires `agent:read`; registering and removing require `agent:write` for the team.
+
+<Note>
+Runtime registration requires a configured SPIRE registrar. Confirm that AWS attestation is enabled in your deployment before relying on attested identity.
+</Note>
+
 ## Verify Tool Manifests
 
 A tool manifest declares the tools an Agent expects to call. Each entry associates a tool name with its endpoint and expected SPIFFE identity. The manifest signature protects this inventory from undetected modification.
