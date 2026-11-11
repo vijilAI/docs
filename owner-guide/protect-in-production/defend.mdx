@@ -48,11 +48,18 @@ The feed excludes `clean` events by default.
 
 | Counter | What it counts |
 |---------|----------------|
-| **Flagged** | Events the Guardrail flagged |
+| **Flagged** | Flagged detections and blocked or flagged Agent events |
 | **Clean** | Events that passed |
 | **Errored** | Events where a [Detector](/concepts/defense/detector) failed to return a verdict |
 | **Last event** | How long ago the most recent event arrived |
 | **Unattributed flagged** | Flagged events that Dome could not tie to a known Agent |
+
+A group's flagged count can differ from the number of events it lists:
+
+- **Console** contributes Dome's flagged-detection counter.
+- **Discover** contributes flagged and blocked DLP events and Agent events.
+- Defend uses the **larger source count**, rather than adding the two, to avoid double-counting detections exported to both sources.
+- Steering, errors, and Dome Control events can appear in the feed without increasing the flagged count.
 
 An errored event means a detection or Agent operation reported an error.
 
