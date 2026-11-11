@@ -271,6 +271,21 @@ Each rule must have a unique, non-empty `rule_id`. The `violation_threshold` def
 
 The result metadata includes `violated_rule_ids` and a verdict for each rule. Invalid rule identifiers, thresholds, API responses, and missing credentials raise Evaluator errors, so the Control's `on_error` setting determines whether evaluation fails open or closed.
 
+### Apply Conditional Policy Rules
+
+When the Console compiles approved policy rules into Controls, structured constraints become CEL preconditions on application context:
+
+| Constraint | When the rule applies |
+|------------|-----------------------|
+| `when` or `if` | The constraint is true |
+| `unless` | The constraint is false |
+
+For multiple constraints, `constraint_logic: all` requires every constraint to hold; `constraint_logic: any` requires at least one.
+
+For example, a rule that applies when `channel` equals `sms` reads `context.channel`.
+
+Pass `context={"channel": "sms"}` when evaluating the Step. If the channel is `web`, the rule's judge is skipped. If the channel is missing, the generated Control still judges the rule because it sets `skip_on_missing_condition: false`.
+
 ### Choose an Action
 
 | Decision | Aggregate Result | Enforcement Behavior |
