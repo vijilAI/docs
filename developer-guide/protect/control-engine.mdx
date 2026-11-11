@@ -182,7 +182,14 @@ Selectors use dot notation against the Step:
 | `type` | `llm` or `tool` |
 | `*` | Complete serialized Step |
 
-If a selector path is missing, the condition does not match.
+For an ordinary leaf condition, a missing selector path does not match.
+
+A leaf marked `precondition: true` checks whether the Control applies. If its selector is missing or its Evaluator cannot evaluate the value, the Control's `skip_on_missing_condition` setting determines what happens:
+
+| Setting | Behavior |
+|---------|----------|
+| `false` (default) | Treat the precondition as satisfied and evaluate the remaining conditions |
+| `true` | Treat the precondition as unsatisfied |
 
 ### Combine Conditions
 
