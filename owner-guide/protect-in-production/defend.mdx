@@ -1,6 +1,6 @@
 ---
 title: 'Monitor Protection with Defend'
-description: 'Read what the data loss Guardrail saw, flagged, or missed.'
+description: 'Review runtime protection events from Dome and Discover.'
 icon: 'shield'
 ---
 
@@ -9,16 +9,17 @@ Agent. Open **Defend** in the Console sidebar.
 
 ## What Feeds Defend
 
-Defend reads runtime events from [Targets](/concepts/discovery/target) of type `dlp`. A
-`dlp` Target receives its events from a Dome proxy. It runs no scans, and no
-[Collector](/concepts/discovery/collector) reports into it.
+Defend combines Console Dome telemetry with Discover DLP events and Discover Agent events.
+
+A [Target](/concepts/discovery/target) of type `dlp` receives its events from a Dome proxy.
+It runs no scans, and no [Collector](/concepts/discovery/collector) reports into it.
 
 <Note>
 Create one with `vijil discover deployment-create --name "<name>" --type dlp`. See
 [Create and Manage Targets](/owner-guide/discover/targets).
 </Note>
 
-With no `dlp` Target configured, Defend loads and reports no events.
+A `dlp` Target is required for Discover DLP events. Console Dome telemetry and Discover Agent events can appear without one.
 
 ## Scope the View
 
@@ -29,26 +30,62 @@ Two controls sit above everything else. Both change every number below them.
 | **Target** | **All targets**, or a single `dlp` Target |
 | **Time range** | **24h**, **7d**, or **30d**. The default is 7d. |
 
+## Understand Event Outcomes
+
+The combined event feed reports these outcomes:
+
+| Outcome | Meaning |
+|---------|---------|
+| `blocked` | A block or deny decision was recorded, or a flagged detection was enforced |
+| `flagged` | A detection or Agent event was flagged without a block outcome |
+| `steered` | A Control recorded a steering decision |
+| `errored` | A detection or Agent event reported an error |
+| `clean` | No violation was reported |
+
+The feed excludes `clean` events by default.
+
 ## Read the Counters
 
 | Counter | What it counts |
 |---------|----------------|
-| **Flagged** | Events the Guardrail flagged |
+| **Flagged** | Flagged detections and blocked or flagged Agent events |
 | **Clean** | Events that passed |
 | **Errored** | Events where a [Detector](/concepts/defense/detector) failed to return a verdict |
 | **Last event** | How long ago the most recent event arrived |
 | **Unattributed flagged** | Flagged events that Dome could not tie to a known Agent |
 
-An errored event means the Guardrail failed to reach a verdict, so the traffic passed
-unchecked. Watch this counter.
+A group's flagged count can differ from the number of events it lists:
+
+- **Console** contributes Dome's flagged-detection counter.
+- **Discover** contributes flagged and blocked DLP events and Agent events.
+- Defend uses the **larger source count**, rather than adding the two, to avoid double-counting detections exported to both sources.
+- Steering, errors, and Dome Control events can appear in the feed without increasing the flagged count.
+
+An errored event means a detection or Agent operation reported an error.
+
+Check the event details to determine whether enforcement ran and what happened to the traffic.
 
 **Unattributed flagged** counts detections that Dome failed to tie to a registered Agent.
 Any number above zero means traffic is routing through the proxy from a source your
 [Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
 
+## Check Source Coverage
+
+Defend can return events from one source when another cannot provide data.
+The feed reports a status for each source:
+
+| Status | Meaning |
+|--------|---------|
+| `ok` | The source answered |
+| `forbidden` | You do not have access to the source's events |
+| `disabled` | The source is turned off |
+| `unavailable` | The source could not provide data; retry or check the service |
+
+A source's retention may cover only part of the selected time range. Its events and
+counts then cover only that shorter period. A missing flagged count means unknown, not zero.
+
 <Warning>
-When the window holds more events than the page can chart, the counters and charts use the
-most recent sample, and each counter shows a **Sample** badge.
+An empty or partial feed does not establish that no violations occurred. Check source availability and retention before interpreting the results.
 </Warning>
 
 ## Read the Charts

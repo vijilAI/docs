@@ -368,6 +368,7 @@ Controls models inherit from `pydantic.BaseModel` and support standard model val
 | `scope` | `ControlScope` | Unrestricted | Applicability filters |
 | `condition` | `ConditionNode` | Required | Matching logic |
 | `action` | `ControlAction` | Required | Decision on match or error |
+| `skip_on_missing_condition` | `bool` | `False` | For a missing or unevaluable precondition, `False` treats it as satisfied; `True` treats it as unsatisfied |
 | `priority` | `int` | `100` | Ascending sort value |
 | `tags` | `list[str]` | `[]` | Policy labels |
 | `annotations` | `dict[str, Any]` | `{}` | Vendor and extension metadata |
@@ -405,6 +406,12 @@ ConditionNode(
     ),
 )
 ```
+
+A leaf also accepts this optional field:
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `precondition` | `bool` | `False` | Checks whether the Control applies; missing or unevaluable values use the Control's `skip_on_missing_condition` setting |
 
 Use one logical operator for each composite node:
 

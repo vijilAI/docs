@@ -182,7 +182,14 @@ Selectors use dot notation against the Step:
 | `type` | `llm` or `tool` |
 | `*` | Complete serialized Step |
 
-If a selector path is missing, the condition does not match.
+For an ordinary leaf condition, a missing selector path does not match.
+
+A leaf marked `precondition: true` checks whether the Control applies. If its selector is missing or its Evaluator cannot evaluate the value, the Control's `skip_on_missing_condition` setting determines what happens:
+
+| Setting | Behavior |
+|---------|----------|
+| `false` (default) | Treat the precondition as satisfied and evaluate the remaining conditions |
+| `true` | Treat the precondition as unsatisfied |
 
 ### Combine Conditions
 
@@ -263,6 +270,21 @@ Use `policy-rule-judge` when a policy rule requires semantic judgment rather tha
 Each rule must have a unique, non-empty `rule_id`. The `violation_threshold` defaults to `0.5`, `batch_size` defaults to `20`, and `model` defaults to `typesafe/jev-1.13`. Set `OPENROUTER_API_KEY` or pass `api_key` in the Evaluator configuration.
 
 The result metadata includes `violated_rule_ids` and a verdict for each rule. Invalid rule identifiers, thresholds, API responses, and missing credentials raise Evaluator errors, so the Control's `on_error` setting determines whether evaluation fails open or closed.
+
+### Apply Conditional Policy Rules
+
+When the Console compiles approved policy rules into Controls, structured constraints become CEL preconditions on application context:
+
+| Constraint | When the rule applies |
+|------------|-----------------------|
+| `when` or `if` | The constraint is true |
+| `unless` | The constraint is false |
+
+For multiple constraints, `constraint_logic: all` requires every constraint to hold; `constraint_logic: any` requires at least one.
+
+For example, a rule that applies when `channel` equals `sms` reads `context.channel`.
+
+Pass `context={"channel": "sms"}` when evaluating the Step. If the channel is `web`, the rule's judge is skipped. If the channel is missing, the generated Control still judges the rule because it sets `skip_on_missing_condition: false`.
 
 ### Choose an Action
 
