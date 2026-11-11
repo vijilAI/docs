@@ -1,35 +1,36 @@
 ---
 title: 'Monitor Protection with Defend'
-description: 'Read what the data loss Guardrail saw, flagged, or missed.'
+description: 'Review what Dome and Discover detected in production, grouped by Agent.'
 icon: 'shield'
 ---
 
-**Defend** shows what [Dome](/concepts/platform/dome) detected in production across every
-Agent. Open **Defend** in the Console sidebar.
+**Defend** shows what [Dome](/concepts/platform/dome) and [Discover](/concepts/platform/discover)
+detected in production across every Agent.
 
 ## What Feeds Defend
 
-Defend reads runtime events from [Targets](/concepts/discovery/target) of type `dlp`. A
-`dlp` Target receives its events from a Dome proxy. It runs no scans, and no
-[Collector](/concepts/discovery/collector) reports into it.
+Defend merges events from two sources into one list:
 
-<Note>
-Create one with `vijil discover deployment-create --name "<name>" --type dlp`. See
+| Source | What it contributes |
+|--------|---------------------|
+| **Console** | Dome Guard detections and Dome control decisions for Agents that send telemetry to the Console |
+| **Discover** | Data loss (DLP) events from a Dome proxy, and Agent events such as tool calls, reported to [Targets](/concepts/discovery/target) |
+
+When the same request appears in both sources, Defend shows it once.
+
+The DLP summary reads only from Targets of type `dlp`. A `dlp` Target receives its events
+from a Dome proxy. It runs no scans, and no [Collector](/concepts/discovery/collector)
+reports into it. The Console creates `scanner` Targets only. To create a `dlp` Target, use
+the `discover_deployment_create` MCP tool with `type` set to `dlp`. See
 [Create and Manage Targets](/owner-guide/discover/targets).
-</Note>
 
-With no `dlp` Target configured, Defend loads and reports no events.
+With no `dlp` Target, the DLP summary stays empty. The event cards still show Console Dome
+events.
 
-## Scope the View
+## Read the DLP Summary
 
-Two controls sit above everything else. Both change every number below them.
-
-| Control | Options |
-|---------|---------|
-| **Target** | **All targets**, or a single `dlp` Target |
-| **Time range** | **24h**, **7d**, or **30d**. The default is 7d. |
-
-## Read the Counters
+The **DLP target** selector scopes this section only: **All targets**, or a single `dlp`
+Target. The event cards below always cover every source.
 
 | Counter | What it counts |
 |---------|----------------|
@@ -46,41 +47,34 @@ unchecked. Watch this counter.
 Any number above zero means traffic is routing through the proxy from a source your
 [Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
 
-<Warning>
-When the window holds more events than the page can chart, the counters and charts use the
-most recent sample, and each counter shows a **Sample** badge.
-</Warning>
+## Inspect an Event
 
-## Read the Charts
+Click a row to open the details panel beside the cards.
 
-| Chart | Shows |
-|-------|-------|
-| **DLP series** | Detection volume over the window |
-| **DLP label totals** | Flagged, Clean, and Errored, grouped by **Agent**, **Team**, **User**, or **Detector** |
-| **Direction mix** | Whether detections came from **Input** or **Output** |
-| **Flagged rate** | What share of traffic the Guardrail flags |
-| **Score histogram** | How detection scores spread across the range |
+The panel shows:
 
-Group **DLP label totals** by Detector to see which rule is firing, or by Agent to see where.
+- **Fields**: **Group** (the Agent), **User**, **Detector or policy**, **Direction**, whether the decision was
+  **Enforced**, and **Time**.
+- **Content**: the prompt or model response that triggered the event.
+- **View the whole turn**: for a Console event, opens the trace in the Agent's
+  [Monitor](/owner-guide/protect-in-production/observability) tab. For a Discover event, the
+  panel lists the other steps of the same turn.
+- **More from this user**: filters the page to the same user ID.
 
-An **Input** detection is something a user sent toward an Agent. An **Output** detection is
-something an Agent was about to send back.
+## Read the Posture Section
 
-## Read the Events Table
+Below the cards, **Open violations** and **Alerts** list what Discover is tracking for your
+estate, each with a severity badge. 
 
-The table below the charts lists individual detections. Filter it by **Input** or **Output**.
+## When a Source Is Missing
 
-| Column | What it shows |
-|--------|---------------|
-| **When** | When Dome emitted the event |
-| **Label** | Flagged, Clean, or Errored |
-| **Direction** | Input or Output |
-| **Detector** | The detection method that produced the verdict |
-| **Score** | The score behind the verdict |
-| **Agent** | The Agent that Dome tied the event to |
-| **Preview** | An excerpt of the content that triggered it |
+If one source fails, Defend still shows the other and explains the gap with a banner:
 
-Expand a row for the full event.
+| Banner | Meaning |
+|--------|---------|
+| `<Source> events are unavailable right now.` | The source did not respond. Defend shows events from the other source only. |
+| `You don't have access to <Source> events.` | Your role does not include that source. |
+| `Console Dome events cover only the last <period>` | Console telemetry retention is shorter than the range you picked. Discover events still cover the full range. |
 
 ## Next Steps
 
