@@ -785,7 +785,7 @@ diamond/{RESOURCE_VERSION}/
 2. **You** set `RESOURCE_BUCKET_NAME` to your own bucket (the same bucket as `S3_BUCKET_NAME`). No separate artifacts bucket or cross-account IAM is needed — your existing S3 policy already covers your own bucket.
 3. If using the `install` block in your Helm values, `install.aws.s3Bucket` automatically sets both `S3_BUCKET_NAME` and `RESOURCE_BUCKET_NAME` to the same value. No extra configuration required.
 
-#### Detector Model Downloads
+### Detector Model Downloads
 
 Diamond also downloads Detector model files separately from the evaluation bundle.
 Configure their source under `commonEnv` in your Helm values:
