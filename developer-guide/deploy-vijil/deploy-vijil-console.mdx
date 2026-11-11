@@ -857,6 +857,8 @@ The chart stores it in `diamond-secrets` for evaluation Jobs. Report generation 
 
 Create `my-values.yaml`. The `install` block is the simplest way to configure the chart — set values once and the chart derives the redundant env vars for you:
 
+`commonEnv.DETECTION_RATE_LIMIT` defaults to `500` detections per minute per Diamond evaluation Job. This scoring limit is separate from the Agent's request rate limit. Concurrent Jobs share the available Detector provider capacity.
+
 ```yaml
 commonEnv:
   # Database (RDS endpoint from Step 1.3)
@@ -868,6 +870,9 @@ commonEnv:
 
   # Custom harness bucket (can be the same bucket)
   CUSTOM_HARNESS_BUCKET_NAME: "vijil-console-data-prod"
+
+  # Maximum detections per minute in each Diamond evaluation Job
+  DETECTION_RATE_LIMIT: "500"
 
   # Frontend and API URLs — both must be reachable from the internet
   # because the React SPA calls the API from the user's browser
