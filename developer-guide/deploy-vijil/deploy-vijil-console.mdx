@@ -785,6 +785,24 @@ diamond/{RESOURCE_VERSION}/
 2. **You** set `RESOURCE_BUCKET_NAME` to your own bucket (the same bucket as `S3_BUCKET_NAME`). No separate artifacts bucket or cross-account IAM is needed — your existing S3 policy already covers your own bucket.
 3. If using the `install` block in your Helm values, `install.aws.s3Bucket` automatically sets both `S3_BUCKET_NAME` and `RESOURCE_BUCKET_NAME` to the same value. No extra configuration required.
 
+#### Detector Model Downloads
+
+Diamond also downloads Detector model files separately from the evaluation bundle.
+Configure their source under `commonEnv` in your Helm values:
+
+| Setting | Value |
+|---------|-------|
+| `DETECTOR_MODEL_CLOUD_PROVIDER` | `aws` |
+| `DETECTOR_MODEL_BUCKET_NAME` | Bucket containing the Detector model files |
+| `DETECTOR_MODEL_BUCKET_PREFIX` | Model prefix, such as `models` |
+| `DETECTOR_MODEL_REGION` | AWS region of the model bucket |
+
+Set the provider and bucket together; setting only one prevents Diamond from starting. Vijil must provide the model files at the configured location.
+
+The evaluation Job's AWS identity needs `s3:GetObject` access to the model objects.
+
+Grant `s3:ListBucket` scoped to the model prefix so missing files return a not-found error instead of an access-denied error. For a bucket in another AWS account, its owner must also grant access through the bucket policy.
+
 ---
 
 ## Step 3: Helm Values and Secrets
