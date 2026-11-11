@@ -135,6 +135,13 @@ def _rewrite_refs(obj: Any, old_ref: str, new_ref: str) -> None:
     if isinstance(obj, dict):
         if obj.get("$ref") == old_ref:
             obj["$ref"] = new_ref
+        discriminator = obj.get("discriminator")
+        if isinstance(discriminator, dict):
+            mapping = discriminator.get("mapping")
+            if isinstance(mapping, dict):
+                for key, ref in mapping.items():
+                    if ref == old_ref:
+                        mapping[key] = new_ref
         for v in obj.values():
             _rewrite_refs(v, old_ref, new_ref)
     elif isinstance(obj, list):
