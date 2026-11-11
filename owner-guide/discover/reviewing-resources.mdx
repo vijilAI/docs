@@ -29,6 +29,29 @@ Discover counts findings per Collector. One model running on 200 laptops is 200 
 Findings tab, one per laptop, and 1 in the Resource total.
 </Note>
 
+## Device and Application Inventory
+
+The Identify graph connects discovered device applications to their devices, assigned people, and directory organization. This inventory complements scan Resources.
+
+For API-based inspection, use these read endpoints under `/v1/identify-graph`:
+
+| Endpoint | What it provides |
+|----------|------------------|
+| `/organization` | Organization details and inventory counts |
+| `/directory-units` | Organizational units and their counts |
+| `/directory-users` | People and their device and application counts |
+| `/devices` | Devices, their assigned people, and application counts |
+| `/applications` | Discovered applications and their device and ownership context |
+| `/connection` | Directory connection health and readable capabilities |
+
+Review unscoped devices and unmatched assignees to find gaps in ownership records.
+
+Responses include `scope` information: `no_organization` means no organization has been resolved yet; `unscoped` means the records belong to no organization.
+
+Device and application lists use `cursor` pagination. Follow `next_cursor` until it is `null`; directory-unit and directory-user lists use `limit` and `offset`.
+
+Eligible device applications can be [registered as Agents](/owner-guide/discover/registering-agents), but device-discovered Agents cannot yet be evaluated.
+
 ## Open a Resource
 
 Open a Resource from its identifier to see the evidence behind its verdict:
