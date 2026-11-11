@@ -195,6 +195,9 @@ Vijil Console deploys 8 service pods plus telemetry (Grafana, Loki, Mimir, Tempo
 
 **Why memory-optimized (r5)?** Evaluation and red-team jobs are memory-intensive. `r5` instances provide a better $/GiB ratio than general-purpose `m5` for this workload. Each evaluation runs as its own Kubernetes Job that requests 500m CPU and 2 GiB of memory, with limits of 2 CPU and 4 GiB. Size your nodes for the number of evaluations you expect to run at once. To change these values, set `evaluationJobs.resources` in your Helm values.
 
+Diamond evaluation Jobs also request 2 GiB of ephemeral storage for downloaded Detector models.
+Adjust this with `evaluationJobs.resources.requests.ephemeral-storage` in your Helm values.
+
 **Disk:** 200 GiB gp3 per node (default 80 GiB is tight when telemetry PVCs and container images accumulate). Set via `--node-volume-size 200` in eksctl.
 
 **Autoscaling:** Enable Cluster Autoscaler or Karpenter. Set `--nodes-min` to your baseline and `--nodes-max` high enough to absorb burst evaluation jobs. Each Diamond/red-team job runs as a separate pod — 5 concurrent evaluations means 5 extra pods.
