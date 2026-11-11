@@ -295,6 +295,31 @@ runtime = TrustRuntime(
 
 An unattested runtime emits an `identity_unattested` audit event. Whether an unattested Agent can call tools depends on the resolved `unattested_tool_policy` and enforcement mode.
 
+### Connect an AWS Account
+
+Before registering an Agent's AWS runtime, connect and verify its AWS account for your team:
+
+1. Have your AWS administrator deploy the `vijil-spire-attestor` role in the workload's account. Its trust policy must allow the Console's AWS role and require the external ID `vijil-team-<team_id>`.
+2. Send an authenticated `POST /v1/aws-accounts/?team_id=<team_id>` with this body:
+
+   ```json
+   {"account_id": "123456789012"}
+   ```
+
+   The account starts as `unverified`. The response includes its `role_arn` and `external_id`.
+
+3. Call `POST /v1/aws-accounts/<account_id>/verify?team_id=<team_id>` and confirm that the returned `status` is `verified` before registering a runtime.
+
+Verification checks that Console can assume the role with your team's external ID and
+that the role rejects an incorrect external ID.
+
+| Operation | Endpoint |
+|-----------|----------|
+| List connected accounts | `GET /v1/aws-accounts/?team_id=<team_id>` |
+| Disconnect an account | `DELETE /v1/aws-accounts/<account_id>?team_id=<team_id>` |
+
+Listing requires `agent:read`; connecting, verifying, and disconnecting require `agent:write` for the team. Remove any runtime bindings before disconnecting an account.
+
 ## Verify Tool Manifests
 
 A tool manifest declares the tools an Agent expects to call. Each entry associates a tool name with its endpoint and expected SPIFFE identity. The manifest signature protects this inventory from undetected modification.
