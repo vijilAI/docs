@@ -52,6 +52,29 @@ Device and application lists use `cursor` pagination. Follow `next_cursor` until
 
 Eligible device applications can be [registered as Agents](/owner-guide/discover/registering-agents), but device-discovered Agents cannot yet be evaluated.
 
+### Identify Access Requirements
+
+Identify API requests require bearer authentication and the appropriate directory grant:
+
+| Grant | Scope | Access |
+|-------|-------|--------|
+| `directory:read` | Team | Read organization inventory on a single-team installation |
+| `directory:write` | Team | Resolve device ownership on a single-team installation |
+| `directory:read_all` | Global | Read inventory, including unscoped devices |
+| `directory:write_all` | Global | Resolve ownership and use `/resolve-by-evidence` |
+
+Team-scoped requests must include `X-Vijil-Team: <team_id>` for a team you belong to.
+
+Global grants do not require this header.
+
+<Note>
+Identify inventory is shared across the installation. Team grants do not isolate it by team.
+
+When more than one team exists, team-scoped directory access returns `403`; the corresponding global grant is required.
+</Note>
+
+Listing unscoped devices with `/devices?directory_organization_id=none` requires `directory:read_all`.
+
 ## Open a Resource
 
 Open a Resource from its identifier to see the evidence behind its verdict:
