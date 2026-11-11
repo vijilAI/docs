@@ -69,9 +69,23 @@ Check the event details to determine whether enforcement ran and what happened t
 Any number above zero means traffic is routing through the proxy from a source your
 [Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
 
+## Check Source Coverage
+
+Defend can return events from one source when another cannot provide data.
+The feed reports a status for each source:
+
+| Status | Meaning |
+|--------|---------|
+| `ok` | The source answered |
+| `forbidden` | You do not have access to the source's events |
+| `disabled` | The source is turned off |
+| `unavailable` | The source could not provide data; retry or check the service |
+
+A source's retention may cover only part of the selected time range. Its events and
+counts then cover only that shorter period. A missing flagged count means unknown, not zero.
+
 <Warning>
-When the window holds more events than the page can chart, the counters and charts use the
-most recent sample, and each counter shows a **Sample** badge.
+An empty or partial feed does not establish that no violations occurred. Check source availability and retention before interpreting the results.
 </Warning>
 
 ## Read the Charts
