@@ -9,16 +9,17 @@ Agent. Open **Defend** in the Console sidebar.
 
 ## What Feeds Defend
 
-Defend reads runtime events from [Targets](/concepts/discovery/target) of type `dlp`. A
-`dlp` Target receives its events from a Dome proxy. It runs no scans, and no
-[Collector](/concepts/discovery/collector) reports into it.
+Defend combines Console Dome telemetry with Discover DLP events and Discover Agent events.
+
+A [Target](/concepts/discovery/target) of type `dlp` receives its events from a Dome proxy.
+It runs no scans, and no [Collector](/concepts/discovery/collector) reports into it.
 
 <Note>
 Create one with `vijil discover deployment-create --name "<name>" --type dlp`. See
 [Create and Manage Targets](/owner-guide/discover/targets).
 </Note>
 
-With no `dlp` Target configured, Defend loads and reports no events.
+A `dlp` Target is required for Discover DLP events. Console Dome telemetry and Discover Agent events can appear without one.
 
 ## Scope the View
 
