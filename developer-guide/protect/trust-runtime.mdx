@@ -345,6 +345,36 @@ Use `GET` on the same endpoint to inspect the binding: it returns `{"runtime": .
 Runtime registration requires a configured SPIRE registrar. Confirm that AWS attestation is enabled in your deployment before relying on attested identity.
 </Note>
 
+### Store Team Provider Keys
+
+For Agents calling models through the LLM proxy, store a provider key for their team.
+
+The proxy must have a route configured for that provider.
+
+Use bearer authentication and include `team_id` in every request:
+
+| Operation | Endpoint |
+|-----------|----------|
+| Create or replace a key | `PUT /v1/provider-keys/<provider>?team_id=<team_id>` |
+| Check whether a key exists | `GET /v1/provider-keys/<provider>?team_id=<team_id>` |
+| Delete a key | `DELETE /v1/provider-keys/<provider>?team_id=<team_id>` |
+
+For `PUT`, send the provider's API key in the request body:
+
+```json
+{"api_key": "<provider-api-key>"}
+```
+
+`GET` reports `present` and `updated_at`; the API never returns the key value.
+
+Checking requires `agent:read`; setting and deleting require `agent:write` for the team.
+
+These keys are for the LLM proxy; evaluation credentials are configured separately.
+
+<Note>
+The deployment must set `TEAM_PROVIDER_KEYS_ENV` and grant Console permission to manage the team's secrets in AWS Secrets Manager. The proxy needs permission to read them from `vijil/<env>/teams/<team_id>/llm/<provider>`. If the environment setting is missing, the provider-key endpoints return `503`.
+</Note>
+
 ## Verify Tool Manifests
 
 A tool manifest declares the tools an Agent expects to call. Each entry associates a tool name with its endpoint and expected SPIFFE identity. The manifest signature protects this inventory from undetected modification.
