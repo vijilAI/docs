@@ -1,6 +1,6 @@
 ---
 title: 'Monitor Protection with Defend'
-description: 'Read what the data loss Guardrail saw, flagged, or missed.'
+description: 'Review runtime protection events from Dome and Discover.'
 icon: 'shield'
 ---
 
@@ -30,6 +30,20 @@ Two controls sit above everything else. Both change every number below them.
 | **Target** | **All targets**, or a single `dlp` Target |
 | **Time range** | **24h**, **7d**, or **30d**. The default is 7d. |
 
+## Understand Event Outcomes
+
+The combined event feed reports these outcomes:
+
+| Outcome | Meaning |
+|---------|---------|
+| `blocked` | A block or deny decision was recorded, or a flagged detection was enforced |
+| `flagged` | A detection or Agent event was flagged without a block outcome |
+| `steered` | A Control recorded a steering decision |
+| `errored` | A detection or Agent event reported an error |
+| `clean` | No violation was reported |
+
+The feed excludes `clean` events by default.
+
 ## Read the Counters
 
 | Counter | What it counts |
@@ -40,8 +54,9 @@ Two controls sit above everything else. Both change every number below them.
 | **Last event** | How long ago the most recent event arrived |
 | **Unattributed flagged** | Flagged events that Dome could not tie to a known Agent |
 
-An errored event means the Guardrail failed to reach a verdict, so the traffic passed
-unchecked. Watch this counter.
+An errored event means a detection or Agent operation reported an error.
+
+Check the event details to determine whether enforcement ran and what happened to the traffic.
 
 **Unattributed flagged** counts detections that Dome failed to tie to a registered Agent.
 Any number above zero means traffic is routing through the proxy from a source your
