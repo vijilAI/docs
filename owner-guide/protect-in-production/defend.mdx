@@ -1,123 +1,48 @@
 ---
 title: 'Monitor Protection with Defend'
-description: 'Review runtime protection events from Dome and Discover.'
+description: 'See what Dome detected, blocked, and missed across your Agents in production.'
 icon: 'shield'
 ---
 
 **Defend** shows what [Dome](/concepts/platform/dome) detected in production across every
-Agent. Open **Defend** in the Console sidebar.
+Agent.
 
 ## What Feeds Defend
 
-Defend combines Console Dome telemetry with Discover DLP events and Discover Agent events.
+Defend combines Dome detections from Agents that send telemetry to the Console with DLP
+events from [Targets](/concepts/discovery/target) of type `dlp`. A `dlp` Target receives its
+events from a Dome proxy. See [Create and Manage Targets](/owner-guide/discover/targets).
 
-A [Target](/concepts/discovery/target) of type `dlp` receives its events from a Dome proxy.
-It runs no scans, and no [Collector](/concepts/discovery/collector) reports into it.
+## What You See
 
-<Note>
-Create one with `vijil discover deployment-create --name "<name>" --type dlp`. See
-[Create and Manage Targets](/owner-guide/discover/targets).
-</Note>
+<CardGroup cols={2}>
+  <Card title="DLP Overview" icon="chart-column">
+    Counters and charts for flagged, clean, and errored DLP traffic, scoped to one or all
+    `dlp` Targets.
+  </Card>
+  <Card title="Event Cards" icon="layer-group">
+    Events grouped by Agent or device, filtered by outcome, type, direction, time range, or
+    user.
+  </Card>
+  <Card title="Event Details" icon="magnifying-glass">
+    Who sent the traffic, which app and tool it came from, what Dome did, and the text Dome
+    checked.
+  </Card>
+  <Card title="Posture" icon="triangle-exclamation">
+    Open violations and alerts for your team.
+  </Card>
+</CardGroup>
 
-A `dlp` Target is required for Discover DLP events. Console Dome telemetry and Discover Agent events can appear without one.
+Watch two numbers in particular:
 
-## Scope the View
+- **Errored** counts events where a [Detector](/concepts/defense/detector) failed to return
+  a verdict, so the traffic passed unchecked.
+- **Unattributed flagged** counts detections Dome could not tie to a registered Agent. Any
+  number above zero means traffic is reaching the proxy from a source missing from your
+  [Agent Registry](/owner-guide/register-agents/registering-agents).
 
-Two controls sit above everything else. Both change every number below them.
-
-| Control | Options |
-|---------|---------|
-| **Target** | **All targets**, or a single `dlp` Target |
-| **Time range** | **24h**, **7d**, or **30d**. The default is 7d. |
-
-## Understand Event Outcomes
-
-The combined event feed reports these outcomes:
-
-| Outcome | Meaning |
-|---------|---------|
-| `blocked` | A block or deny decision was recorded, or a flagged detection was enforced |
-| `flagged` | A detection or Agent event was flagged without a block outcome |
-| `steered` | A Control recorded a steering decision |
-| `errored` | A detection or Agent event reported an error |
-| `clean` | No violation was reported |
-
-The feed excludes `clean` events by default.
-
-## Read the Counters
-
-| Counter | What it counts |
-|---------|----------------|
-| **Flagged** | Flagged detections and blocked or flagged Agent events |
-| **Clean** | Events that passed |
-| **Errored** | Events where a [Detector](/concepts/defense/detector) failed to return a verdict |
-| **Last event** | How long ago the most recent event arrived |
-| **Unattributed flagged** | Flagged events that Dome could not tie to a known Agent |
-
-A group's flagged count can differ from the number of events it lists:
-
-- **Console** contributes Dome's flagged-detection counter.
-- **Discover** contributes flagged and blocked DLP events and Agent events.
-- Defend uses the **larger source count**, rather than adding the two, to avoid double-counting detections exported to both sources.
-- Steering, errors, and Dome Control events can appear in the feed without increasing the flagged count.
-
-An errored event means a detection or Agent operation reported an error.
-
-Check the event details to determine whether enforcement ran and what happened to the traffic.
-
-**Unattributed flagged** counts detections that Dome failed to tie to a registered Agent.
-Any number above zero means traffic is routing through the proxy from a source your
-[Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
-
-## Check Source Coverage
-
-Defend can return events from one source when another cannot provide data.
-The feed reports a status for each source:
-
-| Status | Meaning |
-|--------|---------|
-| `ok` | The source answered |
-| `forbidden` | You do not have access to the source's events |
-| `disabled` | The source is turned off |
-| `unavailable` | The source could not provide data; retry or check the service |
-
-A source's retention may cover only part of the selected time range. Its events and
-counts then cover only that shorter period. A missing flagged count means unknown, not zero.
-
-<Warning>
-An empty or partial feed does not establish that no violations occurred. Check source availability and retention before interpreting the results.
-</Warning>
-
-## Read the Charts
-
-| Chart | Shows |
-|-------|-------|
-| **DLP series** | Detection volume over the window |
-| **DLP label totals** | Flagged, Clean, and Errored, grouped by **Agent**, **Team**, **User**, or **Detector** |
-| **Direction mix** | Whether detections came from **Input** or **Output** |
-| **Flagged rate** | What share of traffic the Guardrail flags |
-| **Score histogram** | How detection scores spread across the range |
-
-Group **DLP label totals** by Detector to see which rule is firing, or by Agent to see where.
-
-An **Input** detection is something a user sent toward an Agent. An **Output** detection is
-something an Agent was about to send back.
-
-## Read the Events Table
-
-The table below the charts lists individual detections. Filter it by **Input** or **Output**.
-
-| Column | What it shows |
-|--------|---------------|
-| **When** | When Dome emitted the event |
-| **Label** | Flagged, Clean, or Errored |
-| **Direction** | Input or Output |
-| **Detector** | The detection method that produced the verdict |
-| **Score** | The score behind the verdict |
-| **Agent** | The Agent that Dome tied the event to |
-| **Preview** | An excerpt of the content that triggered it |
-
-Expand a row for the full event.
+Click an event to open its details. From there you can view the whole turn or filter to
+more events from the same user.
 
 ## Next Steps
 
