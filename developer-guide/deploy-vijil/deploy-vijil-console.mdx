@@ -28,9 +28,10 @@ The repository scripts used in this guide also require a verification of `vijil-
 Before starting, review the full list of AWS resources and external services this guide will walk you through creating. Items marked **Vijil + Customer** or **Vijil** require Vijil to update access policies on their side — request this early.
 
 <Warning>
-**Two steps require Vijil's involvement** before you can proceed:
+**Three steps require Vijil's involvement** before you can proceed:
 1. **ECR Pull Access** (Step 2) — Vijil must grant your AWS account pull access to their container registry
 2. **Diamond Artifacts** (Step 2) — Vijil must copy Diamond evaluation artifacts (~4.5 MB) to your S3 bucket
+3. **Detector Model Downloads** (Step 2): Vijil must provide the Detector model files (~900 MB) at a bucket your evaluation Jobs can read
 </Warning>
 
 | Resource | Required? | Who Creates It | Guide Section |
@@ -41,11 +42,12 @@ Before starting, review the full list of AWS resources and external services thi
 | S3 Bucket | Yes | Customer | [Step 1: S3](#s3-bucket) |
 | ACM Certificate | Yes | Customer | [Step 1: ACM](#acm-certificate) |
 | ECR Cross-Account Pull | Yes (if using Vijil ECR) | **Vijil + Customer** | [Step 2: ECR](#ecr-pull-access) |
-| Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond--custom-harness) |
-| AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging--non-dev-custom-harness-agentcore-runtime) |
+| Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond-/-custom-harness) |
+| AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging-/-non-dev-custom-harness-agentcore-runtime) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
+| Detector Models | Yes | **Vijil + Customer** | [Step 2: Detector Model Downloads](#detector-model-downloads) |
 | LLM API Key | Yes | Customer (Groq, OpenAI, Anthropic, or local) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
-| Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-45-deploy-darwin-evolution-engine) |
+| Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-4-5-deploy-darwin-evolution-engine) |
 | Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
 
 ## Architecture Overview
@@ -194,6 +196,9 @@ Vijil Console deploys 8 service pods plus telemetry (Grafana, Loki, Mimir, Tempo
 | **Dev reference** | `r5.xlarge` | 6 | 24 vCPU | 192 GiB | Vijil's own dev cluster (headroom for testing) |
 
 **Why memory-optimized (r5)?** Evaluation and red-team jobs are memory-intensive. `r5` instances provide a better $/GiB ratio than general-purpose `m5` for this workload. Each evaluation runs as its own Kubernetes Job that requests 500m CPU and 2 GiB of memory, with limits of 2 CPU and 4 GiB. Size your nodes for the number of evaluations you expect to run at once. To change these values, set `evaluationJobs.resources` in your Helm values.
+
+Diamond evaluation Jobs also request 2 GiB of ephemeral storage for downloaded Detector models.
+Adjust this with `evaluationJobs.resources.requests.ephemeral-storage` in your Helm values.
 
 **Disk:** 200 GiB gp3 per node (default 80 GiB is tight when telemetry PVCs and container images accumulate). Set via `--node-volume-size 200` in eksctl.
 
@@ -612,7 +617,7 @@ The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fe
 
 In dev, a custom Harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime does not exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
 
-**Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a-vijils-ecr-cross-account-pull).
+**Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a-vijil’s-ecr-cross-account-pull).
 
 #### Step 1: Create the execution role
 
@@ -763,7 +768,7 @@ The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTO
 **Vijil action required.** Vijil must copy Diamond evaluation artifacts (~4.5 MB, 38 files) to your S3 bucket before evaluations can run.
 </Warning>
 
-The Diamond evaluation engine downloads Detector configs, Harness definitions, and small model weights from S3 at startup. These artifacts are versioned and live under a `diamond/{RESOURCE_VERSION}/` prefix, where `RESOURCE_VERSION` is a version string managed by Vijil (e.g. `v1.2.0`) that matches the deployed Diamond release. You do not need to set this value — the application reads it automatically.
+The Diamond evaluation engine downloads Detector configs, Harness definitions, and supporting evaluation data from S3 at startup. These artifacts are versioned under a `diamond/{RESOURCE_VERSION}/` prefix. The Helm chart's `commonEnv.RESOURCE_VERSION` setting selects the evaluation bundle, independently of the Diamond engine version.
 
 **What gets copied:**
 
@@ -781,6 +786,30 @@ diamond/{RESOURCE_VERSION}/
 1. **Vijil** runs `aws s3 sync` from their internal artifacts bucket to your S3 bucket.
 2. **You** set `RESOURCE_BUCKET_NAME` to your own bucket (the same bucket as `S3_BUCKET_NAME`). No separate artifacts bucket or cross-account IAM is needed — your existing S3 policy already covers your own bucket.
 3. If using the `install` block in your Helm values, `install.aws.s3Bucket` automatically sets both `S3_BUCKET_NAME` and `RESOURCE_BUCKET_NAME` to the same value. No extra configuration required.
+
+### Detector Model Downloads
+
+Diamond also downloads Detector model files separately from the evaluation bundle.
+Configure their source under `commonEnv` in your Helm values:
+
+| Setting | Value |
+|---------|-------|
+| `DETECTOR_MODEL_CLOUD_PROVIDER` | `aws` |
+| `DETECTOR_MODEL_BUCKET_NAME` | Bucket containing the Detector model files |
+| `DETECTOR_MODEL_BUCKET_PREFIX` | Model prefix, such as `models` |
+| `DETECTOR_MODEL_REGION` | AWS region of the model bucket |
+
+Set the provider and bucket together; setting only one prevents Diamond from starting. Vijil must provide the model files at the configured location.
+
+The evaluation Job's AWS identity needs `s3:GetObject` access to the model objects.
+
+Grant `s3:ListBucket` scoped to the model prefix so missing files return a not-found error instead of an access-denied error. For a bucket in another AWS account, its owner must also grant access through the bucket policy.
+
+Each evaluation that runs these Detectors downloads about 900 MB, and Diamond evaluation Jobs request 2 GiB of ephemeral storage for it. Tune the request with `evaluationJobs.resources.requests.ephemeral-storage`.
+
+<Note>
+If an evaluation Job cannot load a model, only the Detectors that use it report errors. The rest of the evaluation still runs.
+</Note>
 
 ---
 
@@ -812,7 +841,7 @@ secrets:
     POSTGRES_PASSWORD: "the-rds-password-you-set-in-step-1.3"
     SECRET_KEY: "<generated-secret-key>"
 
-    # LLM provider for report generation and Diamond evaluations.
+    # LLM provider for report generation.
     # Default provider is Groq. To use a different provider, set
     # REPORTS_LLM_PROVIDER (groq | openai | anthropic | local) and
     # REPORTS_MODEL (e.g. gpt-4o, claude-sonnet-4-20250514).
@@ -821,10 +850,12 @@ secrets:
     # ANTHROPIC_API_KEY: "sk-ant-..."           # if using anthropic
 
   vijil-diamond:
-    GROQ_API_KEY: "your-groq-api-key"           # must match provider above
-    # OPENAI_API_KEY: "sk-..."
-    # ANTHROPIC_API_KEY: "sk-ant-..."
+    AZURE_API_KEY: "your-azure-api-key"         # Diamond LLM Detectors
 ```
+
+Currently, Diamond's LLM Detectors use Azure `gpt-oss-120b`.
+Supply the API key for the endpoint configured in `commonEnv.AZURE_API_BASE`.
+The chart stores it in `diamond-secrets` for evaluation Jobs. Report generation uses the separate `REPORTS_LLM_PROVIDER` setting.
 
 <Danger>
 **Never commit `secrets.yaml`** — add it to `.gitignore`.
@@ -833,6 +864,8 @@ secrets:
 ### 3.2 Environment Values File
 
 Create `my-values.yaml`. The `install` block is the simplest way to configure the chart — set values once and the chart derives the redundant env vars for you:
+
+`commonEnv.DETECTION_RATE_LIMIT` defaults to `500` detections per minute per Diamond evaluation Job. This scoring limit is separate from the Agent's request rate limit. Concurrent Jobs share the available Detector provider capacity.
 
 ```yaml
 commonEnv:
@@ -845,6 +878,15 @@ commonEnv:
 
   # Custom harness bucket (can be the same bucket)
   CUSTOM_HARNESS_BUCKET_NAME: "vijil-console-data-prod"
+
+  # Maximum detections per minute in each Diamond evaluation Job
+  DETECTION_RATE_LIMIT: "500"
+
+  # Detector model bucket (see Step 2: Detector Model Downloads). Bucket and prefix come from Vijil.
+  DETECTOR_MODEL_CLOUD_PROVIDER: "aws"
+  DETECTOR_MODEL_BUCKET_NAME: "<model-bucket>"
+  DETECTOR_MODEL_BUCKET_PREFIX: "models"
+  DETECTOR_MODEL_REGION: "us-west-2"
 
   # Frontend and API URLs — both must be reachable from the internet
   # because the React SPA calls the API from the user's browser
