@@ -123,6 +123,25 @@ report = client.evaluations.redteam_report(evaluation_id)
 
 See [`RedteamStatusResponse`](/developer-guide/sdk/models-errors#redteamstatusresponse) for progress fields and terminal statuses.
 
+### Deployment Gate
+
+The platform's pass or fail verdict on a completed behavioral evaluation. Call `report()` first: generating the Trust Report records the verdict that `gate()` reads. See [Gate CI/CD on an Evaluation](/developer-guide/evaluate/ci-cd-gate).
+
+| Method | Arguments | Returns |
+|--------|-----------|---------|
+| `report` | `evaluation_id`; optional `force_regenerate`, `score_basis`, `team_id` | `dict` with the generation status |
+| `gate` | `evaluation_id`; optional `bar`, `campaign`, `score_basis`, `team_id` | `GateVerdict` |
+| `accept_baseline` | `evaluation_id`; optional `team_id` | `AcceptedBaseline` |
+| `set_gate_bar` | `agent_id`, `suite_version`, `value`; optional `team_id` | `TeamBar` |
+
+`report()` and `gate()` default to `score_basis="tail"`, the Trust Score. Pass the same `score_basis` to both. `bar` and `campaign` on `gate()` judge the stored score against a different bar without saving the result.
+
+```python
+client.evaluations.report(evaluation_id)
+gate = client.evaluations.gate(evaluation_id)
+print(gate.verdict, gate.tail_score, gate.bar, gate.bar_source, gate.reasons)
+```
+
 ## `client.harnesses`
 
 List and manage [Harnesses](/concepts/evaluation-components/harness). `list()` combines standard and custom Harnesses.
