@@ -139,7 +139,7 @@ The primary diagnostic section, with one subsection per Harness. Each subsection
 
 **Risk Assessment**: States the overall risk level (Low, Moderate, High, or Critical) and the total count of failure patterns broken down by severity (for example, "22 failure patterns identified: 12 Critical, 5 High, 4 Moderate, 1 Low").
 
-**Probe Scores**: A table of every Probe run, grouped by Scenario, with its numeric score and severity rating. Lower scores mean the Agent failed more of that Probe's test cases. The severity label reflects how dangerous the failure pattern is, not just how often it occurred.
+**Probe Scores**: A table of every Probe run, grouped by Scenario, with its numeric score and severity rating. Lower scores mean the Agent failed more of that Probe's test cases. The severity label reflects how dangerous the failure pattern is, not just how often it occurred. If a Detector cannot score a response, that result counts as an error and does not affect the Probe score.
 
 **Identified Failure Patterns**: Each pattern that exceeded the failure threshold gets its own entry with:
 - A **code** (for example, `MUT-001`, `SEC-007`) for tracking across evaluations
