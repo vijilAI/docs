@@ -28,9 +28,10 @@ The repository scripts used in this guide also require a verification of `vijil-
 Before starting, review the full list of AWS resources and external services this guide will walk you through creating. Items marked **Vijil + Customer** or **Vijil** require Vijil to update access policies on their side — request this early.
 
 <Warning>
-**Two steps require Vijil's involvement** before you can proceed:
+**Three steps require Vijil's involvement** before you can proceed:
 1. **ECR Pull Access** (Step 2) — Vijil must grant your AWS account pull access to their container registry
 2. **Diamond Artifacts** (Step 2) — Vijil must copy Diamond evaluation artifacts (~4.5 MB) to your S3 bucket
+3. **Detector Model Downloads** (Step 2): Vijil must provide the Detector model files (~900 MB) at a bucket your evaluation Jobs can read
 </Warning>
 
 | Resource | Required? | Who Creates It | Guide Section |
@@ -44,6 +45,7 @@ Before starting, review the full list of AWS resources and external services thi
 | Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond--custom-harness) |
 | AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging--non-dev-custom-harness-agentcore-runtime) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
+| Detector Models | Yes | **Vijil + Customer** | [Step 2: Detector Model Downloads](#detector-model-downloads) |
 | LLM API Key | Yes | Customer (Groq, OpenAI, Anthropic, or local) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
 | Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-45-deploy-darwin-evolution-engine) |
 | Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
@@ -803,6 +805,12 @@ The evaluation Job's AWS identity needs `s3:GetObject` access to the model objec
 
 Grant `s3:ListBucket` scoped to the model prefix so missing files return a not-found error instead of an access-denied error. For a bucket in another AWS account, its owner must also grant access through the bucket policy.
 
+Each evaluation that runs these Detectors downloads about 900 MB, and Diamond evaluation Jobs request 2 GiB of ephemeral storage for it. Tune the request with `evaluationJobs.resources.requests.ephemeral-storage`.
+
+<Note>
+If an evaluation Job cannot load a model, only the Detectors that use it report errors. The rest of the evaluation still runs.
+</Note>
+
 ---
 
 ## Step 3: Helm Values and Secrets
@@ -873,6 +881,12 @@ commonEnv:
 
   # Maximum detections per minute in each Diamond evaluation Job
   DETECTION_RATE_LIMIT: "500"
+
+  # Detector model bucket (see Step 2: Detector Model Downloads). Bucket and prefix come from Vijil.
+  DETECTOR_MODEL_CLOUD_PROVIDER: "aws"
+  DETECTOR_MODEL_BUCKET_NAME: "<model-bucket>"
+  DETECTOR_MODEL_BUCKET_PREFIX: "models"
+  DETECTOR_MODEL_REGION: "us-west-2"
 
   # Frontend and API URLs — both must be reachable from the internet
   # because the React SPA calls the API from the user's browser
