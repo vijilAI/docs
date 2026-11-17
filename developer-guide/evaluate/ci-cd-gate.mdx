@@ -51,7 +51,7 @@ The scripts on this page combine the verdict with your threshold:
 | `VIJIL_MIN_TRUST_SCORE` | Optional, 0 to 100. Required while the platform has no bar for the Agent. |
 | `VIJIL_SAMPLE_SIZE` | Optional, prompts per Harness. Defaults to `50`. |
 
-Both scripts exit `0` to promote, `1` when blocked, and `2` when a required variable is missing.
+Both scripts exit `0` to promote, `1` when blocked, and `2` when a required variable is missing or `VIJIL_MIN_TRUST_SCORE` is not a number from 0 to 100.
 
 ## Choose an Evaluation Size
 
@@ -104,14 +104,31 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       return None
 
 
+  def parse_min_score(raw: str | None) -> float | None:
+      """Return the threshold, or None when unset; raise ValueError unless it is a number from 0 to 100."""
+      if not raw:
+          return None
+      try:
+          value = float(raw)
+      except ValueError:
+          value = float("nan")
+      # Written so NaN fails it too: a NaN threshold would never block.
+      if not 0 <= value <= 100:
+          raise ValueError(f"VIJIL_MIN_TRUST_SCORE must be a number from 0 to 100, got {raw!r}")
+      return value
+
+
   def main(client: Vijil | None = None) -> int:
       missing = [name for name in ("VIJIL_AGENT_ID", "VIJIL_TEAM_ID") if not os.environ.get(name)]
       if missing:
           print(f"missing environment variables: {', '.join(missing)}", file=sys.stderr)
           return 2
       agent_id = os.environ["VIJIL_AGENT_ID"]
-      minimum = os.environ.get("VIJIL_MIN_TRUST_SCORE")
-      min_score = float(minimum) if minimum else None
+      try:
+          min_score = parse_min_score(os.environ.get("VIJIL_MIN_TRUST_SCORE"))
+      except ValueError as exc:
+          print(exc, file=sys.stderr)
+          return 2
       sample_size = int(os.environ.get("VIJIL_SAMPLE_SIZE", "50"))
 
       client = client or Vijil()
@@ -165,7 +182,8 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
   import requests
 
   SUCCEEDED = {"completed", "succeeded", "saved"}
-  TERMINAL = SUCCEEDED | {"failed", "cancelled"}
+  # Poll only through known in-progress states, so an unrecognised status ends the wait and blocks.
+  IN_PROGRESS = {"pending", "running"}
   POLL_SECONDS = 15
   # A new evaluation can take a few polls to appear in the summaries endpoint.
   NOT_FOUND_GRACE = 6
@@ -189,6 +207,20 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       return None
 
 
+  def parse_min_score(raw: str | None) -> float | None:
+      """Return the threshold, or None when unset; raise ValueError unless it is a number from 0 to 100."""
+      if not raw:
+          return None
+      try:
+          value = float(raw)
+      except ValueError:
+          value = float("nan")
+      # Written so NaN fails it too: a NaN threshold would never block.
+      if not 0 <= value <= 100:
+          raise ValueError(f"VIJIL_MIN_TRUST_SCORE must be a number from 0 to 100, got {raw!r}")
+      return value
+
+
   def main() -> int:
       required = ["VIJIL_CONSOLE_URL", "VIJIL_CLIENT_ID", "VIJIL_CLIENT_SECRET", "VIJIL_AGENT_ID", "VIJIL_TEAM_ID"]
       missing = [name for name in required if not os.environ.get(name)]
@@ -198,8 +230,11 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       url = os.environ["VIJIL_CONSOLE_URL"].rstrip("/")
       # Without an explicit team the Console picks one of the key owner's teams arbitrarily.
       team = {"team_id": os.environ["VIJIL_TEAM_ID"]}
-      minimum = os.environ.get("VIJIL_MIN_TRUST_SCORE")
-      min_score = float(minimum) if minimum else None
+      try:
+          min_score = parse_min_score(os.environ.get("VIJIL_MIN_TRUST_SCORE"))
+      except ValueError as exc:
+          print(exc, file=sys.stderr)
+          return 2
       sample_size = int(os.environ.get("VIJIL_SAMPLE_SIZE", "50"))
 
       token = requests.post(
@@ -225,7 +260,7 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       evaluation_id = created.json()["evaluation_id"]
 
       status, not_found = "pending", 0
-      while status not in TERMINAL:
+      while status in IN_PROGRESS:
           time.sleep(POLL_SECONDS)
           summary = session.get(f"{url}/v1/evaluation-summaries/{evaluation_id}", params=team, timeout=30)
           if summary.status_code == 404 and not_found < NOT_FOUND_GRACE:
