@@ -295,6 +295,86 @@ runtime = TrustRuntime(
 
 An unattested runtime emits an `identity_unattested` audit event. Whether an unattested Agent can call tools depends on the resolved `unattested_tool_policy` and enforcement mode.
 
+### Connect an AWS Account
+
+Before registering an Agent's AWS runtime, connect and verify its AWS account for your team:
+
+1. Have your AWS administrator deploy the `vijil-spire-attestor` role in the workload's account. Its trust policy must allow the Console's AWS role and require the external ID `vijil-team-<team_id>`.
+2. Send an authenticated `POST /v1/aws-accounts/?team_id=<team_id>` with this body:
+
+   ```json
+   {"account_id": "123456789012"}
+   ```
+
+   The account starts as `unverified`. The response includes its `role_arn` and `external_id`.
+
+3. Call `POST /v1/aws-accounts/<account_id>/verify?team_id=<team_id>` and confirm that the returned `status` is `verified` before registering a runtime.
+
+Verification checks that Console can assume the role with your team's external ID and
+that the role rejects an incorrect external ID.
+
+| Operation | Endpoint |
+|-----------|----------|
+| List connected accounts | `GET /v1/aws-accounts/?team_id=<team_id>` |
+| Disconnect an account | `DELETE /v1/aws-accounts/<account_id>?team_id=<team_id>` |
+
+Listing requires `agent:read`; connecting, verifying, and disconnecting require `agent:write` for the team. Remove any runtime bindings before disconnecting an account.
+
+### Register an Agent Runtime
+
+After verifying the account, send an authenticated `PUT /v1/agent-configurations/<agent_id>/runtime?team_id=<team_id>` with a runtime descriptor:
+
+| Field | Required value |
+|-------|----------------|
+| `kind` | `ec2`, `eks`, or `agentcore` |
+| `account_id` | The team's connected, verified AWS account ID |
+| `region` | AWS region where the Agent runs |
+| `image_repository` | Container repository without a tag or digest |
+| `image_digest` | `sha256:` followed by 64 lowercase hexadecimal characters |
+| `ec2` | For `kind: ec2`: `instance_role_arn` and optional `unix_uid` |
+| `eks` | For `kind: eks`: `cluster`, `node_role_arn`, `namespace`, and `service_account` |
+| `agentcore` | For `kind: agentcore`: `runtime_arn` and `execution_role_arn` |
+
+Include exactly one runtime-specific block matching `kind`. All role ARNs must belong to `account_id`; the AgentCore runtime ARN must also match `region`. Deploy the Agent as `<image_repository>@<image_digest>` so attestation can match the image.
+
+Console re-verifies the account and records the runtime only after the SPIRE registrar confirms registration. Each AgentCore Agent needs its own execution role.
+
+Use `GET` on the same endpoint to inspect the binding: it returns `{"runtime": ...}`, or `{"runtime": null}` when none is registered. Use `DELETE` to deregister it. Reading requires `agent:read`; registering and removing require `agent:write` for the team.
+
+<Note>
+Runtime registration requires a configured SPIRE registrar. Confirm that AWS attestation is enabled in your deployment before relying on attested identity.
+</Note>
+
+### Store Team Provider Keys
+
+For Agents calling models through the LLM proxy, store a provider key for their team.
+
+The proxy must have a route configured for that provider.
+
+Use bearer authentication and include `team_id` in every request:
+
+| Operation | Endpoint |
+|-----------|----------|
+| Create or replace a key | `PUT /v1/provider-keys/<provider>?team_id=<team_id>` |
+| Check whether a key exists | `GET /v1/provider-keys/<provider>?team_id=<team_id>` |
+| Delete a key | `DELETE /v1/provider-keys/<provider>?team_id=<team_id>` |
+
+For `PUT`, send the provider's API key in the request body:
+
+```json
+{"api_key": "<provider-api-key>"}
+```
+
+`GET` reports `present` and `updated_at`; the API never returns the key value.
+
+Checking requires `agent:read`; setting and deleting require `agent:write` for the team.
+
+These keys are for the LLM proxy; evaluation credentials are configured separately.
+
+<Note>
+The deployment must set `TEAM_PROVIDER_KEYS_ENV` and grant Console permission to manage the team's secrets in AWS Secrets Manager. The proxy needs permission to read them from `vijil/<env>/teams/<team_id>/llm/<provider>`. If the environment setting is missing, the provider-key endpoints return `503`.
+</Note>
+
 ## Verify Tool Manifests
 
 A tool manifest declares the tools an Agent expects to call. Each entry associates a tool name with its endpoint and expected SPIFFE identity. The manifest signature protects this inventory from undetected modification.

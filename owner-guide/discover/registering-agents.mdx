@@ -5,9 +5,7 @@ icon: 'circle-plus'
 ---
 
 Registering a discovered Agent puts it in the
-[Agent Registry](/owner-guide/register-agents/registering-agents), where every
-[Diamond](/concepts/platform/diamond) and [Dome](/concepts/platform/dome) workflow applies
-to it.
+[Agent Registry](/owner-guide/register-agents/registering-agents). Available workflows depend on where the Agent runs.
 
 ## Register a Resource
 
@@ -48,8 +46,9 @@ Where a Resource fails either test, the Console says which:
 | Could not be read well enough to decide | The record was incomplete. Report this. |
 
 <Note>
-You cannot register Agents found by endpoint Collectors today. An Agent on a laptop carries
-a machine-local address, and the platform has no route to it.
+You can register a discovered device application as a **draft**, **local** Agent.
+These Agents cannot yet be evaluated, even after activation. Completing the endpoint
+registration steps above does not remove this restriction.
 </Note>
 
 ## Resource Status
@@ -91,7 +90,7 @@ Once the Agent is active it enters the registry at the **Registered** stage:
 | **Protected** | You have configured and enabled Dome for it |
 | **Adapted** | You have accepted a Darwin proposal for it |
 
-A discovered Agent and a manually registered one behave the same from here.
+For discovered Agents that support evaluation, the lifecycle is the same as for manually registered Agents.
 
 ## Next Steps
 

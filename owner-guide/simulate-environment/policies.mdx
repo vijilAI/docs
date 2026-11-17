@@ -180,6 +180,20 @@ A security researcher persona combined with a data privacy policy generates test
 
 You can also select approved rules on the Dome page to generate [Dome Guardrail configurations](/owner-guide/protect-in-production/configuring-guardrails).
 
+### Conditional Rules in Dome
+
+When approved rules are compiled into Dome Controls, their structured conditions determine when each rule is checked. The Agent integration must supply the required context.
+
+For example, a rule configured to apply when the communication channel is SMS behaves as follows:
+
+| Channel context | Rule behavior |
+|-----------------|---------------|
+| SMS | Check the rule |
+| Another channel | Skip the rule |
+| Missing or cannot be evaluated | Check the rule by default |
+
+See [Conditional Policy Rules](/developer-guide/protect/control-engine#apply-conditional-policy-rules) for integration details.
+
 ## Next Steps
 
 <CardGroup cols={2}>
