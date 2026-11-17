@@ -51,7 +51,7 @@ The scripts on this page combine the verdict with your threshold:
 | `VIJIL_MIN_TRUST_SCORE` | Optional, 0 to 100. Required while the platform has no bar for the Agent. |
 | `VIJIL_SAMPLE_SIZE` | Optional, prompts per Harness. Defaults to `50`. |
 
-Both scripts exit `0` to promote, `1` when blocked, and `2` when a required variable is missing or `VIJIL_MIN_TRUST_SCORE` is not a number from 0 to 100.
+Both scripts exit `0` to promote, `1` when blocked, and `2` when a required variable is missing or a threshold or sample size is invalid.
 
 ## Choose an Evaluation Size
 
@@ -118,6 +118,15 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       return value
 
 
+  def parse_sample_size(raw: str | None) -> int:
+      """Return prompts per Harness, 50 when unset; raise ValueError unless it is a positive integer."""
+      if not raw:
+          return 50
+      if not raw.isdigit() or int(raw) < 1:
+          raise ValueError(f"VIJIL_SAMPLE_SIZE must be a positive integer, got {raw!r}")
+      return int(raw)
+
+
   def main(client: Vijil | None = None) -> int:
       missing = [name for name in ("VIJIL_AGENT_ID", "VIJIL_TEAM_ID") if not os.environ.get(name)]
       if missing:
@@ -126,10 +135,10 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       agent_id = os.environ["VIJIL_AGENT_ID"]
       try:
           min_score = parse_min_score(os.environ.get("VIJIL_MIN_TRUST_SCORE"))
+          sample_size = parse_sample_size(os.environ.get("VIJIL_SAMPLE_SIZE"))
       except ValueError as exc:
           print(exc, file=sys.stderr)
           return 2
-      sample_size = int(os.environ.get("VIJIL_SAMPLE_SIZE", "50"))
 
       client = client or Vijil()
       evaluation = client.evaluate(agent_id, baseline=True, sample_size=sample_size)
@@ -183,7 +192,9 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
 
   SUCCEEDED = {"completed", "succeeded", "saved"}
   # Poll only through known in-progress states, so an unrecognised status ends the wait and blocks.
-  IN_PROGRESS = {"pending", "running"}
+  IN_PROGRESS = {"starting", "pending", "running", "saving"}
+  # Under the documented 90-minute job timeout, so a stuck run blocks with a reason instead of being killed.
+  MAX_WAIT_SECONDS = 80 * 60
   POLL_SECONDS = 15
   # A new evaluation can take a few polls to appear in the summaries endpoint.
   NOT_FOUND_GRACE = 6
@@ -221,6 +232,15 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       return value
 
 
+  def parse_sample_size(raw: str | None) -> int:
+      """Return prompts per Harness, 50 when unset; raise ValueError unless it is a positive integer."""
+      if not raw:
+          return 50
+      if not raw.isdigit() or int(raw) < 1:
+          raise ValueError(f"VIJIL_SAMPLE_SIZE must be a positive integer, got {raw!r}")
+      return int(raw)
+
+
   def main() -> int:
       required = ["VIJIL_CONSOLE_URL", "VIJIL_CLIENT_ID", "VIJIL_CLIENT_SECRET", "VIJIL_AGENT_ID", "VIJIL_TEAM_ID"]
       missing = [name for name in required if not os.environ.get(name)]
@@ -232,10 +252,10 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       team = {"team_id": os.environ["VIJIL_TEAM_ID"]}
       try:
           min_score = parse_min_score(os.environ.get("VIJIL_MIN_TRUST_SCORE"))
+          sample_size = parse_sample_size(os.environ.get("VIJIL_SAMPLE_SIZE"))
       except ValueError as exc:
           print(exc, file=sys.stderr)
           return 2
-      sample_size = int(os.environ.get("VIJIL_SAMPLE_SIZE", "50"))
 
       token = requests.post(
           f"{url}/v1/auth/token",
@@ -260,6 +280,7 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       evaluation_id = created.json()["evaluation_id"]
 
       status, not_found = "pending", 0
+      deadline = time.monotonic() + MAX_WAIT_SECONDS
       while status in IN_PROGRESS:
           time.sleep(POLL_SECONDS)
           summary = session.get(f"{url}/v1/evaluation-summaries/{evaluation_id}", params=team, timeout=30)
@@ -268,6 +289,9 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
               continue
           summary.raise_for_status()
           status = summary.json()["status"]
+          if status in IN_PROGRESS and time.monotonic() >= deadline:
+              print(f"BLOCKED: evaluation {evaluation_id} still {status!r} after {MAX_WAIT_SECONDS}s")
+              return 1
       print(f"evaluation {evaluation_id}: {status}")
       if status not in SUCCEEDED:
           print(f"BLOCKED: {decide(status, None, None, min_score)}")
