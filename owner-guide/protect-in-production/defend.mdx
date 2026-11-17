@@ -1,80 +1,48 @@
 ---
 title: 'Monitor Protection with Defend'
-description: 'Review what Dome and Discover detected in production, grouped by Agent.'
+description: 'See what Dome detected, blocked, and missed across your Agents in production.'
 icon: 'shield'
 ---
 
-**Defend** shows what [Dome](/concepts/platform/dome) and [Discover](/concepts/platform/discover)
-detected in production across every Agent.
+**Defend** shows what [Dome](/concepts/platform/dome) detected in production across every
+Agent.
 
 ## What Feeds Defend
 
-Defend merges events from two sources into one list:
+Defend combines Dome detections from Agents that send telemetry to the Console with DLP
+events from [Targets](/concepts/discovery/target) of type `dlp`. A `dlp` Target receives its
+events from a Dome proxy. See [Create and Manage Targets](/owner-guide/discover/targets).
 
-| Source | What it contributes |
-|--------|---------------------|
-| **Console** | Dome Guard detections and Dome control decisions for Agents that send telemetry to the Console |
-| **Discover** | Data loss (DLP) events from a Dome proxy, and Agent events such as tool calls, reported to [Targets](/concepts/discovery/target) |
+## What You See
 
-When the same request appears in both sources, Defend shows it once.
+<CardGroup cols={2}>
+  <Card title="DLP Overview" icon="chart-column">
+    Counters and charts for flagged, clean, and errored DLP traffic, scoped to one or all
+    `dlp` Targets.
+  </Card>
+  <Card title="Event Cards" icon="layer-group">
+    Events grouped by Agent or device, filtered by outcome, type, direction, time range, or
+    user.
+  </Card>
+  <Card title="Event Details" icon="magnifying-glass">
+    Who sent the traffic, which app and tool it came from, what Dome did, and the text Dome
+    checked.
+  </Card>
+  <Card title="Posture" icon="triangle-exclamation">
+    Open violations and alerts for your team.
+  </Card>
+</CardGroup>
 
-The DLP summary reads only from Targets of type `dlp`. A `dlp` Target receives its events
-from a Dome proxy. It runs no scans, and no [Collector](/concepts/discovery/collector)
-reports into it. The Console creates `scanner` Targets only. To create a `dlp` Target, use
-the `discover_deployment_create` MCP tool with `type` set to `dlp`. See
-[Create and Manage Targets](/owner-guide/discover/targets).
+Watch two numbers in particular:
 
-With no `dlp` Target, the DLP summary stays empty. The event cards still show Console Dome
-events.
+- **Errored** counts events where a [Detector](/concepts/defense/detector) failed to return
+  a verdict, so the traffic passed unchecked.
+- **Unattributed flagged** counts detections Dome could not tie to a registered Agent. Any
+  number above zero means traffic is reaching the proxy from a source missing from your
+  [Agent Registry](/owner-guide/register-agents/registering-agents).
 
-## Read the DLP Summary
-
-The **DLP target** selector scopes this section only: **All targets**, or a single `dlp`
-Target. The event cards below always cover every source.
-
-| Counter | What it counts |
-|---------|----------------|
-| **Flagged** | Events the Guardrail flagged |
-| **Clean** | Events that passed |
-| **Errored** | Events where a [Detector](/concepts/defense/detector) failed to return a verdict |
-| **Last event** | How long ago the most recent event arrived |
-| **Unattributed flagged** | Flagged events that Dome could not tie to a known Agent |
-
-An errored event means the Guardrail failed to reach a verdict, so the traffic passed
-unchecked. Watch this counter.
-
-**Unattributed flagged** counts detections that Dome failed to tie to a registered Agent.
-Any number above zero means traffic is routing through the proxy from a source your
-[Agent Registry](/owner-guide/register-agents/registering-agents) is missing.
-
-## Inspect an Event
-
-Click a row to open the details panel beside the cards.
-
-The panel shows:
-
-- **Fields**: **Group** (the Agent), **User**, **Detector or policy**, **Direction**, whether the decision was
-  **Enforced**, and **Time**.
-- **Content**: the prompt or model response that triggered the event.
-- **View the whole turn**: for a Console event, opens the trace in the Agent's
-  [Monitor](/owner-guide/protect-in-production/observability) tab. For a Discover event, the
-  panel lists the other steps of the same turn.
-- **More from this user**: filters the page to the same user ID.
-
-## Read the Posture Section
-
-Below the cards, **Open violations** and **Alerts** list what Discover is tracking for your
-estate, each with a severity badge. 
-
-## When a Source Is Missing
-
-If one source fails, Defend still shows the other and explains the gap with a banner:
-
-| Banner | Meaning |
-|--------|---------|
-| `<Source> events are unavailable right now.` | The source did not respond. Defend shows events from the other source only. |
-| `You don't have access to <Source> events.` | Your role does not include that source. |
-| `Console Dome events cover only the last <period>` | Console telemetry retention is shorter than the range you picked. Discover events still cover the full range. |
+Click an event to open its details. From there you can view the whole turn or filter to
+more events from the same user.
 
 ## Next Steps
 
