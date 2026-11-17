@@ -1,6 +1,6 @@
 # Vijil Documentation
 
-Source for [docs.vijil.ai](https://docs.vijil.ai), built with [Mintlify](https://mintlify.com). Pages are MDX, and `docs.json` controls navigation.
+Source for [docs.vijil.ai](https://docs.vijil.ai), built with [Mintlify](https://mintlify.com).
 
 ## Setup
 
