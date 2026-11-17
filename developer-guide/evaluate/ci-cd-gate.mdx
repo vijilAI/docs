@@ -47,7 +47,7 @@ The scripts on this page combine the verdict with your threshold:
 | `VIJIL_CLIENT_ID`, `VIJIL_CLIENT_SECRET` | The API key pair |
 | `VIJIL_CONSOLE_URL` | Your Console API URL |
 | `VIJIL_AGENT_ID` | The Agent to evaluate |
-| `VIJIL_TEAM_ID` | REST API script only: the Agent's team |
+| `VIJIL_TEAM_ID` | The Agent's team. Required by the REST API script, and by the SDK script when the API key's owner belongs to more than one team |
 | `VIJIL_MIN_TRUST_SCORE` | Optional, 0 to 100. Required while the platform has no bar for the Agent. |
 | `VIJIL_SAMPLE_SIZE` | Optional, prompts per Harness. Defaults to `50`. |
 
@@ -57,11 +57,14 @@ Both scripts exit `0` to promote, `1` when blocked, and `2` when a required vari
 
 The gate needs enough responses to measure the worst 10%: at least 10 responses must fall in that tail, so a run needs roughly 100 scored responses or more. Smaller runs return `incomplete` and block the pipeline. More than 5% unanswered prompts also returns `incomplete`.
 
-{/* MEASURED: replace with staging numbers from the plan's Task 5 */}
-| Run | Prompts | Typical Duration |
+| Run | Scored Responses | Measured Duration |
 | --- | --- | --- |
-| `sample_size=50` across the standard Harnesses | 150 | TBD |
-| Full standard Harnesses | 1,000+ | TBD |
+| `sample_size=50` across the standard Harnesses | about 160 | 1.5 to 2 minutes |
+| Full standard Harnesses | about 1,400 | 3.5 to 15 minutes |
+
+Durations come from a `gpt-4.1-mini` Agent and include the report step, which takes under 20 seconds even for a full run. Your Agent's latency and rate limit set the real figure.
+
+Expect a lower Trust Score from the sampled run than from the full run, because a small tail is easily filled by a few failures. Set `VIJIL_MIN_TRUST_SCORE` from your own sampled runs, not from a full run's score.
 
 Use the sampled run for the blocking step on every change. Run the full Harnesses in a nightly or pre-release job, where duration matters less.
 
@@ -190,6 +193,8 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
           print(f"missing environment variables: {', '.join(missing)}", file=sys.stderr)
           return 2
       url = os.environ["VIJIL_CONSOLE_URL"].rstrip("/")
+      # Without an explicit team the Console picks one of the key owner's teams arbitrarily.
+      team = {"team_id": os.environ["VIJIL_TEAM_ID"]}
       minimum = os.environ.get("VIJIL_MIN_TRUST_SCORE")
       min_score = float(minimum) if minimum else None
       sample_size = int(os.environ.get("VIJIL_SAMPLE_SIZE", "50"))
@@ -207,7 +212,7 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
           f"{url}/v1/evaluations/",
           json={
               "agent_id": os.environ["VIJIL_AGENT_ID"],
-              "team_id": os.environ["VIJIL_TEAM_ID"],
+              **team,
               "harness_names": ["security", "safety", "reliability"],
               "sample_size": sample_size,
           },
@@ -219,7 +224,7 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       status, not_found = "pending", 0
       while status not in TERMINAL:
           time.sleep(POLL_SECONDS)
-          summary = session.get(f"{url}/v1/evaluation-summaries/{evaluation_id}", timeout=30)
+          summary = session.get(f"{url}/v1/evaluation-summaries/{evaluation_id}", params=team, timeout=30)
           if summary.status_code == 404 and not_found < NOT_FOUND_GRACE:
               not_found += 1
               continue
@@ -233,13 +238,13 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
       def report(**params: str) -> None:
           response = session.post(
               f"{url}/v1/evaluations/{evaluation_id}/report",
-              params={"score_basis": "tail", **params},
+              params={"score_basis": "tail", **team, **params},
               timeout=REPORT_TIMEOUT,
           )
           response.raise_for_status()
 
       def read_gate() -> requests.Response:
-          return session.get(f"{url}/v1/evaluations/{evaluation_id}/gate", params={"score_basis": "tail"}, timeout=30)
+          return session.get(f"{url}/v1/evaluations/{evaluation_id}/gate", params={"score_basis": "tail", **team}, timeout=30)
 
       report()
       response = read_gate()
@@ -274,7 +279,7 @@ Use the sampled run for the blocking step on every change. Run the full Harnesse
 
 ## Wire It Into Your Pipeline
 
-Save the script as `vijil_gate.py` in your repository and run it in a job that your deploy job depends on. The examples run the SDK script. For the REST API script, install `requests` instead of `vijil-sdk` and also set `VIJIL_TEAM_ID`.
+Save the script as `vijil_gate.py` in your repository and run it in a job that your deploy job depends on. The examples run the SDK script. For the REST API script, install `requests` instead of `vijil-sdk`.
 
 <Tabs>
   <Tab title="GitHub Actions">
@@ -296,6 +301,7 @@ Save the script as `vijil_gate.py` in your repository and run it in a job that y
             VIJIL_CLIENT_SECRET: ${{ secrets.VIJIL_CLIENT_SECRET }}
             VIJIL_CONSOLE_URL: ${{ vars.VIJIL_CONSOLE_URL }}
             VIJIL_AGENT_ID: ${{ vars.VIJIL_AGENT_ID }}
+            VIJIL_TEAM_ID: ${{ vars.VIJIL_TEAM_ID }}
             VIJIL_MIN_TRUST_SCORE: "70"
 
     deploy:
@@ -328,7 +334,7 @@ Save the script as `vijil_gate.py` in your repository and run it in a job that y
       - echo "deploy the Agent here"
   ```
 
-  Define `VIJIL_CLIENT_ID`, `VIJIL_CLIENT_SECRET`, `VIJIL_CONSOLE_URL`, and `VIJIL_AGENT_ID` as masked, protected CI/CD variables.
+  Define `VIJIL_CLIENT_ID`, `VIJIL_CLIENT_SECRET`, `VIJIL_CONSOLE_URL`, `VIJIL_AGENT_ID`, and `VIJIL_TEAM_ID` as masked, protected CI/CD variables.
 
   </Tab>
 </Tabs>
