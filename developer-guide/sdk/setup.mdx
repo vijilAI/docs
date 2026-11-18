@@ -108,7 +108,7 @@ Requires `vijil-sdk` 0.1.71 or later. Earlier versions do not renew tokens obtai
 </Note>
 
 <Tip>
-In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than committing them or running an interactive login.
+In CI/CD, set `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET` as secrets rather than committing them or running an interactive login. Also set [`VIJIL_TEAM_ID`](#team-selection).
 </Tip>
 
 ## Gateway Configuration
@@ -132,6 +132,25 @@ All SDK calls route through the gateway. Resolution order, highest priority firs
 1. The `gateway` argument
 2. The `gateway.url` value in `~/.vijil/config.toml`
 3. The built-in default, `https://console-api.vijil.ai`
+
+## Team Selection
+
+Every team-scoped SDK call runs against one team. `client.team_id` shows the team the client resolved. Resolution order, highest priority first:
+
+1. A `team_id=` argument passed to a method that accepts one
+2. The `VIJIL_TEAM_ID` environment variable
+3. The `team_id` value in the `[defaults]` table of `~/.vijil/config.toml`
+4. The first team in the access token
+
+<Warning>
+`vijil-sdk` 0.1.72 and later read `VIJIL_TEAM_ID` ahead of the config file. If a stale value is in your environment, unset it.
+
+An access token carries every team its creator belongs to, including their personal team, in no guaranteed order. In CI/CD, always set `VIJIL_TEAM_ID` to the team that owns the Agent.
+</Warning>
+
+```bash
+export VIJIL_TEAM_ID="<team-id>"
+```
 
 ## Agent Aliases
 
