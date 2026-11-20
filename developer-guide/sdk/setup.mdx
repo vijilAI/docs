@@ -135,7 +135,7 @@ All SDK calls route through the gateway. Resolution order, highest priority firs
 
 ## Team Selection
 
-Every team-scoped SDK call runs against one team. `client.team_id` shows the team the client resolved. Resolution order, highest priority first:
+Every team-scoped SDK call runs against one team. `client.team_id` shows the team the client resolved to. Following is the resolution order, with the highest priority listed first:
 
 1. A `team_id=` argument passed to a method that accepts one
 2. The `VIJIL_TEAM_ID` environment variable
