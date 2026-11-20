@@ -1,0 +1,416 @@
+---
+title: 'Gate CI/CD with Diamond Evaluation'
+description: 'Run a Diamond Evaluation in your pipeline and block promotion when the Agent does not meet the bar.'
+icon: 'shield-check'
+---
+
+Add a pipeline step that runs an Evaluation, waits for it, and exits non-zero when the Agent should not ship. The deploy job that depends on it then fails. The step promotes only when both checks pass:
+
+1. **The platform gate.** Diamond rejects an incomplete measurement and compares the Trust Score against a bar that your team or the platform sets.
+2. **Your threshold.** The lowest Trust Score you accept, set with `VIJIL_MIN_TRUST_SCORE`.
+
+## What the Gate Decides
+
+The gate judges the **Trust Score**: the score of the Agent's worst 10% of responses, from 0 to 100, as shown on the Trust Report. This differs from the `trust_score` field on the SDK's `Evaluation` object, which is an average from 0 to 1.
+
+| Verdict | Meaning | Promotion |
+| --- | --- | --- |
+| `pass` | The Trust Score meets the bar | Promoted, unless below your threshold |
+| `fail` | The Trust Score is below the bar | Blocked |
+| `incomplete` | Too few responses to measure, or too many unanswered | Blocked |
+| `no_bar` | No bar exists for this Agent yet | Judged by your threshold alone; blocked if you set none |
+
+A failed or cancelled Evaluation also blocks. The bar is, in order of precedence: a team bar set for the Agent, a baseline accepted from an earlier Evaluation, or a calibrated platform bar for the Harness suite.
+
+## Before You Start
+
+Create an API key on your Console **Profile** page (see [Manage API Keys](/tutorials/manage-api-keys)), then store these as CI secrets or protected variables:
+
+| Variable | Value |
+| --- | --- |
+| `VIJIL_CLIENT_ID`, `VIJIL_CLIENT_SECRET` | The API key pair |
+| `VIJIL_CONSOLE_URL` | Your Console API URL |
+| `VIJIL_AGENT_ID` | The Agent's ID |
+| `VIJIL_TEAM_ID` | The ID of the team that owns the Agent. Required because every user also has a personal team. |
+| `VIJIL_MIN_TRUST_SCORE` | Optional, 0 to 100. Required until the Agent has a bar. |
+| `VIJIL_SAMPLE_SIZE` | Optional prompts per Harness. Defaults to `50`. |
+
+The scripts exit `0` to promote, `1` when blocked, and `2` when a variable is missing or invalid.
+
+## Choose an Evaluation Size
+
+The Trust Score needs at least 10 responses in the worst 10%, so a run needs about 100 scored responses. Smaller runs, and runs with more than 5% unanswered prompts, return `incomplete`.
+
+| Run | Scored Responses | Measured Duration |
+| --- | --- | --- |
+| `sample_size=50` on the standard Harnesses | about 160 | 1.5 to 2 minutes |
+| Full standard Harnesses | about 1,400 | 3.5 to 15 minutes |
+
+Durations come from a `gpt-4.1-mini` Agent, including report generation of under 20 seconds. Your Agent's latency and rate limit set the real figure.
+
+Gate every change on the sampled run, and run the full Harnesses nightly or before a release. A sampled run scores lower than a full run, because a few failures fill its small tail, so set `VIJIL_MIN_TRUST_SCORE` from sampled runs.
+
+## Run the Gate
+
+<Tabs>
+  <Tab title="SDK">
+
+  ```bash
+  pip install vijil-sdk
+  ```
+
+  ```python
+  import os
+  import sys
+
+  from vijil import Vijil
+  from vijil.exceptions import ConsoleRejected
+
+  SUCCEEDED = {"completed", "succeeded", "saved"}
+
+
+  def decide(status: str, verdict: str | None, tail_score: float | None, min_score: float | None) -> str | None:
+      """Return why promotion is blocked, or None to promote."""
+      if status not in SUCCEEDED:
+          return f"evaluation ended with status {status!r}"
+      # An allowlist, so a verdict this script predates blocks rather than promotes.
+      if verdict not in ("pass", "no_bar"):
+          return f"platform gate verdict is {verdict!r}"
+      if verdict == "no_bar" and min_score is None:
+          return (
+              "no bar judged the Trust Score: set VIJIL_MIN_TRUST_SCORE, "
+              "or give the agent a team bar or an accepted baseline"
+          )
+      if min_score is not None and (tail_score is None or tail_score < min_score):
+          return f"Trust Score {tail_score} is below VIJIL_MIN_TRUST_SCORE {min_score}"
+      return None
+
+
+  def read_settings() -> tuple[float | None, int]:
+      """Return (min_score, sample_size) from the environment; raise ValueError on an invalid value."""
+      raw_min = os.environ.get("VIJIL_MIN_TRUST_SCORE")
+      try:
+          min_score = float(raw_min) if raw_min else None
+      except ValueError:
+          min_score = float("nan")
+      # Written so NaN fails it too: a NaN threshold would never block.
+      if min_score is not None and not 0 <= min_score <= 100:
+          raise ValueError(f"VIJIL_MIN_TRUST_SCORE must be a number from 0 to 100, got {raw_min!r}")
+      raw_size = os.environ.get("VIJIL_SAMPLE_SIZE") or "50"
+      if not raw_size.isdigit() or int(raw_size) < 1:
+          raise ValueError(f"VIJIL_SAMPLE_SIZE must be a positive integer, got {raw_size!r}")
+      return min_score, int(raw_size)
+
+
+  def main(client: Vijil | None = None) -> int:
+      missing = [name for name in ("VIJIL_AGENT_ID", "VIJIL_TEAM_ID") if not os.environ.get(name)]
+      if missing:
+          print(f"missing environment variables: {', '.join(missing)}", file=sys.stderr)
+          return 2
+      agent_id = os.environ["VIJIL_AGENT_ID"]
+      try:
+          min_score, sample_size = read_settings()
+      except ValueError as exc:
+          print(exc, file=sys.stderr)
+          return 2
+
+      client = client or Vijil()
+      evaluation = client.evaluate(agent_id, baseline=True, sample_size=sample_size)
+      print(f"evaluation {evaluation.id}: {evaluation.status}")
+      if evaluation.status not in SUCCEEDED:
+          print(f"BLOCKED: {decide(evaluation.status, None, None, min_score)}")
+          return 1
+
+      client.evaluations.report(evaluation.id)
+      try:
+          gate = client.evaluations.gate(evaluation.id)
+      except ConsoleRejected as exc:
+          if exc.status_code != 409:
+              raise
+          # The stored gate predates the current report pipeline; regenerate it once.
+          client.evaluations.report(evaluation.id, force_regenerate=True)
+          gate = client.evaluations.gate(evaluation.id)
+
+      print(f"verdict: {gate.verdict}  Trust Score: {gate.tail_score}  bar: {gate.bar} ({gate.bar_source})")
+      print(f"findings: {gate.critical_findings} critical, {gate.high_findings} high")
+      for reason in gate.reasons or []:
+          print(f"  - {reason}")
+
+      blocked = decide(evaluation.status, gate.verdict, gate.tail_score, min_score)
+      if blocked:
+          print(f"BLOCKED: {blocked}")
+          return 1
+      print("PROMOTE")
+      return 0
+
+
+  if __name__ == "__main__":
+      sys.exit(main())
+  ```
+
+  `client.evaluate()` waits for the Evaluation to finish. `report()` generates the Trust Report, which records the verdict that `gate()` reads.
+
+  </Tab>
+  <Tab title="REST API">
+
+  ```bash
+  pip install requests
+  ```
+
+  ```python
+  import os
+  import sys
+  import time
+
+  import requests
+
+  SUCCEEDED = {"completed", "succeeded", "saved"}
+  # Poll only through known in-progress states, so an unrecognised status ends the wait and blocks.
+  IN_PROGRESS = {"starting", "pending", "running", "saving"}
+  # Under the documented 90-minute job timeout, so a stuck run blocks with a reason instead of being killed.
+  MAX_WAIT_SECONDS = 80 * 60
+  POLL_SECONDS = 15
+  # A new evaluation can take a few polls to appear in the summaries endpoint.
+  NOT_FOUND_GRACE = 6
+  REPORT_TIMEOUT = 600
+
+
+  def decide(status: str, verdict: str | None, tail_score: float | None, min_score: float | None) -> str | None:
+      """Return why promotion is blocked, or None to promote."""
+      if status not in SUCCEEDED:
+          return f"evaluation ended with status {status!r}"
+      # An allowlist, so a verdict this script predates blocks rather than promotes.
+      if verdict not in ("pass", "no_bar"):
+          return f"platform gate verdict is {verdict!r}"
+      if verdict == "no_bar" and min_score is None:
+          return (
+              "no bar judged the Trust Score: set VIJIL_MIN_TRUST_SCORE, "
+              "or give the agent a team bar or an accepted baseline"
+          )
+      if min_score is not None and (tail_score is None or tail_score < min_score):
+          return f"Trust Score {tail_score} is below VIJIL_MIN_TRUST_SCORE {min_score}"
+      return None
+
+
+  def read_settings() -> tuple[float | None, int]:
+      """Return (min_score, sample_size) from the environment; raise ValueError on an invalid value."""
+      raw_min = os.environ.get("VIJIL_MIN_TRUST_SCORE")
+      try:
+          min_score = float(raw_min) if raw_min else None
+      except ValueError:
+          min_score = float("nan")
+      # Written so NaN fails it too: a NaN threshold would never block.
+      if min_score is not None and not 0 <= min_score <= 100:
+          raise ValueError(f"VIJIL_MIN_TRUST_SCORE must be a number from 0 to 100, got {raw_min!r}")
+      raw_size = os.environ.get("VIJIL_SAMPLE_SIZE") or "50"
+      if not raw_size.isdigit() or int(raw_size) < 1:
+          raise ValueError(f"VIJIL_SAMPLE_SIZE must be a positive integer, got {raw_size!r}")
+      return min_score, int(raw_size)
+
+
+  def main() -> int:
+      required = ["VIJIL_CONSOLE_URL", "VIJIL_CLIENT_ID", "VIJIL_CLIENT_SECRET", "VIJIL_AGENT_ID", "VIJIL_TEAM_ID"]
+      missing = [name for name in required if not os.environ.get(name)]
+      if missing:
+          print(f"missing environment variables: {', '.join(missing)}", file=sys.stderr)
+          return 2
+      url = os.environ["VIJIL_CONSOLE_URL"].rstrip("/")
+      # Without an explicit team the Console picks one of the key owner's teams arbitrarily.
+      team = {"team_id": os.environ["VIJIL_TEAM_ID"]}
+      try:
+          min_score, sample_size = read_settings()
+      except ValueError as exc:
+          print(exc, file=sys.stderr)
+          return 2
+
+      token = requests.post(
+          f"{url}/v1/auth/token",
+          json={"client_id": os.environ["VIJIL_CLIENT_ID"], "client_secret": os.environ["VIJIL_CLIENT_SECRET"]},
+          timeout=30,
+      )
+      token.raise_for_status()
+      session = requests.Session()
+      session.headers["Authorization"] = f"Bearer {token.json()['access_token']}"
+
+      created = session.post(
+          f"{url}/v1/evaluations/",
+          json={
+              "agent_id": os.environ["VIJIL_AGENT_ID"],
+              **team,
+              "harness_names": ["security", "safety", "reliability"],
+              "sample_size": sample_size,
+          },
+          timeout=30,
+      )
+      created.raise_for_status()
+      evaluation_id = created.json()["evaluation_id"]
+
+      status, not_found = "pending", 0
+      deadline = time.monotonic() + MAX_WAIT_SECONDS
+      while status in IN_PROGRESS:
+          time.sleep(POLL_SECONDS)
+          summary = session.get(f"{url}/v1/evaluation-summaries/{evaluation_id}", params=team, timeout=30)
+          if summary.status_code == 404 and not_found < NOT_FOUND_GRACE:
+              not_found += 1
+              continue
+          summary.raise_for_status()
+          status = summary.json()["status"]
+          if status in IN_PROGRESS and time.monotonic() >= deadline:
+              print(f"BLOCKED: evaluation {evaluation_id} still {status!r} after {MAX_WAIT_SECONDS}s")
+              return 1
+      print(f"evaluation {evaluation_id}: {status}")
+      if status not in SUCCEEDED:
+          print(f"BLOCKED: {decide(status, None, None, min_score)}")
+          return 1
+
+      def report(**params: str) -> None:
+          response = session.post(
+              f"{url}/v1/evaluations/{evaluation_id}/report",
+              params={"score_basis": "tail", **team, **params},
+              timeout=REPORT_TIMEOUT,
+          )
+          response.raise_for_status()
+
+      def read_gate() -> requests.Response:
+          return session.get(f"{url}/v1/evaluations/{evaluation_id}/gate", params={"score_basis": "tail", **team}, timeout=30)
+
+      report()
+      response = read_gate()
+      if response.status_code == 409:
+          # The stored gate predates the current report pipeline; regenerate it once.
+          report(force_regenerate="true")
+          response = read_gate()
+      response.raise_for_status()
+      gate = response.json()
+
+      print(f"verdict: {gate['verdict']}  Trust Score: {gate['tail_score']}  bar: {gate['bar']} ({gate['bar_source']})")
+      print(f"findings: {gate['critical_findings']} critical, {gate['high_findings']} high")
+      for reason in gate.get("reasons") or []:
+          print(f"  - {reason}")
+
+      blocked = decide(status, gate["verdict"], gate["tail_score"], min_score)
+      if blocked:
+          print(f"BLOCKED: {blocked}")
+          return 1
+      print("PROMOTE")
+      return 0
+
+
+  if __name__ == "__main__":
+      sys.exit(main())
+  ```
+
+  Pass `score_basis=tail` to both the report and the gate. The server defaults to the Mean Score, which no bar judges, so a mean gate is always `no_bar`.
+
+  </Tab>
+</Tabs>
+
+## Wire It Into Your Pipeline
+
+Save the script as `vijil_gate.py` and run it in a job that your deploy job depends on. The examples use the SDK script; for the REST API script, install `requests` instead of `vijil-sdk`. The threshold of `70` is only an example: use the one approved for your Agent.
+
+<Tabs>
+  <Tab title="GitHub Actions">
+
+  ```yaml
+  jobs:
+    vijil-gate:
+      runs-on: ubuntu-latest
+      timeout-minutes: 90
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.12"
+        - run: pip install vijil-sdk
+        - run: python vijil_gate.py
+          env:
+            VIJIL_CLIENT_ID: ${{ secrets.VIJIL_CLIENT_ID }}
+            VIJIL_CLIENT_SECRET: ${{ secrets.VIJIL_CLIENT_SECRET }}
+            VIJIL_CONSOLE_URL: ${{ vars.VIJIL_CONSOLE_URL }}
+            VIJIL_AGENT_ID: ${{ vars.VIJIL_AGENT_ID }}
+            VIJIL_TEAM_ID: ${{ vars.VIJIL_TEAM_ID }}
+            VIJIL_MIN_TRUST_SCORE: "70"
+
+    deploy:
+      needs: vijil-gate
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo "deploy the Agent here"
+  ```
+
+  </Tab>
+  <Tab title="GitLab CI">
+
+  ```yaml
+  stages: [gate, deploy]
+
+  vijil-gate:
+    stage: gate
+    image: python:3.12
+    timeout: 90m
+    variables:
+      VIJIL_MIN_TRUST_SCORE: "70"
+    script:
+      - pip install vijil-sdk
+      - python vijil_gate.py
+
+  deploy:
+    stage: deploy
+    needs: [vijil-gate]
+    script:
+      - echo "deploy the Agent here"
+  ```
+
+  Define the other variables as masked, protected CI/CD variables.
+
+  </Tab>
+</Tabs>
+
+## Give the Platform a Bar
+
+Without a bar the gate returns `no_bar`. A bar applies to one Agent on one Harness suite version (the gate's `suite_version`), from the next Trust Report you generate.
+
+- **Accept a baseline** to use a known-good Evaluation's Trust Score as the bar, which turns the gate into a regression check.
+- **Set a team bar** to use a fixed value from 0 to 100. It takes precedence over a baseline.
+
+<Tabs>
+  <Tab title="SDK">
+
+  ```python
+  from vijil import Vijil
+
+  client = Vijil()  # reads VIJIL_TEAM_ID, or pass team_id= to each call
+
+  client.evaluations.accept_baseline("<evaluation-id>")
+
+  gate = client.evaluations.gate("<evaluation-id>")
+  client.evaluations.set_gate_bar("<agent-id>", suite_version=gate.suite_version, value=75)
+  ```
+
+  </Tab>
+  <Tab title="REST API">
+
+  ```bash
+  curl -X POST "$VIJIL_CONSOLE_URL/v1/evaluations/$EVALUATION_ID/gate/baseline?team_id=$VIJIL_TEAM_ID" \
+    -H "Authorization: Bearer $TOKEN"
+
+  curl -X PUT "$VIJIL_CONSOLE_URL/v1/evaluations/gate-bars/$VIJIL_AGENT_ID?team_id=$VIJIL_TEAM_ID&suite_version=$SUITE_VERSION&value=75" \
+    -H "Authorization: Bearer $TOKEN"
+  ```
+
+  `$TOKEN` is the `access_token` from `POST /v1/auth/token`. Always pass `team_id`, or the Console may store the bar under another of your teams.
+
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+| Output | Cause | Fix |
+| --- | --- | --- |
+| `verdict: no_bar` and `BLOCKED` | No bar and no threshold | Set `VIJIL_MIN_TRUST_SCORE` |
+| `incomplete`, reason about the worst 10% | Run too small | Increase `VIJIL_SAMPLE_SIZE` |
+| `incomplete`, reason about unanswered prompts | Agent missed more than 5% of prompts | Check the Agent's endpoint |
+| `Agent ... not found` or `... not found for team` | Wrong `VIJIL_TEAM_ID` | Use the team that owns the Agent |
+| `evaluation ended with status 'failed'` | The Evaluation failed | Check its logs in the Console |
+| HTTP 409 on the gate | Gate saved by an older report version | None: the scripts regenerate once and retry |

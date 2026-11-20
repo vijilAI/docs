@@ -352,35 +352,7 @@ Deploy the hardened Agent through your delivery pipeline of choice. The platform
 
 ### Gate Deployment in CI/CD
 
-Run a final baseline Evaluation before your pipeline pushes the release to production. Store [`VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET`](/developer-guide/sdk/setup#authentication) and `VIJIL_AGENT_ID` as CI/CD secrets or protected variables.
-
-```python
-import os
-
-from vijil import Vijil
-
-agent_id = os.environ["VIJIL_AGENT_ID"]
-threshold = float(os.getenv("VIJIL_TRUST_THRESHOLD", "0.70"))
-
-client = Vijil()
-evaluation = client.evaluate(agent_id, baseline=True)
-
-successful_statuses = {"completed", "succeeded", "saved"}
-if evaluation.status not in successful_statuses:
-    raise SystemExit(f"Evaluation ended with status: {evaluation.status}")
-
-if evaluation.trust_score is None:
-    raise SystemExit("Evaluation returned no Trust Score")
-
-if evaluation.trust_score < threshold:
-    raise SystemExit(
-        f"Trust Score {evaluation.trust_score:.2f} is below {threshold:.2f}"
-    )
-
-print(f"Trust Score gate passed: {evaluation.trust_score:.2f}")
-```
-
-Use `0.70` only as an example. Set `VIJIL_TRUST_THRESHOLD` to the threshold approved for your Agent and risk profile.
+Gate the release on a final Evaluation, so that your pipeline blocks the deploy unless both the platform's verdict and your Trust Score threshold pass. See [Gate CI/CD with Diamond Evaluation](/developer-guide/evaluate/ci-cd-gate) for SDK and REST API scripts and pipeline examples.
 
 ### Release and Reconnect the Agent
 
