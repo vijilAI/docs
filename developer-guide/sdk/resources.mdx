@@ -125,7 +125,7 @@ See [`RedteamStatusResponse`](/developer-guide/sdk/models-errors#redteamstatusre
 
 ### Deployment Gate
 
-The platform's verdict on a completed behavioral evaluation. Call `report()` first: generating the Trust Report records the verdict that `gate()` reads. See [Gate CI/CD on an Evaluation](/developer-guide/evaluate/ci-cd-gate).
+The platform's verdict on a completed behavioral evaluation. Call `report()` first: generating the Trust Report records the verdict that `gate()` reads. See [Gate CI/CD with Diamond Evaluation](/developer-guide/evaluate/ci-cd-gate).
 
 | Method | Arguments | Returns |
 |--------|-----------|---------|
@@ -134,7 +134,7 @@ The platform's verdict on a completed behavioral evaluation. Call `report()` fir
 | `accept_baseline` | `evaluation_id`; optional `team_id` | `AcceptedBaseline` |
 | `set_gate_bar` | `agent_id`, `suite_version`, `value`; optional `team_id` | `TeamBar` |
 
-`report()` and `gate()` default to `score_basis="tail"` (the Trust Score); pass the same value to both. `gate()`'s `bar` and `campaign` re-judge the stored score against another bar without saving it.
+`report()` and `gate()` default to `score_basis="tail"` (the Trust Score). `gate()` reads the verdict that `report()` recorded for the same `score_basis`. `gate()`'s `bar` and `campaign` re-judge the stored score against another bar without saving it.
 
 ```python
 client.evaluations.report(evaluation_id)

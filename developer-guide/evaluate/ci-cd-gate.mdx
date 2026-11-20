@@ -1,12 +1,12 @@
 ---
-title: 'Gate CI/CD on an Evaluation'
+title: 'Gate CI/CD with Diamond Evaluation'
 description: 'Run a Diamond Evaluation in your pipeline and block promotion when the Agent does not meet the bar.'
 icon: 'shield-check'
 ---
 
 Add a pipeline step that runs an Evaluation, waits for it, and exits non-zero when the Agent should not ship. The deploy job that depends on it then fails. The step promotes only when both checks pass:
 
-1. **The platform gate.** Diamond rejects an incomplete measurement and compares the Trust Score against a bar that your team or the platform owns.
+1. **The platform gate.** Diamond rejects an incomplete measurement and compares the Trust Score against a bar that your team or the platform sets.
 2. **Your threshold.** The lowest Trust Score you accept, set with `VIJIL_MIN_TRUST_SCORE`.
 
 ## What the Gate Decides
