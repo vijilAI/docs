@@ -54,8 +54,6 @@ Before starting, review the full list of AWS resources and external services thi
 
 All application workloads and the database live in **private subnets**. A single [Network Load Balancer (NLB)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html) in the **public subnets** routes traffic to NGINX. Both `console.*` and `console-api.*` resolve to this NLB, and NGINX routes frontend and API traffic internally. EKS nodes reach S3 and ECR through the NAT Gateway.
 
-This guide uses the chart's default NLB. The chart can also front NGINX with an Application Load Balancer through `nginx.albIngress`, which requires the AWS Load Balancer Controller.
-
 ---
 
 ## Step 1: AWS Infrastructure
@@ -187,7 +185,7 @@ kubectl get nodes
 
 #### Cluster Sizing Guidance
 
-Vijil Console deploys its service pods (NGINX, frontend, teams, console, agent-environment, Diamond, and Dome) plus telemetry (Grafana, Loki, Mimir, Tempo) and pre-install database migration Jobs. It creates on-demand Job pods in separate namespaces for evaluations (`vijil-diamond`), custom Harness generation (`vijil-harness`), red-teaming (`vijil-xteaming`), cloud inventory scans (`vijil-discover`), and code scans (`vijil-scan`).
+Vijil Console deploys 7 service pods plus telemetry (Grafana, Loki, Mimir, Tempo), and creates on-demand Job pods in separate namespaces for evaluations, custom Harnesses, red-teaming, and scans.
 
 | Profile | Node Type | Nodes | vCPU Total | Memory Total | Use Case |
 |---------|-----------|-------|------------|--------------|----------|
@@ -404,8 +402,7 @@ aws iam attach-role-policy \
   --role-name VijilConsoleS3Role \
   --policy-arn $S3_POLICY_ARN
 
-# Step 3: Associate the role with every service account the chart uses for S3
-# (format: namespace/service-account)
+# Step 3: Associate the role with each namespace/service-account that uses S3
 for NS_SA in \
   vijil-console/default \
   vijil-console/diamond-service \
@@ -423,19 +420,9 @@ for NS_SA in \
 done
 ```
 
-| Namespace | Service account | Used by |
-|---|---|---|
-| `vijil-console` | `diamond-service` | Diamond API, which creates evaluation, custom Harness, and red-team Jobs |
-| `vijil-console` | `agent-environment-service` | Agent, persona, and policy APIs (policy document uploads) |
-| `vijil-console` | `default` | Other Console pods |
-| `vijil-diamond` | `default` | Diamond evaluation Jobs (read evaluation artifacts and Detector models, write results) |
-| `vijil-harness` | `harness-service` | Custom Harness generation Jobs |
-| `vijil-xteaming` | `xteaming-service` | Red-team Jobs |
-| `vijil-scan` | `scan-service` | Code scan Jobs |
+A missing association does not fail the install; the affected feature fails when it first calls S3.
 
-A missing association does not fail the install. The affected feature fails later, when its pod first calls S3.
-
-**Cloud inventory scans** run in `vijil-discover` under the `discover-service` service account. Give it a **separate** role rather than `VijilConsoleS3Role`: it needs read-only inventory permissions on the AWS services you want scanned (for example Bedrock, SageMaker, Lambda, ECS, EKS, EC2, and IAM `List*`/`Get*`/`Describe*` actions), plus `s3:GetObject`, `s3:PutObject`, and `s3:ListBucket` on `teams/*/scans/*/*` in your app bucket. Ask Vijil for the current inventory policy. Skip this association if you do not use inventory scans.
+Cloud inventory scans (`vijil-discover/discover-service`) need a separate role with read-only inventory permissions. Ask Vijil for the policy, or skip it if you do not use inventory scans.
 
 #### Option B: Node IAM Role (simpler, broader scope)
 
@@ -576,7 +563,7 @@ kubectl run ecr-test \
 
 #### Option B: Your own registry
 
-Mirror the images for your release into your own registry, keeping the repository names and tags. Then set `global.imageRegistry` to your registry in your values file (see [Step 3](#step-3-helm-values-and-secrets)). Mirror the Job images too, not only the services: `vijil-diamond`, `vijil-harness-agent`, `vijil-redteam`, `vijil-scan`, `vijil-discover`, and `vijil-policy-rules-agent`. The chart pins their tags in `global.siblingImageTags`.
+Mirror the release images, including the Job images listed in `global.siblingImageTags`, with the same names and tags. Then set `global.imageRegistry` to your registry (see [Step 3](#step-3-helm-values-and-secrets)).
 
 
 ### Diamond Artifacts
@@ -661,7 +648,7 @@ secrets:
     # LLM provider for report generation.
     # Default provider is Groq. To use a different provider, set
     # REPORTS_LLM_PROVIDER (groq | openai | anthropic | local) and
-    # REPORTS_MODEL in commonEnv (see Step 3.2).
+    # REPORTS_MODEL in commonEnv.
     GROQ_API_KEY: "your-groq-api-key"           # default provider
     # OPENAI_API_KEY: "sk-..."                  # if using openai
     # ANTHROPIC_API_KEY: "sk-ant-..."           # if using anthropic
@@ -674,17 +661,16 @@ secrets:
     model: "openai/gpt-oss-120b"
     api-key: "your-api-key"
 
-  # LLM for policy rule extraction Jobs. Set at least one key.
-  # Leave this block out to turn rule extraction off.
+  # LLM for policy rule extraction; omit to disable it
   vijil-policy-rules-agent:
     GOOGLE_API_KEY: "your-google-api-key"
 ```
 
 Currently, Diamond's LLM Detectors use Azure `gpt-oss-120b`.
 Supply the API key for the endpoint configured in `commonEnv.AZURE_API_BASE`.
-The chart copies `AZURE_API_KEY` from `vijil-console` into `diamond-secrets` for evaluation Jobs, so you do not need to repeat it under `vijil-diamond`. Report generation uses the separate `REPORTS_LLM_PROVIDER` setting.
+The chart copies it into `diamond-secrets` for evaluation Jobs.
 
-Rule extraction also accepts `AZURE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY` in place of `GOOGLE_API_KEY`. With Azure, also set `AZURE_API_VERSION` and `AZURE_API_BASE` in `commonEnv`.
+Rule extraction also accepts `AZURE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY`.
 
 <Danger>
 **Never commit `secrets.yaml`** — add it to `.gitignore`.
@@ -698,29 +684,22 @@ Create `my-values.yaml`. The `install` block is the simplest way to configure th
 
 ```yaml
 global:
-  # Registry for every image. Use your own registry if you mirrored the images.
-  imageRegistry: "266735823956.dkr.ecr.us-west-2.amazonaws.com"
+  imageRegistry: "266735823956.dkr.ecr.us-west-2.amazonaws.com"  # or your own registry
 
 install:
-  # Derives VITE_API_PREFIX (https://<apiDomain>/v1), API_HOST, and API_DOMAIN_FOR_CSP
-  apiDomain: "console-api.yourdomain.com"
-  # Derives CORS_ORIGINS
-  frontendDomain: "console.yourdomain.com"
-  # Internet-facing load balancer. Omit, or set false, for VPN-only access.
-  publicAccess: true
+  apiDomain: "console-api.yourdomain.com"   # derives VITE_API_PREFIX (https://<apiDomain>/v1)
+  frontendDomain: "console.yourdomain.com"  # derives CORS_ORIGINS
+  publicAccess: true                        # internet-facing; omit for VPN-only
   aws:
     region: "us-west-2"
-    # Derives S3_BUCKET_NAME, RESOURCE_BUCKET_NAME, and CUSTOM_HARNESS_BUCKET_NAME
     s3Bucket: "vijil-console-data-prod"
-    # Public subnet IDs from Step 1 (VPC)
     nlbSubnets: "subnet-public-1-id,subnet-public-2-id"
     certificateArn: "arn:aws:acm:us-west-2:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID"
 
 commonEnv:
-  # Database (RDS endpoint from Step 1)
   POSTGRES_HOST: "vijil-prod-pg.xxxx.us-west-2.rds.amazonaws.com"
 
-  # Report generation model. Set it explicitly: pick a model your provider currently serves.
+  # Set explicitly; the chart default model is retired
   REPORTS_LLM_PROVIDER: "groq"
   REPORTS_MODEL: "openai/gpt-oss-120b"
 
@@ -734,15 +713,11 @@ commonEnv:
   DETECTOR_MODEL_REGION: "us-west-2"
 ```
 
-Values you set directly in `commonEnv` override the ones the `install` block derives. If you set `VITE_API_PREFIX` yourself, include the `/v1` suffix (`https://console-api.yourdomain.com/v1`); without it, every request from the frontend fails.
+If you set `VITE_API_PREFIX` directly, include the `/v1` suffix.
 
 <Note>
-**Why the load balancer must be internet-facing for public deployments:** the React frontend is a single-page application that runs in the user's browser.
-
-The frontend container writes `VITE_API_PREFIX` into its runtime config when it starts, and the browser calls that URL directly. If the NGINX load balancer is internal-only, browser requests fail even when DNS resolves. The chart default is internal; `install.publicAccess: true` overrides it.
+The browser calls the API directly, so public deployments need `publicAccess: true`. The chart default is an internal load balancer.
 </Note>
-
-The chart also has feature gates under `features`. Evaluations, Dome, red-teaming, inventory scans, and code scans are on by default. Discover (`features.discover2`) and Identify (`features.identify`) are off by default.
 
 ---
 
@@ -781,19 +756,16 @@ If `EXTERNAL-IP` shows `<pending>`, wait a moment and re-run.
 
 Darwin is the evolution engine. It runs in its own namespace (`vijil-darwin`) and is deployed separately from the `vijil-console` Helm chart.
 
-Darwin is off by default in the Console chart. To use it, turn on all three switches in `my-values.yaml` and run `helm upgrade` on the Console release:
+Darwin is off by default. Enable it in `my-values.yaml` and upgrade the Console release:
 
 ```yaml
 peers:
   darwin:
-    enabled: true          # points the Console at service-darwin.vijil-darwin.svc.cluster.local
-
+    enabled: true
 commonEnv:
-  DARWIN_ENABLED: "true"         # backend
-  VITE_DARWIN_ENABLED: "true"    # frontend
+  DARWIN_ENABLED: "true"
+  VITE_DARWIN_ENABLED: "true"
 ```
-
-With Darwin turned on, the Console's agent-environment service proxies `/v1/evolution` requests to Darwin. Those requests return `502` or `504` until Darwin is running.
 
 ```bash
 # From the vijil-darwin repo root
@@ -880,13 +852,7 @@ The NLB alias hosted zone ID differs by region — see the [full list in AWS doc
 
 ## Step 6: Database Migrations
 
-Migrations run automatically as Helm `pre-install` and `pre-upgrade` hooks, so a normal install needs no manual action. The chart runs `vijil-console-migrate-teams` and `vijil-console-migrate-agent-environment`, plus `vijil-console-migrate-directory` when `features.identify` is on.
-
-Helm deletes each migration Job after it succeeds, so an empty `kubectl get jobs -n vijil-console` means the migrations passed. A failed migration Job stays in the namespace, and `helm install` reports the failure. Read its logs with:
-
-```bash
-kubectl logs -n vijil-console job/vijil-console-migrate-teams
-```
+Migrations run automatically as Helm `pre-install` and `pre-upgrade` hooks. Helm deletes each Job on success; a failed one stays in `vijil-console` and fails the install.
 
 To retry a failed migration by hand once the pods are `Running`:
 
@@ -918,7 +884,7 @@ poetry run python scripts/bootstrap_teams.py
 ```
 
 <Warning>
-**Change the default super admin password.** The teams migration creates a super admin, `vijil-admin@vijil.ai`, with the password `admin` on every install. `bootstrap_teams.py` signs in with that account, so change the password after bootstrap finishes:
+Every install creates a super admin `vijil-admin@vijil.ai` with password `admin`, which bootstrap uses. Change it afterwards:
 
 ```bash
 TOKEN=$(curl -s -X POST https://console-api.yourdomain.com/v1/auth/jwt/login \
@@ -930,8 +896,6 @@ curl -f -X POST https://console-api.yourdomain.com/v1/auth/change-password \
   -H "Content-Type: application/json" \
   -d '{"current_password": "admin", "new_password": "<new-strong-password>"}'
 ```
-
-Re-running `bootstrap_teams.py` later requires the default password.
 </Warning>
 
 Optionally seed default content:
