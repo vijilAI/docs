@@ -125,7 +125,7 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
 
         `Vijil()` reads the credential pair from the environment and exchanges it for a bearer token. You can instead provide an existing bearer token through `VIJIL_API_KEY` or `Vijil(api_key="<access-token>")`.
 
-        Use credentials for the team that owns your Agent. `client.team_id` shows the team the SDK resolves to.
+        Use credentials for the team that owns your Agent. If you belong to more than one team, set `VIJIL_TEAM_ID` to pin it. `client.team_id` shows the team the SDK resolves to. See [Team Selection](/developer-guide/sdk/setup#team-selection) for more information.
       </Tab>
       <Tab title="REST API">
         Exchange your Console email and password for a bearer token:
@@ -440,7 +440,7 @@ To work on an Agent in its own repository, install the [Claude Code plugin](/dev
 | `vijil` is not found | Install `vijil-sdk` in the active Python environment and verify its scripts directory is in `PATH` |
 | SDK or CLI authentication fails | Set both `VIJIL_CLIENT_ID` and `VIJIL_CLIENT_SECRET`, or provide a bearer token through `VIJIL_API_KEY` |
 | Requests reach the wrong deployment | Run `vijil config set gateway.url <gateway-url>` or pass `gateway=` to `Vijil()` |
-| A team-scoped operation fails | Run `vijil auth status`; if authentication resolves no team, set `defaults.team_id` in `~/.vijil/config.toml` |
+| A team-scoped operation fails or targets the wrong team | Set `VIJIL_TEAM_ID` to the team that owns the Agent; it overrides `defaults.team_id` in `~/.vijil/config.toml` and the token's teams |
 | The Evaluation service cannot reach the Agent | Verify the Agent URL, protocol, provider API key, and network accessibility |
 | MCP tools do not appear | Verify `.mcp.json` is in the project root, confirm `vijil-mcp` is in `PATH`, and restart Claude Code |
-| Report generation lacks a team | Pass `team_id=`, set `defaults.team_id`, or authenticate with a token that includes a team claim |
+| Report generation lacks a team | Pass `team_id=`, set `VIJIL_TEAM_ID`, or set `defaults.team_id` |
