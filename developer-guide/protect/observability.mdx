@@ -16,6 +16,34 @@ pip install "vijil-dome[opentelemetry]"
 
 Add the `google` extra as well when you export to Google Cloud Trace, Monitoring, or Logging.
 
+## Send Telemetry to the Console
+
+When your Agent runs Dome in-process, `setup_vijil_telemetry()` sends Dome's Guard detections, Control decisions, metrics, and logs to the [Vijil Console](/concepts/platform/console), where they appear on the Defend page. `setup_vijil_telemetry()` works with both `Dome` and `VijilDome` instances:
+
+```python
+from vijil_dome import VijilDome, setup_vijil_telemetry
+
+dome = VijilDome.create_from_api(
+    client_id="your-client-id",
+    client_secret="your-client-secret",
+    agent_id="your-agent-id",
+    team_id="your-team-id",
+)
+
+telemetry = setup_vijil_telemetry(dome)
+```
+
+An instance loaded with `create_from_api()` already has the API key, Console URL, and Agent ID that telemetry needs. For any other instance, pass `client_id`, `client_secret`, and `agent_id`, or set the `VIJIL_CLIENT_ID`, `VIJIL_CLIENT_SECRET`, and `VIJIL_AGENT_ID` [environment variables](/developer-guide/protect/installation#platform-and-telemetry).
+
+Keep the following in mind:
+
+- **Credentials:** telemetry needs the client ID and secret of a Console API key. A single `VIJIL_API_KEY` token does not work.
+- **Setup errors:** `setup_vijil_telemetry()` raises an error when a credential is missing or the Console rejects the key. When the Console is unreachable, setup logs a warning, so your Agent still starts.
+- **Other backends:** pass your own exporters through `span_exporters`, `metric_exporters`, or `log_exporters` to send the same telemetry elsewhere. Set `send_to_console=False` to skip the Console.
+- **Your own OpenTelemetry setup:** Dome telemetry does not change your application's OpenTelemetry configuration. Do not also call `instrument_dome()` or `instrument_vijil_dome()` on the same instance.
+
+See [Monitor Dome Metrics](/owner-guide/protect-in-production/observability) for more information on viewing these events in the Console.
+
 ## Instrument Dome
 
 `instrument_dome()` attaches a logging handler, a tracer, and a meter to an existing [Dome](/concepts/platform/dome) instance. Every argument is optional, so you can enable only the signals you need:
@@ -65,6 +93,8 @@ dome = VijilDome(
 instrument_vijil_dome(dome, tracer=trace.get_tracer("my-agent"))
 ```
 
+`instrument_vijil_dome()` also accepts optional `meter` and `handler` arguments. For a `VijilDome` instance with Guards, `instrument_vijil_dome()` emits the same Guard telemetry as `instrument_dome()`.
+
 The instrumented engine emits one `dome-control` span for each triggered Control. Controls that do not trigger produce no span. Calling `instrument_vijil_dome()` again on the same instance has no effect.
 
 Each span can include these attributes:
@@ -73,6 +103,8 @@ Each span can include these attributes:
 |-----------|--------|
 | `control.name` | Triggered Control name |
 | `control.decision` | Control action |
+| `control.stage` | `pre` or `post` |
+| `control.input`, `control.output` | Input or output content that the Control checked |
 | `detection.confidence` | `ControlMatch.confidence` |
 | `agent.id`, `team.id`, `user.id` | Identifiers stored by the `VijilDome` instance |
 | `policy.id` | Control annotation named `vijil.ai/source-policy-id` |
@@ -128,6 +160,14 @@ When you supply a tracer, Dome creates spans for each [Guard](/concepts/defense/
 - **Detector execution**: nested span for each Detector in the Guard
 
 Each span carries the input and output of the call, execution time, error information, and the flag decision. Dome also emits one `dome-detection` span per scan, carrying `dome.guardrail`, `detection.label`, `detection.score`, `detection.method`, `dome.guard.enforced`, and the `agent.id`, `team.id`, and `user.id` values you pass to the scan. The [Vijil Console](/concepts/platform/console) reads these spans and presents them in [Dome metrics](/owner-guide/protect-in-production/observability).
+
+### OpenInference Attributes
+
+Guard spans also follow the [OpenInference semantic conventions](https://github.com/Arize-ai/openinference), so OpenInference-compatible backends show them as `GUARDRAIL` spans. Each span records the scanned text in `input.value` and the Guardrail output in `output.value`. Dome also adds `session.id` and `user.id` when your OpenInference instrumentation sets them. See the [OpenInference documentation](https://github.com/Arize-ai/openinference) for more information on the conventions.
+
+<Warning>
+Spans hold the unmasked text that Dome scanned, in `input.value`, `control.input`, and `control.output`. Treat your trace backend as a store of user content.
+</Warning>
 
 ### Span Hierarchy
 

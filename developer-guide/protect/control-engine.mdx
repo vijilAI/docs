@@ -28,7 +28,7 @@ Step → Scope → Selector → Evaluator → Action
 | `Dome` | You use the established Guardrail, Guard, and Detector configuration model |
 | `TrustRuntime` | You also need workload identity, tool authorization, attestation, and structured audit events |
 
-`VijilDome` and `Dome` are separate interfaces. `VijilDome` evaluates declarative Controls and returns `EvaluationResult` objects. `Dome` runs content Guardrails and returns scan results. A Control can still invoke a Dome Detector through the `dome:` Evaluator prefix.
+`VijilDome` and `Dome` are separate interfaces. `VijilDome` evaluates declarative Controls and returns `EvaluationResult` objects. `VijilDome` can also run content Guards before the Controls, so a single instance enforces a whole Console configuration. See [Load the Console Configuration](/developer-guide/protect/configuring-guardrails#load-the-console-configuration) for more information. `Dome` runs content Guardrails only and returns scan results. A Control can still invoke a Dome Detector through the `dome:` Evaluator prefix.
 
 ## Install the Controls Engine
 

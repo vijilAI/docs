@@ -218,7 +218,7 @@ Use the [Console Guardrail guide](/owner-guide/protect-in-production/configuring
   </Tab>
   <Tab title="SDK">
     1. Use [`client.protect()`](/developer-guide/sdk/lifecycle-methods#client-protect) to associate the Dome configuration with the Agent.
-    2. Where enabled, [load the Guardrail configuration](/developer-guide/protect/overview#configuration-sources) with `Dome.create_from_vijil_agent()`. Otherwise, use a reviewed, version-controlled Dome configuration.
+    2. Where enabled, [load the Guardrail configuration](/developer-guide/protect/overview#configuration-sources) with `VijilDome.create_from_api()`. Otherwise, use a reviewed, version-controlled Dome configuration.
     3. [Wrap both Agent inputs and Agent outputs with Guardrails](/owner-guide/protect-in-production/deploying-dome#integration-pattern).
     4. Handle blocked and sanitized results explicitly.
     5. Send staging traffic through the hardened Agent and confirm that telemetry reaches the platform.

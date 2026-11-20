@@ -20,30 +20,34 @@ To deploy Dome, your development team will:
 The basic pattern wraps your agent's LLM calls:
 
 ```python
-from vijil_dome import Dome
+from vijil_dome import ControlViolationError, VijilDome
 
-dome = Dome.create_from_vijil_agent(
+dome = VijilDome.create_from_api(
+    client_id="your-client-id",
+    client_secret="your-client-secret",
     agent_id="your-agent-id",
-    api_key="your-api-key"
+    team_id="your-team-id",
 )
 
 def protected_chat(user_message: str) -> str:
-    # Guard the input
-    input_scan = dome.guard_input(user_message)
-    if not input_scan.is_safe():
-        return input_scan.guarded_response()
+    try:
+        # Guard the input, and use the masked text when a Guard masked it
+        input_result = dome.guard_input(user_message)
+        prompt = user_message if input_result.guarded_text is None else input_result.guarded_text
 
-    # Your existing agent logic here
-    response = your_agent.generate(input_scan.guarded_response())
+        # Your existing agent logic here
+        response = your_agent.generate(prompt)
 
-    # Guard the output
-    output_scan = dome.guard_output(response)
-    return output_scan.guarded_response()
+        # Guard the output
+        output_result = dome.guard_output(response)
+        return response if output_result.guarded_text is None else output_result.guarded_text
+    except ControlViolationError:
+        return "I cannot help with that request."
 ```
 
 ## Configuration Sync
 
-When you configure Guardrails in the Console, your developers can pull that configuration directly into code using `Dome.create_from_vijil_agent()`. This keeps your security policies in sync between the Console UI and deployed agents.
+When you configure Guardrails and Controls in the Console, your developers can load that configuration directly into code using `VijilDome.create_from_api()`, which enforces both. This keeps your security policies in sync between the Console UI and deployed agents.
 
 ## Framework Support
 

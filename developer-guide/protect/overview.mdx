@@ -101,13 +101,16 @@ Choose a configuration source that matches how you operate Dome:
 |--------|------------|----------|
 | **Built-in defaults** | Initialize `Dome()` without a configuration | Initial setup and evaluation |
 | **Local configuration** | Pass a Python dictionary or TOML path to `Dome` | Version-controlled or dynamic configuration |
-| **Registered Agent** | Use `Dome.create_from_vijil_agent()` | Console-managed Agent configuration |
-| **Console API** | Use `Dome.create_from_api()` | Active Agent configuration from a Console API key |
+| **Console API** | Use `VijilDome.create_from_api()` | Active Agent configuration from the Console, with its Guards and Controls |
 | **Evaluation recommendation** | Use `Dome.create_from_vijil_evaluation()` | Guardrails derived from evaluation results |
-| **S3** | Use `Dome.create_from_s3()` with the `s3` extra | Remotely managed configuration in AWS |
+| **S3** | Use `VijilDome.create_from_s3()` with the `s3` extra | Remotely managed configuration in AWS |
+
+<Note>
+A Console configuration can hold both Guards and [Controls](/developer-guide/protect/control-engine). Only the `VijilDome` loaders enforce both. `Dome.create_from_api()` and `Dome.create_from_s3()` enforce only the Guards. Dome 1.8.0 deprecates `Dome.create_from_vijil_agent()`.
+</Note>
 
 <Info>
-For the available settings, see [Configure Guardrails](/developer-guide/protect/configuring-guardrails).
+For the available settings and how to load a Console configuration, see [Configure Guardrails](/developer-guide/protect/configuring-guardrails).
 </Info>
 
 ## Scan Results

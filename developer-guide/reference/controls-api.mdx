@@ -71,6 +71,7 @@ The package supports Python 3.11 through 3.13. A `dome:*` evaluator can require 
 VijilDome(
     *,
     policy: list[dict | Control] | str | Path | None = None,
+    guards: dict | str | DomeConfig | None = None,
     enforce: bool = True,
     agent_id: str | None = None,
     team_id: str | None = None,
@@ -81,7 +82,8 @@ VijilDome(
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `policy` | `None` | Control dictionaries, `Control` objects, or a JSON, YAML, or TOML path |
-| `enforce` | `True` | Raises on `deny` and actionable `steer` results when enabled |
+| `guards` | `None` | Optional [Guardrail configuration](/developer-guide/protect/configuring-guardrails) whose Guards run before the Controls on text inputs and outputs |
+| `enforce` | `True` | Raises on `deny` and actionable `steer` results, and on blocking Guards, when enabled |
 | `agent_id` | `None` | Optional identifier stored and exposed through the `agent_id` property |
 | `team_id` | `None` | Optional team identifier stored and exposed through the `team_id` property |
 | `user_id` | `None` | Optional end-user identifier stored and exposed through the `user_id` property |
@@ -118,7 +120,7 @@ VijilDome.create_from_s3(
 ) -> VijilDome
 ```
 
-This method loads the `controls` array from a Dome configuration stored in S3. Install the `s3` extra before using it.
+This method loads a Dome configuration stored in S3 and enforces both its Guards and its `controls` array. Install the `s3` extra before using it.
 
 Supply `key` directly, or supply both `team_id` and `agent_id` to use `teams/{team_id}/agents/{agent_id}/dome/config.json`. An explicit `key` takes precedence over the identifiers. The loader caches the configuration locally for `cache_ttl_seconds` and uses the S3 `ETag` when it next checks for changes.
 
@@ -139,9 +141,24 @@ VijilDome.create_from_api(
 ) -> VijilDome
 ```
 
-This method exchanges a Console API key's client ID and secret for a short-lived access token, then loads the active Dome configuration for the specified Agent and team. The returned instance installs the configuration's `controls` array and retains the API coordinates for `config_has_changed()`.
+This method exchanges a Console API key's client ID and secret for a short-lived access token, then loads the active Dome configuration for the specified Agent and team. The returned instance enforces the configuration's Guards and its `controls` array, and retains the API coordinates for `config_has_changed()`.
 
 The loader caches the configuration locally for `cache_ttl_seconds`. Override `base_url` when you do not use the default Vijil Console API. The method raises `ValueError` when authentication or configuration loading fails, when the Agent has no active configuration, or when the response does not contain a configuration object.
+
+### `from_config()`
+
+```python
+VijilDome.from_config(
+    config_body: dict[str, Any],
+    *,
+    enforce: bool = True,
+    agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
+) -> VijilDome
+```
+
+Builds an instance from a Console Dome configuration you already hold, such as one you fetched yourself. The instance enforces both the Guards and the `controls` array in the configuration.
 
 ### `config_has_changed()`
 
@@ -163,6 +180,9 @@ guard_input(
     *,
     context: dict[str, Any] | None = None,
     step_name: str = "input",
+    agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
 ) -> EvaluationResult
 
 async_guard_input(
@@ -170,10 +190,13 @@ async_guard_input(
     *,
     context: dict[str, Any] | None = None,
     step_name: str = "input",
+    agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
 ) -> EvaluationResult
 ```
 
-Both methods construct an `llm` Step with `text` assigned to `input`, then evaluate the `pre` stage.
+Both methods construct an `llm` Step with `text` assigned to `input`, then evaluate the `pre` stage. When the instance has input Guards, the Guards scan the text first and the Controls then check the masked text. Guards scan string input only. The `agent_id`, `team_id`, and `user_id` arguments override the instance's values for this call.
 
 ### Output Methods
 
@@ -183,6 +206,9 @@ guard_output(
     *,
     context: dict[str, Any] | None = None,
     step_name: str = "output",
+    agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
 ) -> EvaluationResult
 
 async_guard_output(
@@ -190,10 +216,13 @@ async_guard_output(
     *,
     context: dict[str, Any] | None = None,
     step_name: str = "output",
+    agent_id: str | None = None,
+    team_id: str | None = None,
+    user_id: str | None = None,
 ) -> EvaluationResult
 ```
 
-Both methods construct an `llm` Step with `text` assigned to `output`, then evaluate the `post` stage.
+Both methods construct an `llm` Step with `text` assigned to `output`, then evaluate the `post` stage. Output Guards run first, the same way as for input.
 
 ### Tool Methods
 
@@ -456,6 +485,10 @@ Always supply `steering_context` for a `steer` action. Without it, the engine ca
 | `steering_context` | `SteeringContext \| None` | `None` | Guidance from the selected steering Control |
 | `exec_time_ms` | `float` | `0.0` | Total evaluation time in milliseconds |
 | `permitted` | `bool` | Computed | `False` only when `action` is `deny` |
+| `guarded_text` | `str \| None` | `None` | Text after Guard masking; `None` when that side has no Guards. Pass `guarded_text` to your Agent when present to apply the masking |
+| `guard_result` | `GuardrailResult \| None` | `None` | Full Guardrail scan result; excluded from serialization |
+
+A flagged Guard sets `action` to `deny`. See [Load the Console Configuration](/developer-guide/protect/configuring-guardrails#load-the-console-configuration) for more information on running Guards and Controls together.
 
 An `observe` action does not appear as an aggregate action. The observation appears as a triggered entry in `matches` and does not change the aggregate action. If no `deny` or `steer` Control triggers, the result is `allow`.
 

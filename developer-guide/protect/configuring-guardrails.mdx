@@ -212,25 +212,37 @@ An explicit `on-error` value in the configuration always wins over the mode defa
 |--------|-------------|
 | Built-in defaults | `Dome()` |
 | Dictionary or TOML path | `Dome(config)` or `Dome.create_from_config(config)` |
-| Registered [Agent](/owner-guide/register-agents/what-is-an-agent) [configured in the Console](/owner-guide/protect-in-production/configuring-guardrails) | `Dome.create_from_vijil_agent()` |
 | Evaluation recommendation | `Dome.create_from_vijil_evaluation()` |
-| Active Agent configuration from the Vijil Console API | `Dome.create_from_api()` |
-| S3 object, with the `s3` extra | `Dome.create_from_s3()` |
+| Active configuration of an [Agent](/owner-guide/register-agents/what-is-an-agent) [configured in the Console](/owner-guide/protect-in-production/configuring-guardrails) | `VijilDome.create_from_api()` |
+| S3 object, with the `s3` extra | `VijilDome.create_from_s3()` |
 
-Use `create_from_api()` to load an Agent's active Dome configuration directly from the Vijil Console:
+### Load the Console Configuration
+
+Use `VijilDome.create_from_api()` to load an Agent's active Dome configuration from the Vijil Console. `VijilDome` enforces both the Guards and the [Controls](/developer-guide/protect/control-engine) in that configuration:
 
 ```python
-from vijil_dome import Dome
+from vijil_dome import VijilDome
 
-dome = Dome.create_from_api(
+dome = VijilDome.create_from_api(
     client_id="your-client-id",
     client_secret="your-client-secret",
     agent_id="your-agent-id",
     team_id="your-team-id",
 )
+
+result = dome.guard_input(user_message)
+text = user_message if result.guarded_text is None else result.guarded_text
 ```
 
 Use the client ID and secret from a Console API key for the Agent's team.
+
+`VijilDome` runs the Guards first, then the Controls, and returns one `EvaluationResult`. When a Guard masks content, such as redacted PII, the masked text is in `guarded_text`. Pass `guarded_text` to your Agent instead of the original text whenever `guarded_text` is not `None`. Otherwise the masking has no effect. In enforce mode, a blocking Guard raises `ControlViolationError`, the same as a `deny` Control. See the [Controls API reference](/developer-guide/reference/controls-api#evaluationresult) for more information.
+
+<Warning>
+A configuration that uses model-backed Detectors needs the `full` extra or `DOME_INFERENCE_URL`. Without either, loading the configuration fails. See [Install Dome](/developer-guide/protect/installation) for more information.
+</Warning>
+
+`Dome.create_from_api()` and `Dome.create_from_s3()` still load a Console configuration, but they enforce only its Guards and log a warning when the configuration has Controls. Dome 1.8.0 deprecates `Dome.create_from_vijil_agent()`.
 
 To inspect or change the defaults before use, build the configuration explicitly:
 
