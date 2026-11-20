@@ -44,7 +44,7 @@ Before starting, review the full list of AWS resources and external services thi
 | ECR Cross-Account Pull | Yes (if using Vijil ECR) | **Vijil + Customer** | [Step 2: ECR](#ecr-pull-access) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
 | Detector Models | Yes | **Vijil + Customer** | [Step 2: Detector Model Downloads](#detector-model-downloads) |
-| LLM API Key | Yes | Customer (Groq, OpenAI, Anthropic, or local) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
+| LLM API Keys | Yes | Customer (Groq, Azure) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
 | Darwin (separate Helm chart) | If evolution enabled | Customer | [Step 4.5: Darwin](#step-4-5-deploy-darwin-evolution-engine) |
 | Route 53 DNS Records | Yes | Customer | [Step 5: DNS](#step-5-dns) |
 
@@ -645,13 +645,8 @@ secrets:
     POSTGRES_PASSWORD: "the-rds-password-you-set-in-step-1"
     SECRET_KEY: "<generated-secret-key>"
 
-    # LLM provider for report generation.
-    # Default provider is Groq. To use a different provider, set
-    # REPORTS_LLM_PROVIDER (groq | openai | anthropic | local) and
-    # REPORTS_MODEL in commonEnv.
-    GROQ_API_KEY: "your-groq-api-key"           # default provider
-    # OPENAI_API_KEY: "sk-..."                  # if using openai
-    # ANTHROPIC_API_KEY: "sk-ant-..."           # if using anthropic
+    # Report enrichment (Groq). Override the model with commonEnv.REPORTS_ENRICHER_MODEL.
+    GROQ_API_KEY: "your-groq-api-key"
 
     AZURE_API_KEY: "your-azure-api-key"         # Diamond LLM Detectors
 
@@ -698,10 +693,6 @@ install:
 
 commonEnv:
   POSTGRES_HOST: "vijil-prod-pg.xxxx.us-west-2.rds.amazonaws.com"
-
-  # Set explicitly; the chart default model is retired
-  REPORTS_LLM_PROVIDER: "groq"
-  REPORTS_MODEL: "openai/gpt-oss-120b"
 
   # Maximum detections per minute in each Diamond evaluation Job
   DETECTION_RATE_LIMIT: "500"
