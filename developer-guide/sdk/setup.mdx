@@ -145,7 +145,7 @@ Every team-scoped SDK call runs against one team. `client.team_id` shows the tea
 <Warning>
 `vijil-sdk` 0.1.72 and later read `VIJIL_TEAM_ID` ahead of the config file. If a stale value is in your environment, you need to unset it.
 
-An access token carries every team its creator belongs to, including their personal team, in no guaranteed order. In CI/CD, always set `VIJIL_TEAM_ID` to the team that owns the Agent.
+An access token carries every team its creator belongs to, including their personal team, in no defined order. In CI/CD, always set `VIJIL_TEAM_ID` to the team that owns the Agent.
 </Warning>
 
 ```bash
