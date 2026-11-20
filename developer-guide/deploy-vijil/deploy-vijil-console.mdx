@@ -15,13 +15,13 @@ Before you start, make sure you have the following tools installed and configure
 |---|---|
 | [AWS CLI](https://aws.amazon.com/cli/) | Configured and working — `aws sts get-caller-identity` should succeed |
 | [`eksctl`](https://docs.aws.amazon.com/eks/latest/eksctl/what-is-eksctl.html) | ≥ 0.160 |
-| [`kubectl`](https://kubernetes.io/docs/reference/kubectl/) | ≥ 1.28 (keep client within one minor version of the server) |
+| [`kubectl`](https://kubernetes.io/docs/reference/kubectl/) | ≥ 1.33 (keep client within one minor version of the server) |
 | [`helm`](https://helm.sh/docs/intro/install/) | ≥ 3.8 |
 | Domain + DNS | A registered domain with a Route 53 hosted zone (or another DNS provider) |
-| Container images | Access to Vijil's ECR, or `vijil-console` and `vijil-console-frontend` built and pushed to your own registry |
+| Container images | Access to Vijil's ECR, or the release images mirrored to your own registry |
 | Helm chart | Distributed as an OCI artifact from Vijil's ECR (same access as container images) |
 
-The repository scripts used in this guide also require a verification of `vijil-console`, Python 3.12, and Poetry. Ask Vijil for access to the scripts and chart version for your release before starting.
+The repository scripts used in this guide also require a checkout of `vijil-console`, Python 3.12, and Poetry. Ask Vijil for access to the scripts and chart version for your release before starting.
 
 ## Resource Checklist
 
@@ -42,8 +42,6 @@ Before starting, review the full list of AWS resources and external services thi
 | S3 Bucket | Yes | Customer | [Step 1: S3](#s3-bucket) |
 | ACM Certificate | Yes | Customer | [Step 1: ACM](#acm-certificate) |
 | ECR Cross-Account Pull | Yes (if using Vijil ECR) | **Vijil + Customer** | [Step 2: ECR](#ecr-pull-access) |
-| Bedrock AgentCore IAM | Yes | Customer | [Step 2: AgentCore](#bedrock-agentcore-diamond-/-custom-harness) |
-| AgentCore Runtime | Non-dev only | Customer | [Step 2: AgentCore Runtime](#staging-/-non-dev-custom-harness-agentcore-runtime) |
 | Diamond Artifacts | Yes | **Vijil** copies to your bucket | [Step 2: Diamond Artifacts](#diamond-artifacts) |
 | Detector Models | Yes | **Vijil + Customer** | [Step 2: Detector Model Downloads](#detector-model-downloads) |
 | LLM API Key | Yes | Customer (Groq, OpenAI, Anthropic, or local) | [Step 3: Secrets](#step-3-helm-values-and-secrets) |
@@ -55,6 +53,8 @@ Before starting, review the full list of AWS resources and external services thi
 <img src="/images/developer-guide/deploy-vijil/vijil-console-architecture-showing-vpc-subnets-nlb-eks-and-rd.webp" alt="Vijil Console Architecture showing VPC, subnets, NLB, EKS, and RDS" style={{maxWidth: '700px', margin: '2rem auto', display: 'block'}} />
 
 All application workloads and the database live in **private subnets**. A single [Network Load Balancer (NLB)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html) in the **public subnets** routes traffic to NGINX. Both `console.*` and `console-api.*` resolve to this NLB, and NGINX routes frontend and API traffic internally. EKS nodes reach S3 and ECR through the NAT Gateway.
+
+This guide uses the chart's default NLB. The chart can also front NGINX with an Application Load Balancer through `nginx.albIngress`, which requires the AWS Load Balancer Controller.
 
 ---
 
@@ -165,7 +165,7 @@ export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 eksctl create cluster \
   --name $CLUSTER_NAME \
   --region $AWS_REGION \
-  --version 1.30 \
+  --version 1.34 \
   --vpc-private-subnets=$PRIVATE_SUBNET_1,$PRIVATE_SUBNET_2 \
   --vpc-public-subnets=$PUBLIC_SUBNET_1,$PUBLIC_SUBNET_2 \
   --with-oidc \
@@ -187,7 +187,7 @@ kubectl get nodes
 
 #### Cluster Sizing Guidance
 
-Vijil Console deploys 8 service pods plus telemetry (Grafana, Loki, Mimir, Tempo), a database migration job, and creates on-demand job pods for evaluations (Diamond), red-teaming, and scanning in separate namespaces.
+Vijil Console deploys its service pods (NGINX, frontend, teams, console, agent-environment, Diamond, and Dome) plus telemetry (Grafana, Loki, Mimir, Tempo) and pre-install database migration Jobs. It creates on-demand Job pods in separate namespaces for evaluations (`vijil-diamond`), custom Harness generation (`vijil-harness`), red-teaming (`vijil-xteaming`), cloud inventory scans (`vijil-discover`), and code scans (`vijil-scan`).
 
 | Profile | Node Type | Nodes | vCPU Total | Memory Total | Use Case |
 |---------|-----------|-------|------------|--------------|----------|
@@ -404,19 +404,38 @@ aws iam attach-role-policy \
   --role-name VijilConsoleS3Role \
   --policy-arn $S3_POLICY_ARN
 
-# Step 3: Associate the role with the service accounts that need AWS access
-# `default` covers most app pods; the other two are dedicated SAs created by the chart
-for SA in default diamond-service redteam-service; do
+# Step 3: Associate the role with every service account the chart uses for S3
+# (format: namespace/service-account)
+for NS_SA in \
+  vijil-console/default \
+  vijil-console/diamond-service \
+  vijil-console/agent-environment-service \
+  vijil-diamond/default \
+  vijil-harness/harness-service \
+  vijil-xteaming/xteaming-service \
+  vijil-scan/scan-service; do
   aws eks create-pod-identity-association \
     --cluster-name $CLUSTER_NAME \
-    --namespace vijil-console \
-    --service-account $SA \
+    --namespace "${NS_SA%%/*}" \
+    --service-account "${NS_SA##*/}" \
     --role-arn $S3_ROLE_ARN \
     --region $AWS_REGION
 done
-
-echo "Pod Identity associations created for vijil-console/default, diamond-service, and redteam-service."
 ```
+
+| Namespace | Service account | Used by |
+|---|---|---|
+| `vijil-console` | `diamond-service` | Diamond API, which creates evaluation, custom Harness, and red-team Jobs |
+| `vijil-console` | `agent-environment-service` | Agent, persona, and policy APIs (policy document uploads) |
+| `vijil-console` | `default` | Other Console pods |
+| `vijil-diamond` | `default` | Diamond evaluation Jobs (read evaluation artifacts and Detector models, write results) |
+| `vijil-harness` | `harness-service` | Custom Harness generation Jobs |
+| `vijil-xteaming` | `xteaming-service` | Red-team Jobs |
+| `vijil-scan` | `scan-service` | Code scan Jobs |
+
+A missing association does not fail the install. The affected feature fails later, when its pod first calls S3.
+
+**Cloud inventory scans** run in `vijil-discover` under the `discover-service` service account. Give it a **separate** role rather than `VijilConsoleS3Role`: it needs read-only inventory permissions on the AWS services you want scanned (for example Bedrock, SageMaker, Lambda, ECS, EKS, EC2, and IAM `List*`/`Get*`/`Describe*` actions), plus `s3:GetObject`, `s3:PutObject`, and `s3:ListBucket` on `teams/*/scans/*/*` in your app bucket. Ask Vijil for the current inventory policy. Skip this association if you do not use inventory scans.
 
 #### Option B: Node IAM Role (simpler, broader scope)
 
@@ -557,209 +576,7 @@ kubectl run ecr-test \
 
 #### Option B: Your own registry
 
-Build and push images to your own registry, then override `*.image.repository` in your values file (see [Step 3](#step-3-helm-values-and-secrets)).
-
-### Bedrock AgentCore (Diamond / custom Harness)
-
-The Diamond evaluation page and custom Harness workflows call the Bedrock AgentCore API. Attach a scoped policy to the same IAM principal your Console pods use for AWS access. If you used Pod Identity, attach it to the Pod Identity role. If you used the node IAM role, attach it to that.
-
-```bash
-# If using Pod Identity, set BEDROCK_ROLE to your Pod Identity role name (e.g. VijilConsoleS3Role)
-# If using node IAM, resolve the node role:
-BEDROCK_ROLE=${BEDROCK_ROLE:-$(aws eks describe-nodegroup \
-  --cluster-name $CLUSTER_NAME \
-  --nodegroup-name standard-workers \
-  --query 'nodegroup.nodeRole' --output text | awk -F/ '{print $NF}')}
-
-export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-
-cat > /tmp/vijil-bedrock-agentcore-policy.json <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "BedrockAgentCoreControl",
-      "Effect": "Allow",
-      "Action": [
-        "bedrock-agentcore:ListAgentRuntimes",
-        "bedrock-agentcore-control:ListAgentRuntimes"
-      ],
-      "Resource": "arn:aws:bedrock-agentcore:${AWS_REGION}:${ACCOUNT_ID}:runtime/*"
-    },
-    {
-      "Sid": "BedrockAgentCoreData",
-      "Effect": "Allow",
-      "Action": [
-        "bedrock-agentcore:InvokeAgentRuntime",
-        "bedrock-agentcore:GetSessionStatus",
-        "bedrock-agentcore:StopSession",
-        "bedrock-agentcore:GetAgentCard"
-      ],
-      "Resource": "arn:aws:bedrock-agentcore:${AWS_REGION}:${ACCOUNT_ID}:runtime/*"
-    }
-  ]
-}
-EOF
-
-BEDROCK_POLICY_ARN=$(aws iam create-policy \
-  --policy-name VijilBedrockAgentCoreAccess \
-  --policy-document file:///tmp/vijil-bedrock-agentcore-policy.json \
-  --query 'Policy.Arn' --output text)
-
-aws iam attach-role-policy \
-  --role-name $BEDROCK_ROLE \
-  --policy-arn $BEDROCK_POLICY_ARN
-```
-
-The policy above includes `bedrock-agentcore:GetAgentCard` so the Console can fetch the agent card when creating custom Harnesses. If you created the policy before this was added, add a new policy version that includes `bedrock-agentcore:GetAgentCard` in the `BedrockAgentCoreData` statement and run `aws iam create-policy-version --policy-arn <policy-arn> --policy-document file://policy.json --set-as-default`.
-
-### Staging / Non-Dev: Custom Harness AgentCore Runtime
-
-In dev, a custom Harness AgentCore runtime already exists in the account and is looked up by name. In any non-dev account (staging, customer), that runtime does not exist — you need to create one and point the Console at it via `CUSTOM_HARNESS_AGENT_RUNTIME_ARN`.
-
-**Prerequisite:** Vijil's dev ECR (`266735823956`) must allow your account to pull images — see [2.4 Step 1](#option-a-vijil’s-ecr-cross-account-pull).
-
-#### Step 1: Create the execution role
-
-The runtime runs the Harness container under an IAM role that Bedrock AgentCore assumes. Create a role with (a) a trust policy allowing `bedrock-agentcore.amazonaws.com`, and (b) permissions for ECR pull (your account + Vijil’s 266735823956), S3 for your app bucket, and CloudWatch Logs.
-
-Replace `STAGING_ACCOUNT_ID` with your account ID (e.g. 565393042914 for staging). Run in the staging account:
-
-```bash
-export AWS_PROFILE=your-staging-profile
-export AWS_REGION=us-west-2
-export STAGING_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-
-cat > /tmp/agentcore-trust.json <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AssumeRolePolicy",
-      "Effect": "Allow",
-      "Principal": { "Service": "bedrock-agentcore.amazonaws.com" },
-      "Action": "sts:AssumeRole",
-      "Condition": {
-        "StringEquals": { "aws:SourceAccount": "${STAGING_ACCOUNT_ID}" },
-        "ArnLike": { "aws:SourceArn": "arn:aws:bedrock-agentcore:${AWS_REGION}:${STAGING_ACCOUNT_ID}:*" }
-      }
-    }
-  ]
-}
-EOF
-
-aws iam create-role \
-  --role-name vijil_staging_harness_agent_execution_role \
-  --assume-role-policy-document file:///tmp/agentcore-trust.json \
-  --description "Execution role for Bedrock AgentCore custom harness runtime"
-```
-
-Then attach permissions for ECR (your account + Vijil's `266735823956`), S3, CloudWatch Logs, X-Ray, and Bedrock model invocation. Replace `vijil-console-data-staging` with your app bucket name:
-
-```bash
-cat > /tmp/agentcore-permissions.json <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "ECRTokenAccess",
-      "Effect": "Allow",
-      "Action": [ "ecr:GetAuthorizationToken" ],
-      "Resource": "*"
-    },
-    {
-      "Sid": "ECRPull",
-      "Effect": "Allow",
-      "Action": [ "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer" ],
-      "Resource": [
-        "arn:aws:ecr:${AWS_REGION}:${STAGING_ACCOUNT_ID}:repository/*",
-        "arn:aws:ecr:${AWS_REGION}:266735823956:repository/*"
-      ]
-    },
-    {
-      "Sid": "S3HarnessBucket",
-      "Effect": "Allow",
-      "Action": [ "s3:GetObject", "s3:PutObject", "s3:ListBucket", "s3:DeleteObject" ],
-      "Resource": [
-        "arn:aws:s3:::vijil-console-data-staging",
-        "arn:aws:s3:::vijil-console-data-staging/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [ "logs:DescribeLogStreams", "logs:CreateLogGroup" ],
-      "Resource": [ "arn:aws:logs:${AWS_REGION}:${STAGING_ACCOUNT_ID}:log-group:/aws/bedrock-agentcore/runtimes/*" ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [ "logs:DescribeLogGroups" ],
-      "Resource": [ "arn:aws:logs:${AWS_REGION}:${STAGING_ACCOUNT_ID}:log-group:*" ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ],
-      "Resource": [ "arn:aws:logs:${AWS_REGION}:${STAGING_ACCOUNT_ID}:log-group:/aws/bedrock-agentcore/runtimes/*:log-stream:*" ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [ "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules", "xray:GetSamplingTargets" ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "cloudwatch:PutMetricData",
-      "Resource": "*",
-      "Condition": { "StringEquals": { "cloudwatch:namespace": "bedrock-agentcore" } }
-    },
-    {
-      "Sid": "BedrockModelInvocation",
-      "Effect": "Allow",
-      "Action": [ "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream" ],
-      "Resource": [
-        "arn:aws:bedrock:*::foundation-model/*",
-        "arn:aws:bedrock:${AWS_REGION}:${STAGING_ACCOUNT_ID}:*"
-      ]
-    }
-  ]
-}
-EOF
-
-aws iam put-role-policy \
-  --role-name vijil_staging_harness_agent_execution_role \
-  --policy-name StagingAgentCoreExecutionPolicy \
-  --policy-document file:///tmp/agentcore-permissions.json
-
-ROLE_ARN=$(aws iam get-role \
-  --role-name vijil_staging_harness_agent_execution_role \
-  --query 'Role.Arn' --output text)
-echo "Role ARN: $ROLE_ARN"
-```
-
-#### Step 2: Create the AgentCore runtime
-
-Use the same VPC subnets and security group as your EKS. Container image: Vijil’s Harness agent in dev ECR (`vijil-harness-agent-agentcore`). Environment variables should match dev except the bucket; the following snippet uses the same set as dev with the staging bucket.
-
-```bash
-# Replace with your own subnet IDs and EKS node security group
-SUBNET_IDS='["subnet-xxxxxxxx","subnet-yyyyyyyy"]'
-SG_ID="sg-xxxxxxxxxxxxxxxxx"
-CONTAINER_URI="266735823956.dkr.ecr.us-west-2.amazonaws.com/vijil-harness-agent-agentcore:latest"
-
-# Set GOOGLE_API_KEY to your actual key — do not commit it
-ENV_VARS='{"AGENT_OBSERVABILITY_ENABLED":"true","GOOGLE_API_KEY":"YOUR_GOOGLE_API_KEY","VIJIL_HARNESS_MODEL":"gemini-2.5-flash","VIJIL_HARNESS_OUTPUTS_BUCKET":"vijil-console-data-staging","VIJIL_HARNESS_OUTPUT_BACKEND":"aws","VIJIL_HARNESS_RPM":"500"}'
-
-aws bedrock-agentcore-control create-agent-runtime \
-  --agent-runtime-name vijil_staging_harness_agent \
-  --agent-runtime-artifact "{\"containerConfiguration\":{\"containerUri\":\"$CONTAINER_URI\"}}" \
-  --role-arn "$ROLE_ARN" \
-  --network-configuration "{\"networkMode\":\"VPC\",\"networkModeConfig\":{\"securityGroups\":[\"$SG_ID\"],\"subnets\":$SUBNET_IDS}}" \
-  --protocol-configuration '{"serverProtocol":"A2A"}' \
-  --lifecycle-configuration '{"idleRuntimeSessionTimeout":1800,"maxLifetime":28800}' \
-  --environment-variables "$ENV_VARS" \
-  --region "$AWS_REGION" \
-  --profile "$AWS_PROFILE"
-```
-The command returns `agentRuntimeArn` and `agentRuntimeId`. Set `commonEnv.CUSTOM_HARNESS_AGENT_RUNTIME_ARN` in your values (e.g. `my-values.yaml`) to the returned `agentRuntimeArn`.
+Mirror the images for your release into your own registry, keeping the repository names and tags. Then set `global.imageRegistry` to your registry in your values file (see [Step 3](#step-3-helm-values-and-secrets)). Mirror the Job images too, not only the services: `vijil-diamond`, `vijil-harness-agent`, `vijil-redteam`, `vijil-scan`, `vijil-discover`, and `vijil-policy-rules-agent`. The chart pins their tags in `global.siblingImageTags`.
 
 
 ### Diamond Artifacts
@@ -838,24 +655,36 @@ Keep this key stable across upgrades. YAML does not execute shell commands, so d
 ```yaml
 secrets:
   vijil-console:
-    POSTGRES_PASSWORD: "the-rds-password-you-set-in-step-1.3"
+    POSTGRES_PASSWORD: "the-rds-password-you-set-in-step-1"
     SECRET_KEY: "<generated-secret-key>"
 
     # LLM provider for report generation.
     # Default provider is Groq. To use a different provider, set
     # REPORTS_LLM_PROVIDER (groq | openai | anthropic | local) and
-    # REPORTS_MODEL (e.g. gpt-4o, claude-sonnet-4-20250514).
+    # REPORTS_MODEL in commonEnv (see Step 3.2).
     GROQ_API_KEY: "your-groq-api-key"           # default provider
     # OPENAI_API_KEY: "sk-..."                  # if using openai
     # ANTHROPIC_API_KEY: "sk-ant-..."           # if using anthropic
 
-  vijil-diamond:
     AZURE_API_KEY: "your-azure-api-key"         # Diamond LLM Detectors
+
+  # LLM for code scan Jobs
+  vijil-scan:
+    provider: "groq"                            # groq | anthropic | openai
+    model: "openai/gpt-oss-120b"
+    api-key: "your-api-key"
+
+  # LLM for policy rule extraction Jobs. Set at least one key.
+  # Leave this block out to turn rule extraction off.
+  vijil-policy-rules-agent:
+    GOOGLE_API_KEY: "your-google-api-key"
 ```
 
 Currently, Diamond's LLM Detectors use Azure `gpt-oss-120b`.
 Supply the API key for the endpoint configured in `commonEnv.AZURE_API_BASE`.
-The chart stores it in `diamond-secrets` for evaluation Jobs. Report generation uses the separate `REPORTS_LLM_PROVIDER` setting.
+The chart copies `AZURE_API_KEY` from `vijil-console` into `diamond-secrets` for evaluation Jobs, so you do not need to repeat it under `vijil-diamond`. Report generation uses the separate `REPORTS_LLM_PROVIDER` setting.
+
+Rule extraction also accepts `AZURE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY` in place of `GOOGLE_API_KEY`. With Azure, also set `AZURE_API_VERSION` and `AZURE_API_BASE` in `commonEnv`.
 
 <Danger>
 **Never commit `secrets.yaml`** — add it to `.gitignore`.
@@ -868,16 +697,32 @@ Create `my-values.yaml`. The `install` block is the simplest way to configure th
 `commonEnv.DETECTION_RATE_LIMIT` defaults to `500` detections per minute per Diamond evaluation Job. This scoring limit is separate from the Agent's request rate limit. Concurrent Jobs share the available Detector provider capacity.
 
 ```yaml
+global:
+  # Registry for every image. Use your own registry if you mirrored the images.
+  imageRegistry: "266735823956.dkr.ecr.us-west-2.amazonaws.com"
+
+install:
+  # Derives VITE_API_PREFIX (https://<apiDomain>/v1), API_HOST, and API_DOMAIN_FOR_CSP
+  apiDomain: "console-api.yourdomain.com"
+  # Derives CORS_ORIGINS
+  frontendDomain: "console.yourdomain.com"
+  # Internet-facing load balancer. Omit, or set false, for VPN-only access.
+  publicAccess: true
+  aws:
+    region: "us-west-2"
+    # Derives S3_BUCKET_NAME, RESOURCE_BUCKET_NAME, and CUSTOM_HARNESS_BUCKET_NAME
+    s3Bucket: "vijil-console-data-prod"
+    # Public subnet IDs from Step 1 (VPC)
+    nlbSubnets: "subnet-public-1-id,subnet-public-2-id"
+    certificateArn: "arn:aws:acm:us-west-2:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID"
+
 commonEnv:
-  # Database (RDS endpoint from Step 1.3)
+  # Database (RDS endpoint from Step 1)
   POSTGRES_HOST: "vijil-prod-pg.xxxx.us-west-2.rds.amazonaws.com"
 
-  # S3
-  S3_BUCKET_NAME: "vijil-console-data-prod"
-  AWS_REGION: "us-west-2"
-
-  # Custom harness bucket (can be the same bucket)
-  CUSTOM_HARNESS_BUCKET_NAME: "vijil-console-data-prod"
+  # Report generation model. Set it explicitly: pick a model your provider currently serves.
+  REPORTS_LLM_PROVIDER: "groq"
+  REPORTS_MODEL: "openai/gpt-oss-120b"
 
   # Maximum detections per minute in each Diamond evaluation Job
   DETECTION_RATE_LIMIT: "500"
@@ -887,35 +732,17 @@ commonEnv:
   DETECTOR_MODEL_BUCKET_NAME: "<model-bucket>"
   DETECTOR_MODEL_BUCKET_PREFIX: "models"
   DETECTOR_MODEL_REGION: "us-west-2"
-
-  # Frontend and API URLs — both must be reachable from the internet
-  # because the React SPA calls the API from the user's browser
-  VITE_API_PREFIX: "https://console-api.yourdomain.com"
-  API_HOST: "https://console-api.yourdomain.com"
-  API_DOMAIN_FOR_CSP: "console-api.yourdomain.com"
-  CORS_ORIGINS: "https://console.yourdomain.com,https://console-api.yourdomain.com"
-
-  # Custom harness / Diamond (optional): default CUSTOM_HARNESS_AGENT_NAME is "vijil_dev_harness_agent", which is looked up in this account. In non-dev (e.g. staging), set CUSTOM_HARNESS_AGENT_RUNTIME_ARN to your AgentCore runtime ARN, or create a runtime with that name.
-  # CUSTOM_HARNESS_AGENT_RUNTIME_ARN: "arn:aws:bedrock-agentcore:us-west-2:ACCOUNT:runtime/RUNTIME_ID"
-
-# Single nginx NLB — internet-facing (public subnets)
-# NOTE: internal: false is required for users outside the VPC to reach both the UI and API.
-# The default values.yaml has internal: true (private-only). Override it here.
-nginx:
-  service:
-    aws:
-      nlb:
-        internal: false                                  # ← must be false for public access
-        subnets: "subnet-public-1-id,subnet-public-2-id"  # public subnet IDs from Step 1.1
-      tls:
-        enabled: true
-        certificateArn: "arn:aws:acm:us-west-2:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID"
 ```
-<Note>
-Why the nginx NLB must be internal: false for public deployments: The React frontend is a single-page application that runs in the user's browser. 
 
-`VITE_API_PREFIX` is baked into the frontend at build time, and the browser makes API calls directly to that URL. If the single nginx NLB is internal-only, browser requests will fail even if DNS resolves.
+Values you set directly in `commonEnv` override the ones the `install` block derives. If you set `VITE_API_PREFIX` yourself, include the `/v1` suffix (`https://console-api.yourdomain.com/v1`); without it, every request from the frontend fails.
+
+<Note>
+**Why the load balancer must be internet-facing for public deployments:** the React frontend is a single-page application that runs in the user's browser.
+
+The frontend container writes `VITE_API_PREFIX` into its runtime config when it starts, and the browser calls that URL directly. If the NGINX load balancer is internal-only, browser requests fail even when DNS resolves. The chart default is internal; `install.publicAccess: true` overrides it.
 </Note>
+
+The chart also has feature gates under `features`. Evaluations, Dome, red-teaming, inventory scans, and code scans are on by default. Discover (`features.discover2`) and Identify (`features.identify`) are off by default.
 
 ---
 
@@ -954,7 +781,19 @@ If `EXTERNAL-IP` shows `<pending>`, wait a moment and re-run.
 
 Darwin is the evolution engine. It runs in its own namespace (`vijil-darwin`) and is deployed separately from the `vijil-console` Helm chart.
 
-The Console chart routes `/evolution/...` API traffic to `service-darwin.vijil-darwin.svc.cluster.local`. Console starts fine without Darwin, but any `/evolution` calls will return `502` or `504` until Darwin is running.
+Darwin is off by default in the Console chart. To use it, turn on all three switches in `my-values.yaml` and run `helm upgrade` on the Console release:
+
+```yaml
+peers:
+  darwin:
+    enabled: true          # points the Console at service-darwin.vijil-darwin.svc.cluster.local
+
+commonEnv:
+  DARWIN_ENABLED: "true"         # backend
+  VITE_DARWIN_ENABLED: "true"    # frontend
+```
+
+With Darwin turned on, the Console's agent-environment service proxies `/v1/evolution` requests to Darwin. Those requests return `502` or `504` until Darwin is running.
 
 ```bash
 # From the vijil-darwin repo root
@@ -1041,15 +880,15 @@ The NLB alias hosted zone ID differs by region — see the [full list in AWS doc
 
 ## Step 6: Database Migrations
 
-Migrations run automatically as Helm `pre-install` and `pre-upgrade` hooks — no manual action needed on a normal install. Verify they completed:
+Migrations run automatically as Helm `pre-install` and `pre-upgrade` hooks, so a normal install needs no manual action. The chart runs `vijil-console-migrate-teams` and `vijil-console-migrate-agent-environment`, plus `vijil-console-migrate-directory` when `features.identify` is on.
+
+Helm deletes each migration Job after it succeeds, so an empty `kubectl get jobs -n vijil-console` means the migrations passed. A failed migration Job stays in the namespace, and `helm install` reports the failure. Read its logs with:
 
 ```bash
-kubectl get jobs -n vijil-console
-# Expect: vijil-console-migrate-teams and vijil-console-migrate-agent-environment
-# both show COMPLETIONS: 1/1
+kubectl logs -n vijil-console job/vijil-console-migrate-teams
 ```
 
-If a hook failed, run the migration manually after pods are in `Running` state:
+To retry a failed migration by hand once the pods are `Running`:
 
 ```bash
 # Teams service
@@ -1077,6 +916,23 @@ export TEAMS_SERVICE_URL=https://console-api.yourdomain.com
 
 poetry run python scripts/bootstrap_teams.py
 ```
+
+<Warning>
+**Change the default super admin password.** The teams migration creates a super admin, `vijil-admin@vijil.ai`, with the password `admin` on every install. `bootstrap_teams.py` signs in with that account, so change the password after bootstrap finishes:
+
+```bash
+TOKEN=$(curl -s -X POST https://console-api.yourdomain.com/v1/auth/jwt/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "vijil-admin@vijil.ai", "password": "admin"}' | jq -r .access_token)
+
+curl -f -X POST https://console-api.yourdomain.com/v1/auth/change-password \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"current_password": "admin", "new_password": "<new-strong-password>"}'
+```
+
+Re-running `bootstrap_teams.py` later requires the default password.
+</Warning>
 
 Optionally seed default content:
 
