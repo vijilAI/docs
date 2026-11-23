@@ -166,7 +166,7 @@ Each span carries the input and output of the call, execution time, error inform
 Guard spans also follow the [OpenInference semantic conventions](https://github.com/Arize-ai/openinference), so OpenInference-compatible backends show them as `GUARDRAIL` spans. Each span records the scanned text in `input.value` and the Guardrail output in `output.value`. Dome also adds `session.id` and `user.id` when your OpenInference instrumentation sets them. See the [OpenInference documentation](https://github.com/Arize-ai/openinference) for more information on the conventions.
 
 <Warning>
-Spans hold the unmasked text that Dome scanned, in `input.value`, `control.input`, and `control.output`. Treat your trace backend as a store of user content.
+Spans hold the unmasked text that Dome scanned in `input.value`, `control.input`, and `control.output`. Treat your trace backend as a store of user content.
 </Warning>
 
 ### Span Hierarchy
