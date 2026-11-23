@@ -236,7 +236,7 @@ text = user_message if result.guarded_text is None else result.guarded_text
 
 Use the client ID and secret from a Console API key for the Agent's team.
 
-`VijilDome` runs the Guards first, then the Controls, and returns one `EvaluationResult`. When a Guard masks content, such as redacted PII, the masked text is in `guarded_text`. Pass `guarded_text` to your Agent instead of the original text whenever `guarded_text` is not `None`. Otherwise the masking has no effect. In enforce mode, a blocking Guard raises `ControlViolationError`, the same as a `deny` Control. See the [Controls API reference](/developer-guide/reference/controls-api#evaluationresult) for more information.
+`VijilDome` runs the Guards first, then the Controls, and returns one `EvaluationResult`. When a Guard masks content, such as redacted PII, the masked text is in `guarded_text`. Pass `guarded_text` to your Agent instead of the original text whenever `guarded_text` is not `None`. Otherwise the masking has no effect. In enforce mode, a blocking Guard raises `ControlViolationError`, the same way as a `deny` Control. See the [Controls API reference](/developer-guide/reference/controls-api#evaluationresult) for more information.
 
 <Warning>
 A configuration that uses model-backed Detectors needs the `full` extra or `DOME_INFERENCE_URL`. Without either, loading the configuration fails. See [Install Dome](/developer-guide/protect/installation) for more information.
