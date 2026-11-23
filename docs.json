@@ -44,7 +44,7 @@
     },
     {
       "source": "/get-started/quickstart",
-      "destination": "/developer-guide/getting-started/quickstart"
+      "destination": "/developer-guide/agentic/quickstart"
     },
     {
       "source": "/get-started/overview",
@@ -69,6 +69,86 @@
     {
       "source": "/owner-guide/discover-resources/scanning-resources",
       "destination": "/owner-guide/discover/introduction"
+    },
+    {
+      "source": "/developer-guide/getting-started/quickstart",
+      "destination": "/developer-guide/agentic/quickstart"
+    },
+    {
+      "source": "/developer-guide/getting-started/mcp",
+      "destination": "/developer-guide/agentic/quickstart"
+    },
+    {
+      "source": "/developer-guide/getting-started/installation",
+      "destination": "/developer-guide/sdk/setup"
+    },
+    {
+      "source": "/developer-guide/getting-started/enterprise-deployment",
+      "destination": "/developer-guide/deploy-vijil/deploy-vijil-console"
+    },
+    {
+      "source": "/owner-guide/getting-started/enterprise-deployment",
+      "destination": "/developer-guide/deploy-vijil/deploy-vijil-console"
+    },
+    {
+      "source": "/developer-guide/enterprise/overview",
+      "destination": "/developer-guide/deploy-vijil/deploy-vijil-console"
+    },
+    {
+      "source": "/developer-guide/enterprise/prerequisites",
+      "destination": "/developer-guide/deploy-vijil/deploy-vijil-console"
+    },
+    {
+      "source": "/developer-guide/enterprise/self-hosted",
+      "destination": "/developer-guide/deploy-vijil/deploy-vijil-console"
+    },
+    {
+      "source": "/developer-guide/frameworks/google-adk",
+      "destination": "/developer-guide/protect/integrations/adk"
+    },
+    {
+      "source": "/developer-guide/frameworks/langchain",
+      "destination": "/developer-guide/protect/integrations/langchain"
+    },
+    {
+      "source": "/core-concepts/dimensions/hallucination",
+      "destination": "/concepts/trust-score/reliability"
+    },
+    {
+      "source": "/core-concepts/dimensions/robustness",
+      "destination": "/concepts/trust-score/reliability"
+    },
+    {
+      "source": "/core-concepts/dimensions/ethics",
+      "destination": "/concepts/trust-score/safety"
+    },
+    {
+      "source": "/core-concepts/dimensions/fairness",
+      "destination": "/concepts/trust-score/safety"
+    },
+    {
+      "source": "/core-concepts/dimensions/stereotype",
+      "destination": "/concepts/trust-score/safety"
+    },
+    {
+      "source": "/core-concepts/dimensions/toxicity",
+      "destination": "/concepts/trust-score/safety"
+    },
+    {
+      "source": "/core-concepts/dimensions/privacy",
+      "destination": "/concepts/trust-score/security"
+    },
+    {
+      "source": "/python-sdk/examples/local-agent-evaluations.html",
+      "destination": "/developer-guide/evaluate/local-agent"
+    },
+    {
+      "source": "/evaluate/examples/local-agent-evaluations.html",
+      "destination": "/developer-guide/evaluate/local-agent"
+    },
+    {
+      "source": "/dome/tutorials/observability.html",
+      "destination": "/developer-guide/protect/observability"
     },
     {
       "source": "/legacy/:slug*",
