@@ -379,6 +379,11 @@
     },
     "indexing": "navigable"
   },
+  "integrations": {
+    "ga4": {
+      "measurementId": "G-TF09NZ3YKR"
+    }
+  },
   "metadata": {
     "timestamp": true
   },
